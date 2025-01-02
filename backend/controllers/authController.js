@@ -127,7 +127,7 @@ export const loginUser = catchAsyncErrors(async (req, res, next) => {
   // console.log("LU => ", user);
 
   const payload = { user_id: user._id, role: user.role };
-  console.log("LOGIN:", payload);
+  // console.log("LOGIN:", payload);
 
   const accessToken = generateAccessToken(
     payload,

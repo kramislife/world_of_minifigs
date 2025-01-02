@@ -30,7 +30,7 @@ export const isAuthenticatedUser = catchAsyncErrors(async (req, res, next) => {
       );
 
       req.user = decodedAccessToken;
-      console.log("DECODED ACCESS TOKEN - ", req.user);
+      // console.log("DECODED ACCESS TOKEN - ", req.user);
 
       return next();
     } catch (error) {
@@ -41,14 +41,14 @@ export const isAuthenticatedUser = catchAsyncErrors(async (req, res, next) => {
 
   // 4. HANDLE EXPIRED ACCESS TOKEN
   if (refreshToken) {
-    console.log("AUSER => IN REFRESH TOKEN");
+    // console.log("AUSER => IN REFRESH TOKEN");
     try {
       const decodedRefreshToken = jwt.verify(
         refreshToken,
         process.env.JWT_REFRESH_TOKEN_SECRET
       );
 
-      console.log("AUSER => IN REFRESH TOKEN decode", decodedRefreshToken);
+      // console.log("AUSER => IN REFRESH TOKEN decode", decodedRefreshToken);
       // 5. VERIFY REFRESH TOKEN AGAINST THE DATABASE
       const user = await User.findById(decodedRefreshToken.user_id);
 
@@ -56,7 +56,7 @@ export const isAuthenticatedUser = catchAsyncErrors(async (req, res, next) => {
         return next(new ErrorHandler("Unauthorized user here", 401));
       }
 
-      console.log("AUSER IN REFESH TOKEN=> ");
+      // console.log("AUSER IN REFESH TOKEN=> ");
 
       // 6. GENERATE NEW ACCESS TOKEN
       let maxAge = 1; // 1 hour
@@ -100,7 +100,7 @@ export const isAuthorizedUser = (...roles) => {
 
     //2. CHECK IF USER ROLE IS IN THE LIST OF ROLES
 
-    console.log("REQ.user => ", req.user);
+    "REQ.user => ", req.user;
 
     if (!roles.includes(req.user.role)) {
       return next(

@@ -19,7 +19,7 @@ class API_Filters {
           })),
         };
 
-        console.log("KEYWORDS: ", keywords);
+        // console.log("KEYWORDS: ", keywords);
 
         this.query = this.query.find(keywordFilter); // Apply the constructed filter
       }
@@ -85,17 +85,17 @@ class API_Filters {
             ? queryCopy[key]
             : [queryCopy[key]];
 
-          const priceConditions = priceRanges.map(range => {
+          const priceConditions = priceRanges.map((range) => {
             if (range === "1000+") {
               return { price: { $gte: 1000 } };
             }
-            
+
             const [minPrice, maxPrice] = range.split("-").map(parseFloat);
             return {
-              price: { 
-                $gte: minPrice, 
-                $lte: maxPrice 
-              }
+              price: {
+                $gte: minPrice,
+                $lte: maxPrice,
+              },
             };
           });
 
@@ -109,7 +109,7 @@ class API_Filters {
             ? queryCopy[key]
             : [queryCopy[key]];
 
-          const ratingConditions = ratingValues.map(rating => {
+          const ratingConditions = ratingValues.map((rating) => {
             const ratingNum = parseInt(rating);
             if (ratingNum === 5) {
               // For 5 stars, get ratings >= 5
@@ -117,14 +117,14 @@ class API_Filters {
             } else {
               // For other ratings, get within range (e.g., 4.0-4.9)
               return {
-                ratings: { 
+                ratings: {
                   $gte: ratingNum,
-                  $lt: ratingNum + 1
-                }
+                  $lt: ratingNum + 1,
+                },
               };
             }
           });
-          
+
           if (ratingConditions.length > 0) {
             otherConditions.push({ $or: ratingConditions });
           }
@@ -170,7 +170,7 @@ class API_Filters {
   //   if (this.queryStr.sort) {
   //     const [field, direction] = this.queryStr.sort.split('_');
   //     const sortOrder = direction === 'asc' ? 1 : -1;
-      
+
   //     switch (field) {
   //       case 'name':
   //         this.query = this.query.sort({ product_name: sortOrder });

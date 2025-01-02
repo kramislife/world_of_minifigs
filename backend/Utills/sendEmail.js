@@ -2,7 +2,7 @@ import nodemailer from "nodemailer";
 
 // SEND EMAIL USING SMTP AND NODEMAILER
 const sendVerificationEmail = async (option, verificationLink) => {
-  console.log("SENDING EMAIL", option);
+  // console.log("SENDING EMAIL", option);
 
   // Create the transporter using SMTP settings
   const transport = nodemailer.createTransport({

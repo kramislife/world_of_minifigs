@@ -17,7 +17,7 @@ export const getAllCategories = catchAsyncErrors(async (req, res, next) => {
 
 // GET A CATEGORY BASED ON CATEGORY KEY
 export const getCategoryByKey = catchAsyncErrors(async (req, res, next) => {
-  console.log("KEY:", req.params.key);
+  // console.log("KEY:", req.params.key);
 
   const category = await Category.find({ key: req.params.key });
   if (!category) {

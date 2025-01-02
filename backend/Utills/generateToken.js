@@ -15,7 +15,7 @@ export const generateAccessToken = (
 // GENERATE COOKIES
 
 export const generateCookies = (res, cookieName, token, maxAge) => {
-  console.log("In generate cookies");
+  // console.log("In generate cookies");
 
   res.cookie(cookieName, token, {
     httpOnly: true,

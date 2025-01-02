@@ -11,7 +11,7 @@ export const connectDatabase = () => {
     DB_URI = process.env.DB_URI_PROD;
   }
 
-  console.log("DB_URI: ", DB_URI);
+  // console.log("DB_URI: ", DB_URI);
 
   mongoose
     .connect(DB_URI)

@@ -3,8 +3,8 @@ import ErrorHandler from "./customErrorHandler.js";
 export const isSuspended = async (user_id) => {
   try {
     const currentUser = await User.findById(user_id);
-    console.log(currentUser);
-    
+    // console.log(currentUser);
+
     if (currentUser.isSuspended) {
       return true;
     } else {

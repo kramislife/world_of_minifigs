@@ -49,7 +49,7 @@ export const createDesigners = catchAsyncErrors(async (req, res, next) => {
 // -------------------------------------- UPDATE A DESIGNER => PUT admin/designers/:id --------------------------------------
 
 export const updateDesignerById = catchAsyncErrors(async (req, res, next) => {
-  console.log("Update Designers");
+  // console.log("Update Designers");
 
   const updatedDesigner = await Designer.findByIdAndUpdate(
     req.params.id,

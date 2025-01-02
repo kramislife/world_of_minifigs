@@ -109,7 +109,7 @@ export const getProductById = catchAsyncErrors(async (req, res, next) => {
 //------------------------------------  CREATE NEW PRODUCT BY ADMIN => POST  /admin/newProduct  ------------------------------------
 
 export const newProduct = catchAsyncErrors(async (req, res, next) => {
-  console.log("Product : ", req.body);
+  // console.log("Product : ", req.body);
 
   const product = await Product.create(req.body);
 
