@@ -175,7 +175,7 @@ export const uploadProductImage = catchAsyncErrors(async (req, res, next) => {
   // Map images to URLs using `Promise.all`
   const urls = await Promise.all(
     req.body.images.map((image) =>
-      upload_product_images(image, "brick_extreme//products")
+      upload_product_images(image, "world_of_minifigs//products")
     )
   );
 

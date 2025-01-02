@@ -110,7 +110,7 @@ export const uploadCollectionImage = catchAsyncErrors(
       // Assuming `uploadImage` is a helper function to handle the image upload
       const url = await upload_single_image(
         image,
-        "brick_extreme//collections"
+        "world_of_minifigs//collections"
       );
 
       console.log("Uploaded URL:", url);
