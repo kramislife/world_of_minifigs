@@ -49,6 +49,17 @@ import {
   updateColorById,
   createColor,
 } from "../controllers/colorController.js";
+import {
+  createSubCategory,
+  deleteSubCategoryByID,
+  updateSubCategory,
+} from "../controllers/subCategoryController.js";
+import {
+  createSubCollection,
+  deleteSubCollectionByID,
+  updateSubCollection,
+  uploadSubCollectionImage,
+} from "../controllers/subCollectionController.js";
 
 const router = express.Router();
 
@@ -145,6 +156,101 @@ router
       userRoles.EMPLOYEE
     ),
     uploadCollectionImage
+  );
+
+// ---------------------------------- SUBCATEGORIES --------------------------------------------------
+
+// CREATE NEW SUBCATEGORIES
+router
+  .route("/admin/newSubCategory")
+  .post(
+    isAuthenticatedUser,
+    isAuthorizedUser(
+      userRoles.SUPER_ADMIN,
+      userRoles.ADMIN,
+      userRoles.EMPLOYEE
+    ),
+    createSubCategory
+  );
+
+// UPDATE A SUB CATEGORY BY ADMIN
+router
+  .route("/admin/subcategories/:id")
+  .put(
+    isAuthenticatedUser,
+    isAuthorizedUser(
+      userRoles.SUPER_ADMIN,
+      userRoles.ADMIN,
+      userRoles.EMPLOYEE
+    ),
+    updateSubCategory
+  );
+
+// DELETE A SUBCATEGORY BY ADMIN
+router
+  .route("/admin/subcategories/:id")
+  .delete(
+    (isAuthenticatedUser,
+    isAuthorizedUser(
+      userRoles.SUPER_ADMIN,
+      userRoles.ADMIN,
+      userRoles.EMPLOYEE
+    ),
+    deleteSubCategoryByID)
+  );
+
+// ---------------------------------- COLLECTION --------------------------------------------------
+
+// CREATE NEW SUBCOLLECTION
+router
+  .route("/admin/newSubCollection")
+  .post(
+    isAuthenticatedUser,
+    isAuthorizedUser(
+      userRoles.SUPER_ADMIN,
+      userRoles.ADMIN,
+      userRoles.EMPLOYEE
+    ),
+    createSubCollection
+  );
+
+// UPDATE A SUB-COLLECTION BY ADMIN
+router
+  .route("/admin/subcollections/:id")
+  .put(
+    isAuthenticatedUser,
+    isAuthorizedUser(
+      userRoles.SUPER_ADMIN,
+      userRoles.ADMIN,
+      userRoles.EMPLOYEE
+    ),
+    updateSubCollection
+  );
+
+// DELETE A COLLECTION BY ADMIN
+router
+  .route("/admin/subcollections/:id")
+  .delete(
+    isAuthenticatedUser,
+    isAuthorizedUser(
+      userRoles.SUPER_ADMIN,
+      userRoles.ADMIN,
+      userRoles.EMPLOYEE
+    ),
+    deleteSubCollectionByID
+  );
+
+// UPLOAD A COLLECTION IMAGE BY ADMIN
+router
+  .route("/admin/subcollections/:id/upload_image")
+  .patch(
+    isAuthenticatedUser,
+    isAuthorizedUser(
+      userRoles.SUPER_ADMIN,
+      userRoles.ADMIN,
+      userRoles.EMPLOYEE
+    ),
+    uploadSubCollectionImage
   );
 
 // ---------------------------------- SKILL --------------------------------------------------
