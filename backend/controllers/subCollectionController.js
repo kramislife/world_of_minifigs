@@ -6,12 +6,17 @@ import SubCollection from "../models/subCollection.model.js";
 //------------------------------------ GET ALL SUB-COLLECTIONS => GET /subcollections ------------------------------------
 
 export const getAllCollections = catchAsyncErrors(async (req, res, next) => {
-  const subcollections = await SubCollection.find().sort({ updatedAt: -1 });
+  const subcollections = await SubCollection.find()
+    .populate("collection")
+    .sort({ updatedAt: -1 });
+
   if (!subcollections) {
-    return next(new ErrorHandler("Failed to retrive all sub-collections", 404));
+    return next(
+      new ErrorHandler("Failed to retrieve all sub-collections", 404)
+    );
   }
   res.status(200).json({
-    message: `${subcollections.length} sub-collections retrived`,
+    message: `${subcollections.length} sub-collections retrieved`,
     subcollections,
   });
 });

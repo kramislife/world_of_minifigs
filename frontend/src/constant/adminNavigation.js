@@ -32,11 +32,33 @@ export const adminNavigation = [
     icon: ChartColumnStacked,
     label: "Categories",
     path: "/admin/categories",
+    hasSubMenu: true,
+    subMenu: [
+      {
+        label: "All Categories",
+        path: "/admin/categories",
+      },
+      {
+        label: "Sub Categories",
+        path: "/admin/subcategories",
+      },
+    ],
   },
   {
     icon: FolderKanban,
     label: "Collections",
     path: "/admin/collections",
+    hasSubMenu: true,
+    subMenu: [
+      {
+        label: "All Collections",
+        path: "/admin/collections",
+      },
+      {
+        label: "Sub Collections",
+        path: "/admin/subcollections",
+      },
+    ],
   },
   {
     icon: Gauge,

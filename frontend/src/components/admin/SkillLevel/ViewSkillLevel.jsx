@@ -6,44 +6,49 @@ import {
   useGetSkillLevelsQuery,
 } from "@/redux/api/productApi";
 import { toast } from "react-toastify";
-import { createSkillLevelColumns } from "../table/columns/SkillLevelColumns";
+import { createSkillLevelColumns } from "@/components/admin/table/columns/SkillLevelColumns";
+import DeleteDialog from "@/components/admin/shared/DeleteDialog";
 
 const ViewSkillLevel = () => {
   const { data: skillLevelData, isLoading, error } = useGetSkillLevelsQuery();
 
-  const [
-    deleteSkillLevel,
-    {
-      isSuccess: deleteSkillSuccess,
-      isError: deleteSkillError,
-      error: deleteError,
-    },
-  ] = useDeleteSkillLevelMutation();
+  // delete skill level
+  const [deleteSkillLevel, { isLoading: isDeleting }] =
+    useDeleteSkillLevelMutation();
 
   const [globalFilter, setGlobalFilter] = useState("");
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (deleteSkillSuccess) {
-      toast.success("Skill level deleted successfully");
-    }
-
-    if (deleteSkillError) {
-      toast.error(deleteError?.data?.message || "Failed to delete skill level");
-    }
-  }, [deleteSkillSuccess, deleteSkillError, deleteError]);
-
+  // handle edit
   const handleEdit = (skillLevel) => {
     navigate(`/admin/update-skill-level/${skillLevel._id}`);
   };
 
-  const handleDelete = (skillLevel) => {
-    deleteSkillLevel(skillLevel._id);
+  // delete dialog
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [skillLevelToDelete, setSkillLevelToDelete] = useState(null);
+
+  // handle delete click
+  const handleDeleteClick = (skillLevel) => {
+    setSkillLevelToDelete(skillLevel);
+    setDeleteDialogOpen(true);
+  };
+
+  // handle delete confirm
+  const handleDeleteConfirm = async () => {
+    try {
+      const response = await deleteSkillLevel(skillLevelToDelete._id).unwrap();
+      toast.success(response.message || "Skill level deleted successfully");
+      setDeleteDialogOpen(false);
+      setSkillLevelToDelete(null);
+    } catch (error) {
+      toast.error(error?.data?.message || "Failed to delete skill level");
+    }
   };
 
   // column component for table
   const columns = useMemo(() =>
-    createSkillLevelColumns(handleEdit, handleDelete)
+    createSkillLevelColumns(handleEdit, handleDeleteClick)
   );
 
   const data = useMemo(() => {
@@ -59,17 +64,40 @@ const ViewSkillLevel = () => {
   }, [skillLevelData]);
 
   return (
-    <ViewLayout
-      title="Skill Level"
-      description="Manage your product skill levels"
-      addNewPath="/admin/new-skill-level"
-      isLoading={isLoading}
-      error={error}
-      data={data}
-      columns={columns}
-      globalFilter={globalFilter}
-      setGlobalFilter={setGlobalFilter}
-    />
+    <>
+      <ViewLayout
+        title="Skill Level"
+        description="Manage your product skill levels"
+        addNewPath="/admin/new-skill-level"
+        isLoading={isLoading}
+        error={error}
+        data={data}
+        columns={columns}
+        globalFilter={globalFilter}
+        setGlobalFilter={setGlobalFilter}
+      />
+
+      {/* delete dialog */}
+      <DeleteDialog
+        isOpen={deleteDialogOpen}
+        onClose={() => {
+          setDeleteDialogOpen(false);
+          setSkillLevelToDelete(null);
+        }}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Skill Level"
+        description={
+          <>
+            Are you sure you want to delete{" "}
+            <span className="font-semibold text-red-500">
+              {skillLevelToDelete?.name}
+            </span>
+            ? This action cannot be undone.
+          </>
+        }
+        isLoading={isDeleting}
+      />
+    </>
   );
 };
 

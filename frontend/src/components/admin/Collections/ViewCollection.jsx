@@ -8,19 +8,16 @@ import {
 } from "@/redux/api/productApi";
 import { toast } from "react-toastify";
 import { createCollectionColumns } from "@/components/admin/table/columns/CollectionColumns";
+import DeleteDialog from "@/components/admin/shared/DeleteDialog";
 
 const ViewCollection = () => {
   const { data: collectionData, isLoading, error } = useGetCollectionQuery();
 
-  const [
-    deleteCollection,
-    {
-      isSuccess: deleteCollectionSuccess,
-      isError: deleteCollectionError,
-      error: deleteError,
-    },
-  ] = useDeleteCollectionMutation();
+  // delete collection
+  const [deleteCollection, { isLoading: isDeleting }] =
+    useDeleteCollectionMutation();
 
+  // upload collection image
   const [
     uploadCollectionImage,
     { isLoading: isUploading, error: uploadError, isSuccess: uploadSuccess },
@@ -29,16 +26,7 @@ const ViewCollection = () => {
   const [globalFilter, setGlobalFilter] = useState("");
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (deleteCollectionSuccess) {
-      toast.success("Collection deleted successfully");
-    }
-
-    if (deleteCollectionError) {
-      toast.error(deleteError?.data?.message || "Failed to delete collection");
-    }
-  }, [deleteCollectionSuccess, deleteCollectionError, deleteError]);
-
+  // handle upload image
   useEffect(() => {
     if (uploadError) {
       toast.error(error?.data?.message);
@@ -49,14 +37,34 @@ const ViewCollection = () => {
     }
   }, [uploadError, uploadSuccess]);
 
+  // handle edit
   const handleEdit = (collection) => {
     navigate(`/admin/update-collection/${collection._id}`);
   };
 
-  const handleDelete = (collection) => {
-    deleteCollection(collection._id);
+  // delete dialog
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [collectionToDelete, setCollectionToDelete] = useState(null);
+
+  // handle delete click
+  const handleDeleteClick = (collection) => {
+    setCollectionToDelete(collection);
+    setDeleteDialogOpen(true);
   };
 
+  // handle delete confirm
+  const handleDeleteConfirm = async () => {
+    try {
+      const response = await deleteCollection(collectionToDelete._id).unwrap();
+      toast.success(response.message || "Collection deleted successfully");
+      setDeleteDialogOpen(false);
+      setCollectionToDelete(null);
+    } catch (error) {
+      toast.error(error?.data?.message || "Failed to delete collection");
+    }
+  };
+
+  // handle image upload
   const handleImageUpload = async (collection, file) => {
     const reader = new FileReader();
     reader.onload = async () => {
@@ -78,8 +86,9 @@ const ViewCollection = () => {
     reader.readAsDataURL(file);
   };
 
+  // column component for table
   const columns = useMemo(() =>
-    createCollectionColumns(handleEdit, handleDelete, handleImageUpload)
+    createCollectionColumns(handleEdit, handleDeleteClick, handleImageUpload)
   );
 
   const data = useMemo(() => {
@@ -90,7 +99,7 @@ const ViewCollection = () => {
         id: index + 1,
         _id: collection._id,
         name: collection.name,
-        description: collection.description,
+        description: collection.description || "No description",
         createdAt: collection.createdAt,
         updatedAt: collection.updatedAt,
         image: collection.image,
@@ -98,17 +107,40 @@ const ViewCollection = () => {
   }, [collectionData]);
 
   return (
-    <ViewLayout
-      title="Collection"
-      description="Manage your collections"
-      addNewPath="/admin/new-collection"
-      isLoading={isLoading}
-      error={error}
-      data={data}
-      columns={columns}
-      globalFilter={globalFilter}
-      setGlobalFilter={setGlobalFilter}
-    />
+    <>
+      <ViewLayout
+        title="Collection"
+        description="Manage your collections"
+        addNewPath="/admin/new-collection"
+        isLoading={isLoading}
+        error={error}
+        data={data}
+        columns={columns}
+        globalFilter={globalFilter}
+        setGlobalFilter={setGlobalFilter}
+      />
+
+      {/* delete dialog */}
+      <DeleteDialog
+        isOpen={deleteDialogOpen}
+        onClose={() => {
+          setDeleteDialogOpen(false);
+          setCollectionToDelete(null);
+        }}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Collection"
+        description={
+          <>
+            Are you sure you want to delete{" "}
+            <span className="font-semibold text-red-500">
+              {collectionToDelete?.name}
+            </span>
+            ? This action cannot be undone.
+          </>
+        }
+        isLoading={isDeleting}
+      />
+    </>
   );
 };
 

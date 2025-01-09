@@ -53,12 +53,14 @@ import {
   createSubCategory,
   deleteSubCategoryByID,
   updateSubCategory,
+  getAllSubCategories,
 } from "../controllers/subCategoryController.js";
 import {
   createSubCollection,
   deleteSubCollectionByID,
   updateSubCollection,
   uploadSubCollectionImage,
+  getAllCollections,
 } from "../controllers/subCollectionController.js";
 
 const router = express.Router();
@@ -160,6 +162,19 @@ router
 
 // ---------------------------------- SUBCATEGORIES --------------------------------------------------
 
+// GET ALL SUBCATEGORIES
+router
+  .route("/subcategories")
+  .get(
+    isAuthenticatedUser,
+    isAuthorizedUser(
+      userRoles.SUPER_ADMIN,
+      userRoles.ADMIN,
+      userRoles.EMPLOYEE
+    ),
+    getAllSubCategories
+  );
+
 // CREATE NEW SUBCATEGORIES
 router
   .route("/admin/newSubCategory")
@@ -190,16 +205,29 @@ router
 router
   .route("/admin/subcategories/:id")
   .delete(
-    (isAuthenticatedUser,
+    isAuthenticatedUser,
     isAuthorizedUser(
       userRoles.SUPER_ADMIN,
       userRoles.ADMIN,
       userRoles.EMPLOYEE
     ),
-    deleteSubCategoryByID)
+    deleteSubCategoryByID
   );
 
 // ---------------------------------- COLLECTION --------------------------------------------------
+
+// GET ALL SUBCOLLECTIONS
+router
+  .route("/subcollections")
+  .get(
+    isAuthenticatedUser,
+    isAuthorizedUser(
+      userRoles.SUPER_ADMIN,
+      userRoles.ADMIN,
+      userRoles.EMPLOYEE
+    ),
+    getAllCollections
+  );
 
 // CREATE NEW SUBCOLLECTION
 router

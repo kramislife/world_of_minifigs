@@ -6,44 +6,49 @@ import {
   useGetDesignersQuery,
 } from "@/redux/api/productApi";
 import { toast } from "react-toastify";
-import { createDesignerColumns } from "../table/columns/DesignerColumns";
+import { createDesignerColumns } from "@/components/admin/table/columns/DesignerColumns";
+import DeleteDialog from "@/components/admin/shared/DeleteDialog";
 
 const ViewDesigner = () => {
   const { data: designerData, isLoading, error } = useGetDesignersQuery();
 
-  const [
-    deleteDesigner,
-    {
-      isSuccess: deleteDesignerSuccess,
-      isError: deleteDesignerError,
-      error: deleteError,
-    },
-  ] = useDeleteDesignerMutation();
+  // delete designer
+  const [deleteDesigner, { isLoading: isDeleting }] =
+    useDeleteDesignerMutation();
 
   const [globalFilter, setGlobalFilter] = useState("");
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (deleteDesignerSuccess) {
-      toast.success("Designer deleted successfully");
-    }
-
-    if (deleteDesignerError) {
-      toast.error(deleteError?.data?.message || "Failed to delete designer");
-    }
-  }, [deleteDesignerSuccess, deleteDesignerError, deleteError]);
-
+  // handle edit
   const handleEdit = (designer) => {
     navigate(`/admin/update-designer/${designer._id}`);
   };
 
-  const handleDelete = (designer) => {
-    deleteDesigner(designer._id);
+  // delete dialog
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [designerToDelete, setDesignerToDelete] = useState(null);
+
+  // handle delete click
+  const handleDeleteClick = (designer) => {
+    setDesignerToDelete(designer);
+    setDeleteDialogOpen(true);
+  };
+
+  // handle delete confirm
+  const handleDeleteConfirm = async () => {
+    try {
+      const response = await deleteDesigner(designerToDelete._id).unwrap();
+      toast.success(response.message || "Designer deleted successfully");
+      setDeleteDialogOpen(false);
+      setDesignerToDelete(null);
+    } catch (error) {
+      toast.error(error?.data?.message || "Failed to delete designer");
+    }
   };
 
   // column component for table
   const columns = useMemo(() =>
-    createDesignerColumns(handleEdit, handleDelete)
+    createDesignerColumns(handleEdit, handleDeleteClick)
   );
 
   const data = useMemo(() => {
@@ -54,23 +59,46 @@ const ViewDesigner = () => {
         id: index + 1,
         _id: designer._id,
         name: designer.name,
-        bio: designer.bio,
+        bio: designer.bio || "No bio available",
         links: designer.social_links || {},
       }));
   }, [designerData]);
 
   return (
-    <ViewLayout
-      title="Designer"
-      description="Manage your product designers"
-      addNewPath="/admin/new-designer"
-      isLoading={isLoading}
-      error={error}
-      data={data}
-      columns={columns}
-      globalFilter={globalFilter}
-      setGlobalFilter={setGlobalFilter}
-    />
+    <>
+      <ViewLayout
+        title="Designer"
+        description="Manage your product designers"
+        addNewPath="/admin/new-designer"
+        isLoading={isLoading}
+        error={error}
+        data={data}
+        columns={columns}
+        globalFilter={globalFilter}
+        setGlobalFilter={setGlobalFilter}
+      />
+
+      {/* delete dialog */}
+      <DeleteDialog
+        isOpen={deleteDialogOpen}
+        onClose={() => {
+          setDeleteDialogOpen(false);
+          setDesignerToDelete(null);
+        }}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Designer"
+        description={
+          <>
+            Are you sure you want to delete{" "}
+            <span className="font-semibold text-red-500">
+              {designerToDelete?.name}
+            </span>
+            ? This action cannot be undone.
+          </>
+        }
+        isLoading={isDeleting}
+      />
+    </>
   );
 };
 
