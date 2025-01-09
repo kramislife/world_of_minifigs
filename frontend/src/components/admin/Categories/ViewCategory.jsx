@@ -7,43 +7,48 @@ import {
 } from "@/redux/api/productApi";
 import { toast } from "react-toastify";
 import { createCategoryColumns } from "@/components/admin/table/columns/CategoryColumns";
+import DeleteDialog from "@/components/admin/shared/DeleteDialog";
 
 const ViewCategories = () => {
   const { data: categoryData, isLoading, error } = useGetCategoryQuery();
 
-  const [
-    deleteCategory,
-    {
-      isSuccess: deleteCategorySuccess,
-      isError: deleteCategoryError,
-      error: deleteError,
-    },
-  ] = useDeleteCategoryMutation();
+  // delete category
+  const [deleteCategory, { isLoading: isDeleting }] =
+    useDeleteCategoryMutation();
 
   const [globalFilter, setGlobalFilter] = useState("");
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (deleteCategorySuccess) {
-      toast.success("Category deleted successfully");
-    }
-
-    if (deleteCategoryError) {
-      toast.error(deleteError?.data?.message || "Failed to delete category");
-    }
-  }, [deleteCategorySuccess, deleteCategoryError, deleteError]);
-
+  // handle edit
   const handleEdit = (category) => {
     navigate(`/admin/update-category/${category._id}`);
   };
 
-  const handleDelete = (category) => {
-    deleteCategory(category._id);
+  // delete dialog
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [categoryToDelete, setCategoryToDelete] = useState(null);
+
+  // handle delete click
+  const handleDeleteClick = (category) => {
+    setCategoryToDelete(category);
+    setDeleteDialogOpen(true);
+  };
+
+  // handle delete confirm
+  const handleDeleteConfirm = async () => {
+    try {
+      const response = await deleteCategory(categoryToDelete._id).unwrap();
+      toast.success(response.message || "Category deleted successfully");
+      setDeleteDialogOpen(false);
+      setCategoryToDelete(null);
+    } catch (error) {
+      toast.error(error?.data?.message || "Failed to delete category");
+    }
   };
 
   // column component for table
   const columns = useMemo(() =>
-    createCategoryColumns(handleEdit, handleDelete)
+    createCategoryColumns(handleEdit, handleDeleteClick)
   );
 
   const data = useMemo(() => {
@@ -62,17 +67,40 @@ const ViewCategories = () => {
   }, [categoryData]);
 
   return (
-    <ViewLayout
-      title="Category"
-      description="Manage your product categories"
-      addNewPath="/admin/new-category"
-      isLoading={isLoading}
-      error={error}
-      data={data}
-      columns={columns}
-      globalFilter={globalFilter}
-      setGlobalFilter={setGlobalFilter}
-    />
+    <>
+      <ViewLayout
+        title="Category"
+        description="Manage your product categories"
+        addNewPath="/admin/new-category"
+        isLoading={isLoading}
+        error={error}
+        data={data}
+        columns={columns}
+        globalFilter={globalFilter}
+        setGlobalFilter={setGlobalFilter}
+      />
+
+      {/* delete dialog */}
+      <DeleteDialog
+        isOpen={deleteDialogOpen}
+        onClose={() => {
+          setDeleteDialogOpen(false);
+          setCategoryToDelete(null);
+        }}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Category"
+        description={
+          <>
+            Are you sure you want to delete{" "}
+            <span className="font-semibold text-red-500">
+              {categoryToDelete?.name}
+            </span>
+            ? This action cannot be undone.
+          </>
+        }
+        isLoading={isDeleting}
+      />
+    </>
   );
 };
 

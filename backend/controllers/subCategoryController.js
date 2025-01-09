@@ -4,10 +4,12 @@ import ErrorHandler from "../Utills/customErrorHandler.js";
 
 // ----------------------------------------------- GET ALL SUB CATEGORIES ----------------------------------
 export const getAllSubCategories = catchAsyncErrors(async (req, res, next) => {
-  const sub_categories = await SubCategory.find();
+  const sub_categories = await SubCategory.find().populate("category");
+
   if (!sub_categories) {
     return next(new ErrorHandler("No Categories found", 404));
   }
+
   res.status(200).json({
     sub_categories,
     message: "SubCategories retrieved successfully",

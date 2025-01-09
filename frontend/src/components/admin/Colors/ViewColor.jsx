@@ -7,39 +7,48 @@ import {
 } from "@/redux/api/productApi";
 import { toast } from "react-toastify";
 import { createColorColumns } from "@/components/admin/table/columns/ColorColumns";
+import DeleteDialog from "@/components/admin/shared/DeleteDialog";
 
 const ViewColor = () => {
   const { data: colorData, isLoading, error } = useGetColorsQuery();
-  const [
-    deleteColor,
-    {
-      isSuccess: deleteColorSuccess,
-      isError: deleteColorError,
-      error: deleteError,
-    },
-  ] = useDeleteColorMutation();
+
+  // delete color
+  const [deleteColor, { isLoading: isDeleting }] = useDeleteColorMutation();
 
   const [globalFilter, setGlobalFilter] = useState("");
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (deleteColorSuccess) {
-      toast.success("Color deleted successfully");
-    }
-    if (deleteColorError) {
-      toast.error(deleteError?.data?.message || "Failed to delete color");
-    }
-  }, [deleteColorSuccess, deleteColorError, deleteError]);
-
+  // handle edit
   const handleEdit = (color) => {
     navigate(`/admin/update-color/${color._id}`);
   };
 
-  const handleDelete = (color) => {
-    deleteColor(color._id);
+  // delete dialog
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [colorToDelete, setColorToDelete] = useState(null);
+
+  // handle delete click
+  const handleDeleteClick = (color) => {
+    setColorToDelete(color);
+    setDeleteDialogOpen(true);
   };
 
-  const columns = useMemo(() => createColorColumns(handleEdit, handleDelete));
+  // handle delete confirm
+  const handleDeleteConfirm = async () => {
+    try {
+      const response = await deleteColor(colorToDelete._id).unwrap();
+      toast.success(response.message || "Color deleted successfully");
+      setDeleteDialogOpen(false);
+      setColorToDelete(null);
+    } catch (error) {
+      toast.error(error?.data?.message || "Failed to delete color");
+    }
+  };
+
+  // column component for table
+  const columns = useMemo(() =>
+    createColorColumns(handleEdit, handleDeleteClick)
+  );
 
   const data = useMemo(() => {
     if (!colorData?.prod_color) return [];
@@ -59,17 +68,40 @@ const ViewColor = () => {
   }, [colorData]);
 
   return (
-    <ViewLayout
-      title="Colors"
-      description="Manage your product colors"
-      addNewPath="/admin/new-color"
-      isLoading={isLoading}
-      error={error}
-      data={data}
-      columns={columns}
-      globalFilter={globalFilter}
-      setGlobalFilter={setGlobalFilter}
-    />
+    <>
+      <ViewLayout
+        title="Colors"
+        description="Manage your product colors"
+        addNewPath="/admin/new-color"
+        isLoading={isLoading}
+        error={error}
+        data={data}
+        columns={columns}
+        globalFilter={globalFilter}
+        setGlobalFilter={setGlobalFilter}
+      />
+
+      {/* delete dialog */}
+      <DeleteDialog
+        isOpen={deleteDialogOpen}
+        onClose={() => {
+          setDeleteDialogOpen(false);
+          setColorToDelete(null);
+        }}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Color"
+        description={
+          <>
+            Are you sure you want to delete{" "}
+            <span className="font-semibold text-red-500">
+              {colorToDelete?.name}
+            </span>
+            ? This action cannot be undone.
+          </>
+        }
+        isLoading={isDeleting}
+      />
+    </>
   );
 };
 

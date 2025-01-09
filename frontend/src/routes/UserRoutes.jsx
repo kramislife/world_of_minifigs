@@ -7,7 +7,7 @@ import Contact from "@/pages/Contact/Contact";
 import Home from "@/pages/Home/Home";
 import Products from "@/pages/Products/Products";
 import ProductView from "@/pages/Products/ProductView";
-import { Route } from "react-router-dom";
+import { Route, Outlet } from "react-router-dom";
 import AdminView from "@/pages/Admin/AdminView";
 import ViewProducts from "@/components/admin/Products/ViewProducts";
 import ViewOrder from "@/components/admin/Order/ViewOrder";
@@ -34,6 +34,12 @@ import ProductImages from "@/components/admin/Products/components/ProductImages"
 import ViewColor from "@/components/admin/Colors/ViewColor";
 import AddColor from "@/components/admin/Colors/AddColor";
 import UpdateColor from "@/components/admin/Colors/UpdateColor";
+import ViewSubCategories from "@/components/admin/Categories/SubCategory/ViewSubCategory";
+import AddSubCategory from "@/components/admin/Categories/SubCategory/AddSubCategory";
+import UpdateSubCategory from "@/components/admin/Categories/SubCategory/UpdateSubCategory";
+import ViewSubCollections from "@/components/admin/Collections/SubCollections/ViewSubCollection";
+import AddSubCollection from "@/components/admin/Collections/SubCollections/AddSubCollection";
+import UpdateSubCollection from "@/components/admin/Collections/SubCollections/UpdateSubCollection";
 
 const UserRoutes = (
   <>
@@ -76,7 +82,7 @@ const UserRoutes = (
       path="admin"
       element={
         <ProtectedRoutes adminOnly={true}>
-          <AdminView />
+          <Outlet />
         </ProtectedRoutes>
       }
     >
@@ -99,10 +105,20 @@ const UserRoutes = (
       <Route path="new-category" element={<AddCategory />} />
       <Route path="update-category/:id" element={<UpdateCategory />} />
 
+      {/* Sub-Category Management */}
+      <Route path="subcategories" element={<ViewSubCategories />} />
+      <Route path="new-subcategory" element={<AddSubCategory />} />
+      <Route path="update-subcategory/:id" element={<UpdateSubCategory />} />
+
       {/* Collection Management */}
       <Route path="collections" element={<ViewCollection />} />
       <Route path="new-collection" element={<AddCollection />} />
       <Route path="update-collection/:id" element={<UpdateCollection />} />
+
+      {/* Sub-Collection Management */}
+      <Route path="subcollections" element={<ViewSubCollections />} />
+      <Route path="new-subcollection" element={<AddSubCollection />} />
+      <Route path="update-subcollection/:id" element={<UpdateSubCollection />} />
 
       {/* Skill Level Management */}
       <Route path="skill-levels" element={<ViewSkillLevel />} />
@@ -118,6 +134,14 @@ const UserRoutes = (
       <Route path="users" element={<ViewUsers />} />
       <Route path="orders" element={<ViewOrder />} />
       <Route path="reviews" element={<ViewReviews />} />
+
+      {/* Sub-Collection Management */}
+      {/* <Route path="subcollections" element={<ViewSubCollections />} />
+      <Route path="new-subcollection" element={<AddSubCollection />} />
+      <Route
+        path="update-subcollection/:id"
+        element={<UpdateSubCollection />}
+      /> */}
     </Route>
   </>
 );

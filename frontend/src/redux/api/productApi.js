@@ -139,6 +139,40 @@ export const productApi = createApi({
       invalidatesTags: ["Categories"],
     }),
 
+    // --------------------------------- SUB-CATEGORIES ---------------------------------------
+
+    // Sub-Category endpoints
+    getSubCategories: builder.query({
+      query: () => `/subcategories`,
+      providesTags: ["SubCategories"],
+    }),
+
+    createSubCategory: builder.mutation({
+      query: (data) => ({
+        url: "/admin/newSubCategory",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["SubCategories"],
+    }),
+
+    updateSubCategory: builder.mutation({
+      query: ({ id, ...data }) => ({
+        url: `/admin/subcategories/${id}`,
+        method: "PUT",
+        body: data,
+      }),
+      invalidatesTags: ["SubCategories"],
+    }),
+
+    deleteSubCategory: builder.mutation({
+      query: (id) => ({
+        url: `/admin/subcategories/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["SubCategories"],
+    }),
+
     // --------------------------------- COLLECTIONS ---------------------------------------
 
     // GET ALl COLLECTIONS
@@ -206,6 +240,40 @@ export const productApi = createApi({
         };
       },
       invalidatesTags: ["Collections"],
+    }),
+
+    // --------------------------------- SUB-COLLECTIONS ---------------------------------------
+
+    // Sub-Collection endpoints
+    getSubCollections: builder.query({
+      query: () => `/subcollections`,
+      providesTags: ["SubCollections"],
+    }),
+
+    createSubCollection: builder.mutation({
+      query: (data) => ({
+        url: "/admin/newSubCollection",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["SubCollections"],
+    }),
+
+    updateSubCollection: builder.mutation({
+      query: ({ id, ...data }) => ({
+        url: `/admin/subcollections/${id}`,
+        method: "PUT",
+        body: data,
+      }),
+      invalidatesTags: ["SubCollections"],
+    }),
+
+    deleteSubCollection: builder.mutation({
+      query: (id) => ({
+        url: `/admin/subcollections/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["SubCollections"],
     }),
 
     // --------------------------------- GET SKILL LEVELS ---------------------------------------
@@ -364,4 +432,12 @@ export const {
   useCreateColorMutation,
   useUpdateColorMutation,
   useDeleteColorMutation,
+  useGetSubCategoriesQuery,
+  useCreateSubCategoryMutation,
+  useUpdateSubCategoryMutation,
+  useDeleteSubCategoryMutation,
+  useGetSubCollectionsQuery,
+  useCreateSubCollectionMutation,
+  useUpdateSubCollectionMutation,
+  useDeleteSubCollectionMutation,
 } = productApi;
