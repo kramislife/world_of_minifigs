@@ -102,7 +102,7 @@ const ProductCollections = ({ formData, onCheckboxChange }) => {
   }
 
   return (
-    <Card className="w-full shadow-sm border-none">
+    <Card className="w-full shadow-none border-none">
       <CardContent className="p-0">
         <Label className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
           Product Collections
