@@ -60,8 +60,8 @@ const ViewColor = () => {
         name: color.name,
         code: color.code,
         description: color.description || "No description",
-        createdBy: new Date(color.createdAt).toLocaleString(),
-        updatedBy: color.updatedAt
+        createdAt: new Date(color.createdAt).toLocaleString(),
+        updatedAt: color.updatedAt
           ? new Date(color.updatedAt).toLocaleString()
           : "Not Updated",
       }));

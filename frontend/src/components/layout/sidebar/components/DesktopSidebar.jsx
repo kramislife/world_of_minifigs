@@ -3,9 +3,25 @@ import { ChevronsLeft, ChevronsRight } from "lucide-react";
 import { adminNavigation } from "@/constant/adminNavigation";
 import { useLocation } from "react-router-dom";
 import NavigationItem from "./NavigationItem";
+import { useState } from "react";
 
 const DesktopSidebar = ({ isMinimized, toggleMinimize }) => {
   const location = useLocation();
+  // Initialize state from localStorage
+  const [openMenuPath, setOpenMenuPath] = useState(() => {
+    return localStorage.getItem('openMenuPath');
+  });
+
+  // Update localStorage when openMenuPath changes
+  const handleMenuToggle = (path) => {
+    const newPath = openMenuPath === path ? null : path;
+    setOpenMenuPath(newPath);
+    if (newPath) {
+      localStorage.setItem('openMenuPath', newPath);
+    } else {
+      localStorage.removeItem('openMenuPath');
+    }
+  };
 
   // Helper function to check if current path matches navigation item
   const isPathActive = (itemPath) => {
@@ -107,6 +123,8 @@ const DesktopSidebar = ({ isMinimized, toggleMinimize }) => {
               item={item}
               isActive={isPathActive(item.path)}
               isMinimized={isMinimized}
+              isOpen={item.path === openMenuPath}
+              onToggle={() => handleMenuToggle(item.path)}
             />
           ))}
         </nav>

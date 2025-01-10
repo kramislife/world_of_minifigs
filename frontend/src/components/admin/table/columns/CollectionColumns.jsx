@@ -23,22 +23,10 @@ export const createCollectionColumns = (
   {
     header: "Created At",
     accessorKey: "createdAt",
-    size: 120,
-    cell: ({ row }) => (
-      <div className="text-center">
-        {new Date(row.original.createdAt).toLocaleDateString()}
-      </div>
-    ),
   },
   {
     header: "Updated At",
     accessorKey: "updatedAt",
-    size: 120,
-    cell: ({ row }) => (
-      <div className="text-center">
-        {new Date(row.original.updatedAt).toLocaleDateString()}
-      </div>
-    ),
   },
   {
     header: "Actions",
