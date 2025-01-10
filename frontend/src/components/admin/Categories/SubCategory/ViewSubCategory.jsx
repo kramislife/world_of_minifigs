@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import ViewLayout from "@/components/admin/shared/ViewLayout";
 import {
@@ -41,7 +41,7 @@ const ViewSubCategories = () => {
 
   const columns = useMemo(
     () => createSubCategoryColumns(handleEdit, handleDelete),
-    [handleEdit, handleDelete]
+    []
   );
 
   const data = useMemo(() => {
@@ -49,7 +49,10 @@ const ViewSubCategories = () => {
     return subCategoryData.sub_categories.map((subCategory, index) => ({
       id: index + 1,
       _id: subCategory._id,
-      name: subCategory.name,
+      name: subCategory.name
+        .split(",")
+        .map((name) => name.trim())
+        .join(", "),
       parentCategory: subCategory.category?.name || "N/A",
       createdBy: new Date(subCategory.createdAt).toLocaleString(),
       updatedBy: subCategory.updatedAt
