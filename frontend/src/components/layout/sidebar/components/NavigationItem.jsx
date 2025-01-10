@@ -2,22 +2,22 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { ChevronDown, ChevronRight } from "lucide-react";
 
-const NavigationItem = ({ item, isActive, isMinimized }) => {
-  const [isSubMenuOpen, setIsSubMenuOpen] = useState(false);
+const NavigationItem = ({ item, isActive, isMinimized, isOpen, onToggle }) => {
   const location = useLocation();
 
   // Check if any submenu item is active
   const isSubItemActive = (path) => location.pathname.startsWith(path);
 
-  // Auto-expand submenu if a sub-item is active
+  // Modify the useEffect to only run once on mount
   useEffect(() => {
     if (
       item.hasSubMenu &&
-      item.subMenu?.some((subItem) => isSubItemActive(subItem.path))
+      item.subMenu?.some((subItem) => isSubItemActive(subItem.path)) &&
+      !isOpen // Only open if it's not already open
     ) {
-      setIsSubMenuOpen(true);
+      onToggle();
     }
-  }, [location.pathname, item]);
+  }, []); // Empty dependency array - only runs on mount
 
   // Icon Classes
   const iconClasses = `
@@ -41,7 +41,7 @@ const NavigationItem = ({ item, isActive, isMinimized }) => {
     return (
       <div className={`w-full ${isMinimized ? "flex justify-center" : ""}`}>
         <button
-          onClick={() => setIsSubMenuOpen(!isSubMenuOpen)}
+          onClick={onToggle}
           className={`
             flex items-center transition-all duration-200 w-full
             ${isMinimized ? "justify-center p-3" : "gap-5 px-4 py-3 pr-2"}
@@ -56,7 +56,7 @@ const NavigationItem = ({ item, isActive, isMinimized }) => {
           {!isMinimized && (
             <>
               <span className="flex-1 text-left">{item.label}</span>
-              {isSubMenuOpen ? (
+              {isOpen ? (
                 <ChevronDown className="w-4 h-4" />
               ) : (
                 <ChevronRight className="w-4 h-4" />
@@ -66,23 +66,30 @@ const NavigationItem = ({ item, isActive, isMinimized }) => {
         </button>
 
         {/* Submenu */}
-        {!isMinimized && isSubMenuOpen && (
-          <div className="ml-9 mt-1 space-y-3 border-l border-accent/30 pl-2">
-            {item.subMenu.map((subItem, index) => {
-              const isSubActive = isSubItemActive(subItem.path);
-              return (
-                <Link
-                  key={index}
-                  to={subItem.path}
-                  className={subMenuItemClasses(isSubActive)}
-                >
-                  {subItem.icon && (
-                    <subItem.icon className="w-4 h-4 opacity-70 group-hover:opacity-100" />
-                  )}
-                  <span className="text-sm">{subItem.label}</span>
-                </Link>
-              );
-            })}
+        {!isMinimized && (
+          <div
+            className={`
+              ml-9 overflow-hidden transition-all duration-200
+              ${isOpen ? "opacity-100 max-h-[500px]" : "opacity-0 max-h-0"}
+            `}
+          >
+            <div className="mt-1 space-y-3 border-l border-accent/30 pl-2">
+              {item.subMenu.map((subItem, index) => {
+                const isSubActive = isSubItemActive(subItem.path);
+                return (
+                  <Link
+                    key={index}
+                    to={subItem.path}
+                    className={subMenuItemClasses(isSubActive)}
+                  >
+                    {subItem.icon && (
+                      <subItem.icon className="w-4 h-4 opacity-70 group-hover:opacity-100" />
+                    )}
+                    <span className="text-sm">{subItem.label}</span>
+                  </Link>
+                );
+              })}
+            </div>
           </div>
         )}
       </div>

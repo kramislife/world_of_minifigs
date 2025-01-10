@@ -10,12 +10,12 @@ export const createCategoryColumns = (handleEdit, handleDelete) => [
     accessorKey: "name",
   },
   {
-    header: "Created By",
-    accessorKey: "createdBy",
+    header: "Created At",
+    accessorKey: "createdAt",
   },
   {
-    header: "Updated By",
-    accessorKey: "updatedBy",
+    header: "Updated At",
+    accessorKey: "updatedAt",
   },
   {
     header: "Actions",

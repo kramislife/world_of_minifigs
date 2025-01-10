@@ -35,23 +35,23 @@ const ProductColors = ({ formData, onCheckboxChange }) => {
     );
   }
 
-  if (!colorData?.prod_color || colorData.prod_color.length === 0) {
-    return (
-      <div className="space-y-4">
-        <div className="flex justify-between items-center">
-          <Label className="text-lg font-semibold">Product Color</Label>
-        </div>
-        <Link to="/admin/new-color">
-          <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-lg space-y-4 hover:bg-gray-50 transition-colors cursor-pointer">
-            <Plus size={24} className="text-gray-400" />
-            <p className="text-gray-500 text-center">
-              No colors available. Click to add colors.
-            </p>
-          </div>
-        </Link>
-      </div>
-    );
-  }
+  // if (!colorData?.prod_color || colorData.prod_color.length === 0) {
+  //   return (
+  //     <div className="space-y-4">
+  //       <div className="flex justify-between items-center">
+  //         <Label className="text-lg font-semibold">Product Color</Label>
+  //       </div>
+  //       <Link to="/admin/new-color">
+  //         <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-lg space-y-4 hover:bg-gray-50 transition-colors cursor-pointer">
+  //           <Plus size={24} className="text-gray-400" />
+  //           <p className="text-gray-500 text-center">
+  //             No colors available. Click to add colors.
+  //           </p>
+  //         </div>
+  //       </Link>
+  //     </div>
+  //   );
+  // }
 
   // Handle both string ID and object ID cases
   const selectedColor =

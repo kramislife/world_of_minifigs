@@ -42,49 +42,40 @@ const AddProduct = () => {
                 onChange={handleChange}
                 onCheckboxChange={handleCheckboxChange}
               />
-              <Separator className="my-6" />
 
               <ProductDescriptions
                 formData={formData}
                 onChange={handleChange}
               />
-              <Separator className="my-6" />
 
               <ProductSpecifications
                 formData={formData}
                 onChange={handleChange}
               />
-              <Separator className="my-6" />
 
               <AdditionalInformation
                 formData={formData}
                 onChange={handleChange}
               />
-              <Separator className="my-6" />
 
               <ProductCategories
                 formData={formData}
                 onCheckboxChange={handleCheckboxChange}
               />
-              <Separator className="my-6" />
 
               <ProductCollections
                 formData={formData}
                 onCheckboxChange={handleCheckboxChange}
               />
-              <Separator className="my-6" />
 
               <ProductIncludes
                 formData={formData}
                 onCheckboxChange={handleCheckboxChange}
               />
-              <Separator className="my-6" />
 
               <SkillLevel formData={formData} onChange={handleChange} />
-              <Separator className="my-6" />
 
               <ProductDesigner formData={formData} onChange={handleChange} />
-              <Separator className="my-6" />
 
               <ProductStatus
                 formData={formData}

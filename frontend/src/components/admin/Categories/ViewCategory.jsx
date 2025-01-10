@@ -59,8 +59,8 @@ const ViewCategories = () => {
         id: index + 1,
         _id: category._id,
         name: category.name,
-        createdBy: new Date(category.createdAt).toLocaleString(),
-        updatedBy: category.updatedAt
+        createdAt: new Date(category.createdAt).toLocaleString(),
+        updatedAt: category.updatedAt
           ? new Date(category.updatedAt).toLocaleString()
           : "Not Updated",
       }));
