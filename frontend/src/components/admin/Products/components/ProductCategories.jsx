@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { AlertCircle, Plus, ListTree } from "lucide-react";
+import { AlertCircle, Plus } from "lucide-react";
 import { Link } from "react-router-dom";
 import {
   useGetCategoryQuery,
@@ -97,7 +97,6 @@ const ProductCategories = ({ formData, onCheckboxChange }) => {
     <Card className="w-full shadow-sm border-none">
       <CardContent className="p-0">
         <Label className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
-          <ListTree className="h-5 w-5 text-blue-600" />
           Product Categories
         </Label>
 

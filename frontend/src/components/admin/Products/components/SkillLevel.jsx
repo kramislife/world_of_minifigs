@@ -51,9 +51,8 @@ const SkillLevel = ({ formData, onChange }) => {
 
   return (
     <Card className="w-full shadow-sm border-none">
-      <CardContent className="p-6">
+      <CardContent className="p-0">
         <Label className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
-          <Star className="h-5 w-5 text-blue-600" />
           Skill Level
         </Label>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
