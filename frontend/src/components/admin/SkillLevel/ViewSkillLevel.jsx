@@ -59,7 +59,7 @@ const ViewSkillLevel = () => {
         id: index + 1,
         _id: skillLevel._id,
         name: skillLevel.name,
-        description: skillLevel.description,
+        description: skillLevel.description || "N/A",
       }));
   }, [skillLevelData]);
 

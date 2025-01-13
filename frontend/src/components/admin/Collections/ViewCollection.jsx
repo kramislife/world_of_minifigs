@@ -99,9 +99,11 @@ const ViewCollection = () => {
         id: index + 1,
         _id: collection._id,
         name: collection.name,
-        description: collection.description || "No description",
-        createdAt: collection.createdAt,
-        updatedAt: collection.updatedAt,
+        description: collection.description || "N/A",
+        createdAt: new Date(collection.createdAt).toLocaleString(),
+        updatedAt: collection.updatedAt
+          ? new Date(collection.updatedAt).toLocaleString()
+          : "Not Updated",
         image: collection.image,
       }));
   }, [collectionData]);
