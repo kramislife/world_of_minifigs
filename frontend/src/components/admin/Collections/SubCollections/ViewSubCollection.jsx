@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import ViewLayout from "@/components/admin/shared/ViewLayout";
 import {
@@ -47,39 +47,19 @@ const ViewSubCollections = () => {
   const data = useMemo(() => {
     if (!subCollectionData?.subcollections) return [];
 
-    // Group subcollections by parent collection and description
-    const groupedSubCollections = subCollectionData.subcollections.reduce(
-      (acc, subCollection) => {
-        const key = `${subCollection.collection?._id}-${subCollection.description}`;
-        if (!acc[key]) {
-          acc[key] = {
-            _id: subCollection._id,
-            names: [subCollection.name],
-            description: subCollection.description || "N/A",
-            parentCollection: subCollection.collection?.name || "N/A",
-            createdBy: new Date(subCollection.createdAt).toLocaleString(),
-            updatedBy: subCollection.updatedAt
-              ? new Date(subCollection.updatedAt).toLocaleString()
-              : "Not Updated",
-          };
-        } else {
-          acc[key].names.push(subCollection.name);
-        }
-        return acc;
-      },
-      {}
-    );
-
-    // Convert grouped data to array format
-    return Object.values(groupedSubCollections).map((group, index) => ({
-      id: index + 1,
-      _id: group._id,
-      name: group.names.join(", "),
-      description: group.description,
-      parentCollection: group.parentCollection,
-      createdBy: group.createdBy,
-      updatedBy: group.updatedBy,
-    }));
+    return [...subCollectionData.subcollections]
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      .map((subCollection, index) => ({
+        id: index + 1,
+        _id: subCollection._id,
+        name: subCollection.name,
+        description: subCollection.description || "N/A",
+        parentCollection: subCollection.collection?.name || "N/A",
+        createdBy: new Date(subCollection.createdAt).toLocaleString(),
+        updatedBy: subCollection.updatedAt
+          ? new Date(subCollection.updatedAt).toLocaleString()
+          : "Not Updated",
+      }));
   }, [subCollectionData]);
 
   return (

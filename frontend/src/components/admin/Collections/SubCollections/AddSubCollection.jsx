@@ -27,23 +27,6 @@ const AddSubCollection = () => {
   const { user } = useSelector((state) => state.auth);
   const [createSubCollection, { isLoading }] = useCreateSubCollectionMutation();
   const { data: collectionData } = useGetCollectionQuery();
-  const [subCollectionNames, setSubCollectionNames] = React.useState([]);
-  const [inputValue, setInputValue] = React.useState("");
-
-  const badgeVariants = [
-    "bg-red-100 text-red-700 hover:bg-red-200",
-    "bg-blue-100 text-blue-700 hover:bg-blue-200",
-    "bg-green-100 text-green-700 hover:bg-green-200",
-    "bg-purple-100 text-purple-700 hover:bg-purple-200",
-    "bg-yellow-100 text-yellow-700 hover:bg-yellow-200",
-    "bg-pink-100 text-pink-700 hover:bg-pink-200",
-    "bg-indigo-100 text-indigo-700 hover:bg-indigo-200",
-    "bg-orange-100 text-orange-700 hover:bg-orange-200",
-  ];
-
-  const getRandomColor = (index) => {
-    return badgeVariants[index % badgeVariants.length];
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -54,46 +37,24 @@ const AddSubCollection = () => {
       return;
     }
 
-    if (subCollectionNames.length === 0) {
-      toast.error("Please add at least one sub-collection name");
+    if (!formData.get("name")) {
+      toast.error("Please enter a sub-collection name");
       return;
     }
 
     try {
-      // Create an array of promises for each sub-collection
-      const createPromises = subCollectionNames.map((name) =>
-        createSubCollection({
-          name: name.trim(),
-          description: formData.get("description"),
-          collection: formData.get("collection"),
-          createdBy: user?._id,
-        }).unwrap()
-      );
+      await createSubCollection({
+        name: formData.get("name").trim(),
+        description: formData.get("description"),
+        collection: formData.get("collection"),
+        createdBy: user?._id,
+      }).unwrap();
 
-      // Wait for all sub-collections to be created
-      await Promise.all(createPromises);
-
-      toast.success("Sub-collections created successfully!");
+      toast.success("Sub-collection created successfully!");
       navigate("/admin/subcollections");
     } catch (error) {
-      toast.error(error?.data?.message || "Failed to create sub-collections");
+      toast.error(error?.data?.message || "Failed to create sub-collection");
     }
-  };
-
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter" && inputValue.trim()) {
-      e.preventDefault();
-      if (!subCollectionNames.includes(inputValue.trim())) {
-        setSubCollectionNames([...subCollectionNames, inputValue.trim()]);
-        setInputValue("");
-      }
-    }
-  };
-
-  const removeSubCollection = (nameToRemove) => {
-    setSubCollectionNames(
-      subCollectionNames.filter((name) => name !== nameToRemove)
-    );
   };
 
   return (
@@ -136,36 +97,12 @@ const AddSubCollection = () => {
                   >
                     Sub-Collection
                   </Label>
-                  <div className="space-y-2">
-                    <Input
-                      id="name"
-                      value={inputValue}
-                      onChange={(e) => setInputValue(e.target.value)}
-                      onKeyDown={handleKeyDown}
-                      placeholder="Type and press Enter to add sub-collection name"
-                    />
-
-                    <div className="flex flex-wrap gap-2 mb-2">
-                      {subCollectionNames.map((name, index) => (
-                        <Badge
-                          key={index}
-                          variant="secondary"
-                          className={`flex items-center gap-2 px-3 py-1.5 ${getRandomColor(
-                            index
-                          )}`}
-                        >
-                          {name}
-                          <button
-                            type="button"
-                            onClick={() => removeSubCollection(name)}
-                            className="hover:opacity-75 transition-opacity"
-                          >
-                            <X className="h-3 w-3" />
-                          </button>
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
+                  <Input
+                    id="name"
+                    name="name"
+                    placeholder="Enter sub-collection name"
+                    required
+                  />
                 </div>
 
                 <div className="space-y-3">
