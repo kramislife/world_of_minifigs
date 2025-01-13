@@ -46,16 +46,39 @@ const ViewSubCollections = () => {
 
   const data = useMemo(() => {
     if (!subCollectionData?.subcollections) return [];
-    return subCollectionData.subcollections.map((subCollection, index) => ({
+
+    // Group subcollections by parent collection and description
+    const groupedSubCollections = subCollectionData.subcollections.reduce(
+      (acc, subCollection) => {
+        const key = `${subCollection.collection?._id}-${subCollection.description}`;
+        if (!acc[key]) {
+          acc[key] = {
+            _id: subCollection._id,
+            names: [subCollection.name],
+            description: subCollection.description || "N/A",
+            parentCollection: subCollection.collection?.name || "N/A",
+            createdBy: new Date(subCollection.createdAt).toLocaleString(),
+            updatedBy: subCollection.updatedAt
+              ? new Date(subCollection.updatedAt).toLocaleString()
+              : "Not Updated",
+          };
+        } else {
+          acc[key].names.push(subCollection.name);
+        }
+        return acc;
+      },
+      {}
+    );
+
+    // Convert grouped data to array format
+    return Object.values(groupedSubCollections).map((group, index) => ({
       id: index + 1,
-      _id: subCollection._id,
-      name: subCollection.name,
-      description: subCollection.description || "N/A",
-      parentCollection: subCollection.collection?.name || "N/A",
-      createdBy: new Date(subCollection.createdAt).toLocaleString(),
-      updatedBy: subCollection.updatedAt
-        ? new Date(subCollection.updatedAt).toLocaleString()
-        : "Not Updated",
+      _id: group._id,
+      name: group.names.join(", "),
+      description: group.description,
+      parentCollection: group.parentCollection,
+      createdBy: group.createdBy,
+      updatedBy: group.updatedBy,
     }));
   }, [subCollectionData]);
 

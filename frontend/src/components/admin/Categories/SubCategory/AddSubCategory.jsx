@@ -59,11 +59,17 @@ const AddSubCategory = () => {
     }
 
     try {
-      await createSubCategory({
-        name: subCategoryNames.join(", "),
-        category: formData.get("category"),
-        createdBy: user?._id,
-      }).unwrap();
+      // Create an array of promises for each sub-category
+      const createPromises = subCategoryNames.map((name) =>
+        createSubCategory({
+          name: name.trim(),
+          category: formData.get("category"),
+          createdBy: user?._id,
+        }).unwrap()
+      );
+
+      // Wait for all sub-categories to be created
+      await Promise.all(createPromises);
 
       toast.success("Sub-categories created successfully!");
       navigate("/admin/subcategories");

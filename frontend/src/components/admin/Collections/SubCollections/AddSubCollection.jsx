@@ -60,12 +60,18 @@ const AddSubCollection = () => {
     }
 
     try {
-      await createSubCollection({
-        name: subCollectionNames.join(", "),
-        description: formData.get("description"),
-        collection: formData.get("collection"),
-        createdBy: user?._id,
-      }).unwrap();
+      // Create an array of promises for each sub-collection
+      const createPromises = subCollectionNames.map((name) =>
+        createSubCollection({
+          name: name.trim(),
+          description: formData.get("description"),
+          collection: formData.get("collection"),
+          createdBy: user?._id,
+        }).unwrap()
+      );
+
+      // Wait for all sub-collections to be created
+      await Promise.all(createPromises);
 
       toast.success("Sub-collections created successfully!");
       navigate("/admin/subcollections");
