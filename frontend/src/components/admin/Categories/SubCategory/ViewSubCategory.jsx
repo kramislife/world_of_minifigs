@@ -46,18 +46,37 @@ const ViewSubCategories = () => {
 
   const data = useMemo(() => {
     if (!subCategoryData?.sub_categories) return [];
-    return subCategoryData.sub_categories.map((subCategory, index) => ({
+
+    // Group subcategories by parent category
+    const groupedSubCategories = subCategoryData.sub_categories.reduce(
+      (acc, subCategory) => {
+        const key = `${subCategory.category?._id}`;
+        if (!acc[key]) {
+          acc[key] = {
+            _id: subCategory._id,
+            names: [subCategory.name],
+            parentCategory: subCategory.category?.name || "N/A",
+            createdBy: new Date(subCategory.createdAt).toLocaleString(),
+            updatedBy: subCategory.updatedAt
+              ? new Date(subCategory.updatedAt).toLocaleString()
+              : "Not Updated",
+          };
+        } else {
+          acc[key].names.push(subCategory.name);
+        }
+        return acc;
+      },
+      {}
+    );
+
+    // Convert grouped data to array format
+    return Object.values(groupedSubCategories).map((group, index) => ({
       id: index + 1,
-      _id: subCategory._id,
-      name: subCategory.name
-        .split(",")
-        .map((name) => name.trim())
-        .join(", "),
-      parentCategory: subCategory.category?.name || "N/A",
-      createdBy: new Date(subCategory.createdAt).toLocaleString(),
-      updatedBy: subCategory.updatedAt
-        ? new Date(subCategory.updatedAt).toLocaleString()
-        : "Not Updated",
+      _id: group._id,
+      name: group.names.join(", "),
+      parentCategory: group.parentCategory,
+      createdBy: group.createdBy,
+      updatedBy: group.updatedBy,
     }));
   }, [subCategoryData]);
 
