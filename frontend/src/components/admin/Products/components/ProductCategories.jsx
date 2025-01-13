@@ -6,32 +6,42 @@ import {
   useGetSubCategoriesQuery,
 } from "@/redux/api/productApi";
 import { toast } from "react-toastify";
-import { AlertCircle, Plus, ChevronDown } from "lucide-react";
+import { AlertCircle, Plus, ChevronDown, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 
-const ProductCategories = ({ formData, onChange }) => {
+const ProductCategories = ({ formData, onCheckboxChange }) => {
   const {
     data: categoryData,
     isError: isCategoryError,
     error: categoryError,
   } = useGetCategoryQuery();
-  const { data: subCategoryData } = useGetSubCategoriesQuery();
-  const [expandedCategory, setExpandedCategory] = useState(null);
+  const {
+    data: subCategoryData,
+    isError: isSubCategoryError,
+    error: subCategoryError,
+  } = useGetSubCategoriesQuery();
+  const [expandedCategory, setExpandedCategory] = useState({});
   const dropdownRefs = useRef({});
 
   useEffect(() => {
     if (isCategoryError) {
       toast.error(categoryError?.data?.message);
     }
-  }, [isCategoryError, categoryError]);
+    if (isSubCategoryError) {
+      toast.error(subCategoryError?.data?.message);
+    }
+  }, [isCategoryError, isSubCategoryError, categoryError, subCategoryError]);
 
   // Handle click outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       Object.entries(dropdownRefs.current).forEach(([categoryId, ref]) => {
         if (ref && !ref.contains(event.target)) {
-          setExpandedCategory((prev) => (prev === categoryId ? null : prev));
+          setExpandedCategory((prev) => ({
+            ...prev,
+            [categoryId]: false,
+          }));
         }
       });
     };
@@ -43,22 +53,20 @@ const ProductCategories = ({ formData, onChange }) => {
   const getSubCategoriesForCategory = (categoryId) => {
     return (
       subCategoryData?.sub_categories?.filter(
-        (subCat) => subCat.category._id === categoryId
+        (subCategory) => subCategory.category._id === categoryId
       ) || []
     );
   };
 
-  const onCheckboxChange = (field, value, checked) => {
-    const currentValues = formData[field] || [];
-    let newValues;
+  const toggleCategory = (categoryId) => {
+    setExpandedCategory((prev) => ({
+      ...prev,
+      [categoryId]: !prev[categoryId],
+    }));
+  };
 
-    if (checked) {
-      newValues = [...currentValues, value];
-    } else {
-      newValues = currentValues.filter((v) => v !== value);
-    }
-
-    onChange({ target: { name: field, value: newValues } });
+  const getCategoryNameArray = (name) => {
+    return name.split(",").map((item) => item.trim());
   };
 
   if (!categoryData?.categories || categoryData.categories.length === 0) {
@@ -96,9 +104,11 @@ const ProductCategories = ({ formData, onChange }) => {
         </Label>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {categoryData?.categories?.map((category) => {
-            const hasSubCategories =
-              getSubCategoriesForCategory(category._id).length > 0;
-            const isExpanded = expandedCategory === category._id;
+            const isChecked = formData.productCategory?.includes(category._id);
+            const subCategories = getSubCategoriesForCategory(category._id);
+            const hasSubCategories = subCategories.length > 0;
+            const isExpanded = expandedCategory[category._id];
+            const categoryNames = getCategoryNameArray(category.name);
 
             return (
               <div
@@ -107,107 +117,109 @@ const ProductCategories = ({ formData, onChange }) => {
                 ref={(el) => (dropdownRefs.current[category._id] = el)}
               >
                 <div
-                  className={`flex items-center justify-between p-4 rounded-lg shadow-sm cursor-pointer
+                  className={`flex items-center gap-3 p-4 rounded-lg 
                     ${
-                      formData.productCategory === category._id
-                        ? "bg-blue-50 text-blue-700"
-                        : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
-                    } hover:shadow-md transition-shadow`}
+                      isChecked
+                        ? "bg-blue-50 border-blue-200"
+                        : "bg-gray-50 border-gray-200"
+                    } 
+                    border hover:bg-blue-50 cursor-pointer transition-all duration-200 ease-in-out
+                    ${hasSubCategories ? "hover:shadow-md" : ""}`}
                   onClick={() =>
-                    hasSubCategories &&
-                    setExpandedCategory(isExpanded ? null : category._id)
+                    hasSubCategories && toggleCategory(category._id)
                   }
                 >
-                  <div className="flex items-center gap-3">
-                    <Checkbox
-                      id={category._id}
-                      checked={formData.productCategory === category._id}
-                      onCheckedChange={(checked) =>
-                        onCheckboxChange(
-                          "productCategory",
-                          category._id,
-                          checked
-                        )
-                      }
-                      onClick={(e) => e.stopPropagation()}
-                      className={`h-4 w-4 ${
-                        formData.productCategory === category._id
-                          ? "text-blue-600"
-                          : "text-gray-400"
-                      } hover:text-blue-600`}
-                    />
-                    <Label htmlFor={category._id} className="cursor-pointer">
-                      {category.name}
-                    </Label>
+                  <Checkbox
+                    id={category._id}
+                    checked={isChecked}
+                    onCheckedChange={(checked) =>
+                      onCheckboxChange("productCategory", category._id, checked)
+                    }
+                    className={`h-4 w-4 transition-colors duration-200
+                        ${isChecked ? "text-blue-600" : "text-gray-400"}
+                        hover:text-blue-600`}
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                  <div className="flex-1">
+                    {categoryNames.map((name, idx) => (
+                      <Label
+                        key={idx}
+                        htmlFor={category._id}
+                        className={`text-sm cursor-pointer font-medium block
+                      ${isChecked ? "text-blue-700" : "text-gray-700"}
+                      group-hover:text-blue-700 transition-colors duration-200`}
+                      >
+                        {name}
+                      </Label>
+                    ))}
                   </div>
                   {hasSubCategories && (
-                    <ChevronDown
-                      className={`h-4 w-4 transition-transform duration-200 ${
-                        isExpanded ? "rotate-180" : ""
-                      }`}
+                    <ChevronRight
+                      className={`h-4 w-4 transition-all duration-200
+                      ${isChecked ? "text-blue-600" : "text-gray-400"}
+                      group-hover:text-blue-600
+                      ${isExpanded ? "rotate-90" : ""}`}
                     />
                   )}
                 </div>
 
-                {/* Sub-categories Dropdown */}
+                {/* Sub-category Dropdown */}
                 {isExpanded && hasSubCategories && (
-                  <div className="absolute z-10 left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg animate-in fade-in-0 zoom-in-95">
-                    <div className="max-h-[250px] overflow-y-auto">
-                      {getSubCategoriesForCategory(category._id).map(
-                        (subCategory) => {
-                          const subCategoryNames = subCategory.name
-                            .split(",")
-                            .map((name) => name.trim());
+                  <div className="absolute z-10 left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg animate-in fade-in-0 zoom-in-95 py-2">
+                    <div className="max-h-[250px] overflow-y-auto flex flex-col gap-1">
+                      {subCategories.map((subCategory) => {
+                        const subCategoryNames = subCategory.name
+                          .split(",")
+                          .map((name) => name.trim());
 
-                          return subCategoryNames.map((name, nameIdx) => {
-                            const subCategoryId = `${subCategory._id}-${nameIdx}`;
-                            const isSubChecked =
-                              formData.productSubCategories?.includes(
-                                subCategoryId
-                              );
-
-                            return (
-                              <div
-                                key={subCategoryId}
-                                className={`flex items-center gap-3 p-3 mx-1 rounded-md
-                                  ${isSubChecked ? "bg-blue-50" : "bg-white"}`}
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                <Checkbox
-                                  id={subCategoryId}
-                                  checked={isSubChecked}
-                                  onCheckedChange={(checked) =>
-                                    onCheckboxChange(
-                                      "productSubCategories",
-                                      subCategoryId,
-                                      checked
-                                    )
-                                  }
-                                  className={`h-4 w-4 transition-colors duration-200
-                                    ${
-                                      isSubChecked
-                                        ? "text-blue-600"
-                                        : "text-gray-400"
-                                    }
-                                    hover:text-blue-600`}
-                                />
-                                <Label
-                                  htmlFor={subCategoryId}
-                                  className={`text-sm cursor-pointer flex-1
-                                    ${
-                                      isSubChecked
-                                        ? "text-blue-700 font-medium"
-                                        : "text-gray-600"
-                                    }
-                                    hover:text-blue-700 transition-colors duration-200`}
-                                >
-                                  {name}
-                                </Label>
-                              </div>
+                        return subCategoryNames.map((name, nameIdx) => {
+                          const subCategoryId = `${subCategory._id}-${nameIdx}`;
+                          const isSubChecked =
+                            formData.productSubCategories?.includes(
+                              subCategoryId
                             );
-                          });
-                        }
-                      )}
+
+                          return (
+                            <div
+                              key={subCategoryId}
+                              className={`flex items-center gap-3 p-3 mx-1 rounded-md
+                                ${isSubChecked ? "bg-blue-50" : "bg-white"}`}
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <Checkbox
+                                id={subCategoryId}
+                                checked={isSubChecked}
+                                onCheckedChange={(checked) =>
+                                  onCheckboxChange(
+                                    "productSubCategories",
+                                    subCategoryId,
+                                    checked
+                                  )
+                                }
+                                className={`h-4 w-4 transition-colors duration-200
+                                  ${
+                                    isSubChecked
+                                      ? "text-blue-600"
+                                      : "text-gray-400"
+                                  }
+                                  hover:text-blue-600`}
+                              />
+                              <Label
+                                htmlFor={subCategoryId}
+                                className={`text-sm cursor-pointer flex-1
+                                  ${
+                                    isSubChecked
+                                      ? "text-blue-700 font-medium"
+                                      : "text-gray-600"
+                                  }
+                                  hover:text-blue-700 transition-colors duration-200`}
+                              >
+                                {name}
+                              </Label>
+                            </div>
+                          );
+                        });
+                      })}
                     </div>
                   </div>
                 )}
