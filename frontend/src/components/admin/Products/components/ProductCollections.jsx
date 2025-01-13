@@ -223,16 +223,13 @@ const ProductCollections = ({ formData, onCheckboxChange }) => {
                       {subCollections.map((subCollection) => (
                         <div
                           key={subCollection._id}
-                          className={`flex items-center gap-3 p-3 mx-1 rounded-md
-                            ${
-                              isSubCollectionChecked(subCollection._id)
-                                ? "bg-blue-50"
-                                : "bg-white"
-                            }`}
+                          className="flex items-center gap-3 p-3 mx-1 rounded-md"
                         >
                           <Checkbox
                             id={subCollection._id}
-                            checked={isSubCollectionChecked(subCollection._id)}
+                            checked={formData.productSubCollections?.includes(
+                              subCollection._id
+                            )}
                             onCheckedChange={(checked) =>
                               handleSubCollectionChange(
                                 collection._id,
@@ -242,7 +239,9 @@ const ProductCollections = ({ formData, onCheckboxChange }) => {
                             }
                             className={`h-4 w-4 transition-colors duration-200
                               ${
-                                isSubCollectionChecked(subCollection._id)
+                                formData.productSubCollections?.includes(
+                                  subCollection._id
+                                )
                                   ? "text-blue-600"
                                   : "text-gray-400"
                               }
