@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Save, X } from "lucide-react";
+import { Save } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -31,36 +30,9 @@ const UpdateSubCategory = () => {
   const { data: subCategoryData } = useGetSubCategoriesQuery();
   const { data: categoryData } = useGetCategoryQuery();
 
-  const [subCategoryNames, setSubCategoryNames] = useState([]);
-  const [inputValue, setInputValue] = useState("");
-
   const subCategory = subCategoryData?.sub_categories?.find(
     (subCat) => subCat._id === id
   );
-
-  useEffect(() => {
-    if (subCategory) {
-      setSubCategoryNames(
-        subCategory.name.split(",").map((name) => name.trim())
-      );
-    }
-  }, [subCategory]);
-
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter" && inputValue.trim()) {
-      e.preventDefault();
-      if (!subCategoryNames.includes(inputValue.trim())) {
-        setSubCategoryNames([...subCategoryNames, inputValue.trim()]);
-        setInputValue("");
-      }
-    }
-  };
-
-  const removeSubCategory = (nameToRemove) => {
-    setSubCategoryNames(
-      subCategoryNames.filter((name) => name !== nameToRemove)
-    );
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -71,13 +43,13 @@ const UpdateSubCategory = () => {
       return;
     }
 
-    if (subCategoryNames.length === 0) {
-      toast.error("Please add at least one sub-category name");
+    if (!formData.get("name")) {
+      toast.error("Please enter a sub-category name");
       return;
     }
 
     const updateData = {
-      name: subCategoryNames.join(", "),
+      name: formData.get("name").trim(),
       category: formData.get("category"),
       updatedBy: user?._id,
     };
@@ -93,21 +65,6 @@ const UpdateSubCategory = () => {
     } catch (error) {
       toast.error(error?.data?.message || "Failed to update sub-category");
     }
-  };
-
-  const badgeVariants = [
-    "bg-red-100 text-red-700 hover:bg-red-200",
-    "bg-blue-100 text-blue-700 hover:bg-blue-200",
-    "bg-green-100 text-green-700 hover:bg-green-200",
-    "bg-purple-100 text-purple-700 hover:bg-purple-200",
-    "bg-yellow-100 text-yellow-700 hover:bg-yellow-200",
-    "bg-pink-100 text-pink-700 hover:bg-pink-200",
-    "bg-indigo-100 text-indigo-700 hover:bg-indigo-200",
-    "bg-orange-100 text-orange-700 hover:bg-orange-200",
-  ];
-
-  const getRandomColor = (index) => {
-    return badgeVariants[index % badgeVariants.length];
   };
 
   if (!subCategory) {
@@ -156,38 +113,15 @@ const UpdateSubCategory = () => {
                     htmlFor="name"
                     className="flex items-center gap-2 text-lg font-semibold"
                   >
-                    Sub-Category Names
+                    Sub-Category Name
                   </Label>
-                  <div className="space-y-2">
-                    <Input
-                      id="name"
-                      value={inputValue}
-                      onChange={(e) => setInputValue(e.target.value)}
-                      onKeyDown={handleKeyDown}
-                      placeholder="Type and press Enter to add sub-category name"
-                    />
-
-                    <div className="flex flex-wrap gap-2 mb-2">
-                      {subCategoryNames.map((name, index) => (
-                        <Badge
-                          key={index}
-                          variant="secondary"
-                          className={`flex items-center gap-2 px-3 py-1.5 ${getRandomColor(
-                            index
-                          )}`}
-                        >
-                          {name}
-                          <button
-                            type="button"
-                            onClick={() => removeSubCategory(name)}
-                            className="hover:text-muted-foreground/80 transition-colors"
-                          >
-                            <X className="h-3 w-3" />
-                          </button>
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
+                  <Input
+                    id="name"
+                    name="name"
+                    defaultValue={subCategory.name}
+                    placeholder="Enter sub-category name"
+                    required
+                  />
                 </div>
 
                 <div className="flex justify-end space-x-4 pt-6">

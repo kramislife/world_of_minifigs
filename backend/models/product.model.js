@@ -44,16 +44,30 @@ const productSchema = new mongoose.Schema(
     ],
     product_category: [
       {
-        required: true,
         type: mongoose.Schema.Types.ObjectId,
         ref: "Category",
+        required: true,
+      },
+    ],
+    product_sub_categories: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "SubCategory",
+        required: false,
       },
     ],
     product_collection: [
       {
-        required: true,
         type: mongoose.Schema.Types.ObjectId,
         ref: "Collection",
+        required: true,
+      },
+    ],
+    product_sub_collections: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "SubCollection",
+        required: false,
       },
     ],
     product_piece_count: {

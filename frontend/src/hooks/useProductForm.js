@@ -36,7 +36,7 @@ const useProductForm = () => {
 
     // New Fields
     productCategories: [],
-    productCollections: "",
+    productCollections: [],
     productIncludes: [],
     skillLevel: "",
     productDesigner: "",
@@ -45,6 +45,9 @@ const useProductForm = () => {
     preorder: false,
     preorderDate: null, // Add this for pre-order date
     productColors: [], // Add this for color variants
+    productCategory: [],
+    productSubCategories: [],
+    productSubCollections: [],
   });
 
   // Handle changes to input fields
@@ -110,6 +113,14 @@ const useProductForm = () => {
       return;
     }
 
+    // Clean and validate IDs before submission
+    const cleanAndValidateIds = (ids) => {
+      if (!Array.isArray(ids)) return [];
+      return ids
+        .map((id) => (typeof id === "string" ? id.split("-")[0] : id))
+        .filter((id) => typeof id === "string" && /^[0-9a-fA-F]{24}$/.test(id));
+    };
+
     const newProduct = {
       product_name: formData.name,
       price: parseFloat(formData.price),
@@ -118,8 +129,14 @@ const useProductForm = () => {
       product_description_1: formData.description1,
       product_description_2: formData.description2 || "",
       product_description_3: formData.description3 || "",
-      product_category: formData.productCategories,
-      product_collection: formData.productCollections,
+      product_category: cleanAndValidateIds(formData.productCategory),
+      product_collection: cleanAndValidateIds(formData.productCollections),
+      product_sub_categories: cleanAndValidateIds(
+        formData.productSubCategories
+      ),
+      product_sub_collections: cleanAndValidateIds(
+        formData.productSubCollections
+      ),
       product_piece_count: parseInt(
         formData.specifications.find((spec) => spec.name === "piece_count")
           ?.value || 0,
@@ -154,12 +171,23 @@ const useProductForm = () => {
       preorder_date: formData.preorderDate
         ? formData.preorderDate.toISOString().split("T")[0]
         : null,
-      createdBy: user?._id,
       product_color: formData.productColors[0],
+      createdBy: user?._id,
     };
 
+    // Debug logs
+    console.log("Form submission data:", {
+      categories: {
+        main: newProduct.product_category,
+        sub: newProduct.product_sub_categories,
+      },
+      collections: {
+        main: newProduct.product_collection,
+        sub: newProduct.product_sub_collections,
+      },
+    });
+
     try {
-      console.log("Submitting product with color:", newProduct.product_color);
       const response = await createProduct(newProduct).unwrap();
       console.log("Creation response:", response);
       toast.success("Product created successfully!");
@@ -175,7 +203,7 @@ const useProductForm = () => {
     handleChange,
     handleCheckboxChange,
     handleSubmit,
-    handleDateChange, // Return handleDateChange
+    handleDateChange,
     isLoading,
   };
 };

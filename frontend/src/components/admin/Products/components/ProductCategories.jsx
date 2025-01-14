@@ -37,7 +37,11 @@ const ProductCategories = ({ formData, onCheckboxChange }) => {
   useEffect(() => {
     const handleClickOutside = (event) => {
       Object.entries(dropdownRefs.current).forEach(([categoryId, ref]) => {
-        if (ref && !ref.contains(event.target)) {
+        if (
+          ref &&
+          !ref.contains(event.target) &&
+          !event.target.closest(".category-item")
+        ) {
           setExpandedCategory((prev) => ({
             ...prev,
             [categoryId]: false,
@@ -67,6 +71,30 @@ const ProductCategories = ({ formData, onCheckboxChange }) => {
 
   const getCategoryNameArray = (name) => {
     return name.split(",").map((item) => item.trim());
+  };
+
+  const handleSubCategoryChange = (categoryId, subCategoryId, checked) => {
+    // Handle subcategory checkbox change
+    onCheckboxChange("productSubCategories", subCategoryId, checked);
+
+    // If checking a subcategory, ensure parent category is checked
+    if (checked && !formData.productCategory?.includes(categoryId)) {
+      onCheckboxChange("productCategory", categoryId, true);
+    }
+
+    // If unchecking a subcategory, check if we should uncheck parent
+    if (!checked) {
+      const subCategories = getSubCategoriesForCategory(categoryId);
+      const hasOtherSelectedSubCategories = subCategories.some(
+        (subCat) =>
+          formData.productSubCategories?.includes(subCat._id) &&
+          subCat._id !== subCategoryId
+      );
+
+      if (!hasOtherSelectedSubCategories) {
+        onCheckboxChange("productCategory", categoryId, false);
+      }
+    }
   };
 
   if (!categoryData?.categories || categoryData.categories.length === 0) {
@@ -102,9 +130,13 @@ const ProductCategories = ({ formData, onCheckboxChange }) => {
         <Label className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
           Product Categories
         </Label>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {categoryData?.categories?.map((category) => {
-            const isChecked = formData.productCategory?.includes(category._id);
+            const productCategories = Array.isArray(formData.productCategory)
+              ? formData.productCategory
+              : [];
+
+            const isChecked = productCategories.includes(category._id);
             const subCategories = getSubCategoriesForCategory(category._id);
             const hasSubCategories = subCategories.length > 0;
             const isExpanded = expandedCategory[category._id];
@@ -113,7 +145,7 @@ const ProductCategories = ({ formData, onCheckboxChange }) => {
             return (
               <div
                 key={category._id}
-                className="relative"
+                className="relative category-item"
                 ref={(el) => (dropdownRefs.current[category._id] = el)}
               >
                 <div
@@ -187,12 +219,14 @@ const ProductCategories = ({ formData, onCheckboxChange }) => {
                               onClick={(e) => e.stopPropagation()}
                             >
                               <Checkbox
-                                id={subCategoryId}
-                                checked={isSubChecked}
+                                id={subCategory._id}
+                                checked={formData.productSubCategories?.includes(
+                                  subCategory._id
+                                )}
                                 onCheckedChange={(checked) =>
-                                  onCheckboxChange(
-                                    "productSubCategories",
-                                    subCategoryId,
+                                  handleSubCategoryChange(
+                                    category._id,
+                                    subCategory._id,
                                     checked
                                   )
                                 }
@@ -205,8 +239,8 @@ const ProductCategories = ({ formData, onCheckboxChange }) => {
                                   hover:text-blue-600`}
                               />
                               <Label
-                                htmlFor={subCategoryId}
-                                className={`text-sm cursor-pointer flex-1
+                                htmlFor={subCategory._id}
+                                className={`text-sm cursor-pointer
                                   ${
                                     isSubChecked
                                       ? "text-blue-700 font-medium"
@@ -214,7 +248,7 @@ const ProductCategories = ({ formData, onCheckboxChange }) => {
                                   }
                                   hover:text-blue-700 transition-colors duration-200`}
                               >
-                                {name}
+                                {subCategory.name}
                               </Label>
                             </div>
                           );

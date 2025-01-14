@@ -42,7 +42,11 @@ const ProductCollections = ({ formData, onCheckboxChange }) => {
   useEffect(() => {
     const handleClickOutside = (event) => {
       Object.entries(dropdownRefs.current).forEach(([collectionId, ref]) => {
-        if (ref && !ref.contains(event.target)) {
+        if (
+          ref &&
+          !ref.contains(event.target) &&
+          !event.target.closest(".collection-item")
+        ) {
           setExpandedCollections((prev) => ({
             ...prev,
             [collectionId]: false,
@@ -72,6 +76,41 @@ const ProductCollections = ({ formData, onCheckboxChange }) => {
 
   const getCollectionNameArray = (name) => {
     return name.split(",").map((item) => item.trim());
+  };
+
+  const isSubCollectionChecked = (subCollectionId) => {
+    return formData.productSubCollections?.includes(subCollectionId);
+  };
+
+  const handleSubCollectionChange = (
+    collectionId,
+    subCollectionId,
+    checked
+  ) => {
+    // First, handle the subcollection change
+    onCheckboxChange("productSubCollections", subCollectionId, checked);
+
+    // If checking a subcollection, ensure the parent collection is also checked
+    if (checked && !formData.productCollections?.includes(collectionId)) {
+      onCheckboxChange("productCollections", collectionId, true);
+    }
+
+    // If unchecking a subcollection, check if we should uncheck the parent
+    if (!checked) {
+      // Get all subcollections for this collection
+      const subCollections = getSubCollectionsForCollection(collectionId);
+      // Check if any other subcollections are still selected
+      const hasOtherSelectedSubCollections = subCollections.some(
+        (subCol) =>
+          formData.productSubCollections?.includes(subCol._id) &&
+          subCol._id !== subCollectionId
+      );
+
+      // If no other subcollections are selected, uncheck the parent collection
+      if (!hasOtherSelectedSubCollections) {
+        onCheckboxChange("productCollections", collectionId, false);
+      }
+    }
   };
 
   if (!collectionData?.collections || collectionData.collections.length === 0) {
@@ -123,7 +162,7 @@ const ProductCollections = ({ formData, onCheckboxChange }) => {
             return (
               <div
                 key={collection._id}
-                className="relative group"
+                className="relative group collection-item"
                 ref={(el) => (dropdownRefs.current[collection._id] = el)}
               >
                 <div
@@ -179,61 +218,43 @@ const ProductCollections = ({ formData, onCheckboxChange }) => {
 
                 {/* Sub-collections Dropdown */}
                 {isExpanded && hasSubCollections && (
-                  <div className="absolute z-10 left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg animate-in fade-in-0 zoom-in-95 py-2">
-                    <div className="max-h-[250px] overflow-y-auto flex flex-col gap-1">
-                      {subCollections.map((subCollection) => {
-                        const subCollectionNames = subCollection.name
-                          .split(",")
-                          .map((name) => name.trim());
-
-                        return subCollectionNames.map((name, nameIdx) => {
-                          const subCollectionId = `${subCollection._id}-${nameIdx}`;
-                          const isSubChecked =
-                            formData.productSubCollections?.includes(
-                              subCollectionId
-                            );
-
-                          return (
-                            <div
-                              key={subCollectionId}
-                              className={`flex items-center gap-3 p-3 mx-1 rounded-md
-                                ${isSubChecked ? "bg-blue-50" : "bg-white"}`}
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <Checkbox
-                                id={subCollectionId}
-                                checked={isSubChecked}
-                                onCheckedChange={(checked) =>
-                                  onCheckboxChange(
-                                    "productSubCollections",
-                                    subCollectionId,
-                                    checked
-                                  )
-                                }
-                                className={`h-4 w-4 transition-colors duration-200
-                                  ${
-                                    isSubChecked
-                                      ? "text-blue-600"
-                                      : "text-gray-400"
-                                  }
-                                  hover:text-blue-600`}
-                              />
-                              <Label
-                                htmlFor={subCollectionId}
-                                className={`text-sm cursor-pointer flex-1
-                                  ${
-                                    isSubChecked
-                                      ? "text-blue-700 font-medium"
-                                      : "text-gray-600"
-                                  }
-                                  hover:text-blue-700 transition-colors duration-200`}
-                              >
-                                {name}
-                              </Label>
-                            </div>
-                          );
-                        });
-                      })}
+                  <div className="absolute z-10 left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg">
+                    <div className="max-h-[250px] overflow-y-auto">
+                      {subCollections.map((subCollection) => (
+                        <div
+                          key={subCollection._id}
+                          className="flex items-center gap-3 p-3 mx-1 rounded-md"
+                        >
+                          <Checkbox
+                            id={subCollection._id}
+                            checked={formData.productSubCollections?.includes(
+                              subCollection._id
+                            )}
+                            onCheckedChange={(checked) =>
+                              handleSubCollectionChange(
+                                collection._id,
+                                subCollection._id,
+                                checked
+                              )
+                            }
+                            className={`h-4 w-4 transition-colors duration-200
+                              ${
+                                formData.productSubCollections?.includes(
+                                  subCollection._id
+                                )
+                                  ? "text-blue-600"
+                                  : "text-gray-400"
+                              }
+                              hover:text-blue-600`}
+                          />
+                          <Label
+                            htmlFor={subCollection._id}
+                            className="text-sm cursor-pointer"
+                          >
+                            {subCollection.name}
+                          </Label>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 )}
