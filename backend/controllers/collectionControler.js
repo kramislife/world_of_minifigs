@@ -1,4 +1,5 @@
 import Collection from "../models/collection.model.js";
+import SubCollection from "../models/subCollection.model.js";
 import catchAsyncErrors from "../middlewares/catchAsyncErrors.js";
 import ErrorHandler from "../Utills/customErrorHandler.js";
 import { upload_single_image } from "../Utills/cloudinary.js";
@@ -76,25 +77,35 @@ export const updateCollection = catchAsyncErrors(async (req, res) => {
 
 //------------------------------------ DELETE COLLECTION => admin/collection/:id ------------------------------------
 
-export const deleteCollectionByID = async (req, res) => {
-  try {
-    const { id } = req.params;
+export const deleteCollectionByID = catchAsyncErrors(async (req, res, next) => {
+  const { id } = req.params;
 
-    const deletedCollection = await Collection.findByIdAndDelete(id);
-
-    if (!deletedCollection) {
-      return res.status(404).json({
-        message: "Collection not found",
-      });
-    }
-
-    res.status(200).json({
-      message: "Collection deleted successfully",
-    });
-  } catch (error) {
-    res.status(400).json({ message: error.message });
+  // First check if collection exists
+  const collection = await Collection.findById(id);
+  if (!collection) {
+    return next(new ErrorHandler("Collection not found", 404));
   }
-};
+
+  // Check if there are any subcollections linked to this collection
+  const subCollections = await SubCollection.find({ collection: id });
+
+  if (subCollections && subCollections.length > 0) {
+    return next(
+      new ErrorHandler(
+        `'${collection.name}' cannot be deleted. Please delete all subcollections first.`,
+        400
+      )
+    );
+  }
+
+  // If no subcollections exist, proceed with deletion
+  const deletedCollection = await Collection.findByIdAndDelete(id);
+
+  res.status(200).json({
+    deletedCollection,
+    message: "Collection deleted successfully",
+  });
+});
 
 //------------------------------------ UPLOAD COLLECTION => admin/collection/:id/upload_image ------------------------------------
 
