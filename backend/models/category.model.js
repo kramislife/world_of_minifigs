@@ -35,7 +35,7 @@ const categorySchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-categorySchema.pre("save", async function (next) {  
+categorySchema.pre("save", async function (next) {
   if (this.name && !this.key) {
     this.name = this.name.trim();
     this.key = this.name.toLowerCase().trim().replace(/\s+/g, "_");
