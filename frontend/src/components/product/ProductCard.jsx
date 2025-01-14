@@ -1,8 +1,8 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { ImageIcon } from "lucide-react";
 import StarRating from "@/components/product/shared/StarRating";
+import { PlaceholderImage } from "@/components/product/shared/FallbackStates";
 import ProductStatus from "@/components/product/shared/ProductStatus";
 
 const ProductCard = ({ product }) => {
@@ -13,12 +13,6 @@ const ProductCard = ({ product }) => {
   const hasImages =
     product?.product_images && product.product_images.length > 0;
 
-  const PlaceholderImage = () => (
-    <div className="w-full h-full bg-brand-gradient flex items-center justify-center">
-      <ImageIcon className="w-16 h-16 text-slate-500" />
-    </div>
-  );
-
   const handleViewDetails = () => {
     if (category) {
       navigate(`/products/${category}/${product?._id}`);
@@ -26,11 +20,6 @@ const ProductCard = ({ product }) => {
       navigate(`/products/${product?._id}`);
     }
   };
-
-  const discountedPrice =
-    product?.price && product?.discount
-      ? product.price - (product.price * product.discount) / 100
-      : product?.price || 0;
 
   return (
     <motion.div
@@ -103,7 +92,7 @@ const ProductCard = ({ product }) => {
             {product?.price ? (
               <>
                 <p className="text-2xl font-bold bg-gradient-to-r from-red-400 to-red-600 bg-clip-text text-transparent">
-                  ${discountedPrice.toFixed(2)}
+                  ${product.discounted_price.toFixed(2)}
                 </p>
                 {product?.discount > 0 && (
                   <p className="text-sm text-slate-500 line-through">
