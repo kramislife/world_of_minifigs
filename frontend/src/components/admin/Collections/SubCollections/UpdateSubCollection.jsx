@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Save, FileText, X } from "lucide-react";
+import { Save } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -21,7 +21,6 @@ import {
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
-import { Badge } from "@/components/ui/badge";
 
 const UpdateSubCollection = () => {
   const { id } = useParams();
@@ -32,36 +31,9 @@ const UpdateSubCollection = () => {
   const { data: subCollectionData } = useGetSubCollectionsQuery();
   const { data: collectionData } = useGetCollectionQuery();
 
-  const [subCollectionNames, setSubCollectionNames] = useState([]);
-  const [inputValue, setInputValue] = useState("");
-
   const subCollection = subCollectionData?.subcollections?.find(
     (subCol) => subCol._id === id
   );
-
-  React.useEffect(() => {
-    if (subCollection) {
-      setSubCollectionNames(
-        subCollection.name.split(",").map((name) => name.trim())
-      );
-    }
-  }, [subCollection]);
-
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter" && inputValue.trim()) {
-      e.preventDefault();
-      if (!subCollectionNames.includes(inputValue.trim())) {
-        setSubCollectionNames([...subCollectionNames, inputValue.trim()]);
-        setInputValue("");
-      }
-    }
-  };
-
-  const removeSubCollection = (nameToRemove) => {
-    setSubCollectionNames(
-      subCollectionNames.filter((name) => name !== nameToRemove)
-    );
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -72,13 +44,13 @@ const UpdateSubCollection = () => {
       return;
     }
 
-    if (subCollectionNames.length === 0) {
-      toast.error("Please add at least one sub-collection name");
+    if (!formData.get("name")) {
+      toast.error("Please enter a sub-collection name");
       return;
     }
 
     const updateData = {
-      name: subCollectionNames.join(", "),
+      name: formData.get("name").trim(),
       description: formData.get("description"),
       collection: formData.get("collection"),
       updatedBy: user?._id,
@@ -95,22 +67,6 @@ const UpdateSubCollection = () => {
     } catch (error) {
       toast.error(error?.data?.message || "Failed to update sub-collection");
     }
-  };
-
-  // Add these color variants
-  const badgeVariants = [
-    "bg-red-100 text-red-700 hover:bg-red-200",
-    "bg-blue-100 text-blue-700 hover:bg-blue-200",
-    "bg-green-100 text-green-700 hover:bg-green-200",
-    "bg-purple-100 text-purple-700 hover:bg-purple-200",
-    "bg-yellow-100 text-yellow-700 hover:bg-yellow-200",
-    "bg-pink-100 text-pink-700 hover:bg-pink-200",
-    "bg-indigo-100 text-indigo-700 hover:bg-indigo-200",
-    "bg-orange-100 text-orange-700 hover:bg-orange-200",
-  ];
-
-  const getRandomColor = (index) => {
-    return badgeVariants[index % badgeVariants.length];
   };
 
   if (!subCollection) {
@@ -159,38 +115,15 @@ const UpdateSubCollection = () => {
                     htmlFor="name"
                     className="flex items-center gap-2 text-lg font-semibold"
                   >
-                    Sub-Collection Names
+                    Sub-Collection Name
                   </Label>
-                  <div className="space-y-2">
-                    <Input
-                      id="name"
-                      value={inputValue}
-                      onChange={(e) => setInputValue(e.target.value)}
-                      onKeyDown={handleKeyDown}
-                      placeholder="Type and press Enter to add sub-collection name"
-                    />
-
-                    <div className="flex flex-wrap gap-2 mb-2">
-                      {subCollectionNames.map((name, index) => (
-                        <Badge
-                          key={index}
-                          variant="secondary"
-                          className={`flex items-center gap-2 px-3 py-1.5 ${getRandomColor(
-                            index
-                          )}`}
-                        >
-                          {name}
-                          <button
-                            type="button"
-                            onClick={() => removeSubCollection(name)}
-                            className="hover:text-muted-foreground/80 transition-colors"
-                          >
-                            <X className="h-3 w-3" />
-                          </button>
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
+                  <Input
+                    id="name"
+                    name="name"
+                    defaultValue={subCollection.name}
+                    placeholder="Enter sub-collection name"
+                    required
+                  />
                 </div>
 
                 <div className="space-y-3">
@@ -203,8 +136,8 @@ const UpdateSubCollection = () => {
                   <Textarea
                     id="description"
                     name="description"
-                    placeholder="Enter sub-collection description"
                     defaultValue={subCollection.description}
+                    placeholder="Enter sub-collection description"
                     className="h-32"
                   />
                 </div>

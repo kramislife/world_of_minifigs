@@ -89,7 +89,9 @@ export const getBestSellerProduct = catchAsyncErrors(async (req, res, next) => {
 export const getProductById = catchAsyncErrors(async (req, res, next) => {
   const product = await Product.findById(req?.params?.id)
     .populate("product_category", "name")
+    .populate("product_sub_categories", "name")
     .populate("product_collection", "name")
+    .populate("product_sub_collections", "name")
     .populate("product_designer", "name")
     .populate("product_skill_level", "name")
     .populate("product_color", "name");

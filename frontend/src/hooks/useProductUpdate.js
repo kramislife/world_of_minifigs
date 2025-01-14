@@ -38,7 +38,8 @@ const useProductUpdate = (id) => {
 
     // New Fields
     productCategories: [],
-    productCollections: "",
+    productCollections: [],
+    productSubCollections: [],
     productIncludes: [],
     skillLevel: "",
     productDesigner: "",
@@ -87,9 +88,21 @@ const useProductUpdate = (id) => {
         seller: data?.product?.seller || "",
         tags: data?.product?.tags?.join(", ") || "",
         productCategories:
-          data?.product?.product_category.map((cat) => cat._id) || [],
+          data?.product?.product_category?.reduce((acc, cat) => {
+            // Add main category
+            acc.push(cat._id);
+            // Add sub-categories if they exist
+            if (cat.sub_categories) {
+              cat.sub_categories.forEach((subCat) => {
+                acc.push(subCat._id);
+              });
+            }
+            return acc;
+          }, []) || [],
         productCollections:
-          data?.product?.product_collection.map((col) => col._id) || [],
+          data?.product?.product_collection?.map((col) => col._id) || [],
+        productSubCollections:
+          data?.product?.product_sub_collections?.map((sub) => sub._id) || [],
         productIncludes: data?.product?.product_includes?.split(", ") || [],
         skillLevel: data?.product?.product_skill_level?._id || "",
         productDesigner: data?.product?.product_designer?._id || "",
@@ -102,9 +115,34 @@ const useProductUpdate = (id) => {
         productColors: data?.product?.product_color
           ? [data.product.product_color._id]
           : [],
+        productCategory:
+          data?.product?.product_category?.map((cat) => cat._id) || [],
+        productSubCategories:
+          data?.product?.product_sub_categories?.map((subCat) => subCat._id) ||
+          [],
       });
     }
   }, [isError, error, data]);
+
+  useEffect(() => {
+    if (data?.product) {
+      // First, get all collection IDs from the product
+      const productCollectionIds =
+        data.product.product_collection?.map((col) => col._id) || [];
+
+      // Get all sub-collection IDs from the product
+      const productSubCollectionIds =
+        data.product.product_sub_collections?.map((sub) => sub._id) || [];
+
+      setFormData((prev) => ({
+        ...prev,
+        // Set the collection IDs
+        productCollections: productCollectionIds,
+        // Set the sub-collection IDs
+        productSubCollections: productSubCollectionIds,
+      }));
+    }
+  }, [data]);
 
   // Handle update errors
   useEffect(() => {
@@ -177,8 +215,14 @@ const useProductUpdate = (id) => {
       product_description_1: formData.description1,
       product_description_2: formData.description2 || "",
       product_description_3: formData.description3 || "",
-      product_category: formData.productCategories,
+      product_category: formData.productCategory,
+      product_sub_categories: formData.productSubCategories.filter(
+        (id) => typeof id === "string" && /^[0-9a-fA-F]{24}$/.test(id)
+      ),
       product_collection: formData.productCollections,
+      product_sub_collections: formData.productSubCollections.filter(
+        (id) => typeof id === "string" && /^[0-9a-fA-F]{24}$/.test(id)
+      ),
       product_piece_count: parseInt(
         formData.specifications.find((spec) => spec.name === "piece_count")
           ?.value || 0,
