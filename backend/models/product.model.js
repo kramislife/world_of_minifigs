@@ -53,7 +53,7 @@ const productSchema = new mongoose.Schema(
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "SubCategory",
-        required: false,
+        required: true,
       },
     ],
     product_collection: [
@@ -67,19 +67,17 @@ const productSchema = new mongoose.Schema(
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "SubCollection",
-        required: false,
+        required: true,
       },
     ],
     product_piece_count: {
       type: Number,
       required: false,
-      min: [1, "Product piece count must be at least 1"],
     },
     product_availability: Date,
     product_length: {
       type: Number,
       required: false,
-      min: [0, "Length cannot be negative"],
       validate: {
         validator: (v) => /^\d+(\.\d{1,2})?$/.test(v),
         message: "Length must have at most 2 decimal places",
@@ -88,7 +86,6 @@ const productSchema = new mongoose.Schema(
     product_width: {
       type: Number,
       required: false,
-      min: [0, "Width cannot be negative"],
       validate: {
         validator: (v) => /^\d+(\.\d{1,2})?$/.test(v),
         message: "Width must have at most 2 decimal places",
@@ -97,7 +94,6 @@ const productSchema = new mongoose.Schema(
     product_height: {
       type: Number,
       required: false,
-      min: [0, "Height cannot be negative"],
       validate: {
         validator: (v) => /^\d+(\.\d{1,2})?$/.test(v),
         message: "Height must have at most 2 decimal places",
