@@ -52,8 +52,7 @@ const ProductDetails = ({ product, containerVariants, itemVariants }) => {
 
   const handleAddToCart = () => {
     try {
-      const discountedPrice =
-        product?.discounted_price || product?.price || 0;
+      const discountedPrice = product?.discounted_price || product?.price || 0;
 
       dispatch(
         addToCart({
@@ -227,10 +226,8 @@ const ProductDetails = ({ product, containerVariants, itemVariants }) => {
               <div className="flex items-center space-x-4">
                 <span className="text-4xl font-semibold">
                   $
-                  {(
-                    (product?.price || 0) *
-                    (1 - (product?.discount || 0) / 100)
-                  ).toFixed(2)}
+                  {product?.discounted_price?.toFixed(2) ||
+                    (product?.price || 0).toFixed(2)}
                 </span>
                 {product?.discount > 0 && (
                   <span className="text-xl text-red-500 line-through">

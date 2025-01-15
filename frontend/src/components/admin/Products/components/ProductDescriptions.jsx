@@ -49,7 +49,6 @@ const ProductDescriptions = ({ formData, onChange }) => {
             onChange={onChange}
             placeholder={desc.placeholder}
             className="resize-none h-24 w-full border-2 rounded-lg px-4 py-2 transition duration-300 focus:outline-none focus:border-blue-500 hover:border-blue-300"
-            required
           />
         </div>
       ))}

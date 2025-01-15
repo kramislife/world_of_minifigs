@@ -16,7 +16,6 @@ const AdditionalInformation = ({ formData, onChange }) => {
             onChange={onChange}
             placeholder="Enter seller name"
             className="border-2 rounded-lg px-4 py-2 transition duration-300 focus:outline-none focus:border-blue-500 hover:border-blue-300"
-            required
           />
         </div>
 
@@ -30,7 +29,6 @@ const AdditionalInformation = ({ formData, onChange }) => {
             onChange={onChange}
             placeholder="Enter manufacturer"
             className="border-2 rounded-lg px-4 py-2 transition duration-300 focus:outline-none focus:border-blue-500 hover:border-blue-300"
-            required
           />
         </div>
       </div>
@@ -45,7 +43,6 @@ const AdditionalInformation = ({ formData, onChange }) => {
           onChange={onChange}
           placeholder="Enter tags separated by commas"
           className="border-2 rounded-lg px-4 py-2 transition duration-300 focus:outline-none focus:border-blue-500 hover:border-blue-300"
-          required
         />
       </div>
     </section>
