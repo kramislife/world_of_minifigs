@@ -185,7 +185,6 @@ const productSchema = new mongoose.Schema(
 productSchema.pre("save", async function (next) {
   if (this.product_name && this.product_color && !this.key) {
     this.product_name = this.product_name.trim();
-    this.product_color = this.product_color.trim();
     this.key = `${this.product_name
       .toLowerCase()
       .trim()
@@ -193,7 +192,6 @@ productSchema.pre("save", async function (next) {
   }
 
   // ---------------------------------- CHECK FOR UNIQUE KEY CONSTRAINT -----------------------------------------------
-
   const existingProduct = await mongoose
     .model("Product")
     .findOne({ key: this.key });
