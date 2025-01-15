@@ -76,12 +76,12 @@ const useProductUpdate = (id) => {
         description2: data?.product?.product_description_2 || "",
         description3: data?.product?.product_description_3 || "",
         specifications: [
-          { name: "length", value: data?.product?.product_length || "" },
-          { name: "width", value: data?.product?.product_width || "" },
-          { name: "height", value: data?.product?.product_height || "" },
+          { name: "length", value: data?.product?.product_length || "0" },
+          { name: "width", value: data?.product?.product_width || "0" },
+          { name: "height", value: data?.product?.product_height || "0" },
           {
             name: "piece_count",
-            value: data?.product?.product_piece_count || "",
+            value: data?.product?.product_piece_count || "1",
           },
         ],
         manufacturer: data?.product?.manufacturer || "",
