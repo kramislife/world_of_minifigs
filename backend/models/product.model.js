@@ -183,13 +183,15 @@ const productSchema = new mongoose.Schema(
 // ----------------------------------- PRE-SAVE HOOK TO GENERATE PRODUCT KEY -----------------------------------
 
 productSchema.pre("save", async function (next) {
-  if (this.product_name && !this.key) {
+  if (this.product_name && this.product_color && !this.key) {
     this.product_name = this.product_name.trim();
-    this.key = this.product_name.toLowerCase().trim().replace(/\s+/g, "_");
+    this.key = `${this.product_name
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, "_")}_${this.product_color.toString()}`;
   }
 
   // ---------------------------------- CHECK FOR UNIQUE KEY CONSTRAINT -----------------------------------------------
-
   const existingProduct = await mongoose
     .model("Product")
     .findOne({ key: this.key });
@@ -203,10 +205,22 @@ productSchema.pre("save", async function (next) {
 
 productSchema.pre("findOneAndUpdate", async function (next) {
   const update = this.getUpdate();
-  if (update.product_name) {
-    update.key = update.product_name.toLowerCase().trim().replace(/\s+/g, "_");
+  if (update.product_name || update.product_color) {
+    const productName = update.product_name
+      ? update.product_name.trim()
+      : (await mongoose.model("Product").findById(this.getQuery()._id))
+          .product_name;
+    const productColor = update.product_color
+      ? update.product_color
+      : (await mongoose.model("Product").findById(this.getQuery()._id))
+          .product_color;
 
-    // ------------------------------------------- CHECK IF THE KEY IS UNIQUE -------------------------------------------------------------
+    update.key = `${productName
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, "_")}_${productColor.toString()}`;
+
+    // Check if the key is unique
     const existingProduct = await mongoose
       .model("Product")
       .findOne({ key: update.key, _id: { $ne: this.getQuery()._id } });
