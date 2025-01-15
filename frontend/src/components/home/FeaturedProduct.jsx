@@ -7,6 +7,7 @@ import {
   CategoryFallback,
   PlaceholderImage,
 } from "@/components/product/shared/FallbackStates";
+import { toast } from "react-toastify";
 
 const FeaturedProducts = () => {
   const navigate = useNavigate();
