@@ -26,7 +26,6 @@ const ProductView = () => {
         <LoadingSpinner />
       ) : (
         <div className="min-h-screen bg-brand-gradient">
-
           {/* Product Details */}
           <ProductDetails
             product={data?.product}
