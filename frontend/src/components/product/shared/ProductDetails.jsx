@@ -10,6 +10,10 @@ import { Button } from "@/components/ui/button";
 import Metadata from "@/components/layout/Metadata/Metadata";
 import StarRating from "@/components/product/shared/StarRating";
 import ProductStatus from "@/components/product/shared/ProductStatus";
+import {
+  ProductImagePlaceholder,
+  ProductThumbnailPlaceholder
+} from "@/components/product/shared/FallbackStates";
 
 const ProductDetails = ({ product, containerVariants, itemVariants }) => {
   // const [quantity, setQuantity] = useState(1);
@@ -45,26 +49,6 @@ const ProductDetails = ({ product, containerVariants, itemVariants }) => {
   // Determine if images are available
   const hasImages =
     product?.product_images && product.product_images.length > 0;
-
-  // Placeholder image components
-  const PlaceholderImage = () => (
-    <div className="w-full h-full bg-brand-gradient flex items-center justify-center border border-slate-700 rounded-lg">
-      <ImageIcon className="w-16 h-16 text-slate-500" />
-    </div>
-  );
-
-  const PlaceholderThumbnail = () => (
-    <div className="w-full flex md:flex-col gap-2">
-      {[...Array(4)].map((_, index) => (
-        <div
-          key={index}
-          className="min-w-[130px] md:min-w-0 aspect-square rounded-lg bg-brand-gradient border border-slate-700 flex items-center justify-center"
-        >
-          <ImageIcon className="w-8 h-8 text-slate-500" />
-        </div>
-      ))}
-    </div>
-  );
 
   // Update navigation functions to include scroll
   const nextImage = () => {
@@ -143,7 +127,7 @@ const ProductDetails = ({ product, containerVariants, itemVariants }) => {
                     ))}
                   </div>
                 ) : (
-                  <PlaceholderThumbnail />
+                  <ProductThumbnailPlaceholder />
                 )}
               </div>
             </div>
@@ -164,7 +148,7 @@ const ProductDetails = ({ product, containerVariants, itemVariants }) => {
                   />
                 </AnimatePresence>
               ) : (
-                <PlaceholderImage />
+                <ProductImagePlaceholder />
               )}
 
               {hasImages && (

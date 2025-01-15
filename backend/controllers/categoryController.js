@@ -1,5 +1,6 @@
 import catchAsyncErrors from "../middlewares/catchAsyncErrors.js";
 import Category from "../models/category.model.js";
+import SubCategory from "../models/subCategory.model.js";
 import ErrorHandler from "../Utills/customErrorHandler.js";
 
 //------------------------------------  GET ALL CATEGORY => GET /categories  ------------------------------------
@@ -85,11 +86,27 @@ export const updateCategory = catchAsyncErrors(async (req, res, next) => {
 
 export const deleteCategoryByID = catchAsyncErrors(async (req, res, next) => {
   const { id } = req.params;
-  const deletedCategory = await Category.findByIdAndDelete(id);
 
-  if (!deletedCategory) {
+  // First check if category exists
+  const category = await Category.findById(id);
+  if (!category) {
     return next(new ErrorHandler("Category not found", 404));
   }
+
+  // Check if there are any subcategories linked to this category
+  const subCategories = await SubCategory.find({ category: id });
+
+  if (subCategories && subCategories.length > 0) {
+    return next(
+      new ErrorHandler(
+        `Cannot delete category. Please delete the subcategories first.`,
+        400
+      )
+    );
+  }
+
+  // If no subcategories exist, proceed with deletion
+  const deletedCategory = await Category.findByIdAndDelete(id);
 
   res.status(200).json({
     deletedCategory,
