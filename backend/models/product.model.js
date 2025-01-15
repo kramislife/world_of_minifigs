@@ -72,13 +72,13 @@ const productSchema = new mongoose.Schema(
     ],
     product_piece_count: {
       type: Number,
-      required: [true, "Please enter product piece count"],
+      required: false,
       min: [1, "Product piece count must be at least 1"],
     },
     product_availability: Date,
     product_length: {
       type: Number,
-      required: [true, "Please enter product length"],
+      required: false,
       min: [0, "Length cannot be negative"],
       validate: {
         validator: (v) => /^\d+(\.\d{1,2})?$/.test(v),
@@ -87,7 +87,7 @@ const productSchema = new mongoose.Schema(
     },
     product_width: {
       type: Number,
-      required: [true, "Please enter product width"],
+      required: false,
       min: [0, "Width cannot be negative"],
       validate: {
         validator: (v) => /^\d+(\.\d{1,2})?$/.test(v),
@@ -96,7 +96,7 @@ const productSchema = new mongoose.Schema(
     },
     product_height: {
       type: Number,
-      required: [true, "Please enter product height"],
+      required: false,
       min: [0, "Height cannot be negative"],
       validate: {
         validator: (v) => /^\d+(\.\d{1,2})?$/.test(v),
@@ -105,15 +105,15 @@ const productSchema = new mongoose.Schema(
     },
     product_includes: {
       type: String,
-      required: [true, "Please enter what's included with the product"],
+      required: false,
     },
     product_skill_level: {
-      required: true,
+      required: false,
       type: mongoose.Schema.Types.ObjectId,
       ref: "SkillLevel",
     },
     product_designer: {
-      required: true,
+      required: false,
       type: mongoose.Schema.Types.ObjectId,
       ref: "Designer",
     },
