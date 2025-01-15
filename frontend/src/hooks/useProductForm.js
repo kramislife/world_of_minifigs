@@ -103,8 +103,8 @@ const useProductForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.name || !formData.price) {
-      toast.error("Name and price are required fields");
+    if (!formData.name) {
+      toast.error("Product name is required");
       return;
     }
 

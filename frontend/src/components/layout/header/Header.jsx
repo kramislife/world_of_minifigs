@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import { data, NavLink, useNavigate } from "react-router-dom";
-import { useGetMeQuery } from "@/redux/api/userApi";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import logo from "@/assets/logo.png";
 
@@ -10,21 +9,26 @@ import DesktopNavbar from "./components/DesktopNavbar";
 import MobileMenu from "./components/MobileMenu";
 import UserDropdown from "./components/UserDropdown";
 import { User } from "lucide-react";
+import CartSheet from "./components/CartSheet";
 
 const Header = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const { user } = useSelector((state) => state.auth);
+  const { cartItems = [] } = useSelector((state) => state.cart);
+  const [prevCartCount, setPrevCartCount] = useState(0);
+  const [isCartOpen, setIsCartOpen] = useState(false);
 
-  const { data } = useGetMeQuery();
+  // Calculate total unique items instead of total quantity
+  const totalItems = cartItems.length;
 
-  // useEffect(() => {
-  //   if (user !== null) {
-  //     if (data) {
-  //       console.log(data);
-  //     }
-  //   }
-  // }, [user, data]);
+  // Track cart changes for animation
+  useEffect(() => {
+    setPrevCartCount(totalItems);
+  }, [totalItems]);
+
+  // Check if items were just added
+  const isItemAdded = totalItems > prevCartCount;
 
   return (
     <nav className="bg-brand-gradient fixed w-full top-0 z-50 py-3">
@@ -47,7 +51,11 @@ const Header = () => {
               setSearchQuery={setSearchQuery}
             />
           </div>
-          <CartButton itemCount={0} />
+          <CartButton
+            itemCount={totalItems}
+            showAnimation={isItemAdded}
+            onClick={() => setIsCartOpen(true)}
+          />
 
           {/* User Dropdown */}
           <div className="relative hidden md:block z-[100]">
@@ -69,6 +77,9 @@ const Header = () => {
           </div>
         </div>
       </div>
+
+      {/* Cart Sheet*/}
+      <CartSheet isOpen={isCartOpen} setIsOpen={setIsCartOpen} />
     </nav>
   );
 };
