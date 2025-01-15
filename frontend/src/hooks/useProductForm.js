@@ -123,9 +123,9 @@ const useProductForm = () => {
 
     const newProduct = {
       product_name: formData.name,
-      price: parseFloat(formData.price),
-      discount: parseFloat(formData.discount),
-      stock: parseInt(formData.stock, 10),
+      price: parseFloat(formData.price) || 0,
+      discount: parseFloat(formData.discount) || 0,
+      stock: parseInt(formData.stock, 10) || 0,
       product_description_1: formData.description1,
       product_description_2: formData.description2 || "",
       product_description_3: formData.description3 || "",
@@ -160,8 +160,8 @@ const useProductForm = () => {
           0
       ),
       product_includes: formData.productIncludes.join(", "),
-      product_skill_level: formData.skillLevel,
-      product_designer: formData.productDesigner,
+      product_skill_level: formData.skillLevel || null,
+      product_designer: formData.productDesigner || null,
       ratings: 0,
       seller: formData.seller || "Brick Extreme",
       tags: formData.tags.split(",").map((tag) => tag.trim()) || [],
