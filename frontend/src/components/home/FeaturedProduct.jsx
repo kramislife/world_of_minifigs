@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { motion, useInView } from "framer-motion";
-import { featuredProductAnimations } from "@/hooks/animationConfig";
+import { featuredProductAnimations } from "@/hooks/Animation/animationConfig";
 import { useGetCollectionQuery } from "@/redux/api/productApi";
 import { useNavigate } from "react-router-dom";
 import {

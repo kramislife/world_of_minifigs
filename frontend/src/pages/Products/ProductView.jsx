@@ -7,7 +7,7 @@ import Metadata from "@/components/layout/Metadata/Metadata";
 import { useGetProductDetailsQuery } from "@/redux/api/productApi";
 import { toast } from "react-toastify";
 import LoadingSpinner from "@/components/layout/spinner/LoadingSpinner";
-import { productViewAnimations } from "@/hooks/animationConfig";
+import { productViewAnimations } from "@/hooks/Animation/animationConfig";
 
 const ProductView = () => {
   const { id } = useParams();

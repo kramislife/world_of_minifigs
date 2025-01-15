@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import LoadingSpinner from "@/components/layout/spinner/LoadingSpinner";
 import Metadata from "@/components/layout/Metadata/Metadata";
 import { Card, CardFooter } from "@/components/ui/card";
-import { categoryAnimations } from "@/hooks/animationConfig";
+import { categoryAnimations } from "@/hooks/Animation/animationConfig";
 import {
   CategoryFallback,
   PlaceholderImage,

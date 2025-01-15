@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { Card, CardFooter } from "@/components/ui/card";
 import { motion, useInView } from "framer-motion";
-import { categoryAnimations } from "@/hooks/animationConfig";
+import { categoryAnimations } from "@/hooks/Animation/animationConfig";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useGetCollectionQuery } from "@/redux/api/productApi";

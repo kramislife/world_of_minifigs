@@ -7,7 +7,7 @@ import {
   useUploadCollectionImageMutation,
 } from "@/redux/api/productApi";
 import { toast } from "react-toastify";
-import { createCollectionColumns } from "@/components/admin/table/columns/CollectionColumns";
+import { createCollectionColumns } from "@/components/admin/shared/table/columns/CollectionColumns";
 import DeleteDialog from "@/components/admin/shared/DeleteDialog";
 
 const ViewCollection = () => {

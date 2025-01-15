@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import { PlusCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
-import SearchBar from "@/components/admin/table/SearchBar";
-import ShowEntries from "@/components/admin/table/ShowEntries";
-import TableLayout from "@/components/admin/table/TableLayout";
-import Pagination from "@/components/admin/table/Pagination";
+import SearchBar from "@/components/admin/shared/table/SearchBar";
+import ShowEntries from "@/components/admin/shared/table/ShowEntries";
+import TableLayout from "@/components/admin/shared/table/TableLayout";
+import Pagination from "@/components/admin/shared/table/Pagination";
 import Metadata from "@/components/layout/Metadata/Metadata";
 import LoadingSpinner from "@/components/layout/spinner/LoadingSpinner";
 

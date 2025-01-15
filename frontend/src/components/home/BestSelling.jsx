@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import ProductGrid from "@/components/product/shared/ProductGrid";
-import { bestSellingAnimations } from "@/hooks/animationConfig";
+import { bestSellingAnimations } from "@/hooks/Animation/animationConfig";
 import {
   useGetCategoryByKeyQuery,
   useGetProductsQuery,

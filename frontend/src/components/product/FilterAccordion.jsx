@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/accordion";
 import { Checkbox } from "@/components/ui/checkbox";
 import { AlertCircle, ChevronRight, ChevronLeft } from "lucide-react";
-import { useProductFilters } from "@/hooks/useProductFilters";
+import { useProductFilters } from "@/hooks/Product/useProductFilters";
 
 const FilterAccordion = ({
   categories,
@@ -153,7 +153,9 @@ const FilterAccordion = ({
                   </div>
                   <div className="flex items-center space-x-4">
                     {!hasSubItems && (
-                      <span className="text-sm text-gray-400">({itemCount})</span>
+                      <span className="text-sm text-gray-400">
+                        ({itemCount})
+                      </span>
                     )}
                     {hasSubItems && itemCount > 0 && (
                       <button
