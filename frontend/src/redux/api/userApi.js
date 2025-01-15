@@ -16,7 +16,45 @@ export const userApi = createApi({
         } catch (error) {}
       },
     }),
+    getUserAddresses: builder.query({
+      query: () => "/me/addresses",
+      transformResponse: (result) => result.addresses,
+    }),
+    getSingleAddress: builder.query({
+      query: (id) => `/me/addresses/${id}`,
+      transformResponse: (result) => result.address,
+    }),
+    createAddress: builder.mutation({
+      query: (addressData) => ({
+        url: "/me/createAddress",
+        method: "POST",
+        body: addressData,
+      }),
+      invalidates: ["getUserAddresses"],
+    }),
+    updateAddress: builder.mutation({
+      query: ({ id, addressData }) => ({
+        url: `/me/addresses/${id}`,
+        method: "PATCH",
+        body: addressData,
+      }),
+      invalidates: ["getUserAddresses"],
+    }),
+    deleteAddress: builder.mutation({
+      query: (id) => ({
+        url: `/me/addresses/${id}`,
+        method: "DELETE",
+      }),
+      invalidates: ["getUserAddresses"],
+    }),
   }),
 });
 
-export const { useGetMeQuery } = userApi;
+export const {
+  useGetMeQuery,
+  useGetUserAddressesQuery,
+  useGetSingleAddressQuery,
+  useCreateAddressMutation,
+  useUpdateAddressMutation,
+  useDeleteAddressMutation,
+} = userApi;

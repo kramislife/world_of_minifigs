@@ -5,7 +5,7 @@ const Metadata = ({ title }) => {
   return (
     <>
       <Helmet>
-        <title>BrickExtreme - {title}</title>
+        <title>World of Minifigs - {title}</title>
       </Helmet>
     </>
   );
