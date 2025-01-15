@@ -36,7 +36,19 @@ class API_Filters {
 
   // PRODUCT FILTER -> FILTER PRODUCTS BASED ON DIFFERENT ATTRIBUTES
   filters() {
+    // Add input validation
+    if (!this.query || !this.queryStr) {
+      return this;
+    }
+
     const queryCopy = { ...this.queryStr };
+
+    // Sanitize input values
+    Object.keys(queryCopy).forEach((key) => {
+      if (typeof queryCopy[key] === "string") {
+        queryCopy[key] = queryCopy[key].trim();
+      }
+    });
 
     // Fields to exclude from the filters
     const fieldsToRemove = ["keyword", "page"];
@@ -45,6 +57,8 @@ class API_Filters {
     // Arrays to store OR conditions for specific fields
     const categoryConditions = [];
     const collectionConditions = [];
+    const subCategoryConditions = [];
+    const subCollectionConditions = [];
     const otherConditions = [];
 
     for (let key in queryCopy) {
@@ -77,6 +91,30 @@ class API_Filters {
             });
           } else {
             collectionConditions.push({ [key]: queryCopy[key] });
+          }
+        }
+        // Handle sub-categories
+        else if (key === "product_sub_categories") {
+          if (Array.isArray(queryCopy[key])) {
+            queryCopy[key].forEach((value) => {
+              subCategoryConditions.push({ product_sub_categories: value });
+            });
+          } else {
+            subCategoryConditions.push({
+              product_sub_categories: queryCopy[key],
+            });
+          }
+        }
+        // Handle sub-collections
+        else if (key === "product_sub_collections") {
+          if (Array.isArray(queryCopy[key])) {
+            queryCopy[key].forEach((value) => {
+              subCollectionConditions.push({ product_sub_collections: value });
+            });
+          } else {
+            subCollectionConditions.push({
+              product_sub_collections: queryCopy[key],
+            });
           }
         }
         // Handle multiple price ranges
@@ -147,13 +185,26 @@ class API_Filters {
       orConditions.push({ $or: collectionConditions });
     }
 
+    if (subCategoryConditions.length > 0) {
+      orConditions.push({ $or: subCategoryConditions });
+    }
+
+    if (subCollectionConditions.length > 0) {
+      orConditions.push({ $or: subCollectionConditions });
+    }
+
     if (otherConditions.length > 0) {
       orConditions.push(...otherConditions);
     }
 
-    // Apply the query
-    if (orConditions.length > 0) {
-      this.query = this.query.find({ $and: orConditions });
+    // Add error handling for invalid query conditions
+    try {
+      if (orConditions.length > 0) {
+        this.query = this.query.find({ $and: orConditions });
+      }
+    } catch (error) {
+      console.error("Filter query error:", error);
+      this.query = this.query.find({});
     }
 
     return this;

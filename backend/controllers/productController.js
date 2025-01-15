@@ -24,9 +24,19 @@ export const getProduct = catchAsyncErrors(async (req, res, next) => {
     .populate("product_collection", "name")
     .populate("product_skill_level", "name")
     .populate("product_designer", "name")
-    .populate("product_color", "name");
+    .populate("product_color", "name")
+    .lean(); // Add lean() for better performance
 
-  const filteredProductCount = allFilteredProducts.length;
+  // Calculate discounted price for all products
+  const productsWithDiscountedPrice = allFilteredProducts.map((product) => ({
+    ...product,
+    discounted_price:
+      product.price && product.discount
+        ? product.price - (product.price * product.discount) / 100
+        : product.price || 0,
+  }));
+
+  const filteredProductCount = productsWithDiscountedPrice.length;
 
   // Apply pagination for display products
   apiFilters.pagination(resPerPage);
@@ -38,7 +48,17 @@ export const getProduct = catchAsyncErrors(async (req, res, next) => {
     .populate("product_collection", "name")
     .populate("product_skill_level", "name")
     .populate("product_designer", "name")
-    .populate("product_color", "name");
+    .populate("product_color", "name")
+    .lean();
+
+  // Calculate discounted price for paginated products
+  const paginatedProductsWithDiscount = paginatedProducts.map((product) => ({
+    ...product,
+    discounted_price:
+      product.price && product.discount
+        ? product.price - (product.price * product.discount) / 100
+        : product.price || 0,
+  }));
 
   // Calculate total pages
   const totalPages = Math.ceil(filteredProductCount / resPerPage);
@@ -49,8 +69,8 @@ export const getProduct = catchAsyncErrors(async (req, res, next) => {
     totalPages,
     filteredProductCount,
     message: `${filteredProductCount} Products retrieved successfully`,
-    products: paginatedProducts,
-    allProducts: allFilteredProducts, // Send all products for accurate counting
+    products: paginatedProductsWithDiscount,
+    allProducts: productsWithDiscountedPrice,
   });
 });
 //------------------------------------  GET BEST SELLER PRODUCTS  => GET /products/best-seller  ------------------------------------
