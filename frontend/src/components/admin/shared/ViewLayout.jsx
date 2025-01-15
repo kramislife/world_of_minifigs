@@ -35,7 +35,7 @@ const ViewLayout = ({
   return (
     <>
       <Metadata title={title} />
-      <div className="container mx-auto py-6 px-4">
+      <div className="container mx-auto py-6 px-2">
         <div className="mb-8 flex justify-between items-center">
           <div className="space-y-2">
             <h1 className="text-3xl font-bold text-light tracking-tight">

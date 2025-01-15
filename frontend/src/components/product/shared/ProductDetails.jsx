@@ -1,10 +1,5 @@
 import React, { useState, useRef } from "react";
-import {
-  ChevronLeft,
-  ChevronRight,
-  ImageIcon,
-  CircleCheckBig,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, CircleCheckBig } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import Metadata from "@/components/layout/Metadata/Metadata";
@@ -12,8 +7,12 @@ import StarRating from "@/components/product/shared/StarRating";
 import ProductStatus from "@/components/product/shared/ProductStatus";
 import {
   ProductImagePlaceholder,
-  ProductThumbnailPlaceholder
+  ProductThumbnailPlaceholder,
 } from "@/components/product/shared/FallbackStates";
+import CartSheet from "@/components/layout/header/components/CartSheet";
+import { addToCart } from "@/redux/features/cartSlice";
+import { toast } from "react-toastify";
+import { useDispatch } from "react-redux";
 
 const ProductDetails = ({ product, containerVariants, itemVariants }) => {
   // const [quantity, setQuantity] = useState(1);
@@ -21,6 +20,11 @@ const ProductDetails = ({ product, containerVariants, itemVariants }) => {
 
   // Add ref for the thumbnail container
   const thumbnailContainerRef = useRef(null);
+
+  const dispatch = useDispatch();
+
+  const buttonRef = useRef(null);
+  const [isCartOpen, setIsCartOpen] = useState(false);
 
   // Update scrollIntoView helper
   const scrollThumbnailIntoView = (index) => {
@@ -43,6 +47,29 @@ const ProductDetails = ({ product, containerVariants, itemVariants }) => {
           inline: "nearest",
         });
       }
+    }
+  };
+
+  const handleAddToCart = () => {
+    try {
+      const discountedPrice = product?.discounted_price || product?.price || 0;
+
+      dispatch(
+        addToCart({
+          product: product._id,
+          name: product.product_name,
+          quantity: 1,
+          price: product.price,
+          discounted_price: discountedPrice,
+          image: product.product_images[0]?.url,
+          includes: product.product_includes,
+        })
+      );
+
+      setIsCartOpen(true);
+    } catch (error) {
+      toast.error("Failed to add item to cart");
+      console.error("Add to cart error:", error);
     }
   };
 
@@ -199,10 +226,8 @@ const ProductDetails = ({ product, containerVariants, itemVariants }) => {
               <div className="flex items-center space-x-4">
                 <span className="text-4xl font-semibold">
                   $
-                  {(
-                    (product?.price || 0) *
-                    (1 - (product?.discount || 0) / 100)
-                  ).toFixed(2)}
+                  {product?.discounted_price?.toFixed(2) ||
+                    (product?.price || 0).toFixed(2)}
                 </span>
                 {product?.discount > 0 && (
                   <span className="text-xl text-red-500 line-through">
@@ -229,60 +254,69 @@ const ProductDetails = ({ product, containerVariants, itemVariants }) => {
 
             {/* Details Section */}
             <div className="mb-6">
-              {/* Category and Collection row */}
-              <div className="flex flex-wrap gap-2 mb-2">
-                <div className="flex-1">
-                  {/* Category Button */}
-                  {product?.product_category &&
-                    product.product_category.length > 0 && (
-                      <Button
-                        variant="outline"
-                        className="bg-brand hover:bg-darkBrand hover:text-white transition-all duration-300 border-slate-700 inline-flex w-full text-left justify-start mb-2"
-                      >
-                        <div className="flex items-center gap-2">
-                          <span className="whitespace-nowrap">Category:</span>
-                          <span className="text-gray-400">
-                            {product.product_category
-                              .map((category) => category?.name)
-                              .join(", ")}
-                          </span>
-                        </div>
-                      </Button>
-                    )}
-
-                  {/* Includes Button */}
-                  {product?.product_includes && (
-                    <Button
-                      variant="outline"
-                      className="bg-brand hover:bg-darkBrand hover:text-white transition-all duration-300 border-slate-700 inline-flex w-full text-left justify-start"
-                    >
-                      <div className="flex items-center gap-2">
-                        <span className="whitespace-nowrap">Includes:</span>
-                        <span className="text-gray-400">
-                          {product.product_includes}
+              {/* Category and Collection Container */}
+              <div className="flex flex-col gap-4">
+                {/* Category Section */}
+                {((product?.product_sub_categories &&
+                  product.product_sub_categories.length > 0) ||
+                  (product?.product_category &&
+                    product.product_category.length > 0)) && (
+                  <div>
+                    <span className="text-white font-medium mb-3 block text-sm">
+                      Category
+                    </span>
+                    <div className="flex flex-wrap gap-2">
+                      {(product.product_sub_categories?.length > 0
+                        ? product.product_sub_categories
+                        : product.product_category
+                      ).map((cat) => (
+                        <span
+                          key={cat._id}
+                          className="px-10 py-2 rounded-full text-sm text-gray-300 border border-slate-700 transition-colors"
+                        >
+                          {cat.name}
                         </span>
-                      </div>
-                    </Button>
-                  )}
-                </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
-                {/* Collection Button */}
-                {product?.product_collection &&
-                  product.product_collection.length > 0 && (
-                    <Button
-                      variant="outline"
-                      className="bg-brand hover:bg-darkBrand hover:text-white transition-all duration-300 border-slate-700 inline-flex w-auto text-left justify-start flex-1"
-                    >
-                      <div className="flex items-center gap-2">
-                        <span className="whitespace-nowrap">Collection:</span>
-                        <span className="text-gray-400">
-                          {product.product_collection
-                            .map((collection) => collection?.name)
-                            .join(", ")}
+                {/* Collection Section */}
+                {((product?.product_sub_collections &&
+                  product.product_sub_collections.length > 0) ||
+                  (product?.product_collection &&
+                    product.product_collection.length > 0)) && (
+                  <div>
+                    <span className="text-white font-medium mb-3 block text-sm">
+                      Collection
+                    </span>
+                    <div className="flex flex-wrap gap-2">
+                      {(product.product_sub_collections?.length > 0
+                        ? product.product_sub_collections
+                        : product.product_collection
+                      ).map((col) => (
+                        <span
+                          key={col._id}
+                          className="px-10 py-2 rounded-full text-sm text-gray-300 border border-slate-700 transition-colors"
+                        >
+                          {col.name}
                         </span>
-                      </div>
-                    </Button>
-                  )}
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Includes Section */}
+                {product?.product_includes && (
+                  <div>
+                    <span className="text-white font-medium mb-3 block text-sm">
+                      Includes
+                    </span>
+                    <span className="px-10 py-2 rounded-full text-sm text-gray-300 border border-slate-700 transition-colors">
+                      {product.product_includes}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -330,11 +364,14 @@ const ProductDetails = ({ product, containerVariants, itemVariants }) => {
               </div> */}
               <div className="flex space-x-4">
                 <Button
-                  className="w-full bg-red-600 hover:bg-red-700 hover:scale-105 transition-all duration-300"
+                  ref={buttonRef}
+                  className="w-full bg-red-600 hover:bg-red-700 hover:scale-105 transition-all duration-300 relative"
                   disabled={!product?.stock || product?.stock <= 0}
+                  onClick={handleAddToCart}
                 >
                   Add to Cart
                 </Button>
+
                 <Button
                   variant="outline"
                   className="bg-brand hover:bg-darkBrand hover:text-white hover:scale-105 transition-all duration-300 border-slate-700 w-full"
@@ -347,6 +384,9 @@ const ProductDetails = ({ product, containerVariants, itemVariants }) => {
           </motion.div>
         </div>
       </motion.div>
+
+      {/* Cart Sheet */}
+      <CartSheet isOpen={isCartOpen} setIsOpen={setIsCartOpen} />
     </>
   );
 };

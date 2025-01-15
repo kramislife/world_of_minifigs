@@ -21,6 +21,8 @@ const ProductCard = ({ product }) => {
     }
   };
 
+  const discountedPrice = product?.discounted_price || 0;
+
   return (
     <motion.div
       onClick={handleViewDetails}
@@ -92,7 +94,7 @@ const ProductCard = ({ product }) => {
             {product?.price ? (
               <>
                 <p className="text-2xl font-bold bg-gradient-to-r from-red-400 to-red-600 bg-clip-text text-transparent">
-                  ${product.discounted_price.toFixed(2)}
+                  ${(product?.discounted_price || 0).toFixed(2)}
                 </p>
                 {product?.discount > 0 && (
                   <p className="text-sm text-slate-500 line-through">
