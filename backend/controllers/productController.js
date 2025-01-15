@@ -8,6 +8,13 @@ import {
 } from "../Utills/cloudinary.js";
 import ErrorHandler from "../Utills/customErrorHandler.js";
 
+// calculate discounted price
+const calculateDiscountedPrice = (product) => {
+  return product.price && product.discount
+    ? product.price - (product.price * product.discount) / 100
+    : product.price || 0;
+};
+
 //------------------------------------  GET ALL PRODUCT => GET /products  ------------------------------------
 
 export const getProduct = catchAsyncErrors(async (req, res, next) => {
@@ -24,19 +31,9 @@ export const getProduct = catchAsyncErrors(async (req, res, next) => {
     .populate("product_collection", "name")
     .populate("product_skill_level", "name")
     .populate("product_designer", "name")
-    .populate("product_color", "name")
-    .lean(); // Add lean() for better performance
+    .populate("product_color", "name");
 
-  // Calculate discounted price for all products
-  const productsWithDiscountedPrice = allFilteredProducts.map((product) => ({
-    ...product,
-    discounted_price:
-      product.price && product.discount
-        ? product.price - (product.price * product.discount) / 100
-        : product.price || 0,
-  }));
-
-  const filteredProductCount = productsWithDiscountedPrice.length;
+  const filteredProductCount = allFilteredProducts.length;
 
   // Apply pagination for display products
   apiFilters.pagination(resPerPage);
@@ -48,20 +45,21 @@ export const getProduct = catchAsyncErrors(async (req, res, next) => {
     .populate("product_collection", "name")
     .populate("product_skill_level", "name")
     .populate("product_designer", "name")
-    .populate("product_color", "name")
-    .lean();
-
-  // Calculate discounted price for paginated products
-  const paginatedProductsWithDiscount = paginatedProducts.map((product) => ({
-    ...product,
-    discounted_price:
-      product.price && product.discount
-        ? product.price - (product.price * product.discount) / 100
-        : product.price || 0,
-  }));
+    .populate("product_color", "name");
 
   // Calculate total pages
   const totalPages = Math.ceil(filteredProductCount / resPerPage);
+
+  // Add discounted_price to each product before sending
+  const productsWithDiscountedPrice = paginatedProducts.map((product) => ({
+    ...product.toObject(),
+    discounted_price: calculateDiscountedPrice(product),
+  }));
+
+  const allProductsWithDiscountedPrice = allFilteredProducts.map((product) => ({
+    ...product.toObject(),
+    discounted_price: calculateDiscountedPrice(product),
+  }));
 
   res.status(200).json({
     resPerPage,
@@ -69,10 +67,11 @@ export const getProduct = catchAsyncErrors(async (req, res, next) => {
     totalPages,
     filteredProductCount,
     message: `${filteredProductCount} Products retrieved successfully`,
-    products: paginatedProductsWithDiscount,
-    allProducts: productsWithDiscountedPrice,
+    products: productsWithDiscountedPrice,
+    allProducts: allProductsWithDiscountedPrice,
   });
 });
+
 //------------------------------------  GET BEST SELLER PRODUCTS  => GET /products/best-seller  ------------------------------------
 
 export const getBestSellerProduct = catchAsyncErrors(async (req, res, next) => {
@@ -120,9 +119,14 @@ export const getProductById = catchAsyncErrors(async (req, res, next) => {
     return next(new ErrorHandler("Product not found", 400));
   }
 
+  const productWithDiscount = {
+    ...product.toObject(),
+    discounted_price: calculateDiscountedPrice(product),
+  };
+
   res.status(200).json({
     message: "Product retrieved successfully",
-    product,
+    product: productWithDiscount,
   });
 });
 
