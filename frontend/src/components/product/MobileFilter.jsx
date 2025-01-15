@@ -8,7 +8,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import FilterAccordion from "../FilterAccordion";
-import useClickOutside from "@/hooks/useClickOutside";
+import useClickOutside from "@/hooks/Common/useClickOutside";
 
 const MobileFilter = ({
   isOpen,

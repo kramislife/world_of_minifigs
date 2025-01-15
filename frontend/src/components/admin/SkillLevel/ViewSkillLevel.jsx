@@ -6,7 +6,7 @@ import {
   useGetSkillLevelsQuery,
 } from "@/redux/api/productApi";
 import { toast } from "react-toastify";
-import { createSkillLevelColumns } from "@/components/admin/table/columns/SkillLevelColumns";
+import { createSkillLevelColumns } from "@/components/admin/shared/table/columns/SkillLevelColumns";
 import DeleteDialog from "@/components/admin/shared/DeleteDialog";
 
 const ViewSkillLevel = () => {

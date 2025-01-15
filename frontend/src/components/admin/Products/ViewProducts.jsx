@@ -6,7 +6,7 @@ import {
   useGetProductsQuery,
 } from "@/redux/api/productApi";
 import { toast } from "react-toastify";
-import { createProductColumns } from "@/components/admin/table/columns/ProductColumns";
+import { createProductColumns } from "@/components/admin/shared/table/columns/ProductColumns";
 import DeleteDialog from "@/components/admin/shared/DeleteDialog";
 
 const ViewProducts = () => {

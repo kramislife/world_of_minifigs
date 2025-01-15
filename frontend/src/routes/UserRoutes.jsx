@@ -8,7 +8,6 @@ import Home from "@/pages/Home/Home";
 import Products from "@/pages/Products/Products";
 import ProductView from "@/pages/Products/ProductView";
 import { Route, Outlet } from "react-router-dom";
-import AdminView from "@/pages/Admin/AdminView";
 import ViewProducts from "@/components/admin/Products/ViewProducts";
 import ViewOrder from "@/components/admin/Order/ViewOrder";
 import ViewUsers from "@/components/admin/Users/ViewUsers";

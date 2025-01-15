@@ -1,7 +1,7 @@
 import { Search, Clock, Sparkles, TrendingUp, ArrowRight } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useNavigate } from "react-router-dom";
-import { useViewport } from "@/hooks/useViewport";
+import { useViewport } from "@/hooks/Common/useViewport";
 
 const SearchSheet = ({ searchQuery, setSearchQuery }) => {
   const navigate = useNavigate();
