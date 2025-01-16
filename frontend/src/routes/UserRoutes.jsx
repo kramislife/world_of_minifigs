@@ -39,6 +39,8 @@ import UpdateSubCategory from "@/components/admin/Categories/SubCategory/UpdateS
 import ViewSubCollections from "@/components/admin/Collections/SubCollections/ViewSubCollection";
 import AddSubCollection from "@/components/admin/Collections/SubCollections/AddSubCollection";
 import UpdateSubCollection from "@/components/admin/Collections/SubCollections/UpdateSubCollection";
+import Checkout from "@/pages/Checkout/Checkout";
+import Order from "@/pages/Order/Order";
 
 const UserRoutes = (
   <>
@@ -72,6 +74,26 @@ const UserRoutes = (
       element={
         <ProtectedRoutes>
           <Settings />
+        </ProtectedRoutes>
+      }
+    />
+
+    {/* Checkout Routes */}
+    <Route
+      path="checkout"
+      element={
+        <ProtectedRoutes>
+          <Checkout />
+        </ProtectedRoutes>
+      }
+    />
+
+    {/* New Order Routes */}
+    <Route
+      path="order/:id"
+      element={
+        <ProtectedRoutes>
+          <Order />
         </ProtectedRoutes>
       }
     />
@@ -117,7 +139,10 @@ const UserRoutes = (
       {/* Sub-Collection Management */}
       <Route path="subcollections" element={<ViewSubCollections />} />
       <Route path="new-subcollection" element={<AddSubCollection />} />
-      <Route path="update-subcollection/:id" element={<UpdateSubCollection />} />
+      <Route
+        path="update-subcollection/:id"
+        element={<UpdateSubCollection />}
+      />
 
       {/* Skill Level Management */}
       <Route path="skill-levels" element={<ViewSkillLevel />} />
