@@ -16,6 +16,7 @@ const FilterAccordion = ({
   selectedFilters,
   onFilterChange,
   products,
+  colors,
 }) => {
   const {
     expandedItems,
@@ -26,7 +27,12 @@ const FilterAccordion = ({
     getSubItems,
     getSubItemCount,
     calculateFilterCounts,
-  } = useProductFilters({ categories });
+    subCategoriesData,
+    subCollectionsData,
+  } = useProductFilters({
+    categories,
+    colorsData: { prod_color: colors },
+  });
 
   const filterCounts = useMemo(
     () => calculateFilterCounts(categories, products),
@@ -47,13 +53,8 @@ const FilterAccordion = ({
 
   const renderCategoryContent = (key, category) => {
     if (currentCategory && currentCategory.key === key) {
-      // Get sub-items and sort them by count
-      const subItems = getSubItems(key, currentCategory.id)
-        .map((subItem) => ({
-          ...subItem,
-          count: getSubItemCount(products, subItem),
-        }))
-        .sort((a, b) => b.count - a.count); // Sort by count in descending order
+      // Get pre-sorted sub-items
+      const subItems = getSubItems(key, currentCategory.id, products);
 
       return (
         <div>
@@ -121,7 +122,15 @@ const FilterAccordion = ({
         {category.length > 0 ? (
           category.map((option) => {
             const hasSubItems =
-              key === "product_category" || key === "product_collection";
+              (key === "product_category" &&
+                subCategoriesData?.sub_categories?.some(
+                  (sub) => sub.category?._id === option.value
+                )) ||
+              (key === "product_collection" &&
+                subCollectionsData?.subcollections?.some(
+                  (sub) => sub.collection?._id === option.value
+                ));
+
             const subItems = hasSubItems ? getSubItems(key, option.value) : [];
             const subItemsTotal = subItems.reduce(
               (sum, subItem) => sum + getSubItemCount(products, subItem),
@@ -152,13 +161,33 @@ const FilterAccordion = ({
                         disabled={itemCount === 0}
                         className="border-gray-600 data-[state=checked]:bg-red-600 data-[state=checked]:border-red-600"
                       />
-                      <span className="text-sm text-gray-300 group-hover:text-red-400 py-2">
-                        {option.label}
-                      </span>
+                      {key === "product_color" ? (
+                        <div className="flex items-center space-x-2">
+                          <div
+                            className="w-4 h-4 rounded-full border border-gray-400"
+                            style={{
+                              backgroundColor:
+                                option.code || option.label.toLowerCase(),
+                              border:
+                                (option.code || option.label.toLowerCase()) ===
+                                "#FFFFFF"
+                                  ? "1px solid #ccc"
+                                  : "none",
+                            }}
+                          />
+                          <span className="text-sm text-gray-300 group-hover:text-red-400 py-2">
+                            {option.label}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-sm text-gray-300 group-hover:text-red-400 py-2">
+                          {option.label}
+                        </span>
+                      )}
                     </label>
                   </div>
                   <div className="flex items-center space-x-4">
-                    {!hasSubItems && (
+                    {(!hasSubItems || itemCount === 0) && (
                       <span className="text-sm text-gray-400">
                         ({itemCount})
                       </span>
