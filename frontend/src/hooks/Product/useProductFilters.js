@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import {
   useGetSubCategoriesQuery,
   useGetSubCollectionsQuery,
+  useGetColorsQuery,
 } from "@/redux/api/productApi";
 
 export const useProductFilters = (filterData = {}) => {
@@ -17,6 +18,7 @@ export const useProductFilters = (filterData = {}) => {
     product_sub_collections: [],
     product_skill_level: [],
     product_designer: [],
+    product_color: [],
     rating: [],
   });
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -42,6 +44,7 @@ export const useProductFilters = (filterData = {}) => {
     useGetSubCategoriesQuery();
   const { data: subCollectionsData, isLoading: isSubCollectionsLoading } =
     useGetSubCollectionsQuery();
+  const { data: colorsData, isLoading: isColorsLoading } = useGetColorsQuery();
 
   const filterOptions = {
     price: [
@@ -67,6 +70,18 @@ export const useProductFilters = (filterData = {}) => {
         label: collection.name,
         value: collection._id,
       })) || [],
+    product_color: (colorsData?.prod_color || [])
+      .map((color) => ({
+        label: color.name,
+        value: color._id,
+        code: color.code,
+        count: (filterData.products || []).filter(
+          (product) =>
+            product.product_color?._id === color._id ||
+            product.product_color === color._id
+        ).length,
+      }))
+      .sort((a, b) => b.count - a.count),
     product_skill_level:
       skillLevelsData?.skillLevels?.map((level) => ({
         label: level.name,
@@ -125,6 +140,7 @@ export const useProductFilters = (filterData = {}) => {
       product_sub_collections: [],
       product_skill_level: [],
       product_designer: [],
+      product_color: [],
       rating: [],
     };
 
@@ -173,34 +189,19 @@ export const useProductFilters = (filterData = {}) => {
   const getDisplayName = (key) => {
     const displayNames = {
       price: "Price Range",
-      product_category: "Product Categories",
+      product_category: "Categories",
       product_collection: "Collections",
-      product_skill_level: "Skill Level",
+      product_color: "Colors",
+      product_skill_level: "Skill Levels",
       product_designer: "Designers",
       rating: "Rating",
     };
     return displayNames[key] || key;
   };
 
-  const getSubItems = (key, parentId) => {
-    if (key === "product_category") {
-      return (
-        subCategoriesData?.sub_categories?.filter(
-          (sub) => sub.category?._id === parentId
-        ) || []
-      );
-    }
-    if (key === "product_collection") {
-      return (
-        subCollectionsData?.subcollections?.filter(
-          (sub) => sub.collection?._id === parentId
-        ) || []
-      );
-    }
-    return [];
-  };
+  const getSubItemCount = (products = [], subItem) => {
+    if (!Array.isArray(products)) return 0;
 
-  const getSubItemCount = (products, subItem) => {
     return products.filter((product) => {
       if (subItem.category) {
         return product.product_sub_categories?.includes(subItem._id);
@@ -211,10 +212,65 @@ export const useProductFilters = (filterData = {}) => {
     }).length;
   };
 
+  const getSubItems = (key, parentId, products = []) => {
+    let items = [];
+    if (key === "product_category") {
+      items =
+        subCategoriesData?.sub_categories?.filter(
+          (sub) => sub.category?._id === parentId
+        ) || [];
+    } else if (key === "product_collection") {
+      items =
+        subCollectionsData?.subcollections?.filter(
+          (sub) => sub.collection?._id === parentId
+        ) || [];
+    }
+
+    // Add count and sort by count in descending order
+    return items
+      .map((subItem) => ({
+        ...subItem,
+        count: getSubItemCount(products, subItem),
+      }))
+      .sort((a, b) => b.count - a.count);
+  };
+
+  const matchesFiltersInCategory = (product, currentCategory) => {
+    // Check all other active filters except the current category
+    return Object.entries(selectedFilters).every(([category, values]) => {
+      // Skip if it's the current category or if no values are selected
+      if (category === currentCategory || values.length === 0) {
+        return true;
+      }
+
+      // Handle price range
+      if (category === "price") {
+        return values.some((range) => matchesPriceRange(product, range));
+      }
+
+      // Handle rating
+      if (category === "rating") {
+        return values.some((rating) => matchesRating(product, rating));
+      }
+
+      // Handle color
+      if (category === "product_color") {
+        return values.some(
+          (colorId) =>
+            product.product_color?._id === colorId ||
+            product.product_color === colorId
+        );
+      }
+
+      // Handle other categories
+      return values.includes(product[category]);
+    });
+  };
+
   const calculateFilterCounts = (categories, products) => {
     const counts = {};
 
-    // Fix: Initialize all filter categories with empty counts
+    // Initialize counts
     Object.keys(categories).forEach((categoryKey) => {
       counts[categoryKey] = {};
       categories[categoryKey].forEach((option) => {
@@ -222,119 +278,52 @@ export const useProductFilters = (filterData = {}) => {
       });
     });
 
-    // Fix: Add handling for empty products array
+    // If no products, return empty counts
     if (!products || products.length === 0) {
       return counts;
     }
 
-    // Helper function to check if a product matches selected filters within the same category
-    const matchesFiltersInCategory = (
-      product,
-      currentCategory,
-      currentValue
-    ) => {
-      return Object.entries(selectedFilters).every(
-        ([filterKey, filterValues]) => {
-          // Skip if:
-          // 1. It's the current category we're calculating for
-          // 2. No filters are selected for this category
-          // 3. It's a different category type (to maintain independent counts)
-          if (
-            filterKey === currentCategory ||
-            filterValues.length === 0 ||
-            !isSameFilterCategory(filterKey, currentCategory)
-          ) {
-            return true;
-          }
-
-          // Handle price range
-          if (filterKey === "price") {
-            return filterValues.some((range) => {
-              const [min, max] = range.split("-").map(Number);
-              const price = product.price;
-              if (max === undefined) {
-                return price >= min;
-              }
-              return price >= min && price <= max;
-            });
-          }
-
-          // Handle ratings
-          if (filterKey === "rating") {
-            return filterValues.some((rating) => {
-              const ratingNum = Number(rating);
-              return Math.floor(product.rating) === ratingNum;
-            });
-          }
-
-          // Handle categories and subcategories
-          if (filterKey === "product_category") {
-            return filterValues.some(
-              (value) => product.product_category === value
-            );
-          }
-          if (filterKey === "product_sub_categories") {
-            return filterValues.some((value) =>
-              product.product_sub_categories?.includes(value)
-            );
-          }
-
-          // Handle collections and subcollections
-          if (filterKey === "product_collection") {
-            return filterValues.some(
-              (value) => product.product_collection === value
-            );
-          }
-          if (filterKey === "product_sub_collections") {
-            return filterValues.some((value) =>
-              product.product_sub_collections?.includes(value)
-            );
-          }
-
-          return filterValues.some((value) => product[filterKey] === value);
-        }
-      );
-    };
-
-    // Helper function to determine if two filter keys belong to the same category
-    const isSameFilterCategory = (filterKey1, filterKey2) => {
-      const categoryGroups = {
-        price: ["price"],
-        rating: ["rating"],
-        categories: ["product_category", "product_sub_categories"],
-        collections: ["product_collection", "product_sub_collections"],
-        skill_level: ["product_skill_level"],
-        designer: ["product_designer"],
-      };
-
-      const getGroup = (key) => {
-        return Object.entries(categoryGroups).find(([_, keys]) =>
-          keys.includes(key)
-        )?.[0];
-      };
-
-      return getGroup(filterKey1) === getGroup(filterKey2);
-    };
-
     // Calculate counts for each category
     Object.keys(categories).forEach((categoryKey) => {
       categories[categoryKey].forEach((option) => {
-        products.forEach((product) => {
-          const matchesCurrentFilter =
-            categoryKey === "price"
-              ? matchesPriceRange(product, option.value)
-              : categoryKey === "rating"
-              ? matchesRating(product, option.value)
-              : product[categoryKey] === option.value;
+        let count;
 
-          if (
-            matchesCurrentFilter &&
-            matchesFiltersInCategory(product, categoryKey, option.value)
-          ) {
-            counts[categoryKey][option.value]++;
-          }
-        });
+        if (option.key === "latest" || option.key === "best_seller") {
+          // For special categories (latest and best_seller), count products directly
+          count = products.filter(
+            (product) => product.product_category?.key === option.key
+          ).length;
+        } else {
+          // For regular categories, use the existing counting logic
+          count = products.filter((product) => {
+            const matchesCurrentFilter =
+              categoryKey === "product_color"
+                ? product.product_color?._id === option.value ||
+                  product.product_color === option.value
+                : categoryKey === "price"
+                ? matchesPriceRange(product, option.value)
+                : categoryKey === "rating"
+                ? matchesRating(product, option.value)
+                : product[categoryKey] === option.value;
+
+            return (
+              matchesCurrentFilter &&
+              matchesFiltersInCategory(product, categoryKey)
+            );
+          }).length;
+        }
+
+        counts[categoryKey][option.value] = count;
       });
+
+      // Sort the categories array if it's the color category
+      if (categoryKey === "product_color") {
+        categories[categoryKey].sort(
+          (a, b) =>
+            (counts[categoryKey][b.value] || 0) -
+            (counts[categoryKey][a.value] || 0)
+        );
+      }
     });
 
     return counts;
@@ -382,5 +371,6 @@ export const useProductFilters = (filterData = {}) => {
     subCollectionsData,
     isSubCategoriesLoading,
     isSubCollectionsLoading,
+    isColorsLoading,
   };
 };

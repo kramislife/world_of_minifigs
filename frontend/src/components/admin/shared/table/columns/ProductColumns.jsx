@@ -21,7 +21,9 @@ export const createProductColumns = (
     accessorKey: "price",
     size: 100,
     cell: ({ row }) => (
-      <div className="text-center">${row.original.price.toFixed(2)}</div>
+      <div className="text-center">
+        {row.original.price ? `$${row.original.price.toFixed(2)}` : 'N/A'}
+      </div>
     ),
   },
   {

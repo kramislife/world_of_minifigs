@@ -167,6 +167,16 @@ class API_Filters {
             otherConditions.push({ $or: ratingConditions });
           }
         }
+        // Handle product_color
+        else if (key === "product_color") {
+          if (Array.isArray(queryCopy[key])) {
+            queryCopy[key].forEach((value) => {
+              otherConditions.push({ product_color: value });
+            });
+          } else {
+            otherConditions.push({ product_color: queryCopy[key] });
+          }
+        }
         // Handle other filters using $in
         else {
           otherConditions.push({ [key]: { $in: queryCopy[key] } });
