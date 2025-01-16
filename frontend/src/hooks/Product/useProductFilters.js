@@ -70,18 +70,16 @@ export const useProductFilters = (filterData = {}) => {
         label: collection.name,
         value: collection._id,
       })) || [],
-    product_color: (colorsData?.prod_color || [])
-      .map((color) => ({
-        label: color.name,
-        value: color._id,
-        code: color.code,
-        count: (filterData.products || []).filter(
-          (product) =>
-            product.product_color?._id === color._id ||
-            product.product_color === color._id
-        ).length,
-      }))
-      .sort((a, b) => b.count - a.count),
+    product_color: (colorsData?.prod_color || []).map((color) => ({
+      label: color.name,
+      value: color._id,
+      code: color.code,
+      count: (filterData.products || []).filter(
+        (product) =>
+          product.product_color?._id === color._id ||
+          product.product_color === color._id
+      ).length,
+    })),
     product_skill_level:
       skillLevelsData?.skillLevels?.map((level) => ({
         label: level.name,
@@ -315,15 +313,6 @@ export const useProductFilters = (filterData = {}) => {
 
         counts[categoryKey][option.value] = count;
       });
-
-      // Sort the categories array if it's the color category
-      if (categoryKey === "product_color") {
-        categories[categoryKey].sort(
-          (a, b) =>
-            (counts[categoryKey][b.value] || 0) -
-            (counts[categoryKey][a.value] || 0)
-        );
-      }
     });
 
     return counts;
