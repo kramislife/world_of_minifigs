@@ -11,21 +11,16 @@ import { useProductFilters } from "@/hooks/Product/useProductFilters";
 
 const FilterAccordion = ({
   categories,
-  openCategories,
-  onCategoriesChange,
   selectedFilters,
   onFilterChange,
   products,
   colors,
 }) => {
   const {
-    expandedItems,
     currentCategory,
-    setExpandedItems,
     setCurrentCategory,
     getDisplayName,
     getSubItems,
-    getSubItemCount,
     calculateFilterCounts,
     subCategoriesData,
     subCollectionsData,
@@ -33,11 +28,6 @@ const FilterAccordion = ({
     categories,
     colorsData: { prod_color: colors },
   });
-
-  const filterCounts = useMemo(
-    () => calculateFilterCounts(categories, products),
-    [categories, products]
-  );
 
   const handleFilterClick = (key, value) => {
     onFilterChange(key, value);
@@ -131,20 +121,64 @@ const FilterAccordion = ({
                   (sub) => sub.collection?._id === option.value
                 ));
 
-            const subItems = hasSubItems ? getSubItems(key, option.value) : [];
-            const subItemsTotal = subItems.reduce(
-              (sum, subItem) => sum + getSubItemCount(products, subItem),
-              0
-            );
-            const itemCount = hasSubItems
-              ? subItemsTotal
-              : filterCounts[key]?.[option.value] || 0;
+            // Calculate item count based on filter type
+            let itemCount;
+            if (key !== "product_category" && key !== "product_collection") {
+              // For non-category/collection filters
+              itemCount =
+                products?.filter((product) => {
+                  if (key === "price") {
+                    const [min, max] = option.value.split("-").map(Number);
+                    if (max) {
+                      return product.price >= min && product.price <= max;
+                    }
+                    return product.price >= min; // For "1000+" case
+                  }
+                  if (key === "rating") {
+                    const ratingValue = parseInt(option.value);
+                    return Math.floor(product.ratings) === ratingValue;
+                  }
+                  if (key === "product_color") {
+                    return (
+                      product.product_color?._id === option.value ||
+                      product.product_color === option.value
+                    );
+                  }
+                  if (key === "product_skill_level") {
+                    return product.product_skill_level?._id === option.value;
+                  }
+                  if (key === "product_designer") {
+                    return product.product_designer?._id === option.value;
+                  }
+                  return product[key] === option.value;
+                }).length || 0;
+            } else if (!hasSubItems) {
+              // For categories/collections without sub-items
+              itemCount =
+                products?.filter((product) => {
+                  if (key === "product_category") {
+                    return product.product_category?.some(
+                      (cat) => cat._id === option.value
+                    );
+                  }
+                  if (key === "product_collection") {
+                    return product.product_collection?.some(
+                      (col) => col._id === option.value
+                    );
+                  }
+                  return false;
+                }).length || 0;
+            }
 
             return (
               <div key={option.value} className="relative">
                 <div
                   className={`flex items-center justify-between py-2 px-2 rounded-sm group
                     ${
+                      ((!hasSubItems && key === "product_category") ||
+                        (!hasSubItems && key === "product_collection") ||
+                        (key !== "product_category" &&
+                          key !== "product_collection")) &&
                       itemCount === 0
                         ? "opacity-50 pointer-events-none"
                         : "hover:bg-brand"
@@ -158,22 +192,20 @@ const FilterAccordion = ({
                         onCheckedChange={() =>
                           handleFilterClick(key, option.value)
                         }
-                        disabled={itemCount === 0}
+                        disabled={
+                          ((!hasSubItems && key === "product_category") ||
+                            (!hasSubItems && key === "product_collection") ||
+                            (key !== "product_category" &&
+                              key !== "product_collection")) &&
+                          itemCount === 0
+                        }
                         className="border-gray-600 data-[state=checked]:bg-red-600 data-[state=checked]:border-red-600"
                       />
                       {key === "product_color" ? (
                         <div className="flex items-center space-x-2">
                           <div
-                            className="w-4 h-4 rounded-full border border-gray-400"
-                            style={{
-                              backgroundColor:
-                                option.code || option.label.toLowerCase(),
-                              border:
-                                (option.code || option.label.toLowerCase()) ===
-                                "#FFFFFF"
-                                  ? "1px solid #ccc"
-                                  : "none",
-                            }}
+                            className="w-4 h-4 rounded-full border border-gray-600"
+                            style={{ backgroundColor: option.code }}
                           />
                           <span className="text-sm text-gray-300 group-hover:text-red-400 py-2">
                             {option.label}
@@ -187,19 +219,25 @@ const FilterAccordion = ({
                     </label>
                   </div>
                   <div className="flex items-center space-x-4">
-                    {(!hasSubItems || itemCount === 0) && (
+                    {((key !== "product_category" &&
+                      key !== "product_collection") ||
+                      (!hasSubItems &&
+                        (key === "product_category" ||
+                          key === "product_collection"))) && (
                       <span className="text-sm text-gray-400">
                         ({itemCount})
                       </span>
                     )}
-                    {hasSubItems && itemCount > 0 && (
-                      <button
-                        onClick={() => handleCategoryClick(key, option.value)}
-                        className="p-1 hover:bg-red-600 rounded-full text-gray-400 hover:text-white"
-                      >
-                        <ChevronRight className="h-4 w-4" />
-                      </button>
-                    )}
+                    {hasSubItems &&
+                      (key === "product_category" ||
+                        key === "product_collection") && (
+                        <button
+                          onClick={() => handleCategoryClick(key, option.value)}
+                          className="p-1 hover:bg-red-600 rounded-full text-gray-400 hover:text-white"
+                        >
+                          <ChevronRight className="h-4 w-4" />
+                        </button>
+                      )}
                   </div>
                 </div>
               </div>
