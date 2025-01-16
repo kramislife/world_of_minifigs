@@ -47,7 +47,14 @@ const FilterAccordion = ({
 
   const renderCategoryContent = (key, category) => {
     if (currentCategory && currentCategory.key === key) {
-      // Render sub-items view for the selected category
+      // Get sub-items and sort them by count
+      const subItems = getSubItems(key, currentCategory.id)
+        .map((subItem) => ({
+          ...subItem,
+          count: getSubItemCount(products, subItem),
+        }))
+        .sort((a, b) => b.count - a.count); // Sort by count in descending order
+
       return (
         <div>
           <div className="px-2 pb-4 pt-2 border-b border-gray-700">
@@ -66,8 +73,7 @@ const FilterAccordion = ({
           </div>
 
           <div className="bg-darkBrand p-2">
-            {getSubItems(key, currentCategory.id).map((subItem) => {
-              const subItemCount = getSubItemCount(products, subItem);
+            {subItems.map((subItem) => {
               const filterKey =
                 key === "product_category"
                   ? "product_sub_categories"
@@ -77,7 +83,7 @@ const FilterAccordion = ({
                 <label
                   key={subItem._id}
                   className={`flex items-center justify-between p-4 group cursor-pointer ${
-                    subItemCount === 0
+                    subItem.count === 0
                       ? "opacity-50 pointer-events-none"
                       : "hover:bg-brand/50 rounded-md"
                   }`}
@@ -91,7 +97,7 @@ const FilterAccordion = ({
                       onCheckedChange={() =>
                         handleFilterClick(filterKey, subItem._id)
                       }
-                      disabled={subItemCount === 0}
+                      disabled={subItem.count === 0}
                       className="border-gray-600 data-[state=checked]:bg-red-600 data-[state=checked]:border-red-600"
                     />
                     <span className="text-sm text-gray-300 group-hover:text-red-400">
@@ -99,7 +105,7 @@ const FilterAccordion = ({
                     </span>
                   </div>
                   <span className="text-sm text-gray-400">
-                    ({subItemCount})
+                    ({subItem.count})
                   </span>
                 </label>
               );
