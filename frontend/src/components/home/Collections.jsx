@@ -20,8 +20,9 @@ const Collections = () => {
 
   const { data, isError, error } = useGetCollectionQuery();
 
-  // Get top 6 collections
-  const collections = data?.collections?.slice(2, 8) || [];
+  // Get non-featured collections
+  const collections =
+    data?.collections?.filter((c) => !c.isFeatured)?.slice(0, 6) || [];
 
   // Show error message if there is an error
   useEffect(() => {
