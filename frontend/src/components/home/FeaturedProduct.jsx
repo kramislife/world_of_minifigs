@@ -16,8 +16,9 @@ const FeaturedProducts = () => {
 
   const { data, isError, error } = useGetCollectionQuery();
 
-  // Get top 2 collections
-  const featuredCollections = data?.collections?.slice(0, 2) || [];
+  // Get only featured collections
+  const featuredCollections =
+    data?.collections?.filter((c) => c.isFeatured) || [];
 
   // Show error message if there is an error
   useEffect(() => {

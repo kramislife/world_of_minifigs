@@ -5,8 +5,12 @@ import { Save, FileText, BookOpen } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import Metadata from "@/components/layout/Metadata/Metadata";
-import { useUpdateCollectionMutation, useGetCollectionQuery } from "@/redux/api/productApi";
+import {
+  useUpdateCollectionMutation,
+  useGetCollectionQuery,
+} from "@/redux/api/productApi";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
@@ -16,9 +20,9 @@ const UpdateCollection = () => {
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
   const [updateCollection, { isLoading }] = useUpdateCollectionMutation();
-  
+
   const { data: collectionData } = useGetCollectionQuery();
-  const collection = collectionData?.collections?.find(col => col._id === id);
+  const collection = collectionData?.collections?.find((col) => col._id === id);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -26,13 +30,14 @@ const UpdateCollection = () => {
     const collectionData = {
       name: formData.get("name"),
       description: formData.get("description"),
+      isFeatured: formData.get("isFeatured") === "on",
       updatedBy: user?._id,
     };
 
     try {
-      await updateCollection({ 
+      await updateCollection({
         id: id,
-        ...collectionData 
+        ...collectionData,
       }).unwrap();
       toast.success("Collection updated successfully!");
       navigate("/admin/collections");
@@ -54,7 +59,10 @@ const UpdateCollection = () => {
             <form onSubmit={handleSubmit}>
               <div className="space-y-5">
                 <div className="space-y-3">
-                  <Label htmlFor="name" className="flex items-center gap-2 text-lg font-semibold">
+                  <Label
+                    htmlFor="name"
+                    className="flex items-center gap-2 text-lg font-semibold"
+                  >
                     <FileText className="h-5 w-5 text-blue-600" />
                     Collection Name
                   </Label>
@@ -69,7 +77,10 @@ const UpdateCollection = () => {
                 </div>
 
                 <div className="space-y-3">
-                  <Label htmlFor="description" className="flex items-center gap-2 text-lg font-semibold">
+                  <Label
+                    htmlFor="description"
+                    className="flex items-center gap-2 text-lg font-semibold"
+                  >
                     <BookOpen className="h-5 w-5 text-blue-600" />
                     Description
                   </Label>
@@ -81,6 +92,19 @@ const UpdateCollection = () => {
                     defaultValue={collection?.description}
                     rows={4}
                   />
+                </div>
+
+                <div className="space-y-3">
+                  <Label className="flex items-center gap-2">
+                    <Checkbox
+                      name="isFeatured"
+                      id="isFeatured"
+                      defaultChecked={collection?.isFeatured}
+                    />
+                    <span className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                      Add to Featured Collection
+                    </span>
+                  </Label>
                 </div>
 
                 <div className="flex justify-end space-x-4 pt-6">
