@@ -2,7 +2,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Save } from "lucide-react";
-import useProductForm from "@/hooks/useProductForm";
+import useProductForm from "@/hooks/Product/useProductForm";
 import BasicInformation from "./components/BasicInformation";
 import ProductDescriptions from "./components/ProductDescriptions";
 import ProductSpecifications from "./components/ProductSpecifications";

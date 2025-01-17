@@ -7,31 +7,27 @@ import {
 } from "@/components/ui/accordion";
 import { Checkbox } from "@/components/ui/checkbox";
 import { AlertCircle, ChevronRight, ChevronLeft } from "lucide-react";
-import { useProductFilters } from "@/hooks/useProductFilters";
+import { useProductFilters } from "@/hooks/Product/useProductFilters";
 
 const FilterAccordion = ({
   categories,
-  openCategories,
-  onCategoriesChange,
   selectedFilters,
   onFilterChange,
   products,
+  colors,
 }) => {
   const {
-    expandedItems,
     currentCategory,
-    setExpandedItems,
     setCurrentCategory,
     getDisplayName,
     getSubItems,
-    getSubItemCount,
     calculateFilterCounts,
-  } = useProductFilters({ categories });
-
-  const filterCounts = useMemo(
-    () => calculateFilterCounts(categories, products),
-    [categories, products]
-  );
+    subCategoriesData,
+    subCollectionsData,
+  } = useProductFilters({
+    categories,
+    colorsData: { prod_color: colors },
+  });
 
   const handleFilterClick = (key, value) => {
     onFilterChange(key, value);
@@ -47,7 +43,9 @@ const FilterAccordion = ({
 
   const renderCategoryContent = (key, category) => {
     if (currentCategory && currentCategory.key === key) {
-      // Render sub-items view for the selected category
+      // Get pre-sorted sub-items
+      const subItems = getSubItems(key, currentCategory.id, products);
+
       return (
         <div>
           <div className="px-2 pb-4 pt-2 border-b border-gray-700">
@@ -66,8 +64,7 @@ const FilterAccordion = ({
           </div>
 
           <div className="bg-darkBrand p-2">
-            {getSubItems(key, currentCategory.id).map((subItem) => {
-              const subItemCount = getSubItemCount(products, subItem);
+            {subItems.map((subItem) => {
               const filterKey =
                 key === "product_category"
                   ? "product_sub_categories"
@@ -77,7 +74,7 @@ const FilterAccordion = ({
                 <label
                   key={subItem._id}
                   className={`flex items-center justify-between p-4 group cursor-pointer ${
-                    subItemCount === 0
+                    subItem.count === 0
                       ? "opacity-50 pointer-events-none"
                       : "hover:bg-brand/50 rounded-md"
                   }`}
@@ -91,7 +88,7 @@ const FilterAccordion = ({
                       onCheckedChange={() =>
                         handleFilterClick(filterKey, subItem._id)
                       }
-                      disabled={subItemCount === 0}
+                      disabled={subItem.count === 0}
                       className="border-gray-600 data-[state=checked]:bg-red-600 data-[state=checked]:border-red-600"
                     />
                     <span className="text-sm text-gray-300 group-hover:text-red-400">
@@ -99,7 +96,7 @@ const FilterAccordion = ({
                     </span>
                   </div>
                   <span className="text-sm text-gray-400">
-                    ({subItemCount})
+                    ({subItem.count})
                   </span>
                 </label>
               );
@@ -115,21 +112,73 @@ const FilterAccordion = ({
         {category.length > 0 ? (
           category.map((option) => {
             const hasSubItems =
-              key === "product_category" || key === "product_collection";
-            const subItems = hasSubItems ? getSubItems(key, option.value) : [];
-            const subItemsTotal = subItems.reduce(
-              (sum, subItem) => sum + getSubItemCount(products, subItem),
-              0
-            );
-            const itemCount = hasSubItems
-              ? subItemsTotal
-              : filterCounts[key]?.[option.value] || 0;
+              (key === "product_category" &&
+                subCategoriesData?.sub_categories?.some(
+                  (sub) => sub.category?._id === option.value
+                )) ||
+              (key === "product_collection" &&
+                subCollectionsData?.subcollections?.some(
+                  (sub) => sub.collection?._id === option.value
+                ));
+
+            // Calculate item count based on filter type
+            let itemCount;
+            if (key !== "product_category" && key !== "product_collection") {
+              // For non-category/collection filters
+              itemCount =
+                products?.filter((product) => {
+                  if (key === "price") {
+                    const [min, max] = option.value.split("-").map(Number);
+                    if (max) {
+                      return product.price >= min && product.price <= max;
+                    }
+                    return product.price >= min; // For "1000+" case
+                  }
+                  if (key === "rating") {
+                    const ratingValue = parseInt(option.value);
+                    return Math.floor(product.ratings) === ratingValue;
+                  }
+                  if (key === "product_color") {
+                    return (
+                      product.product_color?._id === option.value ||
+                      product.product_color === option.value
+                    );
+                  }
+                  if (key === "product_skill_level") {
+                    return product.product_skill_level?._id === option.value;
+                  }
+                  if (key === "product_designer") {
+                    return product.product_designer?._id === option.value;
+                  }
+                  return product[key] === option.value;
+                }).length || 0;
+            } else if (!hasSubItems) {
+              // For categories/collections without sub-items
+              itemCount =
+                products?.filter((product) => {
+                  if (key === "product_category") {
+                    return product.product_category?.some(
+                      (cat) => cat._id === option.value
+                    );
+                  }
+                  if (key === "product_collection") {
+                    return product.product_collection?.some(
+                      (col) => col._id === option.value
+                    );
+                  }
+                  return false;
+                }).length || 0;
+            }
 
             return (
               <div key={option.value} className="relative">
                 <div
                   className={`flex items-center justify-between py-2 px-2 rounded-sm group
                     ${
+                      ((!hasSubItems && key === "product_category") ||
+                        (!hasSubItems && key === "product_collection") ||
+                        (key !== "product_category" &&
+                          key !== "product_collection")) &&
                       itemCount === 0
                         ? "opacity-50 pointer-events-none"
                         : "hover:bg-brand"
@@ -143,26 +192,52 @@ const FilterAccordion = ({
                         onCheckedChange={() =>
                           handleFilterClick(key, option.value)
                         }
-                        disabled={itemCount === 0}
+                        disabled={
+                          ((!hasSubItems && key === "product_category") ||
+                            (!hasSubItems && key === "product_collection") ||
+                            (key !== "product_category" &&
+                              key !== "product_collection")) &&
+                          itemCount === 0
+                        }
                         className="border-gray-600 data-[state=checked]:bg-red-600 data-[state=checked]:border-red-600"
                       />
-                      <span className="text-sm text-gray-300 group-hover:text-red-400 py-2">
-                        {option.label}
-                      </span>
+                      {key === "product_color" ? (
+                        <div className="flex items-center space-x-2">
+                          <div
+                            className="w-4 h-4 rounded-full border border-gray-600"
+                            style={{ backgroundColor: option.code }}
+                          />
+                          <span className="text-sm text-gray-300 group-hover:text-red-400 py-2">
+                            {option.label}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-sm text-gray-300 group-hover:text-red-400 py-2">
+                          {option.label}
+                        </span>
+                      )}
                     </label>
                   </div>
                   <div className="flex items-center space-x-4">
-                    {!hasSubItems && (
-                      <span className="text-sm text-gray-400">({itemCount})</span>
+                    {((key !== "product_category" &&
+                      key !== "product_collection") ||
+                      (!hasSubItems &&
+                        (key === "product_category" ||
+                          key === "product_collection"))) && (
+                      <span className="text-sm text-gray-400">
+                        ({itemCount})
+                      </span>
                     )}
-                    {hasSubItems && itemCount > 0 && (
-                      <button
-                        onClick={() => handleCategoryClick(key, option.value)}
-                        className="p-1 hover:bg-red-600 rounded-full text-gray-400 hover:text-white"
-                      >
-                        <ChevronRight className="h-4 w-4" />
-                      </button>
-                    )}
+                    {hasSubItems &&
+                      (key === "product_category" ||
+                        key === "product_collection") && (
+                        <button
+                          onClick={() => handleCategoryClick(key, option.value)}
+                          className="p-1 hover:bg-red-600 rounded-full text-gray-400 hover:text-white"
+                        >
+                          <ChevronRight className="h-4 w-4" />
+                        </button>
+                      )}
                   </div>
                 </div>
               </div>

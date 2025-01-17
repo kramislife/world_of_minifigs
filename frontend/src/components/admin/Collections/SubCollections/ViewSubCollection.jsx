@@ -6,7 +6,7 @@ import {
   useDeleteSubCollectionMutation,
 } from "@/redux/api/productApi";
 import { toast } from "react-toastify";
-import { createSubCollectionColumns } from "@/components/admin/table/columns/SubCollectionColumns";
+import { createSubCollectionColumns } from "@/components/admin/shared/table/columns/SubCollectionColumns";
 import DeleteDialog from "@/components/admin/shared/DeleteDialog";
 
 const ViewSubCollections = () => {

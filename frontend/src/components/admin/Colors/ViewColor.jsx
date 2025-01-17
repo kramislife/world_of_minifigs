@@ -6,7 +6,7 @@ import {
   useDeleteColorMutation,
 } from "@/redux/api/productApi";
 import { toast } from "react-toastify";
-import { createColorColumns } from "@/components/admin/table/columns/ColorColumns";
+import { createColorColumns } from "@/components/admin/shared/table/columns/ColorColumns";
 import DeleteDialog from "@/components/admin/shared/DeleteDialog";
 
 const ViewColor = () => {

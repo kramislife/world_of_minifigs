@@ -14,10 +14,10 @@ import {
 } from "@/components/ui/sheet";
 import LoadingSpinner from "@/components/layout/spinner/LoadingSpinner";
 import CustomPagination from "@/components/product/shared/CustomPagination";
-import useScrollToTop from "@/hooks/useScrollToTop";
-import { useProductQueries } from "@/hooks/useProductQueries";
-import { useProductFilters } from "@/hooks/useProductFilters";
-import { useProductPagination } from "@/hooks/useProductPagination";
+import useScrollToTop from "@/hooks/Common/useScrollToTop";
+import { useProductQueries } from "@/hooks/Product/useProductQueries";
+import { useProductFilters } from "@/hooks/Product/useProductFilters";
+import { useProductPagination } from "@/hooks/Product/useProductPagination";
 
 const Products = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -153,8 +153,7 @@ const Products = () => {
                   No Products Found
                 </h3>
                 <p className="text-gray-400 text-center py-2">
-                  Try refreshing the page or check back later for new
-                  products.
+                  Try refreshing the page or check back later for new products.
                 </p>
               </div>
             )}
