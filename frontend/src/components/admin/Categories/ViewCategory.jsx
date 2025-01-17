@@ -1,9 +1,10 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import ViewLayout from "@/components/admin/shared/ViewLayout";
 import {
   useGetCategoryQuery,
   useDeleteCategoryMutation,
+  useUploadCategoryImageMutation,
 } from "@/redux/api/productApi";
 import { toast } from "react-toastify";
 import { createCategoryColumns } from "@/components/admin/shared/table/columns/CategoryColumns";
@@ -15,7 +16,7 @@ const ViewCategories = () => {
   // delete category
   const [deleteCategory, { isLoading: isDeleting }] =
     useDeleteCategoryMutation();
-
+  const [uploadCategoryImage] = useUploadCategoryImageMutation();
   const [globalFilter, setGlobalFilter] = useState("");
   const navigate = useNavigate();
 
@@ -46,9 +47,31 @@ const ViewCategories = () => {
     }
   };
 
+  // handle image upload
+  const handleImageUpload = async (category, file) => {
+    const reader = new FileReader();
+    reader.onload = async () => {
+      if (reader.readyState === FileReader.DONE) {
+        const imageData = reader.result;
+
+        try {
+          await uploadCategoryImage({
+            id: category._id,
+            body: { image: imageData },
+          }).unwrap();
+
+          toast.success("Image uploaded successfully");
+        } catch (error) {
+          toast.error(error?.data?.message || "Failed to upload image");
+        }
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
   // column component for table
   const columns = useMemo(() =>
-    createCategoryColumns(handleEdit, handleDeleteClick)
+    createCategoryColumns(handleEdit, handleDeleteClick, handleImageUpload)
   );
 
   const data = useMemo(() => {
@@ -59,6 +82,7 @@ const ViewCategories = () => {
         id: index + 1,
         _id: category._id,
         name: category.name,
+        image: category.icon?.url || null,
         createdAt: new Date(category.createdAt).toLocaleString(),
         updatedAt: category.updatedAt
           ? new Date(category.updatedAt).toLocaleString()

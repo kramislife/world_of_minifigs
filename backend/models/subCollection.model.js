@@ -12,6 +12,11 @@ const subCollectionSchema = new mongoose.Schema(
       type: String,
       unique: true,
     },
+    description: {
+      type: String,
+      default: "",
+      maxlength: [500, "Description can't exceed 500 characters"],
+    },
     image: {
       public_id: {
         type: String,
@@ -26,15 +31,10 @@ const subCollectionSchema = new mongoose.Schema(
         },
       },
     },
-    description: {
-      type: String,
-      default: "",
-      maxlength: [500, "Description can't exceed 500 characters"],
-    },
     collection: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Collection",
-      required: true,
+      required: [true, "Collection ID is required"],
     },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
@@ -64,7 +64,7 @@ subCollectionSchema.pre("save", async function (next) {
     .model("SubCollection")
     .findOne({ key: this.key });
   if (existingSubCollection) {
-    return next(new Error("SubCollection key must be unique."));
+    return next(new Error("SubCollection with similar name already exists."));
   }
   next();
 });
@@ -79,12 +79,12 @@ subCollectionSchema.pre("findOneAndUpdate", async function (next) {
     update.key = `${formattedName}_${update.collection.toString()}`;
   }
 
-  const existingSubCollection = await mongoose
-    .model("SubCollection")
+    const existingSubCollection = await mongoose
+      .model("SubCollection")
     .findOne({ key: update.key });
-  if (existingSubCollection) {
-    return next(new Error("SubCollection key must be unique."));
-  }
+    if (existingSubCollection) {
+      return next(new Error("SubCollection with similar name already exists."));
+    }
 
   next();
 });

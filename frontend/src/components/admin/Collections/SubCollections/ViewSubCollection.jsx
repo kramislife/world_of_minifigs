@@ -4,6 +4,7 @@ import ViewLayout from "@/components/admin/shared/ViewLayout";
 import {
   useGetSubCollectionsQuery,
   useDeleteSubCollectionMutation,
+  useUploadSubCollectionImageMutation,
 } from "@/redux/api/productApi";
 import { toast } from "react-toastify";
 import { createSubCollectionColumns } from "@/components/admin/shared/table/columns/SubCollectionColumns";
@@ -17,6 +18,7 @@ const ViewSubCollections = () => {
   } = useGetSubCollectionsQuery();
   const [deleteSubCollection, { isLoading: isDeleting }] =
     useDeleteSubCollectionMutation();
+  const [uploadSubCollectionImage] = useUploadSubCollectionImageMutation();
   const [globalFilter, setGlobalFilter] = useState("");
   const [subCollectionToDelete, setSubCollectionToDelete] = useState(null);
   const navigate = useNavigate();
@@ -27,6 +29,27 @@ const ViewSubCollections = () => {
 
   const handleDelete = (subCollection) => {
     setSubCollectionToDelete(subCollection);
+  };
+
+  const handleImageUpload = async (subCollection, file) => {
+    const reader = new FileReader();
+    reader.onload = async () => {
+      if (reader.readyState === FileReader.DONE) {
+        const imageData = reader.result;
+
+        try {
+          await uploadSubCollectionImage({
+            id: subCollection._id,
+            body: { image: imageData },
+          }).unwrap();
+
+          toast.success("Image uploaded successfully");
+        } catch (error) {
+          toast.error(error?.data?.message || "Failed to upload image");
+        }
+      }
+    };
+    reader.readAsDataURL(file);
   };
 
   const confirmDelete = async () => {
@@ -40,8 +63,8 @@ const ViewSubCollections = () => {
   };
 
   const columns = useMemo(
-    () => createSubCollectionColumns(handleEdit, handleDelete),
-    [handleEdit, handleDelete]
+    () =>
+      createSubCollectionColumns(handleEdit, handleDelete, handleImageUpload)
   );
 
   const data = useMemo(() => {
@@ -55,6 +78,7 @@ const ViewSubCollections = () => {
         name: subCollection.name,
         description: subCollection.description || "N/A",
         parentCollection: subCollection.collection?.name || "N/A",
+        image: subCollection.image?.url || null,
         createdBy: new Date(subCollection.createdAt).toLocaleString(),
         updatedBy: subCollection.updatedAt
           ? new Date(subCollection.updatedAt).toLocaleString()
@@ -76,6 +100,7 @@ const ViewSubCollections = () => {
         setGlobalFilter={setGlobalFilter}
       />
 
+      {/* delete dialog */}
       <DeleteDialog
         isOpen={!!subCollectionToDelete}
         onClose={() => setSubCollectionToDelete(null)}
