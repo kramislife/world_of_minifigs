@@ -41,7 +41,11 @@ const LatestProduct = () => {
   }, [isCategoryError, categoryError, isProductsError, productsError]);
 
   if (isCategoryLoading || (latestCategoryId && isProductsLoading)) {
-    return <LoadingSpinner />;
+    return (
+      <div className="flex items-center justify-center min-h-[90vh]">
+        <LoadingSpinner />
+      </div>
+    );
   }
   return (
     <>
