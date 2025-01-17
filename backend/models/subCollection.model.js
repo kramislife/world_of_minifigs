@@ -12,6 +12,20 @@ const subCollectionSchema = new mongoose.Schema(
       type: String,
       unique: true,
     },
+    image: {
+      public_id: {
+        type: String,
+      },
+      url: {
+        type: String,
+        validate: {
+          validator: function (value) {
+            return /^https?:\/\/.*\.(jpg|jpeg|png|gif|svg)$/i.test(value); // Validates URLs for image files
+          },
+          message: "URL must be a valid image URL.",
+        },
+      },
+    },
     description: {
       type: String,
       default: "",
