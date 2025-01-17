@@ -1,6 +1,10 @@
-import { Edit2, Trash2 } from "lucide-react";
+import { Edit2, Trash2, ImagePlus } from "lucide-react";
 
-export const createSubCollectionColumns = (handleEdit, handleDelete) => [
+export const createSubCollectionColumns = (
+  handleEdit,
+  handleDelete,
+  handleImageUpload
+) => [
   {
     header: "ID",
     accessorKey: "id",
@@ -22,23 +26,14 @@ export const createSubCollectionColumns = (handleEdit, handleDelete) => [
   {
     header: "Description",
     accessorKey: "description",
-    cell: ({ row }) => (
-      <span className="text-sm">{row.original.description}</span>
-    ),
   },
   {
     header: "Created At",
     accessorKey: "createdBy",
-    cell: ({ row }) => (
-      <span className="text-sm">{row.original.createdBy}</span>
-    ),
   },
   {
     header: "Last Updated",
     accessorKey: "updatedBy",
-    cell: ({ row }) => (
-      <span className="text-sm">{row.original.updatedBy}</span>
-    ),
   },
   {
     header: "Actions",
@@ -51,6 +46,21 @@ export const createSubCollectionColumns = (handleEdit, handleDelete) => [
         >
           <Edit2 size={18} />
         </button>
+        <label className="cursor-pointer">
+          <input
+            type="file"
+            className="hidden"
+            accept="image/*"
+            onChange={(e) => {
+              if (e.target.files?.[0]) {
+                handleImageUpload(row.original, e.target.files[0]);
+              }
+            }}
+          />
+          <div className="text-purple-600 hover:text-purple-800 p-1 rounded-full hover:bg-purple-100 transition-colors">
+            <ImagePlus size={18} />
+          </div>
+        </label>
         <button
           onClick={() => handleDelete(row.original)}
           className="text-red-600 hover:text-red-800 p-1 rounded-full hover:bg-red-100 transition-colors"

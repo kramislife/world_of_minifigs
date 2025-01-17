@@ -139,6 +139,18 @@ export const productApi = createApi({
       invalidatesTags: ["Categories"],
     }),
 
+    // UPLOAD CATEGORY IMAGE
+    uploadCategoryImage: builder.mutation({
+      query({ id, body }) {
+        return {
+          url: `/admin/categories/${id}/upload_image`,
+          method: "PATCH",
+          body,
+        };
+      },
+      invalidatesTags: ["Categories"],
+    }),
+
     // --------------------------------- SUB-CATEGORIES ---------------------------------------
 
     // Sub-Category endpoints
@@ -147,6 +159,7 @@ export const productApi = createApi({
       providesTags: ["SubCategories"],
     }),
 
+    // ADD A NEW SUB-CATEGORY
     createSubCategory: builder.mutation({
       query: (data) => ({
         url: "/admin/newSubCategory",
@@ -155,6 +168,8 @@ export const productApi = createApi({
       }),
       invalidatesTags: ["SubCategories"],
     }),
+
+    // UPDATE A SUB-CATEGORY
 
     updateSubCategory: builder.mutation({
       query: ({ id, ...data }) => ({
@@ -165,6 +180,8 @@ export const productApi = createApi({
       invalidatesTags: ["SubCategories"],
     }),
 
+    // DELETE A SUB-CATEGORY
+
     deleteSubCategory: builder.mutation({
       query: (id) => ({
         url: `/admin/subcategories/${id}`,
@@ -173,9 +190,23 @@ export const productApi = createApi({
       invalidatesTags: ["SubCategories"],
     }),
 
+    // UPLOAD SUB-CATEGORY IMAGE
+
+    uploadSubCategoryImage: builder.mutation({
+      query({ id, body }) {
+        return {
+          url: `/admin/subcategories/${id}/upload_image`,
+          method: "PATCH",
+          body,
+        };
+      },
+      invalidatesTags: ["SubCategories"],
+    }),
+
+
     // --------------------------------- COLLECTIONS ---------------------------------------
 
-    // GET ALl COLLECTIONS
+    // GET ALL COLLECTIONS
 
     getCollection: builder.query({
       query: () => `/collections`,
@@ -245,11 +276,14 @@ export const productApi = createApi({
     // --------------------------------- SUB-COLLECTIONS ---------------------------------------
 
     // Sub-Collection endpoints
+
     getSubCollections: builder.query({
       query: () => `/subcollections`,
       providesTags: ["SubCollections"],
     }),
 
+    // ADD A NEW SUB-COLLECTION
+    
     createSubCollection: builder.mutation({
       query: (data) => ({
         url: "/admin/newSubCollection",
@@ -258,6 +292,8 @@ export const productApi = createApi({
       }),
       invalidatesTags: ["SubCollections"],
     }),
+
+    // UPDATE A SUB-COLLECTION
 
     updateSubCollection: builder.mutation({
       query: ({ id, ...data }) => ({
@@ -268,11 +304,26 @@ export const productApi = createApi({
       invalidatesTags: ["SubCollections"],
     }),
 
+    // DELETE A SUB-COLLECTION
+
     deleteSubCollection: builder.mutation({
       query: (id) => ({
         url: `/admin/subcollections/${id}`,
         method: "DELETE",
       }),
+      invalidatesTags: ["SubCollections"],
+    }),
+
+    // UPLOAD SUB-COLLECTION IMAGE
+
+    uploadSubCollectionImage: builder.mutation({
+      query({ id, body }) {
+        return {
+          url: `/admin/subcollections/${id}/upload_image`,
+          method: "PATCH",
+          body,
+        };
+      },
       invalidatesTags: ["SubCollections"],
     }),
 
@@ -397,7 +448,7 @@ export const productApi = createApi({
         method: "DELETE",
       }),
       invalidatesTags: ["Colors"],
-    }),
+    }),    
   }),
 });
 
@@ -440,4 +491,7 @@ export const {
   useCreateSubCollectionMutation,
   useUpdateSubCollectionMutation,
   useDeleteSubCollectionMutation,
+  useUploadCategoryImageMutation,
+  useUploadSubCategoryImageMutation,
+  useUploadSubCollectionImageMutation,
 } = productApi;

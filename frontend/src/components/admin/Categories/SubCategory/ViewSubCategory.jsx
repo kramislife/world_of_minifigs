@@ -4,6 +4,7 @@ import ViewLayout from "@/components/admin/shared/ViewLayout";
 import {
   useGetSubCategoriesQuery,
   useDeleteSubCategoryMutation,
+  useUploadSubCategoryImageMutation,
 } from "@/redux/api/productApi";
 import { toast } from "react-toastify";
 import { createSubCategoryColumns } from "@/components/admin/shared/table/columns/SubCategoryColumns";
@@ -17,6 +18,7 @@ const ViewSubCategories = () => {
   } = useGetSubCategoriesQuery();
   const [deleteSubCategory, { isLoading: isDeleting }] =
     useDeleteSubCategoryMutation();
+  const [uploadSubCategoryImage] = useUploadSubCategoryImageMutation();
   const [globalFilter, setGlobalFilter] = useState("");
   const [subCategoryToDelete, setSubCategoryToDelete] = useState(null);
   const navigate = useNavigate();
@@ -27,6 +29,27 @@ const ViewSubCategories = () => {
 
   const handleDelete = (subCategory) => {
     setSubCategoryToDelete(subCategory);
+  };
+
+  const handleImageUpload = async (subCategory, file) => {
+    const reader = new FileReader();
+    reader.onload = async () => {
+      if (reader.readyState === FileReader.DONE) {
+        const imageData = reader.result;
+
+        try {
+          await uploadSubCategoryImage({
+            id: subCategory._id,
+            body: { image: imageData },
+          }).unwrap();
+
+          toast.success("Image uploaded successfully");
+        } catch (error) {
+          toast.error(error?.data?.message || "Failed to upload image");
+        }
+      }
+    };
+    reader.readAsDataURL(file);
   };
 
   const confirmDelete = async () => {
@@ -40,8 +63,7 @@ const ViewSubCategories = () => {
   };
 
   const columns = useMemo(
-    () => createSubCategoryColumns(handleEdit, handleDelete),
-    [handleEdit, handleDelete]
+    () => createSubCategoryColumns(handleEdit, handleDelete, handleImageUpload)
   );
 
   const data = useMemo(() => {
@@ -54,6 +76,7 @@ const ViewSubCategories = () => {
         _id: subCategory._id,
         name: subCategory.name,
         parentCategory: subCategory.category?.name || "N/A",
+        image: subCategory.image?.url || null,
         createdBy: new Date(subCategory.createdAt).toLocaleString(),
         updatedBy: subCategory.updatedAt
           ? new Date(subCategory.updatedAt).toLocaleString()
@@ -75,6 +98,7 @@ const ViewSubCategories = () => {
         setGlobalFilter={setGlobalFilter}
       />
 
+      {/* delete dialog */}
       <DeleteDialog
         isOpen={!!subCategoryToDelete}
         onClose={() => setSubCategoryToDelete(null)}
