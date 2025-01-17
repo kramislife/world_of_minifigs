@@ -6,7 +6,7 @@ import {
   useDeleteSubCategoryMutation,
 } from "@/redux/api/productApi";
 import { toast } from "react-toastify";
-import { createSubCategoryColumns } from "@/components/admin/table/columns/SubCategoryColumns";
+import { createSubCategoryColumns } from "@/components/admin/shared/table/columns/SubCategoryColumns";
 import DeleteDialog from "@/components/admin/shared/DeleteDialog";
 
 const ViewSubCategories = () => {

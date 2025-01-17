@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/sheet";
 import { NavLink, useNavigate } from "react-router-dom";
 import { navItems } from "@/constant/navigation";
-import { useViewport } from "@/hooks/useViewport";
+import { useViewport } from "@/hooks/Common/useViewport";
 import { useSelector } from "react-redux";
 
 // Map icons to nav items

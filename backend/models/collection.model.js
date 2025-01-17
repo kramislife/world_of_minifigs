@@ -30,6 +30,10 @@ const collectionSchema = new mongoose.Schema(
         },
       },
     },
+    isFeatured: {
+      type: Boolean,
+      default: false,
+    },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -57,7 +61,7 @@ collectionSchema.pre("save", async function (next) {
     .model("Collection")
     .findOne({ key: this.key });
   if (existingCollection) {
-    return next(new Error("Collection key must be unique."));
+    return next(new Error("Collection with similar name already exists."));
   }
   next();
 });
@@ -66,18 +70,24 @@ collectionSchema.pre("save", async function (next) {
 collectionSchema.pre("findOneAndUpdate", async function (next) {
   const update = this.getUpdate();
 
-  // Update the 'key' based on the new 'name' if provided
+  // Only proceed with key check if name is being updated
   if (update.name) {
     update.name = update.name.trim();
-    update.key = update.name.toLowerCase().trim().replace(/\s+/g, "_");
-  }
+    update.newKey = update.name.toLowerCase().trim().replace(/\s+/g, "_");
 
-  // Ensure uniqueness of the updated key
-  const existingCollection = await mongoose
-    .model("Collection")
-    .findOne({ key: update.key });
-  if (existingCollection) {
-    return next(new Error("Collection key must be unique."));
+    // Get the current document
+    const currentDoc = await this.model.findOne(this.getQuery());
+
+    // Only check for uniqueness if the name is actually changing
+    if (currentDoc.name !== update.name) {
+      const existingCollection = await mongoose
+        .model("Collection")
+        .findOne({ key: update.newKey, _id: { $ne: currentDoc._id } });
+
+      if (existingCollection) {
+        return next(new Error("Collection with similar name already exists."));
+      }
+    }
   }
 
   next();

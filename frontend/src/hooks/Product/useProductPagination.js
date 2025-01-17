@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { sortProducts } from '@/hooks/productSort';
+import { sortProducts } from '@/hooks/Product/productSort';
 
 export const useProductPagination = (products, currentSort, itemsPerPage = 9) => {
   const [searchParams, setSearchParams] = useSearchParams();

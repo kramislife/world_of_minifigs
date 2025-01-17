@@ -1,4 +1,5 @@
 import { Edit2, ImagePlus, Trash2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 export const createCollectionColumns = (
   handleEdit,
@@ -19,6 +20,16 @@ export const createCollectionColumns = (
     header: "Description",
     accessorKey: "description",
     size: 250,
+  },
+  {
+    header: "Display Location",
+    accessorKey: "isFeatured",
+    size: 150,
+    cell: ({ row }) => (
+      <Badge variant={row.original.isFeatured ? "featured" : "collections"}>
+        {row.original.isFeatured ? "Featured Section" : "Collections Section"}
+      </Badge>
+    ),
   },
   {
     header: "Created At",

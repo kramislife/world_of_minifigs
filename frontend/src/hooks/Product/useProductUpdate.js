@@ -209,7 +209,7 @@ const useProductUpdate = (id) => {
 
     const productData = {
       product_name: formData.name,
-      price: parseFloat(formData.price),
+      price: parseFloat(formData.price) || 0,
       discount: parseFloat(formData.discount) || 0,
       stock: parseInt(formData.stock, 10) || 0,
       product_description_1: formData.description1,
@@ -246,8 +246,8 @@ const useProductUpdate = (id) => {
           0
       ),
       product_includes: formData.productIncludes.join(", "),
-      product_skill_level: formData.skillLevel,
-      product_designer: formData.productDesigner,
+      product_skill_level: formData.skillLevel || null,
+      product_designer: formData.productDesigner || null,
       ratings: 0,
       seller: formData.seller || "Brick Extreme",
       tags: formData.tags.split(",").map((tag) => tag.trim()) || [],

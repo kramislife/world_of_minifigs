@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { Card, CardFooter } from "@/components/ui/card";
 import { motion, useInView } from "framer-motion";
-import { categoryAnimations } from "@/hooks/animationConfig";
+import { categoryAnimations } from "@/hooks/Animation/animationConfig";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useGetCollectionQuery } from "@/redux/api/productApi";
@@ -20,8 +20,9 @@ const Collections = () => {
 
   const { data, isError, error } = useGetCollectionQuery();
 
-  // Get top 6 collections
-  const collections = data?.collections?.slice(2, 8) || [];
+  // Get non-featured collections
+  const collections =
+    data?.collections?.filter((c) => !c.isFeatured)?.slice(0, 6) || [];
 
   // Show error message if there is an error
   useEffect(() => {

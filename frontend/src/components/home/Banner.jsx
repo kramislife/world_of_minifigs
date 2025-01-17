@@ -4,7 +4,7 @@ import {
   CarouselContent,
   CarouselItem,
 } from "@/components/ui/carousel";
-import { useCarousel } from "@/hooks/useCarousel";
+import { useCarousel } from "@/hooks/Animation/useCarousel";
 
 const Banner = () => {
   const { setApi, plugin, options } = useCarousel();

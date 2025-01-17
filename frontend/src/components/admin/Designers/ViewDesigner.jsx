@@ -6,7 +6,7 @@ import {
   useGetDesignersQuery,
 } from "@/redux/api/productApi";
 import { toast } from "react-toastify";
-import { createDesignerColumns } from "@/components/admin/table/columns/DesignerColumns";
+import { createDesignerColumns } from "@/components/admin/shared/table/columns/DesignerColumns";
 import DeleteDialog from "@/components/admin/shared/DeleteDialog";
 
 const ViewDesigner = () => {

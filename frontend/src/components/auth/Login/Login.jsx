@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import LoginImg from "@/assets/authAssets/Login.png";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { loginAnimations } from "@/hooks/animationConfig";
+import { loginAnimations } from "@/hooks/Animation/animationConfig";
 import { useEffect, useState } from "react";
 import { useLoginMutation } from "@/redux/api/authApi";
 import { toast } from "react-toastify";
@@ -26,7 +26,7 @@ const Login = () => {
       const isAdminOrEmployee = ["admin", "employee", "superAdmin"].includes(
         user?.role
       );
-      
+
       if (from.startsWith("/admin")) {
         if (isAdminOrEmployee) {
           navigate(from);

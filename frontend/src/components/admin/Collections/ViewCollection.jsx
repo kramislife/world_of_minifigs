@@ -7,7 +7,7 @@ import {
   useUploadCollectionImageMutation,
 } from "@/redux/api/productApi";
 import { toast } from "react-toastify";
-import { createCollectionColumns } from "@/components/admin/table/columns/CollectionColumns";
+import { createCollectionColumns } from "@/components/admin/shared/table/columns/CollectionColumns";
 import DeleteDialog from "@/components/admin/shared/DeleteDialog";
 
 const ViewCollection = () => {
@@ -94,12 +94,19 @@ const ViewCollection = () => {
   const data = useMemo(() => {
     if (!collectionData?.collections) return [];
     return [...collectionData.collections]
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      .sort((a, b) => {
+        // First sort by isFeatured (featured items on top)
+        if (a.isFeatured && !b.isFeatured) return -1;
+        if (!a.isFeatured && b.isFeatured) return 1;
+        // Then sort by creation date within each group (featured and non-featured)
+        return new Date(b.createdAt) - new Date(a.createdAt);
+      })
       .map((collection, index) => ({
         id: index + 1,
         _id: collection._id,
         name: collection.name,
         description: collection.description || "N/A",
+        isFeatured: collection.isFeatured,
         createdAt: new Date(collection.createdAt).toLocaleString(),
         updatedAt: collection.updatedAt
           ? new Date(collection.updatedAt).toLocaleString()

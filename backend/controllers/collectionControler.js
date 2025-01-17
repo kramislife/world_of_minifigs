@@ -7,12 +7,17 @@ import { upload_single_image } from "../Utills/cloudinary.js";
 //------------------------------------ GET ALL COLLECTIONS => GET /collections ------------------------------------
 
 export const getAllCollections = catchAsyncErrors(async (req, res, next) => {
-  const collections = await Collection.find().sort({ updatedAt: -1 });
+  const collections = await Collection.find().sort({
+    isFeatured: -1,
+    updatedAt: -1,
+  });
+
   if (!collections) {
-    return next(new ErrorHandler("Failed to retrive all collections", 404));
+    return next(new ErrorHandler("Failed to retrieve all collections", 404));
   }
+
   res.status(200).json({
-    message: `${collections.length} collections retrived`,
+    message: `${collections.length} collections retrieved`,
     collections,
   });
 });
@@ -38,6 +43,26 @@ export const getCollectionById = catchAsyncErrors(async (req, res, next) => {
 //------------------------------------ CREATE NEW COLLECTION => admin/newCollection ------------------------------------
 
 export const createCollection = catchAsyncErrors(async (req, res, next) => {
+  // Check if we already have 2 featured collections when trying to add another
+  if (req.body.isFeatured) {
+    const featuredCount = await Collection.countDocuments({ isFeatured: true });
+    if (featuredCount >= 2) {
+      const featuredCollections = await Collection.find({ isFeatured: true })
+        .select("name")
+        .limit(2);
+
+      const collectionNames = featuredCollections
+        .map((c) => c.name)
+        .join(" and ");
+      return next(
+        new ErrorHandler(
+          `You can only feature up to 2 collections at a time. Try removing one of the existing featured collections first.`,
+          400
+        )
+      );
+    }
+  }
+
   const newCollection = await Collection.create(req?.body);
 
   if (!newCollection) {
@@ -52,9 +77,40 @@ export const createCollection = catchAsyncErrors(async (req, res, next) => {
 
 //------------------------------------ UPDATE COLLECTION => admin/collections/:id ------------------------------------
 
-export const updateCollection = catchAsyncErrors(async (req, res) => {
+export const updateCollection = catchAsyncErrors(async (req, res, next) => {
   const { id } = req.params;
   const updatedData = { ...req.body };
+
+  // Get the existing collection first
+  const existingCollection = await Collection.findById(id);
+  if (!existingCollection) {
+    return next(new ErrorHandler("Collection not found", 404));
+  }
+
+  // Check featured collection limit only if isFeatured is being changed to true
+  if (updatedData.isFeatured && !existingCollection.isFeatured) {
+    const featuredCount = await Collection.countDocuments({ isFeatured: true });
+    if (featuredCount >= 2) {
+      const featuredCollections = await Collection.find({ isFeatured: true })
+        .select("name")
+        .limit(2);
+
+      const collectionNames = featuredCollections
+        .map((c) => c.name)
+        .join(" and ");
+      return next(
+        new ErrorHandler(
+          `You can only feature up to 2 collections at a time. Try removing one of the existing featured collections first.`,
+          400
+        )
+      );
+    }
+  }
+
+  // Preserve the image if it's not being updated
+  if (!updatedData.image && existingCollection.image) {
+    updatedData.image = existingCollection.image;
+  }
 
   const updatedCollection = await Collection.findByIdAndUpdate(
     id,
@@ -66,7 +122,7 @@ export const updateCollection = catchAsyncErrors(async (req, res) => {
   );
 
   if (!updatedCollection) {
-    return res.status(404).json({ message: "Collection not found" });
+    return next(new ErrorHandler("Failed to update collection", 404));
   }
 
   res.status(200).json({

@@ -10,6 +10,7 @@ import { useCreateCollectionMutation } from "@/redux/api/productApi";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const AddCollection = () => {
   const navigate = useNavigate();
@@ -24,6 +25,7 @@ const AddCollection = () => {
       description: formData.get("description"),
       createdBy: user?._id,
       is_active: true,
+      isFeatured: formData.get("isFeatured") === "on",
     };
 
     try {
@@ -79,6 +81,15 @@ const AddCollection = () => {
                     className="mt-1"
                     rows={4}
                   />
+                </div>
+
+                <div className="space-y-3">
+                  <Label className="flex items-center gap-2">
+                    <Checkbox name="isFeatured" id="isFeatured" />
+                    <span className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                      Add to Featured Collection
+                    </span>
+                  </Label>
                 </div>
 
                 <div className="flex justify-end space-x-4 pt-6">

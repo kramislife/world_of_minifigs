@@ -6,7 +6,7 @@ import {
   useDeleteCategoryMutation,
 } from "@/redux/api/productApi";
 import { toast } from "react-toastify";
-import { createCategoryColumns } from "@/components/admin/table/columns/CategoryColumns";
+import { createCategoryColumns } from "@/components/admin/shared/table/columns/CategoryColumns";
 import DeleteDialog from "@/components/admin/shared/DeleteDialog";
 
 const ViewCategories = () => {

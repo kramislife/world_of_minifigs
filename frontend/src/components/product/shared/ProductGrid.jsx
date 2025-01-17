@@ -2,7 +2,7 @@ import React, { useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, useInView } from "framer-motion";
 import ProductCard from "@/components/product/ProductCard";
-import { productGridAnimations } from "@/hooks/animationConfig";
+import { productGridAnimations } from "@/hooks/Animation/animationConfig";
 import { CategoryFallback } from "@/components/product/shared/FallbackStates";
 
 const ProductGrid = ({ title, products, baseUrl }) => {
