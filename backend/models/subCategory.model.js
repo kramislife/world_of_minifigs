@@ -16,7 +16,7 @@ const subCategorySchema = new mongoose.Schema(
       ref: "Category",
       required: [true, "Category ID is required"],
     },
-    subCategoryImage: {
+    image: {
       public_id: {
         type: String,
       },
@@ -41,8 +41,11 @@ const subCategorySchema = new mongoose.Schema(
 
 // Middleware for generating `key` for SubCategory
 subCategorySchema.pre("save", async function (next) {
-  if (this.name && !this.key) {
-    this.key = this.name.toLowerCase().trim().replace(/\s+/g, "_");
+  if (this.name && this.category && !this.key) {
+    this.name = this.name.trim().replace(/\s+/g, " ");
+    this.key = `${this.name
+      .toLowerCase()
+      .replace(/\s+/g, "_")}_${this.category.toString()}`;
   }
 
   // Check for unique key within the same category
@@ -61,8 +64,11 @@ subCategorySchema.pre("save", async function (next) {
 subCategorySchema.pre("findOneAndUpdate", async function (next) {
   const update = this.getUpdate();
 
-  if (update.name) {
-    update.key = update.name.toLowerCase().trim().replace(/\s+/g, "_");
+  if (update.name && update.category) {
+    update.name = update.name.trim().replace(/\s+/g, " "); // Replace multiple spaces with a single space
+    update.key = `${update.name
+      .toLowerCase()
+      .replace(/\s+/g, "_")}_${update.category.toString()}`;
   }
 
   const existingSubCategory = await mongoose
