@@ -102,3 +102,46 @@ export const deleteSubCategoryByID = catchAsyncErrors(
     });
   }
 );
+
+// ----------------------------------------- UPLOAD SUB CATEGORY IMAGES -----------------------------------
+
+export const uploadSubCategoryImage = catchAsyncErrors(
+  async (req, res, next) => {
+    try {
+      const { image } = req.body; // Get the single image from the request body
+
+      if (!image) {
+        return next(new ErrorHandler("No image provided", 400));
+      }
+
+      // Assuming `uploadImage` is a helper function to handle the image upload
+      const url = await upload_single_image(
+        image,
+        "world_of_minifigs//sub_categories"
+      );
+
+      console.log("Uploaded URL:", url);
+
+      // Update the product by pushing the single image URL to the `product_images` array
+      const sub_categories = await SubCategory.findByIdAndUpdate(
+        req.params.id,
+        { image: url }, // Update operation
+        { new: true, runValidators: true } // Options
+      );
+
+      if (!sub_categories) {
+        return next(new ErrorHandler("Sub Category not found", 404));
+      }
+
+      res.status(200).json({
+        success: true,
+        message: "Image uploaded successfully",
+        data: sub_categories,
+      });
+    } catch (error) {
+      return next(
+        new ErrorHandler(error.message || "Image upload failed", 500)
+      );
+    }
+  }
+);
