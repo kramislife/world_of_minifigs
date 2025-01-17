@@ -37,10 +37,11 @@ const subCollectionSchema = new mongoose.Schema(
 
 // Pre-save middleware to generate 'key' for SubCollection
 subCollectionSchema.pre("save", async function (next) {
-  if (this.name) {
-    this.name = this.name.trim();
+  if (this.name && this.collection) {
+    this.name = this.name.trim().replace(/\s+/g, " "); // Replace multiple spaces with a single space
     if (!this.key) {
-      this.key = this.name.toLowerCase().replace(/\s+/g, "_");
+      const formattedName = this.name.toLowerCase().replace(/\s+/g, "_");
+      this.key = `${formattedName}_${this.collection.toString()}`;
     }
   }
 
@@ -58,9 +59,10 @@ subCollectionSchema.pre("save", async function (next) {
 subCollectionSchema.pre("findOneAndUpdate", async function (next) {
   const update = this.getUpdate();
 
-  if (update.name) {
-    update.name = update.name.trim();
-    update.key = update.name.toLowerCase().replace(/\s+/g, "_");
+  if (update.name && update.collection) {
+    update.name = update.name.trim().replace(/\s+/g, " "); // Normalize spaces
+    const formattedName = update.name.toLowerCase().replace(/\s+/g, "_");
+    update.key = `${formattedName}_${update.collection.toString()}`;
   }
 
   const existingSubCollection = await mongoose
