@@ -103,6 +103,8 @@ const useProductForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    console.log(formData);
+
     if (!formData.name) {
       toast.error("Product name is required");
       return;
