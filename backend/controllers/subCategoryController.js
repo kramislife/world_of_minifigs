@@ -1,6 +1,7 @@
 import catchAsyncErrors from "../middlewares/catchAsyncErrors.js";
 import SubCategory from "../models/subCategory.model.js";
 import ErrorHandler from "../Utills/customErrorHandler.js";
+import { upload_single_image } from "../Utills/cloudinary.js";
 
 // ----------------------------------------------- GET ALL SUB CATEGORIES ----------------------------------
 export const getAllSubCategories = catchAsyncErrors(async (req, res, next) => {
@@ -117,7 +118,7 @@ export const uploadSubCategoryImage = catchAsyncErrors(
       // Assuming `uploadImage` is a helper function to handle the image upload
       const url = await upload_single_image(
         image,
-        "world_of_minifigs//sub_categories"
+        "world_of_minifigs/sub_categories"
       );
 
       console.log("Uploaded URL:", url);

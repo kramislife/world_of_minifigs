@@ -2,6 +2,7 @@ import catchAsyncErrors from "../middlewares/catchAsyncErrors.js";
 import Category from "../models/category.model.js";
 import SubCategory from "../models/subCategory.model.js";
 import ErrorHandler from "../Utills/customErrorHandler.js";
+import { upload_single_image } from "../Utills/cloudinary.js";
 
 //------------------------------------  GET ALL CATEGORY => GET /categories  ------------------------------------
 
@@ -114,7 +115,7 @@ export const deleteCategoryByID = catchAsyncErrors(async (req, res, next) => {
   });
 });
 
-//------------------------------------ UPLOAD CATEGORY IMAGE => admin/collection/:id/upload_image ------------------------------------
+//------------------------------------ UPLOAD CATEGORY IMAGE => admin/categories/:id/upload_image ------------------------------------
 
 export const uploadCategoryImage = catchAsyncErrors(async (req, res, next) => {
   try {
@@ -127,7 +128,7 @@ export const uploadCategoryImage = catchAsyncErrors(async (req, res, next) => {
     // Assuming `uploadImage` is a helper function to handle the image upload
     const url = await upload_single_image(
       image,
-      "world_of_minifigs//categories"
+      "world_of_minifigs/categories"
     );
 
     console.log("Uploaded URL:", url);

@@ -43,9 +43,13 @@ const BestSelling = () => {
   }, [isCategoryError, categoryError, isProductsError, productsError]);
 
   if (isCategoryLoading || (bestSellerId && isProductsLoading)) {
-    return <LoadingSpinner />;
+    return (
+      <div className="flex items-center justify-center min-h-[90vh]">
+        <LoadingSpinner />
+      </div>
+    );
   }
-
+  
   return (
     <>
       <ProductGrid
@@ -53,6 +57,7 @@ const BestSelling = () => {
         products={productsData?.products || []}
         animations={bestSellingAnimations}
         baseUrl={`/product_category=${bestSellerId}`}
+        isLoading={isCategoryLoading || (bestSellerId && isProductsLoading)}
       />
     </>
   );

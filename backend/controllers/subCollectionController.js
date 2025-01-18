@@ -100,7 +100,7 @@ export const deleteSubCollectionByID = async (req, res) => {
   }
 };
 
-//------------------------------------ UPLOAD COLLECTION => admin/collection/:id/upload_image ------------------------------------
+//------------------------------------ UPLOAD SUB COLLECTION IMAGE => admin/subcollection/:id/upload_image ------------------------------------
 
 export const uploadSubCollectionImage = catchAsyncErrors(
   async (req, res, next) => {
@@ -114,7 +114,7 @@ export const uploadSubCollectionImage = catchAsyncErrors(
       // Assuming `uploadImage` is a helper function to handle the image upload
       const url = await upload_single_image(
         image,
-        "world_of_minifigs//sub_collections"
+        "world_of_minifigs/sub_collections"
       );
 
       console.log("Uploaded URL:", url);

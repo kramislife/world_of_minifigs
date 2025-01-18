@@ -6,6 +6,7 @@ const subCategorySchema = new mongoose.Schema(
       type: String,
       required: [true, "SubCategory name is required"],
       trim: true,
+      maxlength: [100, "SubCategory name can't exceed 100 characters"],
     },
     key: {
       type: String,
@@ -22,8 +23,18 @@ const subCategorySchema = new mongoose.Schema(
       },
       url: {
         type: String,
-        match: [/^https?:\/\/[^\s$.?#].[^\s]*$/, "Invalid image URL"],
+        validate: {
+          validator: function (value) {
+            return /^https?:\/\/.*\.(jpg|jpeg|png|gif|svg)$/i.test(value);
+          }, // Validates URLs for image files
+          message: "URL must be a valid image URL.",
+        },
       },
+    },
+    category: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Category",
+      required: [true, "Category ID is required"],
     },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
@@ -39,51 +50,54 @@ const subCategorySchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Middleware for generating `key` for SubCategory
+// Pre-save middleware to generate 'key' for SubCategory
 subCategorySchema.pre("save", async function (next) {
-  if (this.name && this.category && !this.key) {
-    this.name = this.name.trim().replace(/\s+/g, " ");
-    this.key = `${this.name
-      .toLowerCase()
-      .replace(/\s+/g, "_")}_${this.category.toString()}`;
+  if (this.name && this.category) {
+    this.name = this.name.trim().replace(/\s+/g, " "); // Replace multiple spaces with a single space
+    if (!this.key) {
+      const formattedName = this.name.toLowerCase().replace(/\s+/g, "_");
+      this.key = `${formattedName}_${this.category.toString()}`;
+    }
   }
 
-  // Check for unique key within the same category
+  // Check for unique key constraint
   const existingSubCategory = await mongoose
     .model("SubCategory")
-    .findOne({ key: this.key, category: this.category });
+    .findOne({ key: this.key });
   if (existingSubCategory) {
     return next(
-      new Error("SubCategory key must be unique within the category.")
+      new Error(
+        "SubCategory with similar name already exists in this category."
+      )
     );
   }
   next();
 });
 
-// Middleware for validating key uniqueness during updates
+// Pre-update middleware to update 'key' if 'name' changes
 subCategorySchema.pre("findOneAndUpdate", async function (next) {
   const update = this.getUpdate();
 
   if (update.name && update.category) {
-    update.name = update.name.trim().replace(/\s+/g, " "); // Replace multiple spaces with a single space
-    update.key = `${update.name
-      .toLowerCase()
-      .replace(/\s+/g, "_")}_${update.category.toString()}`;
+    update.name = update.name.trim().replace(/\s+/g, " "); // Normalize spaces
+    const formattedName = update.name.toLowerCase().replace(/\s+/g, "_");
+    update.key = `${formattedName}_${update.category.toString()}`;
   }
 
   const existingSubCategory = await mongoose
     .model("SubCategory")
-    .findOne({ key: update.key, category: this.getQuery().category });
+    .findOne({ key: update.key });
   if (existingSubCategory) {
     return next(
-      new Error("SubCategory key must be unique within the category.")
+      new Error(
+        "SubCategory with similar name already exists in this category."
+      )
     );
   }
   next();
 });
 
-// Indexing for efficient queries
-subCategorySchema.index({ key: 1, category: 1 });
+subCategorySchema.index({ key: 1 });
 
 const SubCategory = mongoose.model("SubCategory", subCategorySchema);
 
