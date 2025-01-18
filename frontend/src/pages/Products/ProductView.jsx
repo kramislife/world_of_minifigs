@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import ProductDetails from "@/components/product/shared/ProductDetails";
 import ProductRating from "@/components/product/shared/ProductRating";
@@ -12,6 +12,21 @@ import { productViewAnimations } from "@/hooks/Animation/animationConfig";
 const ProductView = () => {
   const { id } = useParams();
   const { data, isLoading, isError, error } = useGetProductDetailsQuery(id);
+  const displayProducts = useMemo(() => {
+    if (!data?.product) return [];
+
+    const mainProduct = data.product;
+
+    // If there are similar products, return main product + similar products
+    if (data.similarProducts?.length > 0) {
+      return [mainProduct, ...data.similarProducts].filter(Boolean);
+    }
+
+    // If product has multiple images but no similar products, return just the main product
+    return [mainProduct];
+  }, [data]);
+
+  // console.log("DISPLAY PRODUCTS", displayProducts);
 
   useEffect(() => {
     if (isError) {
@@ -29,6 +44,9 @@ const ProductView = () => {
           {/* Product Details */}
           <ProductDetails
             product={data?.product}
+            similarProducts={
+              data?.similarProducts?.length > 0 ? displayProducts : null
+            }
             containerVariants={productViewAnimations.containerVariants}
             itemVariants={productViewAnimations.itemVariants}
           />
