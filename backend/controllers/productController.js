@@ -106,11 +106,10 @@ export const getBestSellerProduct = catchAsyncErrors(async (req, res, next) => {
 //------------------------------------  GET A PRODUCT BY ID  => GET /products/:id  ------------------------------------
 
 export const getProductById = catchAsyncErrors(async (req, res, next) => {
-  const product = await Product.findById(req?.params?.id)
+  const productId = req.params.id;
+  const product = await Product.findById(productId)
     .populate("product_category", "name")
-    .populate("product_sub_categories", "name")
     .populate("product_collection", "name")
-    .populate("product_sub_collections", "name")
     .populate("product_designer", "name")
     .populate("product_skill_level", "name")
     .populate("product_color", "name");
@@ -118,15 +117,36 @@ export const getProductById = catchAsyncErrors(async (req, res, next) => {
   if (!product) {
     return next(new ErrorHandler("Product not found", 400));
   }
+  // console.log("PRODUCT", product.product_name);
 
-  const productWithDiscount = {
-    ...product.toObject(),
-    discounted_price: calculateDiscountedPrice(product),
-  };
+  // Extract the base product name (before any parentheses or color variations)
+  const baseProductName = product.product_name.split(/[\(\-]/)[0].trim();
+
+  // Escape special characters in the product_name
+  const escapedProductName = baseProductName.replace(
+    /[.*+?^${}()|[\]\\]/g,
+    "\\$&"
+  );
+
+  const similarProducts = await Product.find({
+    product_name: { $regex: escapedProductName, $options: "i" }, // Case-insensitive partial match
+    _id: { $ne: productId }, // Exclude the current product
+  })
+    .populate("product_category", "name")
+    .populate("product_collection", "name")
+    .populate("product_designer", "name")
+    .populate("product_skill_level", "name")
+    .populate("product_color", "name");
+
+  console.log("SIMILAR PRODUCTS", similarProducts);
+  // if (product || similarProducts) {
+  //   allProducts(...product, ...similarProducts);
+  // }
 
   res.status(200).json({
-    message: "Product retrieved successfully",
-    product: productWithDiscount,
+    message: "Product Retrieved Successfully",
+    product,
+    similarProducts,
   });
 });
 
