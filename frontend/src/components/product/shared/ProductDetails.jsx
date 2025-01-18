@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useMemo, useEffect } from "react";
 import { ChevronLeft, ChevronRight, CircleCheckBig } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -14,17 +14,42 @@ import { addToCart } from "@/redux/features/cartSlice";
 import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
 
-const ProductDetails = ({ product, containerVariants, itemVariants }) => {
-  // const [quantity, setQuantity] = useState(1);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-
-  // Add ref for the thumbnail container
-  const thumbnailContainerRef = useRef(null);
-
+const ProductDetails = ({
+  product,
+  similarProducts,
+  containerVariants,
+  itemVariants,
+}) => {
   const dispatch = useDispatch();
-
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [currentProduct, setCurrentProduct] = useState(product);
+  const thumbnailContainerRef = useRef(null);
+  const [showAnimation, setShowAnimation] = useState(false);
   const buttonRef = useRef(null);
   const [isCartOpen, setIsCartOpen] = useState(false);
+
+  useEffect(() => {
+    console.log("PRODUCT:", product);
+  }, []);
+
+  // Determine what to display based on similarProducts prop
+  const displayItems = useMemo(() => {
+    if (similarProducts) {
+      return similarProducts; // Already includes main product + similar products
+    }
+    return product?.product_images?.length > 0
+      ? product.product_images
+      : [{ url: product?.product_images?.[0]?.url }];
+  }, [similarProducts, product]);
+
+  // Update current product when navigating
+  useEffect(() => {
+    if (similarProducts) {
+      setCurrentProduct(similarProducts[currentImageIndex]);
+    } else {
+      setCurrentProduct(product); // Keep same product when showing multiple images
+    }
+  }, [currentImageIndex, similarProducts, product]);
 
   // Update scrollIntoView helper
   const scrollThumbnailIntoView = (index) => {
@@ -50,62 +75,58 @@ const ProductDetails = ({ product, containerVariants, itemVariants }) => {
     }
   };
 
+  // Navigation functions
+  const nextImage = () => {
+    const newIndex =
+      currentImageIndex === displayItems.length - 1 ? 0 : currentImageIndex + 1;
+    setCurrentImageIndex(newIndex);
+    scrollThumbnailIntoView(newIndex);
+  };
+
+  const prevImage = () => {
+    const newIndex =
+      currentImageIndex === 0 ? displayItems.length - 1 : currentImageIndex - 1;
+    setCurrentImageIndex(newIndex);
+    scrollThumbnailIntoView(newIndex);
+  };
+
+  // Handle add to cart with animation
   const handleAddToCart = () => {
     try {
-      const discountedPrice = product?.discounted_price || product?.price || 0;
+      const discountedPrice =
+        currentProduct.price * (1 - (currentProduct.discount || 0) / 100);
 
-      dispatch(
-        addToCart({
-          product: product._id,
-          name: product.product_name,
-          quantity: 1,
-          price: product.price,
-          discounted_price: discountedPrice,
-          image: product.product_images[0]?.url,
-          includes: product.product_includes,
-        })
-      );
+      // Trigger the animation
+      setShowAnimation(true);
 
-      setIsCartOpen(true);
+      // Delay the actual cart addition to match animation
+      setTimeout(() => {
+        dispatch(
+          addToCart({
+            product: currentProduct._id,
+            name: currentProduct.product_name,
+            quantity: 1,
+            price: discountedPrice,
+            image: currentProduct.product_images[0]?.url,
+            includes: currentProduct.product_includes,
+          })
+        );
+
+        setShowAnimation(false);
+        // Open cart sheet after animation completes
+        setIsCartOpen(true);
+      }, 800);
+
+      // console.log(`Added to cart: ${currentProduct.product_name}`);
     } catch (error) {
       toast.error("Failed to add item to cart");
       console.error("Add to cart error:", error);
     }
   };
 
-  // Determine if images are available
-  const hasImages =
-    product?.product_images && product.product_images.length > 0;
-
-  // Update navigation functions to include scroll
-  const nextImage = () => {
-    if (!hasImages) return;
-    const newIndex =
-      currentImageIndex === product.product_images.length - 1
-        ? 0
-        : currentImageIndex + 1;
-    setCurrentImageIndex(newIndex);
-    scrollThumbnailIntoView(newIndex);
-  };
-
-  const prevImage = () => {
-    if (!hasImages) return;
-    const newIndex =
-      currentImageIndex === 0
-        ? product.product_images.length - 1
-        : currentImageIndex - 1;
-    setCurrentImageIndex(newIndex);
-    scrollThumbnailIntoView(newIndex);
-  };
-
-  const selectImage = (index) => {
-    if (!hasImages) return;
-    setCurrentImageIndex(index);
-  };
-
   return (
     <>
-      <Metadata title={product?.product_name || "Product Details"} />
+      <Metadata title={currentProduct?.product_name || "Product Details"} />
       <motion.div
         variants={containerVariants}
         initial="hidden"
@@ -124,61 +145,60 @@ const ProductDetails = ({ product, containerVariants, itemVariants }) => {
                 className="w-full h-full overflow-y-auto no-scrollbar"
                 ref={thumbnailContainerRef}
               >
-                {hasImages ? (
-                  <div className="flex flex-row md:flex-col gap-2">
-                    {product.product_images.map((image) => (
-                      <button
-                        key={image.public_id}
-                        onClick={() =>
-                          selectImage(
-                            product.product_images.findIndex(
-                              (img) => img.public_id === image.public_id
-                            )
-                          )
+                <div className="flex flex-row md:flex-col gap-2">
+                  {displayItems.map((item, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentImageIndex(index)}
+                      className={`min-w-[130px] max-w-[130px] md:min-w-0 md:max-w-full aspect-square rounded-lg overflow-hidden border-2 transition-all ${
+                        currentImageIndex === index
+                          ? "border-red-600 border-4"
+                          : "border border-slate-700"
+                      }`}
+                    >
+                      <img
+                        src={
+                          similarProducts
+                            ? item.product_images[0]?.url
+                            : item.url
                         }
-                        className={`min-w-[130px] max-w-[130px] md:min-w-0 md:max-w-full aspect-square rounded-lg overflow-hidden border-2 transition-all ${
-                          currentImageIndex ===
-                          product.product_images.findIndex(
-                            (img) => img.public_id === image.public_id
-                          )
-                            ? "border-red-600 border-4"
-                            : "border border-slate-700"
-                        }`}
-                      >
-                        <img
-                          src={image.url}
-                          alt={`Thumbnail ${image.public_id}`}
-                          className="w-full h-full object-fill transition-transform duration-300"
-                        />
-                      </button>
-                    ))}
-                  </div>
-                ) : (
-                  <ProductThumbnailPlaceholder />
-                )}
+                        alt={
+                          similarProducts
+                            ? item.product_name
+                            : `${product.product_name} view ${index + 1}`
+                        }
+                        className="w-full h-full object-fill transition-transform duration-300"
+                      />
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 
             {/* Main Image Display */}
             <div className="flex-1 relative bg-blue-950 rounded-lg overflow-hidden aspect-square">
-              {hasImages ? (
-                <AnimatePresence mode="wait">
-                  <motion.img
-                    key={product.product_images[currentImageIndex].public_id}
-                    src={product.product_images[currentImageIndex].url}
-                    alt={`Product view ${product.product_images[currentImageIndex].public_id}`}
-                    className="w-full h-full object-fill"
-                    initial={{ opacity: 0, x: 100 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -100 }}
-                    transition={{ duration: 0.3 }}
-                  />
-                </AnimatePresence>
-              ) : (
-                <ProductImagePlaceholder />
-              )}
+              <AnimatePresence mode="wait">
+                <motion.img
+                  key={currentImageIndex}
+                  src={
+                    similarProducts
+                      ? currentProduct?.product_images[0]?.url
+                      : product.product_images[currentImageIndex]?.url
+                  }
+                  alt={
+                    similarProducts
+                      ? currentProduct?.product_name
+                      : `${product.product_name} view ${currentImageIndex + 1}`
+                  }
+                  className="w-full h-full object-fill"
+                  initial={{ opacity: 0, x: 100 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -100 }}
+                  transition={{ duration: 0.3 }}
+                />
+              </AnimatePresence>
 
-              {hasImages && (
+              {displayItems.length > 1 && (
                 <>
                   <Button
                     variant="ghost"
@@ -203,18 +223,17 @@ const ProductDetails = ({ product, containerVariants, itemVariants }) => {
 
           {/* Product Info */}
           <motion.div variants={itemVariants} className="flex flex-col h-full">
-            {/* Basic Info Section - Always visible */}
             <div className="mb-6">
               <h1 className="text-3xl font-bold text-white mb-2">
-                {product?.product_name || "Unnamed Product"}
+                {currentProduct?.product_name || "Unnamed Product"}
               </h1>
 
               <div className="flex items-center gap-1 mb-8">
-                {product?.ratings ? (
+                {currentProduct?.ratings ? (
                   <>
-                    <StarRating rating={product.ratings} />
+                    <StarRating rating={currentProduct.ratings} />
                     <span className="text-gray-400 ml-2 text-sm">
-                      ({product.ratings})
+                      ({currentProduct.ratings})
                     </span>
                   </>
                 ) : (
@@ -226,96 +245,96 @@ const ProductDetails = ({ product, containerVariants, itemVariants }) => {
               <div className="flex items-center space-x-4">
                 <span className="text-4xl font-semibold">
                   $
-                  {product?.discounted_price?.toFixed(2) ||
-                    (product?.price || 0).toFixed(2)}
+                  {(
+                    (currentProduct?.price || 0) *
+                    (1 - (currentProduct?.discount || 0) / 100)
+                  ).toFixed(2)}
                 </span>
-                {product?.discount > 0 && (
+                {currentProduct?.discount > 0 && (
                   <span className="text-xl text-red-500 line-through">
-                    ${(product?.price || 0).toFixed(2)}
+                    ${(currentProduct?.price || 0).toFixed(2)}
                   </span>
                 )}
               </div>
             </div>
 
             {/* Availability Section */}
-            {product?.product_availability && (
+            {currentProduct?.product_availability && (
               <div className="mb-6">
                 <div className="flex items-center space-x-2">
-                  <ProductStatus stock={product?.stock} variant="dot" />
-                  {product?.pre_order && product?.release_date && (
-                    <span className="text-gray-400 text-sm">
-                      (Available{" "}
-                      {new Date(product.release_date).toLocaleDateString()})
-                    </span>
-                  )}
+                  <ProductStatus stock={currentProduct?.stock} variant="dot" />
+                  {currentProduct?.pre_order &&
+                    currentProduct?.release_date && (
+                      <span className="text-gray-400 text-sm">
+                        (Available{" "}
+                        {new Date(
+                          currentProduct.release_date
+                        ).toLocaleDateString()}
+                        )
+                      </span>
+                    )}
                 </div>
               </div>
             )}
 
             {/* Details Section */}
             <div className="mb-6">
-              {/* Category and Collection Container */}
-              <div className="flex flex-col gap-4">
-                {/* Category Section */}
-                {((product?.product_sub_categories &&
-                  product.product_sub_categories.length > 0) ||
-                  (product?.product_category &&
-                    product.product_category.length > 0)) && (
-                  <div>
-                    <span className="text-white font-medium mb-3 block text-sm">
-                      Category
-                    </span>
-                    <div className="flex flex-wrap gap-2">
-                      {(product.product_sub_categories?.length > 0
-                        ? product.product_sub_categories
-                        : product.product_category
-                      ).map((cat) => (
-                        <span
-                          key={cat._id}
-                          className="px-10 py-2 rounded-full text-sm text-gray-300 border border-slate-700 transition-colors"
-                        >
-                          {cat.name}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
+              {/* Category and Collection row */}
+              <div className="flex flex-wrap gap-2 mb-2">
+                <div className="flex-1">
+                  {/* Category Button */}
+                  {currentProduct?.product_category &&
+                    currentProduct.product_category.length > 0 && (
+                      <Button
+                        variant="outline"
+                        className="bg-brand hover:bg-darkBrand hover:text-white transition-all duration-300 border-slate-700 inline-flex w-full text-left justify-start mb-2"
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="whitespace-nowrap">Category:</span>
+                          <span className="text-gray-400">
+                            {Array.isArray(currentProduct.product_category)
+                              ? currentProduct.product_category
+                                  .map((category) => category?.name)
+                                  .join(", ")
+                              : currentProduct.product_category?.name}
+                          </span>
+                        </div>
+                      </Button>
+                    )}
 
-                {/* Collection Section */}
-                {((product?.product_sub_collections &&
-                  product.product_sub_collections.length > 0) ||
-                  (product?.product_collection &&
-                    product.product_collection.length > 0)) && (
-                  <div>
-                    <span className="text-white font-medium mb-3 block text-sm">
-                      Collection
-                    </span>
-                    <div className="flex flex-wrap gap-2">
-                      {(product.product_sub_collections?.length > 0
-                        ? product.product_sub_collections
-                        : product.product_collection
-                      ).map((col) => (
-                        <span
-                          key={col._id}
-                          className="px-10 py-2 rounded-full text-sm text-gray-300 border border-slate-700 transition-colors"
-                        >
-                          {col.name}
+                  {/* Includes Button */}
+                  {currentProduct?.product_includes && (
+                    <Button
+                      variant="outline"
+                      className="bg-brand hover:bg-darkBrand hover:text-white transition-all duration-300 border-slate-700 inline-flex w-full text-left justify-start"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="whitespace-nowrap">Includes:</span>
+                        <span className="text-gray-400">
+                          {currentProduct.product_includes}
                         </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                      </div>
+                    </Button>
+                  )}
+                </div>
 
-                {/* Includes Section */}
-                {product?.product_includes && (
-                  <div>
-                    <span className="text-white font-medium mb-3 block text-sm">
-                      Includes
-                    </span>
-                    <span className="px-10 py-2 rounded-full text-sm text-gray-300 border border-slate-700 transition-colors">
-                      {product.product_includes}
-                    </span>
-                  </div>
+                {/* Collection Button */}
+                {currentProduct?.product_collection && (
+                  <Button
+                    variant="outline"
+                    className="bg-brand hover:bg-darkBrand hover:text-white transition-all duration-300 border-slate-700 inline-flex w-auto text-left justify-start flex-1"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="whitespace-nowrap">Collection:</span>
+                      <span className="text-gray-400">
+                        {Array.isArray(currentProduct.product_collection)
+                          ? currentProduct.product_collection
+                              .map((collection) => collection?.name)
+                              .join(", ")
+                          : currentProduct.product_collection?.name}
+                      </span>
+                    </div>
+                  </Button>
                 )}
               </div>
             </div>
@@ -323,9 +342,9 @@ const ProductDetails = ({ product, containerVariants, itemVariants }) => {
             {/* Description Section */}
             <div className="mb-6">
               {[
-                product?.product_description_1,
-                product?.product_description_2,
-                product?.product_description_3,
+                currentProduct?.product_description_1,
+                currentProduct?.product_description_2,
+                currentProduct?.product_description_3,
               ]
                 .filter((description) => description?.trim()) // Only include non-empty descriptions after trimming whitespace
                 .map((description, index) => (
@@ -339,34 +358,15 @@ const ProductDetails = ({ product, containerVariants, itemVariants }) => {
                 ))}
             </div>
 
-            {/* Quantity and Cart Section - Always at bottom */}
-            <div className="mt-auto">
-              {/* <div className="flex items-center space-x-4 mb-4">
-                <div className="flex items-center border rounded-md">
-                  <Button
-                    className="rounded-r-none"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  >
-                    <Minus className="w-4 h-4" />
-                  </Button>
-                  <span className="w-12 text-center">{quantity}</span>
-                  <Button
-                    className="rounded-l-none"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setQuantity(quantity + 1)}
-                  >
-                    <Plus className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div> */}
+            {/* Cart Section */}
+            <div className="mt-auto relative">
               <div className="flex space-x-4">
                 <Button
                   ref={buttonRef}
                   className="w-full bg-red-600 hover:bg-red-700 hover:scale-105 transition-all duration-300 relative"
-                  disabled={!product?.stock || product?.stock <= 0}
+                  disabled={
+                    !currentProduct?.stock || currentProduct?.stock <= 0
+                  }
                   onClick={handleAddToCart}
                 >
                   Add to Cart
@@ -375,7 +375,9 @@ const ProductDetails = ({ product, containerVariants, itemVariants }) => {
                 <Button
                   variant="outline"
                   className="bg-brand hover:bg-darkBrand hover:text-white hover:scale-105 transition-all duration-300 border-slate-700 w-full"
-                  disabled={!product?.stock || product?.stock <= 0}
+                  disabled={
+                    !currentProduct?.stock || currentProduct?.stock <= 0
+                  }
                 >
                   Buy Now
                 </Button>
