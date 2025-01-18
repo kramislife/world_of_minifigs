@@ -11,7 +11,7 @@ const categorySchema = new mongoose.Schema(
       type: String,
       unique: true,
     },
-    icon: {
+    image: {
       public_id: {
         type: String,
       },
@@ -46,10 +46,8 @@ categorySchema.pre("save", async function (next) {
     .model("Category")
     .findOne({ key: this.key });
   if (existingCategory) {
-    const error = new Error("Category Already Available.");
-    return next(error);
+    return next(new Error("Category with similar name already exists."));
   }
-
   next();
 });
 
@@ -66,13 +64,14 @@ categorySchema.pre("findOneAndUpdate", async function (next) {
   const existingCategory = await mongoose
     .model("Category")
     .findOne({ key: update.key });
-  if (existingCategory) {
-    const error = new Error("Category Already Available.");
-    return next(error);
-  }
+    if (existingCategory) {
+      return next(new Error("Category with similar name already exists."));
+    }
 
   next();
 });
+
+categorySchema.index({ key: 1 });
 
 const Category = mongoose.model("Category", categorySchema);
 
