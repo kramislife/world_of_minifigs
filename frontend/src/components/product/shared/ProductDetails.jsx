@@ -13,6 +13,7 @@ import CartSheet from "@/components/layout/header/components/CartSheet";
 import { addToCart } from "@/redux/features/cartSlice";
 import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
+import { Badge } from "@/components/ui/badge";
 
 const ProductDetails = ({
   product,
@@ -280,61 +281,125 @@ const ProductDetails = ({
             {/* Details Section */}
             <div className="mb-6">
               {/* Category and Collection row */}
-              <div className="flex flex-wrap gap-2 mb-2">
-                <div className="flex-1">
-                  {/* Category Button */}
-                  {currentProduct?.product_category &&
-                    currentProduct.product_category.length > 0 && (
-                      <Button
-                        variant="outline"
-                        className="bg-brand hover:bg-darkBrand hover:text-white transition-all duration-300 border-slate-700 inline-flex w-full text-left justify-start mb-2"
-                      >
-                        <div className="flex items-center gap-2">
-                          <span className="whitespace-nowrap">Category:</span>
-                          <span className="text-gray-400">
-                            {Array.isArray(currentProduct.product_category)
-                              ? currentProduct.product_category
-                                  .map((category) => category?.name)
-                                  .join(", ")
-                              : currentProduct.product_category?.name}
-                          </span>
+              <div className="flex flex-col gap-4">
+                {/* Categories and Subcategories */}
+                {currentProduct?.product_category && (
+                  <div className="flex flex-col gap-2">
+                    <span className="text-sm text-gray-400">Categories:</span>
+                    <div className="flex flex-wrap gap-2">
+                      {Array.isArray(currentProduct.product_category) ? (
+                        currentProduct.product_category.map(
+                          (category, index) => (
+                            <div key={index} className="flex flex-wrap gap-2">
+                              <Badge
+                                variant="default"
+                                className="bg-brand border border-slate-700 hover:bg-darkBrand py-2 px-5"
+                              >
+                                {category?.name}
+                              </Badge>
+                              {category?.subcategories?.map(
+                                (subcat, subIndex) => (
+                                  <Badge
+                                    key={subIndex}
+                                    variant="outline"
+                                    className="hover:bg-brand/10"
+                                  >
+                                    {subcat?.name}
+                                  </Badge>
+                                )
+                              )}
+                            </div>
+                          )
+                        )
+                      ) : (
+                        <div className="flex flex-wrap gap-2">
+                          <Badge
+                            variant="default"
+                            className="bg-brand border border-slate-700 hover:bg-darkBrand py-2 px-5"
+                          >
+                            {currentProduct.product_category?.name}
+                          </Badge>
+                          {currentProduct.product_category?.subcategories?.map(
+                            (subcat, index) => (
+                              <Badge
+                                key={index}
+                                variant="outline"
+                                className="hover:bg-brand/10"
+                              >
+                                {subcat?.name}
+                              </Badge>
+                            )
+                          )}
                         </div>
-                      </Button>
-                    )}
+                      )}
+                    </div>
+                  </div>
+                )}
 
-                  {/* Includes Button */}
-                  {currentProduct?.product_includes && (
-                    <Button
-                      variant="outline"
-                      className="bg-brand hover:bg-darkBrand hover:text-white transition-all duration-300 border-slate-700 inline-flex w-full text-left justify-start"
-                    >
-                      <div className="flex items-center gap-2">
-                        <span className="whitespace-nowrap">Includes:</span>
-                        <span className="text-gray-400">
-                          {currentProduct.product_includes}
-                        </span>
-                      </div>
-                    </Button>
-                  )}
-                </div>
-
-                {/* Collection Button */}
+                {/* Collections and Subcollections */}
                 {currentProduct?.product_collection && (
-                  <Button
-                    variant="outline"
-                    className="bg-brand hover:bg-darkBrand hover:text-white transition-all duration-300 border-slate-700 inline-flex w-auto text-left justify-start flex-1"
-                  >
-                    <div className="flex items-center gap-2">
-                      <span className="whitespace-nowrap">Collection:</span>
-                      <span className="text-gray-400">
-                        {Array.isArray(currentProduct.product_collection)
-                          ? currentProduct.product_collection
-                              .map((collection) => collection?.name)
-                              .join(", ")
-                          : currentProduct.product_collection?.name}
+                  <div className="flex flex-col gap-2">
+                    <span className="text-sm text-gray-400">Collections:</span>
+                    <div className="flex flex-wrap gap-2">
+                      {Array.isArray(currentProduct.product_collection) ? (
+                        currentProduct.product_collection.map(
+                          (collection, index) => (
+                            <div key={index} className="flex flex-wrap gap-2">
+                              <Badge
+                                variant="default"
+                                className="bg-brand border border-slate-700 hover:bg-darkBrand py-2 px-5"
+                              >
+                                {collection?.name}
+                              </Badge>
+                              {collection?.subcollections?.map(
+                                (subcoll, subIndex) => (
+                                  <Badge
+                                    key={subIndex}
+                                    variant="outline"
+                                    className="hover:bg-brand/10"
+                                  >
+                                    {subcoll?.name}
+                                  </Badge>
+                                )
+                              )}
+                            </div>
+                          )
+                        )
+                      ) : (
+                        <div className="flex flex-wrap gap-2">
+                          <Badge
+                            variant="default"
+                            className="bg-brand border border-slate-700 hover:bg-darkBrand py-2 px-5"
+                          >
+                            {currentProduct.product_collection?.name}
+                          </Badge>
+                          {currentProduct.product_collection?.subcollections?.map(
+                            (subcoll, index) => (
+                              <Badge
+                                key={index}
+                                variant="outline"
+                                className="hover:bg-brand/10"
+                              >
+                                {subcoll?.name}
+                              </Badge>
+                            )
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Includes Section - reverted to original design */}
+                {currentProduct?.product_includes && (
+                  <div className="flex flex-col gap-2">
+                    <span className="text-sm text-gray-400">Includes:</span>
+                    <div className="flex flex-wrap gap-2">
+                      <span className="px-5 py-2 bg-brand rounded-md text-sm border border-slate-700 hover:bg-darkBrand transition-colors">
+                        {currentProduct.product_includes}
                       </span>
                     </div>
-                  </Button>
+                  </div>
                 )}
               </div>
             </div>
