@@ -1,7 +1,10 @@
 import React, { useEffect } from "react";
 import { motion, useInView } from "framer-motion";
 import { featuredProductAnimations } from "@/hooks/Animation/animationConfig";
-import { useGetCollectionQuery } from "@/redux/api/productApi";
+import {
+  useGetCollectionQuery,
+  useGetSubCollectionsQuery,
+} from "@/redux/api/productApi";
 import { useNavigate } from "react-router-dom";
 import {
   CategoryFallback,
@@ -15,6 +18,11 @@ const FeaturedProducts = () => {
   const isInView = useInView(ref, { once: true, amount: 0.2 });
 
   const { data, isError, error } = useGetCollectionQuery();
+  const {
+    data: subCollectionsData,
+    isError: isSubError,
+    error: subError,
+  } = useGetSubCollectionsQuery();
 
   // Get only featured collections
   const featuredCollections =
@@ -25,10 +33,27 @@ const FeaturedProducts = () => {
     if (isError) {
       toast.error(error?.data?.message);
     }
-  }, [data, error, isError]);
+    if (isSubError) {
+      toast.error(subError?.data?.message);
+    }
+  }, [error, isError, subError, isSubError]);
 
-  const handleCollectionClick = (collectionId) => {
-    navigate(`/products?product_collection=${collectionId}`);
+  const handleCollectionClick = (collection) => {
+    if (!collection?._id) {
+      toast.error("Invalid collection");
+      return;
+    }
+
+    const hasSubCollections = subCollectionsData?.subcollections?.some(
+      (sub) => sub?.collection?._id === collection._id
+    );
+
+    navigate(
+      hasSubCollections
+        ? `/collections/${collection._id}`
+        : `/products?product_collection=${collection._id}`,
+      { state: { from: "featured" } }
+    );
   };
 
   return (
@@ -57,7 +82,7 @@ const FeaturedProducts = () => {
                   key={collection._id}
                   variants={featuredProductAnimations.imageVariants}
                   className="relative overflow-hidden group"
-                  onClick={() => handleCollectionClick(collection._id)}
+                  onClick={() => handleCollectionClick(collection)}
                 >
                   {/* Show collection image */}
                   {collection.image?.url ? (
@@ -83,7 +108,11 @@ const FeaturedProducts = () => {
                         {collection.name}
                       </h3>
                       <button className="bg-red-600 hover:bg-button/85 text-white px-6 py-2 rounded-md">
-                        View Collection
+                        {subCollectionsData?.subcollections?.some(
+                          (sub) => sub?.collection?._id === collection._id
+                        )
+                          ? "View Sub-Collections"
+                          : "View Collection"}
                       </button>
                     </div>
                   </motion.div>
