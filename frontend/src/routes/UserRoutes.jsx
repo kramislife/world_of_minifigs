@@ -41,6 +41,7 @@ import AddSubCollection from "@/components/admin/Collections/SubCollections/AddS
 import UpdateSubCollection from "@/components/admin/Collections/SubCollections/UpdateSubCollection";
 import Checkout from "@/pages/Checkout/Checkout";
 import Order from "@/pages/Order/Order";
+import SubCollectionsPage from "@/pages/Collections/SubCollectionsPage";
 
 const UserRoutes = (
   <>
@@ -52,6 +53,7 @@ const UserRoutes = (
     {/* Product Routes */}
     <Route path="products" element={<Products />} />
     <Route path="collections" element={<CollectionsPage />} />
+    <Route path="collections/:id" element={<SubCollectionsPage />} />
     <Route path="products/best-selling/:id" element={<ProductView />} />
     <Route path="products/latest/:id" element={<ProductView />} />
     <Route path="products/:id" element={<ProductView />} />
