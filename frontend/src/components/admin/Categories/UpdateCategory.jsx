@@ -5,7 +5,10 @@ import { Save, FileText } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Metadata from "@/components/layout/Metadata/Metadata";
-import { useUpdateCategoryMutation, useGetCategoryQuery } from "@/redux/api/productApi";
+import {
+  useUpdateCategoryMutation,
+  useGetCategoryQuery,
+} from "@/redux/api/productApi";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
@@ -15,25 +18,26 @@ const UpdateCategory = () => {
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
   const [updateCategory, { isLoading }] = useUpdateCategoryMutation();
-  
+
   const { data: categoryData } = useGetCategoryQuery();
-  const category = categoryData?.categories?.find(cat => cat._id === id);
+  const category = categoryData?.categories?.find((cat) => cat._id === id);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
-    
+
     const categoryData = {
       name: formData.get("name"),
+      popularityId: formData.get("popularityId"),
       updatedBy: user?._id,
     };
 
     try {
-      await updateCategory({ 
+      await updateCategory({
         id: id,
-        ...categoryData 
+        ...categoryData,
       }).unwrap();
-      
+
       toast.success("Category updated successfully!");
       navigate("/admin/categories");
     } catch (error) {
@@ -54,7 +58,10 @@ const UpdateCategory = () => {
             <form onSubmit={handleSubmit}>
               <div className="space-y-5">
                 <div className="space-y-3">
-                  <Label htmlFor="name" className="flex items-center gap-2 text-lg font-semibold">
+                  <Label
+                    htmlFor="name"
+                    className="flex items-center gap-2 text-lg font-semibold"
+                  >
                     <FileText className="h-5 w-5 text-blue-600" />
                     Category Name
                   </Label>
@@ -65,6 +72,24 @@ const UpdateCategory = () => {
                     className="mt-1"
                     defaultValue={category?.name}
                     required
+                  />
+                </div>
+
+                <div className="space-y-3">
+                  <Label
+                    htmlFor="popularityId"
+                    className="flex items-center gap-2 text-lg font-semibold"
+                  >
+                    <FileText className="h-5 w-5 text-green-600" />
+                    Popularity ID
+                  </Label>
+                  <Input
+                    id="popularityId"
+                    name="popularityId"
+                    type="number"
+                    placeholder="Enter popularity ID"
+                    className="mt-1"
+                    defaultValue={category?.popularityId}
                   />
                 </div>
 
