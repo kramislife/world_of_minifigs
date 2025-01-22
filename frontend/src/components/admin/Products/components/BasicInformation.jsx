@@ -52,6 +52,45 @@ const BasicInformation = ({ formData, onChange, onCheckboxChange }) => {
         </div>
       </div>
 
+      {/* Item ID and Part ID */}
+      <div className="grid grid-cols-2 gap-6">
+        {/* Item ID */}
+        <div className="space-y-2">
+          <Label
+            htmlFor="itemId"
+            className="flex items-center gap-2 text-lg font-semibold"
+          >
+            Item ID
+          </Label>
+          <Input
+            id="itemId"
+            name="itemId"
+            value={formData.itemId}
+            onChange={onChange}
+            placeholder="Enter Item ID"
+            className="border-2 rounded-lg px-4 py-2 transition duration-300 focus:outline-none focus:border-blue-500 hover:border-blue-300"
+          />
+        </div>
+
+        {/* Part ID */}
+        <div className="space-y-2">
+          <Label
+            htmlFor="partId"
+            className="flex items-center gap-2 text-lg font-semibold"
+          >
+            Part ID
+          </Label>
+          <Input
+            id="partId"
+            name="partId"
+            value={formData.partId}
+            onChange={onChange}
+            placeholder="Enter Part ID"
+            className="border-2 rounded-lg px-4 py-2 transition duration-300 focus:outline-none focus:border-blue-500 hover:border-blue-300"
+          />
+        </div>
+      </div>
+
       {/* Product Price, Discount, and Stock */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Price */}
