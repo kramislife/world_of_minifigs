@@ -51,6 +51,7 @@ const UpdateSubCategory = () => {
     const updateData = {
       name: formData.get("name").trim(),
       category: formData.get("category"),
+      popularityId: formData.get("popularityId"),
       updatedBy: user?._id,
     };
 
@@ -121,6 +122,22 @@ const UpdateSubCategory = () => {
                     defaultValue={subCategory.name}
                     placeholder="Enter sub-category name"
                     required
+                  />
+                </div>
+
+                <div className="space-y-3">
+                  <Label
+                    htmlFor="popularityId"
+                    className="flex items-center gap-2 text-lg font-semibold"
+                  >
+                    Popularity ID
+                  </Label>
+                  <Input
+                    id="popularityId"
+                    name="popularityId"
+                    type="number"
+                    placeholder="Enter popularity ID"
+                    defaultValue={subCategory.popularityId}
                   />
                 </div>
 
