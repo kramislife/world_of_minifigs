@@ -12,6 +12,11 @@ const subCollectionSchema = new mongoose.Schema(
       type: String,
       unique: true,
     },
+    popularityId: {
+      type: String,
+      unique: true,
+      required: [true, "Popularity ID is required"],
+    },
     description: {
       type: String,
       default: "",
@@ -79,12 +84,12 @@ subCollectionSchema.pre("findOneAndUpdate", async function (next) {
     update.key = `${formattedName}_${update.collection.toString()}`;
   }
 
-    const existingSubCollection = await mongoose
-      .model("SubCollection")
+  const existingSubCollection = await mongoose
+    .model("SubCollection")
     .findOne({ key: update.key });
-    if (existingSubCollection) {
-      return next(new Error("SubCollection with similar name already exists."));
-    }
+  if (existingSubCollection) {
+    return next(new Error("SubCollection with similar name already exists."));
+  }
 
   next();
 });
