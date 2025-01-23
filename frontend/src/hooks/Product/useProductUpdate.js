@@ -17,6 +17,8 @@ const useProductUpdate = (id) => {
     price: "",
     discount: "",
     stock: "",
+    itemId: "",
+    partId: "",
 
     // Descriptions
     description1: "",
@@ -72,6 +74,8 @@ const useProductUpdate = (id) => {
         price: data?.product?.price || "",
         discount: data?.product?.discount || "",
         stock: data?.product?.stock || "",
+        itemId: data?.product?.item_id || "",
+        partId: data?.product?.part_id || "",
         description1: data?.product?.product_description_1 || "",
         description2: data?.product?.product_description_2 || "",
         description3: data?.product?.product_description_3 || "",
@@ -209,6 +213,8 @@ const useProductUpdate = (id) => {
 
     const productData = {
       product_name: formData.name,
+      item_id: formData.itemId,
+      part_id: formData.partId,
       price: parseFloat(formData.price) || 0,
       discount: parseFloat(formData.discount) || 0,
       stock: parseInt(formData.stock, 10) || 0,

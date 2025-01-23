@@ -45,6 +45,7 @@ const AddSubCategory = () => {
       await createSubCategory({
         name: formData.get("name").trim(),
         category: formData.get("category"),
+        popularityId: formData.get("popularityId"),
         createdBy: user?._id,
       }).unwrap();
 
@@ -100,6 +101,21 @@ const AddSubCategory = () => {
                     name="name"
                     placeholder="Enter sub-category name"
                     required
+                  />
+                </div>
+
+                <div className="space-y-3">
+                  <Label
+                    htmlFor="popularityId"
+                    className="flex items-center gap-2 text-lg font-semibold"
+                  >
+                    Popularity ID
+                  </Label>
+                  <Input
+                    id="popularityId"
+                    name="popularityId"
+                    type="number"
+                    placeholder="Enter popularity ID"
                   />
                 </div>
 
