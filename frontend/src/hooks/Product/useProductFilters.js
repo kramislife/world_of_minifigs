@@ -61,25 +61,47 @@ export const useProductFilters = (filterData = {}) => {
       { label: "1 to 1.9 Stars", value: "1", stars: 1 },
     ],
     product_category:
-      categoriesData?.categories?.map((category) => ({
-        label: category.name,
-        value: category._id,
-      })) || [],
+      categoriesData?.categories
+        ?.map((category) => ({
+          label: category.name,
+          value: category._id,
+          hasSubItems: subCategoriesData?.sub_categories?.some(
+            (sub) => sub.category?._id === category._id
+          ),
+        }))
+        .sort((a, b) => {
+          // Sort by hasSubItems first, then by label
+          if (a.hasSubItems && !b.hasSubItems) return -1;
+          if (!a.hasSubItems && b.hasSubItems) return 1;
+          return a.label.localeCompare(b.label);
+        }) || [],
     product_collection:
-      collectionsData?.collections?.map((collection) => ({
-        label: collection.name,
-        value: collection._id,
-      })) || [],
-    product_color: (colorsData?.prod_color || []).map((color) => ({
-      label: color.name,
-      value: color._id,
-      code: color.code,
-      count: (filterData.products || []).filter(
-        (product) =>
-          product.product_color?._id === color._id ||
-          product.product_color === color._id
-      ).length,
-    })),
+      collectionsData?.collections
+        ?.map((collection) => ({
+          label: collection.name,
+          value: collection._id,
+          hasSubItems: subCollectionsData?.subcollections?.some(
+            (sub) => sub.collection?._id === collection._id
+          ),
+        }))
+        .sort((a, b) => {
+          // Sort by hasSubItems first, then by label
+          if (a.hasSubItems && !b.hasSubItems) return -1;
+          if (!a.hasSubItems && b.hasSubItems) return 1;
+          return a.label.localeCompare(b.label);
+        }) || [],
+    product_color: (colorsData?.prod_color || [])
+      .map((color) => ({
+        label: color.name,
+        value: color._id,
+        code: color.code,
+        count: (filterData.products || []).filter(
+          (product) =>
+            product.product_color?._id === color._id ||
+            product.product_color === color._id
+        ).length,
+      }))
+      .sort((a, b) => b.count - a.count),
     product_skill_level:
       skillLevelsData?.skillLevels?.map((level) => ({
         label: level.name,

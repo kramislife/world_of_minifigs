@@ -21,6 +21,7 @@ const AddCategory = () => {
     const formData = new FormData(e.target);
     const categoryData = {
       name: formData.get("name"),
+      popularityId: formData.get("popularityId"),
       createdBy: user?._id,
       is_active: true,
     };
@@ -60,6 +61,23 @@ const AddCategory = () => {
                     placeholder="Enter category name"
                     className="mt-1"
                     required
+                  />
+                </div>
+
+                <div className="space-y-3">
+                  <Label
+                    htmlFor="popularityId"
+                    className="flex items-center gap-2 text-lg font-semibold"
+                  >
+                    <FileText className="h-5 w-5 text-green-600" />
+                    Popularity ID
+                  </Label>
+                  <Input
+                    id="popularityId"
+                    name="popularityId"
+                    type="number"
+                    placeholder="Enter popularity ID"
+                    className="mt-1"
                   />
                 </div>
 

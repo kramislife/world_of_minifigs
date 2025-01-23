@@ -53,6 +53,7 @@ const UpdateSubCollection = () => {
       name: formData.get("name").trim(),
       description: formData.get("description"),
       collection: formData.get("collection"),
+      popularityId: formData.get("popularityId"),
       updatedBy: user?._id,
     };
 
@@ -123,6 +124,22 @@ const UpdateSubCollection = () => {
                     defaultValue={subCollection.name}
                     placeholder="Enter sub-collection name"
                     required
+                  />
+                </div>
+
+                <div className="space-y-3">
+                  <Label
+                    htmlFor="popularityId"
+                    className="flex items-center gap-2 text-lg font-semibold"
+                  >
+                    Popularity ID
+                  </Label>
+                  <Input
+                    id="popularityId"
+                    name="popularityId"
+                    type="number"
+                    placeholder="Enter popularity ID"
+                    defaultValue={subCollection.popularityId}
                   />
                 </div>
 

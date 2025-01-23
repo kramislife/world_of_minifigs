@@ -23,14 +23,19 @@ const cartSlice = createSlice({
         price:
           Number(action.payload.discounted_price || action.payload.price) || 0,
       };
-      const existingItem = state.cartItems.find(
+      const existingItemIndex = state.cartItems.findIndex(
         (i) => i.product === item.product
       );
 
-      if (existingItem) {
-        existingItem.quantity += item.quantity;
+      if (existingItemIndex !== -1) {
+        // Update quantity of existing item
+        state.cartItems[existingItemIndex].quantity += item.quantity;
+        // Move the updated item to the top
+        const updatedItem = state.cartItems.splice(existingItemIndex, 1)[0];
+        state.cartItems.unshift(updatedItem);
       } else {
-        state.cartItems.push(item);
+        // Add new item to the beginning of the array
+        state.cartItems.unshift(item);
       }
       // Save to localStorage
       localStorage.setItem("cart", JSON.stringify(state));
@@ -44,9 +49,13 @@ const cartSlice = createSlice({
     },
     updateQuantity: (state, action) => {
       const { product, quantity } = action.payload;
-      const item = state.cartItems.find((i) => i.product === product);
-      if (item) {
-        item.quantity = quantity;
+      const itemIndex = state.cartItems.findIndex((i) => i.product === product);
+      if (itemIndex !== -1) {
+        // Update quantity
+        state.cartItems[itemIndex].quantity = quantity;
+        // Move the updated item to the top
+        const updatedItem = state.cartItems.splice(itemIndex, 1)[0];
+        state.cartItems.unshift(updatedItem);
       }
       // Save to localStorage
       localStorage.setItem("cart", JSON.stringify(state));
