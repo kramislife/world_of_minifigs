@@ -15,6 +15,8 @@ const useProductForm = () => {
     price: "",
     discount: "",
     stock: "",
+    itemId: "",
+    partId: "",
 
     // Descriptions
     description1: "",
@@ -125,6 +127,8 @@ const useProductForm = () => {
 
     const newProduct = {
       product_name: formData.name,
+      item_id: formData.itemId,
+      part_id: formData.partId,
       price: parseFloat(formData.price) || 0,
       discount: parseFloat(formData.discount) || 0,
       stock: parseInt(formData.stock, 10) || 0,
