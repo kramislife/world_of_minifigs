@@ -11,6 +11,11 @@ const collectionSchema = new mongoose.Schema(
       type: String,
       unique: true,
     },
+    popularityId: {
+      type: String,
+      unique: true,
+      required: [true, "Popularity ID is required"],
+    },
     description: {
       type: String,
       default: "",

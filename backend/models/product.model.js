@@ -9,9 +9,18 @@ const productSchema = new mongoose.Schema(
       trim: true,
     },
     key: {
-      type: String,
+      type: Number,
       unique: true,
       trim: true,
+    },
+    partID: {
+      type: Number,
+      required: [true, "Please enter part ID"],
+    },
+    itemID: {
+      required: [true, "Please enter item ID"],
+      type: Number,
+      unique: true,
     },
     price: {
       type: Number,

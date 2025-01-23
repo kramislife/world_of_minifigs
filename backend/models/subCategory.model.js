@@ -17,6 +17,11 @@ const subCategorySchema = new mongoose.Schema(
       ref: "Category",
       required: [true, "Category ID is required"],
     },
+    popularityId: {
+      type: String,
+      unique: true,
+      required: [true, "Popularity ID is required"],
+    },
     image: {
       public_id: {
         type: String,

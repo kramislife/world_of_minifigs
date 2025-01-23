@@ -11,6 +11,11 @@ const categorySchema = new mongoose.Schema(
       type: String,
       unique: true,
     },
+    popularityId: {
+      type: String,
+      unique: true,
+      required: [true, "Popularity ID is required"],
+    },
     image: {
       public_id: {
         type: String,
@@ -64,9 +69,9 @@ categorySchema.pre("findOneAndUpdate", async function (next) {
   const existingCategory = await mongoose
     .model("Category")
     .findOne({ key: update.key });
-    if (existingCategory) {
-      return next(new Error("Category with similar name already exists."));
-    }
+  if (existingCategory) {
+    return next(new Error("Category with similar name already exists."));
+  }
 
   next();
 });
