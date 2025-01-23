@@ -1,101 +1,175 @@
-import React from "react";
-import { Input } from "@/components/ui/input";
-import { Calendar, HelpCircle } from "lucide-react";
-import Stripe from "@/assets/Stripe.svg";
-import Mastercard from "@/assets/Mastercard.svg";
+import React, { useEffect, useState, useCallback, useRef } from "react";
+import { loadStripe } from "@stripe/stripe-js";
+import {
+  Elements,
+  PaymentElement,
+  useStripe,
+  useElements,
+} from "@stripe/react-stripe-js";
+import { Button } from "@/components/ui/button";
+import {
+  useProcessStripePaymentMutation,
+  useGetStripeApiKeyQuery,
+} from "@/redux/api/checkoutApi";
+import { toast } from "react-toastify";
+import { ArrowUpRight } from "lucide-react";
 
-const CardSection = ({ onSubmit, onCardDetailsChange, cardDetails }) => {
+// Stripe appearance customization
+const appearance = {
+  theme: "stripe",
+  variables: {
+    colorPrimary: "#2563eb", // Your brand color
+    colorDanger: "#dc203c", // Error color
+    fontFamily: "'Poppins', sans-serif",
+    spacingUnit: "4px", // Spacing on the input fields
+    borderRadius: "4px", // Border radius on the input fields
+  },
+  rules: {
+    ".Input": {
+      border: "1px solid #334155",
+      boxShadow: "none",
+    },
+    ".Input:focus": {
+      border: "1px solid #2563eb",
+    },
+    ".Label": {
+      color: "#94a3b8",
+    },
+  },
+};
+
+const StripeForm = ({ onSubmit, total }) => {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [processing, setProcessing] = useState(false);
+  const [error, setError] = useState(null);
+  const [isReady, setIsReady] = useState(false);
+  const [processStripePayment] = useProcessStripePaymentMutation();
+
+  // Add handler for when Elements is ready
+  const handleReady = useCallback(() => {
+    setIsReady(true);
+  }, []);
+
+  const handlePaymentSubmit = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!stripe || !elements || processing) {
+      return;
+    }
+
+    setProcessing(true);
+    setError(null);
+
+    try {
+      // Create payment intent when pay button is clicked
+      const paymentResponse = await processStripePayment(total).unwrap();
+      if (!paymentResponse.success || !paymentResponse.client_secret) {
+        throw new Error("Failed to create payment intent");
+      }
+
+      const { error: submitError } = await elements.submit();
+      if (submitError) {
+        setError(submitError.message);
+        return;
+      }
+
+      const { error, paymentIntent } = await stripe.confirmPayment({
+        elements,
+        clientSecret: paymentResponse.client_secret,
+        confirmParams: {
+          return_url: `${window.location.origin}/payment/success`,
+        },
+        redirect: "if_required",
+      });
+
+      if (error) {
+        setError(error.message);
+        toast.error(error.message);
+      } else if (paymentIntent.status === "succeeded") {
+        if (typeof onSubmit === "function") {
+          await onSubmit({
+            paymentMethod: "Stripe",
+            transactionId: paymentIntent.id,
+            status: "Success",
+          });
+        } else {
+          console.error("onSubmit prop is not a function");
+          toast.error("Error processing payment completion");
+        }
+      } else {
+        setError("Your payment was not successful, please try again.");
+      }
+    } catch (error) {
+      console.error("Payment submission error:", error);
+      setError("An unexpected error occurred.");
+      toast.error(error.data?.message || "Payment failed. Please try again.");
+    } finally {
+      setProcessing(false);
+    }
+  };
+
   return (
-    <div className="space-y-6">
-      <div className="mt-4 space-y-4">
-        {/* Card number input */}
-        <div className="relative">
-          <Input
-            type="text"
-            variant="floating"
-            label="Card number"
-            placeholder=" "
-            maxLength="19"
-            pattern="\d*"
-            value={cardDetails.cardNumber}
-            onChange={(e) => {
-              const value = e.target.value.replace(/[^\d]/g, "");
-              const formatted = value.match(/.{1,4}/g)?.join("-") || value;
-              onCardDetailsChange("cardNumber", formatted);
-            }}
-          />
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center">
-            <img src={Mastercard} alt="Mastercard" className="h-6 w-auto" />
-            <img src={Stripe} alt="Stripe" className="h-6 w-auto" />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          {/* Expiration date input */}
-          <div className="relative">
-            <Input
-              type="text"
-              variant="floating"
-              label="Expiration date (MM/YY)"
-              placeholder=" "
-              maxLength="5"
-              pattern="\d*"
-              value={cardDetails.expiryDate}
-              onChange={(e) => {
-                const value = e.target.value.replace(/[^\d]/g, "");
-                const formatted = value.match(/.{1,2}/g)?.join("/") || value;
-                onCardDetailsChange("expiryDate", formatted);
-              }}
-            />
-            <div className="absolute right-3 top-1/2 -translate-y-1/2">
-              <Calendar className="h-5 w-5 text-gray-400" />
-            </div>
-          </div>
-
-          {/* Security code (CVV) input */}
-          <div className="relative group">
-            <Input
-              type="text"
-              variant="floating"
-              label="CVV"
-              placeholder=" "
-              maxLength="4"
-              pattern="\d*"
-              value={cardDetails.cvv}
-              onChange={(e) => {
-                const value = e.target.value.replace(/[^\d]/g, "");
-                onCardDetailsChange("cvv", value);
-              }}
-            />
-            <div className="absolute right-3 top-1/2 -translate-y-1/2 cursor-help">
-              <HelpCircle className="h-5 w-5 text-gray-400" />
-              <div className="invisible group-hover:visible absolute right-0 bottom-full mb-3 w-60 p-2 bg-gray-900 text-white text-xs rounded-lg shadow-lg leading-relaxed font-light">
-                A 3-4 digit security code on back of your card
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Name on card input */}
-        <Input
-          type="text"
-          variant="floating"
-          label="Name on card"
-          placeholder=" "
-          value={cardDetails.nameOnCard}
-          onChange={(e) => onCardDetailsChange("nameOnCard", e.target.value)}
-        />
+    <div className="space-y-4">
+      <div className="p-4 border rounded-md border-white/10">
+        <PaymentElement onReady={handleReady} />
       </div>
-
-      <button
-        className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 px-4 rounded-md transition-colors duration-200 flex items-center justify-center gap-2"
-        type="submit"
-        onClick={onSubmit}
-      >
-        <span className="font-semibold">Pay Now</span>
-      </button>
+      {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
+      {isReady && (
+        <Button
+          onClick={handlePaymentSubmit}
+          disabled={processing || !stripe || !elements}
+          className="w-full bg-blue-500 hover:bg-blue-600"
+          type="button"
+        >
+          {processing ? "Processing..." : `Pay $${total.toFixed(2)}`}
+        </Button>
+      )}
     </div>
   );
 };
 
-export default CardSection;
+const StripeWrapper = ({ total, onSubmit }) => {
+  const { data: stripeApiData } = useGetStripeApiKeyQuery();
+  const [stripePromise, setStripePromise] = useState(null);
+
+  useEffect(() => {
+    if (stripeApiData?.stripeApiKey && !stripePromise) {
+      setStripePromise(loadStripe(stripeApiData.stripeApiKey));
+    }
+  }, [stripeApiData]);
+
+  if (!stripePromise) {
+    return <div className="text-center py-4">Loading payment system...</div>;
+  }
+
+  if (!total || total <= 0) {
+    return (
+      <div className="flex flex-col items-center text-center space-y-3">
+         <div className="w-16 h-16 border border-white/10 rounded-md flex items-center justify-center">
+          <ArrowUpRight className="w-8 h-8 text-white/60" />
+        </div>
+        <p className="text-red-400 text-sm leading-loose">
+          Please add items to your cart to proceed with payment
+        </p>
+      </div>
+    );
+  }
+
+  const options = {
+    mode: "payment",
+    currency: "usd",
+    amount: Math.round(total * 100),
+    payment_method_types: ["card"],
+    appearance,
+  };
+
+  return (
+    <Elements stripe={stripePromise} options={options}>
+      <StripeForm onSubmit={onSubmit} total={total} />
+    </Elements>
+  );
+};
+
+export default StripeWrapper;

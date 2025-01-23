@@ -11,7 +11,7 @@ import MasterCard from "@/assets/mastercard.svg";
 import Visa from "@/assets/visa.png";
 import Stripe from "@/assets/stripe.svg";
 import PayPal from "@/assets/Paypal.png";
-import CardSection from "./CardSection";
+import StripeWrapper from "./CardSection";
 import PayPalSection from "./PayPalSection";
 import { CreditCard } from "lucide-react";
 
@@ -20,13 +20,7 @@ const PaymentSection = ({
   onPaymentMethodChange,
   total,
   onSubmit,
-  handleCardDetailsChange,
-  cardDetails = {
-    cardNumber: "",
-    expiryDate: "",
-    cvv: "",
-    nameOnCard: "",
-  },
+  handleStripeSuccess,
   onPayPalApprove,
 }) => {
   const paymentMethods = [
@@ -84,11 +78,7 @@ const PaymentSection = ({
         </div>
 
         {paymentMethod === PAYMENT_METHODS.CREDIT_CARD ? (
-          <CardSection
-            onSubmit={onSubmit}
-            onCardDetailsChange={handleCardDetailsChange}
-            cardDetails={cardDetails}
-          />
+          <StripeWrapper total={total} onSubmit={handleStripeSuccess} />
         ) : (
           <PayPalSection
             onSubmit={onSubmit}
