@@ -96,12 +96,11 @@ const useCheckout = () => {
         return response.data.orderID;
       }
 
-      // Handle Credit Card payment (placeholder for future implementation)
+      // Handle Stripe payment
       if (paymentMethod === PAYMENT_METHODS.CREDIT_CARD) {
-        // Validate card details
-
-        // TODO: Implement credit card payment logic
-        // toast.info("Credit card payment will be implemented soon");
+        // The actual payment processing is handled in the CardSection component
+        // This function will be called after successful payment
+        return true;
       }
     } catch (error) {
       console.error("Checkout error:", error);
@@ -155,6 +154,52 @@ const useCheckout = () => {
     }
   };
 
+  // Add Stripe success handler
+  const handleStripeSuccess = async (paymentDetails) => {
+    try {
+      toast.loading("Processing order...");
+
+      const orderData = {
+        shippingAddress: selectedShippingAddress._id,
+        billingAddress: selectedShippingAddress._id,
+        orderItems: cartItems.map((item) => ({
+          product: item.product,
+          name: item.name,
+          quantity: item.quantity,
+          price: parseFloat(item.price),
+          image: item.image,
+        })),
+        itemsPrice: parseFloat(total),
+        taxPrice: 0,
+        shippingPrice: 0,
+        discountPrice: 0,
+        paymentInfo: {
+          method: paymentDetails.paymentMethod,
+          transactionId: paymentDetails.transactionId,
+          status: paymentDetails.status,
+          paidAt: new Date().toISOString(),
+        },
+        totalPrice: parseFloat(total),
+        orderStatus: "Processing",
+      };
+
+      const order = await createOrder(orderData).unwrap();
+
+      if (order.success) {
+        toast.dismiss();
+        toast.success("Payment successful! Order created.");
+        dispatch(clearCart());
+        navigate(`/order/${order.data._id}`);
+      }
+    } catch (error) {
+      toast.dismiss();
+      toast.error(
+        error?.data?.message || error?.message || "Failed to create order"
+      );
+      throw error;
+    }
+  };
+
   // Cart Handlers
   const handleUpdateQuantity = (productId, newQuantity) => {
     if (newQuantity > 0) {
@@ -192,6 +237,7 @@ const useCheckout = () => {
     handlePayPalApprove,
     cardDetails,
     handleCardDetailsChange,
+    handleStripeSuccess,
   };
 };
 

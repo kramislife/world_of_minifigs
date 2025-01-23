@@ -8,6 +8,7 @@ import adminRoutes from "./routes/adminRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import reviewRoutes from "./routes/reviewRoutes.js";
+import paymentRoutes from "./routes/paymentRoutes.js";
 
 // IMPORT MIDDLEWARE
 import errorsMiddleware from "./middlewares/errors.middleware.js";
@@ -51,6 +52,7 @@ app.use("/api/v1", adminRoutes);
 app.use("/api/v1", authRoutes);
 app.use("/api/v1", orderRoutes);
 app.use("/api/v1", reviewRoutes);
+app.use("/api/v1", paymentRoutes);
 
 // Register Middleware
 app.use(errorsMiddleware);

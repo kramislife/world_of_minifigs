@@ -23,8 +23,22 @@ export const checkoutApi = createApi({
         method: "POST",
       }),
     }),
+    getStripeApiKey: builder.query({
+      query: () => "/stripeapikey",
+    }),
+    processStripePayment: builder.mutation({
+      query: (amount) => ({
+        url: "/payment/process",
+        method: "POST",
+        body: { amount },
+      }),
+    }),
   }),
 });
 
-export const { useCreatePayPalOrderMutation, useCapturePayPalOrderMutation } =
-  checkoutApi;
+export const {
+  useCreatePayPalOrderMutation,
+  useCapturePayPalOrderMutation,
+  useGetStripeApiKeyQuery,
+  useProcessStripePaymentMutation,
+} = checkoutApi;
