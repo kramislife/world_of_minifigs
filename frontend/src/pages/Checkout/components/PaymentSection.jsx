@@ -11,7 +11,7 @@ import MasterCard from "@/assets/mastercard.svg";
 import Visa from "@/assets/visa.png";
 import Stripe from "@/assets/stripe.svg";
 import PayPal from "@/assets/Paypal.png";
-import StripeWrapper from "./CardSection";
+import CardSection from "./CardSection";
 import PayPalSection from "./PayPalSection";
 import { CreditCard } from "lucide-react";
 
@@ -25,6 +25,7 @@ const PaymentSection = ({
 }) => {
   const paymentMethods = [
     {
+      // Stripe
       type: PAYMENT_METHODS.CREDIT_CARD,
       content: (
         <div className="flex items-center gap-1">
@@ -36,12 +37,14 @@ const PaymentSection = ({
       className: "bg-white",
     },
     {
+      // PayPal
       type: PAYMENT_METHODS.PAYPAL,
       content: <img src={PayPal} alt="PayPal" className="h-20 w-auto" />,
       className: "bg-yellow-300",
     },
   ];
 
+  // Payment button styles
   const getPaymentButtonStyles = (isSelected) => `
     w-full h-10 rounded-md transition-all duration-200 flex items-center justify-center
     ${
@@ -77,9 +80,11 @@ const PaymentSection = ({
           ))}
         </div>
 
+        {/* If the payment method is Stripe, show the CardSection component */}
         {paymentMethod === PAYMENT_METHODS.CREDIT_CARD ? (
-          <StripeWrapper total={total} onSubmit={handleStripeSuccess} />
+          <CardSection total={total} onSubmit={handleStripeSuccess} />
         ) : (
+          // If the payment method is PayPal, show the PayPalSection component
           <PayPalSection
             onSubmit={onSubmit}
             onApprove={onPayPalApprove}
