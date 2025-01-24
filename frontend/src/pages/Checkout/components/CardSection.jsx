@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useRef } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import {
   Elements,
@@ -14,15 +14,15 @@ import {
 import { toast } from "react-toastify";
 import { ArrowUpRight } from "lucide-react";
 
-// Stripe appearance customization
-const appearance = {
+// Extract Stripe appearance configuration
+const STRIPE_APPEARANCE = {
   theme: "stripe",
   variables: {
-    colorPrimary: "#2563eb", // Your brand color
-    colorDanger: "#dc203c", // Error color
+    colorPrimary: "#2563eb",
+    colorDanger: "#dc203c",
     fontFamily: "'Poppins', sans-serif",
-    spacingUnit: "4px", // Spacing on the input fields
-    borderRadius: "4px", // Border radius on the input fields
+    spacingUnit: "4px",
+    borderRadius: "4px",
   },
   rules: {
     ".Input": {
@@ -33,11 +33,25 @@ const appearance = {
       border: "1px solid #2563eb",
     },
     ".Label": {
-      color: "#94a3b8",
+      color: "#d2d9e2",
+      padding: "0px 0px 3px 3px",
     },
   },
 };
 
+// Extract EmptyStateMessage component
+const EmptyStateMessage = () => (
+  <div className="flex flex-col items-center text-center space-y-3">
+    <div className="w-16 h-16 border border-white/10 rounded-md flex items-center justify-center">
+      <ArrowUpRight className="w-8 h-8 text-white/60" />
+    </div>
+    <p className="text-red-400 text-sm leading-loose">
+      Please add items to your cart to proceed with payment
+    </p>
+  </div>
+);
+
+// Extract StripeForm component with payment processing logic
 const StripeForm = ({ onSubmit, total }) => {
   const stripe = useStripe();
   const elements = useElements();
@@ -46,7 +60,6 @@ const StripeForm = ({ onSubmit, total }) => {
   const [isReady, setIsReady] = useState(false);
   const [processStripePayment] = useProcessStripePaymentMutation();
 
-  // Add handler for when Elements is ready
   const handleReady = useCallback(() => {
     setIsReady(true);
   }, []);
@@ -55,26 +68,26 @@ const StripeForm = ({ onSubmit, total }) => {
     e.preventDefault();
     e.stopPropagation();
 
-    if (!stripe || !elements || processing) {
-      return;
-    }
+    if (!stripe || !elements || processing) return;
 
     setProcessing(true);
     setError(null);
 
     try {
-      // Create payment intent when pay button is clicked
+      // Create payment intent
       const paymentResponse = await processStripePayment(total).unwrap();
       if (!paymentResponse.success || !paymentResponse.client_secret) {
         throw new Error("Failed to create payment intent");
       }
 
+      // Submit the payment form
       const { error: submitError } = await elements.submit();
       if (submitError) {
         setError(submitError.message);
         return;
       }
 
+      // Confirm the payment
       const { error, paymentIntent } = await stripe.confirmPayment({
         elements,
         clientSecret: paymentResponse.client_secret,
@@ -85,28 +98,35 @@ const StripeForm = ({ onSubmit, total }) => {
       });
 
       if (error) {
-        setError(error.message);
-        toast.error(error.message);
+        handlePaymentError(error);
       } else if (paymentIntent.status === "succeeded") {
-        if (typeof onSubmit === "function") {
-          await onSubmit({
-            paymentMethod: "Stripe",
-            transactionId: paymentIntent.id,
-            status: "Success",
-          });
-        } else {
-          console.error("onSubmit prop is not a function");
-          toast.error("Error processing payment completion");
-        }
+        await handlePaymentSuccess(paymentIntent);
       } else {
         setError("Your payment was not successful, please try again.");
       }
     } catch (error) {
-      console.error("Payment submission error:", error);
-      setError("An unexpected error occurred.");
-      toast.error(error.data?.message || "Payment failed. Please try again.");
+      handlePaymentError(error);
     } finally {
       setProcessing(false);
+    }
+  };
+
+  const handlePaymentError = (error) => {
+    console.error("Payment submission error:", error);
+    setError("An unexpected error occurred.");
+    toast.error(error.data?.message || "Payment failed. Please try again.");
+  };
+
+  const handlePaymentSuccess = async (paymentIntent) => {
+    if (typeof onSubmit === "function") {
+      await onSubmit({
+        paymentMethod: "Stripe",
+        transactionId: paymentIntent.id,
+        status: "Success",
+      });
+    } else {
+      console.error("onSubmit prop is not a function");
+      toast.error("Error processing payment completion");
     }
   };
 
@@ -130,7 +150,8 @@ const StripeForm = ({ onSubmit, total }) => {
   );
 };
 
-const StripeWrapper = ({ total, onSubmit }) => {
+// Main StripeWrapper component
+const CardSection = ({ total, onSubmit }) => {
   const { data: stripeApiData } = useGetStripeApiKeyQuery();
   const [stripePromise, setStripePromise] = useState(null);
 
@@ -138,23 +159,14 @@ const StripeWrapper = ({ total, onSubmit }) => {
     if (stripeApiData?.stripeApiKey && !stripePromise) {
       setStripePromise(loadStripe(stripeApiData.stripeApiKey));
     }
-  }, [stripeApiData]);
+  }, [stripeApiData, stripePromise]);
 
   if (!stripePromise) {
     return <div className="text-center py-4">Loading payment system...</div>;
   }
 
   if (!total || total <= 0) {
-    return (
-      <div className="flex flex-col items-center text-center space-y-3">
-         <div className="w-16 h-16 border border-white/10 rounded-md flex items-center justify-center">
-          <ArrowUpRight className="w-8 h-8 text-white/60" />
-        </div>
-        <p className="text-red-400 text-sm leading-loose">
-          Please add items to your cart to proceed with payment
-        </p>
-      </div>
-    );
+    return <EmptyStateMessage />;
   }
 
   const options = {
@@ -162,7 +174,7 @@ const StripeWrapper = ({ total, onSubmit }) => {
     currency: "usd",
     amount: Math.round(total * 100),
     payment_method_types: ["card"],
-    appearance,
+    appearance: STRIPE_APPEARANCE,
   };
 
   return (
@@ -172,4 +184,4 @@ const StripeWrapper = ({ total, onSubmit }) => {
   );
 };
 
-export default StripeWrapper;
+export default CardSection;

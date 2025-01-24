@@ -19,19 +19,14 @@ const useCheckout = () => {
   const { data: userData } = useGetMeQuery();
   const { data: userAddresses } = useGetUserAddressesQuery();
 
-  // Address and Payment States
   const [selectedShippingAddress, setSelectedShippingAddress] = useState(null);
+
+  // Payment Method State, default is credit card
   const [paymentMethod, setPaymentMethod] = useState(
     PAYMENT_METHODS.CREDIT_CARD
   );
-  const [cardDetails, setCardDetails] = useState({
-    cardNumber: "",
-    expiryDate: "",
-    cvv: "",
-    nameOnCard: "",
-  });
 
-  // Calculate total
+  // Calculate total price so that when the quantity of the item, the total price is updated
   const total = useMemo(
     () =>
       cartItems.reduce(
@@ -41,27 +36,54 @@ const useCheckout = () => {
     [cartItems]
   );
 
-  // Address Handlers
+  // Allows user to select an address for shipping 
   const handleAddressChange = (field, value) => {
     if (field === "selectedAddress") {
       setSelectedShippingAddress(value);
-      return;
     }
   };
 
-  // Payment Handlers
+  // Handler to change payment method dynamically
   const handlePaymentMethodChange = (value) => setPaymentMethod(value);
 
-  const handleCardDetailsChange = (field, value) => {
-    setCardDetails((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
-
-  // API Mutations
+  // Mutation hooks for creating orders and PayPal transactions
   const [createOrder] = useCreateOrderMutation();
   const [createPayPalOrder] = useCreatePayPalOrderMutation();
+
+  // Helper function to format cart items
+  const formatCartItems = () =>
+    cartItems.map((item) => ({
+      product: item.product,
+      name: item.name,
+      quantity: parseInt(item.quantity, 10),
+      price: parseFloat(item.price),
+      image: item.image,
+      isPreorder: item.isPreorder || false,
+    }));
+
+  // Creating a base order data for the order
+  const createBaseOrderData = (paymentInfo) => ({
+    shippingAddress: selectedShippingAddress._id,
+    billingAddress: selectedShippingAddress._id,
+    orderItems: formatCartItems(),
+    itemsPrice: parseFloat(total),
+    taxPrice: 0,
+    shippingPrice: 0,
+    discountPrice: 0,
+    paymentInfo,
+    totalPrice: parseFloat(total),
+    orderStatus: "Processing",
+  });
+
+  // Helper function to handle successful order creation
+  const handleOrderSuccess = async (order) => {
+    if (order.success) {
+      toast.dismiss();
+      toast.success("Payment successful! Order created.");
+      dispatch(clearCart());
+      navigate(`/order/${order.data._id}`);
+    }
+  };
 
   // Submit Handler
   const handleSubmit = async (e) => {
@@ -76,14 +98,7 @@ const useCheckout = () => {
       // Handle PayPal payment
       if (paymentMethod === PAYMENT_METHODS.PAYPAL) {
         const paypalOrderData = {
-          orderItems: cartItems.map((item) => ({
-            product: item.product,
-            name: item.name,
-            quantity: parseInt(item.quantity, 10),
-            price: Number(item.price).toFixed(2),
-            image: item.image,
-            isPreorder: item.isPreorder || false,
-          })),
+          orderItems: formatCartItems(),
           total: Number(total).toFixed(2),
         };
 
@@ -98,8 +113,6 @@ const useCheckout = () => {
 
       // Handle Stripe payment
       if (paymentMethod === PAYMENT_METHODS.CREDIT_CARD) {
-        // The actual payment processing is handled in the CardSection component
-        // This function will be called after successful payment
         return true;
       }
     } catch (error) {
@@ -108,43 +121,37 @@ const useCheckout = () => {
     }
   };
 
+  // Generic payment success handler
+  const handlePaymentSuccess = async (paymentDetails) => {
+    try {
+      toast.loading("Processing order...");
+
+      const orderData = createBaseOrderData({
+        method: paymentDetails.paymentMethod,
+        transactionId: paymentDetails.transactionId,
+        status: paymentDetails.status,
+        paidAt: new Date().toISOString(),
+      });
+
+      const order = await createOrder(orderData).unwrap();
+      await handleOrderSuccess(order);
+    } catch (error) {
+      toast.dismiss();
+      toast.error(
+        error?.data?.message || error?.message || "Failed to create order"
+      );
+      throw error;
+    }
+  };
+
   // PayPal Success Handler
   const handlePayPalApprove = async (data) => {
     try {
-      toast.loading("Processing payment...");
-
-      const orderData = {
-        shippingAddress: selectedShippingAddress._id,
-        billingAddress: selectedShippingAddress._id,
-        orderItems: cartItems.map((item) => ({
-          product: item.product,
-          name: item.name,
-          quantity: item.quantity,
-          price: parseFloat(item.price),
-          image: item.image,
-        })),
-        itemsPrice: parseFloat(total),
-        taxPrice: 0,
-        shippingPrice: 0,
-        discountPrice: 0,
-        paymentInfo: {
-          method: "PayPal",
-          transactionId: data.orderID,
-          status: "Success",
-          paidAt: new Date().toISOString(),
-        },
-        totalPrice: parseFloat(total),
-        orderStatus: "Processing",
-      };
-
-      const order = await createOrder(orderData).unwrap();
-
-      if (order.success) {
-        toast.dismiss();
-        toast.success("Payment successful! Order created.");
-        dispatch(clearCart());
-        navigate(`/order/${order.data._id}`);
-      }
+      await handlePaymentSuccess({
+        paymentMethod: "PayPal",
+        transactionId: data.orderID,
+        status: "Success",
+      });
     } catch (error) {
       toast.dismiss();
       toast.error(
@@ -154,48 +161,11 @@ const useCheckout = () => {
     }
   };
 
-  // Add Stripe success handler
+  // Stripe Success Handler
   const handleStripeSuccess = async (paymentDetails) => {
     try {
-      toast.loading("Processing order...");
-
-      const orderData = {
-        shippingAddress: selectedShippingAddress._id,
-        billingAddress: selectedShippingAddress._id,
-        orderItems: cartItems.map((item) => ({
-          product: item.product,
-          name: item.name,
-          quantity: item.quantity,
-          price: parseFloat(item.price),
-          image: item.image,
-        })),
-        itemsPrice: parseFloat(total),
-        taxPrice: 0,
-        shippingPrice: 0,
-        discountPrice: 0,
-        paymentInfo: {
-          method: paymentDetails.paymentMethod,
-          transactionId: paymentDetails.transactionId,
-          status: paymentDetails.status,
-          paidAt: new Date().toISOString(),
-        },
-        totalPrice: parseFloat(total),
-        orderStatus: "Processing",
-      };
-
-      const order = await createOrder(orderData).unwrap();
-
-      if (order.success) {
-        toast.dismiss();
-        toast.success("Payment successful! Order created.");
-        dispatch(clearCart());
-        navigate(`/order/${order.data._id}`);
-      }
+      await handlePaymentSuccess(paymentDetails);
     } catch (error) {
-      toast.dismiss();
-      toast.error(
-        error?.data?.message || error?.message || "Failed to create order"
-      );
       throw error;
     }
   };
@@ -211,17 +181,6 @@ const useCheckout = () => {
     dispatch(removeFromCart(productId));
   };
 
-  // Card Validation Helper
-  const validateCardDetails = (details) => {
-    const { cardNumber, expiryDate, cvv, nameOnCard } = details;
-    return (
-      cardNumber.length >= 15 &&
-      expiryDate.length === 5 &&
-      cvv.length >= 3 &&
-      nameOnCard.length > 0
-    );
-  };
-
   return {
     paymentMethod,
     cartItems,
@@ -235,8 +194,6 @@ const useCheckout = () => {
     user: userData,
     selectedShippingAddress,
     handlePayPalApprove,
-    cardDetails,
-    handleCardDetailsChange,
     handleStripeSuccess,
   };
 };
