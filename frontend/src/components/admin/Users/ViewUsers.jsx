@@ -1,236 +1,120 @@
 import React, { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import ViewLayout from "@/components/admin/shared/ViewLayout";
 import {
-  useReactTable,
-  getCoreRowModel,
-  getPaginationRowModel,
-  getFilteredRowModel,
-  flexRender,
-} from "@tanstack/react-table";
-import { Eye, Edit2, Trash2 } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import SearchBar from "@/components/admin/shared/table/SearchBar";
-import ShowEntries from "@/components/admin/shared/table/ShowEntries";
-import TableLayout from "@/components/admin/shared/table/TableLayout";
-import Pagination from "@/components/admin/shared/table/Pagination";
-import Metadata from "@/components/layout/Metadata/Metadata";
+  useGetAllUsersQuery,
+  useDeleteUserMutation,
+} from "@/redux/api/userApi";
+import { toast } from "react-toastify";
+import { createUserColumns } from "@/components/admin/shared/table/columns/UserColumns";
+import DeleteDialog from "@/components/admin/shared/DeleteDialog";
+import { useSelector } from "react-redux";
 
 const ViewUsers = () => {
-  const [data] = useState([
-    {
-      id: 1,
-      name: "John Doe",
-      email: "john@example.com",
-      role: "Customer",
-      status: "Active",
-      joinDate: "2024-03-20",
-      lastLogin: "2024-03-25",
-    },
-    {
-      id: 2,
-      name: "Jane Smith",
-      email: "jane@example.com",
-      role: "Admin",
-      status: "Active",
-      joinDate: "2024-03-15",
-      lastLogin: "2024-03-24",
-    },
-    {
-      id: 3,
-      name: "Jane Smith",
-      email: "jane@example.com",
-      role: "Admin",
-      status: "Active",
-      joinDate: "2024-03-15",
-      lastLogin: "2024-03-24",
-    },
-    {
-      id: 4,
-      name: "Jane Smith",
-      email: "jane@example.com",
-      role: "Admin",
-      status: "Active",
-      joinDate: "2024-03-15",
-      lastLogin: "2024-03-24",
-    },
-    {
-      id: 5,
-      name: "Jane Smith",
-      email: "jane@example.com",
-      role: "Admin",
-      status: "Active",
-      joinDate: "2024-03-15",
-      lastLogin: "2024-03-24",
-    },
-  ]);
+  // Queries and Mutations
+  const { data: userData, isLoading, error } = useGetAllUsersQuery();
+  const [deleteUser, { isLoading: isDeleting }] = useDeleteUserMutation();
+  const { user: currentUser } = useSelector((state) => state.auth);
 
+  // State
   const [globalFilter, setGlobalFilter] = useState("");
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
+  const navigate = useNavigate();
 
+  // Handlers
+  const handleEdit = (user) => {
+    navigate(`/admin/update-user/${user._id}`);
+  };
+
+  const handleDeleteClick = (user) => {
+    setUserToDelete(user);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    try {
+      const response = await deleteUser(userToDelete._id).unwrap();
+      toast.success(response.message || "User deleted successfully");
+      setDeleteDialogOpen(false);
+      setUserToDelete(null);
+    } catch (error) {
+      toast.error(error?.data?.message || "Failed to delete user");
+    }
+  };
+
+  // Column component for table
   const columns = useMemo(
-    () => [
-      {
-        header: "ID",
-        accessorKey: "id",
-      },
-      {
-        header: "Name",
-        accessorKey: "name",
-      },
-      {
-        header: "Email",
-        accessorKey: "email",
-      },
-      {
-        header: "Role",
-        accessorKey: "role",
-        cell: ({ row }) => (
-          <span
-            className={`px-3 py-1 rounded-full text-sm font-medium
-            ${
-              row.original.role === "Admin"
-                ? "bg-purple-100 text-purple-800"
-                : ""
-            }
-            ${
-              row.original.role === "Customer"
-                ? "bg-blue-100 text-blue-800"
-                : ""
-            }
-          `}
-          >
-            {row.original.role}
-          </span>
-        ),
-      },
-      {
-        header: "Status",
-        accessorKey: "status",
-        cell: ({ row }) => (
-          <span
-            className={`px-3 py-1 rounded-full text-sm font-medium
-            ${
-              row.original.status === "Active"
-                ? "bg-green-100 text-green-800"
-                : ""
-            }
-            ${
-              row.original.status === "Inactive"
-                ? "bg-gray-100 text-gray-800"
-                : ""
-            }
-            ${
-              row.original.status === "Suspended"
-                ? "bg-red-100 text-red-800"
-                : ""
-            }
-          `}
-          >
-            {row.original.status}
-          </span>
-        ),
-      },
-      {
-        header: "Join Date",
-        accessorKey: "joinDate",
-        cell: ({ row }) => new Date(row.original.joinDate).toLocaleDateString(),
-      },
-      {
-        header: "Last Login",
-        accessorKey: "lastLogin",
-        cell: ({ row }) =>
-          new Date(row.original.lastLogin).toLocaleDateString(),
-      },
-      {
-        header: "Actions",
-        cell: ({ row }) => (
-          <div className="flex justify-center gap-2">
-            <button
-              onClick={() => handleViewDetails(row.original)}
-              className="text-blue-600 hover:text-blue-800 p-1 rounded-full hover:bg-blue-100 transition-colors"
-              title="View Details"
-            >
-              <Eye size={18} />
-            </button>
-            <button
-              onClick={() => handleEdit(row.original)}
-              className="text-blue-600 hover:text-blue-800 p-1 rounded-full hover:bg-blue-100 transition-colors"
-              title="Edit User"
-            >
-              <Edit2 size={18} />
-            </button>
-            <button
-              onClick={() => handleDelete(row.original)}
-              className="text-red-600 hover:text-red-800 p-1 rounded-full hover:bg-red-100 transition-colors"
-              title="Delete User"
-            >
-              <Trash2 size={18} />
-            </button>
-          </div>
-        ),
-      },
-    ],
+    () => createUserColumns(handleEdit, handleDeleteClick),
     []
   );
 
-  const table = useReactTable({
-    data,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    state: {
-      globalFilter,
-    },
-    onGlobalFilterChange: setGlobalFilter,
-  });
-
-  // Handler functions
-  const handleViewDetails = (user) => {
-    console.log("View details for user:", user);
-  };
-
-  const handleEdit = (user) => {
-    console.log("Edit user:", user);
-  };
-
-  const handleDelete = (user) => {
-    console.log("Delete user:", user);
-  };
+  // Transform data for table
+  const data = useMemo(() => {
+    if (!userData?.data) return [];
+    return [...userData.data]
+      .sort((a, b) => {
+        // Put current user at the top
+        if (a._id === currentUser?._id) return -1;
+        if (b._id === currentUser?._id) return 1;
+        // Then sort by creation date
+        return new Date(b.createdAt) - new Date(a.createdAt);
+      })
+      .map((user, index) => ({
+        id: index + 1,
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        username: user.username,
+        role: user.role,
+        is_verified: user.is_verified,
+        isSuspended: user.isSuspended,
+        last_login: user.last_login
+          ? new Date(user.last_login).toLocaleString()
+          : "Never",
+        createdAt: new Date(user.createdAt).toLocaleString(),
+        updatedAt: user.updatedAt
+          ? new Date(user.updatedAt).toLocaleString()
+          : "Not Updated",
+        contact_number: user.contact_number,
+        isCurrentUser: user._id === currentUser?._id,
+      }));
+  }, [userData, currentUser]);
 
   return (
     <>
-      <Metadata title="Users" />
-      <div className="container mx-auto py-6 px-4">
-        <div className="mb-8 space-y-2">
-          <h1 className="text-3xl font-bold text-light tracking-tight">
-            User Management
-          </h1>
-          <p className="text-gray-200/70 text-md">Manage your system users</p>
-        </div>
+      <ViewLayout
+        title="User"
+        description="Manage system users and their permissions"
+        // addNewPath="/admin/new-user"  // Uncomment if you want to add new user functionality
+        isLoading={isLoading}
+        error={error}
+        data={data}
+        columns={columns}
+        globalFilter={globalFilter}
+        setGlobalFilter={setGlobalFilter}
+      />
 
-        <Card className="bg-darkBrand border-none">
-          <CardContent className="p-10">
-            <div className="flex flex-col md:flex-row justify-between gap-6 mb-10">
-              <ShowEntries
-                value={table.getState().pagination.pageSize}
-                onChange={table.setPageSize}
-              />
-              <SearchBar
-                value={globalFilter}
-                onChange={setGlobalFilter}
-                placeholder="Search users..."
-              />
-            </div>
-
-            <TableLayout
-              headerGroups={table.getHeaderGroups()}
-              rows={table.getRowModel().rows}
-              flexRender={flexRender}
-            />
-
-            <Pagination table={table} />
-          </CardContent>
-        </Card>
-      </div>
+      {/* Delete dialog */}
+      <DeleteDialog
+        isOpen={deleteDialogOpen}
+        onClose={() => {
+          setDeleteDialogOpen(false);
+          setUserToDelete(null);
+        }}
+        onConfirm={handleDeleteConfirm}
+        title="Delete User"
+        description={
+          <>
+            Are you sure you want to delete user{" "}
+            <span className="font-semibold text-red-500">
+              {userToDelete?.name}
+            </span>
+            ? This action cannot be undone.
+          </>
+        }
+        isLoading={isDeleting}
+      />
     </>
   );
 };
