@@ -9,7 +9,7 @@ const DesktopSidebar = ({ isMinimized, toggleMinimize }) => {
   const location = useLocation();
   // Initialize state from localStorage
   const [openMenuPath, setOpenMenuPath] = useState(() => {
-    return localStorage.getItem('openMenuPath');
+    return localStorage.getItem("openMenuPath");
   });
 
   // Update localStorage when openMenuPath changes
@@ -17,9 +17,9 @@ const DesktopSidebar = ({ isMinimized, toggleMinimize }) => {
     const newPath = openMenuPath === path ? null : path;
     setOpenMenuPath(newPath);
     if (newPath) {
-      localStorage.setItem('openMenuPath', newPath);
+      localStorage.setItem("openMenuPath", newPath);
     } else {
-      localStorage.removeItem('openMenuPath');
+      localStorage.removeItem("openMenuPath");
     }
   };
 
@@ -67,7 +67,11 @@ const DesktopSidebar = ({ isMinimized, toggleMinimize }) => {
         "/admin/new-designer",
         "/admin/update-designer",
       ],
-      "/admin/users": ["/admin/users"],
+      "/admin/users": [
+        "/admin/users",
+        "/admin/new-user",
+        "/admin/update-user",
+      ],
       "/admin/orders": ["/admin/orders"],
       "/admin/reviews": ["/admin/reviews"],
     };

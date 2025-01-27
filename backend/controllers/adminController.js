@@ -48,8 +48,6 @@ export const getSingleUser = catchAsyncErrors(async (req, res, next) => {
 // ------------------------ UPDATE SINGLE USER ----------------------- //
 
 export const updateSingleUser = catchAsyncErrors(async (req, res, next) => {
-  // 1. CHECK IF CURRENT USER IS AVAILABLE AND IF THERE IS A USER ROLE
-
   const currentUserId = req.user.user_id;
   const currentUserRole = req.user.role;
 
@@ -57,25 +55,32 @@ export const updateSingleUser = catchAsyncErrors(async (req, res, next) => {
     return next(new ErrorHandler("User not found", 404));
   }
 
+  // Block employees from modifying users
+  if (currentUserRole === userRoles.EMPLOYEE) {
+    return next(new ErrorHandler("Employees cannot modify user accounts", 403));
+  }
+
   const userIdToUpdate = req.params.id;
   const userToUpdate = await User.findById(userIdToUpdate);
 
-  if (
-    currentUserRole === userRoles.ADMIN &&
-    ![userRoles.EMPLOYEE, userRoles.SELLER, userRoles.CUSTOMER].includes(
-      userToUpdate.role
-    )
-  ) {
-    return next(
-      new ErrorHandler("Admins cannot update this type of user", 403)
-    );
+  if (!userToUpdate) {
+    return next(new ErrorHandler("User not found", 404));
   }
 
+  // Prevent admins from modifying superAdmin accounts
   if (
-    currentUserRole === userRoles.EMPLOYEE &&
-    userToUpdate.role !== userRoles.CUSTOMER
+    currentUserRole === userRoles.ADMIN &&
+    userToUpdate.role === userRoles.SUPER_ADMIN
   ) {
-    return next(new ErrorHandler("Employees can only update customers", 403));
+    return next(new ErrorHandler("Cannot modify superAdmin accounts", 403));
+  }
+
+  // Prevent admins from changing roles to superAdmin
+  if (
+    currentUserRole === userRoles.ADMIN &&
+    req.body.role === userRoles.SUPER_ADMIN
+  ) {
+    return next(new ErrorHandler("Cannot assign superAdmin role", 403));
   }
 
   const allowedUpdates = [
@@ -89,21 +94,17 @@ export const updateSingleUser = catchAsyncErrors(async (req, res, next) => {
   ];
 
   const updates = Object.keys(req.body);
-
   const isValidOperation = updates.every((key) => allowedUpdates.includes(key));
 
   if (!isValidOperation) {
     return next(new ErrorHandler("Invalid updates!", 400));
   }
 
-  // Update Fields
-
   updates.forEach((key) => {
     userToUpdate[key] = req.body[key];
   });
 
   userToUpdate.updated_by = currentUserId;
-
   await userToUpdate.save();
 
   let updatedUser = {};
@@ -125,7 +126,6 @@ export const updateSingleUser = catchAsyncErrors(async (req, res, next) => {
 
 export const deleteSingleUser = catchAsyncErrors(async (req, res, next) => {
   const userIdToDelete = req.params.id;
-
   const currentUserId = req.user.user_id;
   const currentUserRole = req.user.role;
 
@@ -135,53 +135,31 @@ export const deleteSingleUser = catchAsyncErrors(async (req, res, next) => {
     );
   }
 
+  // Only allow superAdmin to delete users
+  if (currentUserRole !== userRoles.SUPER_ADMIN) {
+    return next(new ErrorHandler("Only Super Admin can delete users", 403));
+  }
+
   if (!userIdToDelete) {
-    return next(new ErrorHandler("User not found or unauthorized!", 404));
+    return next(new ErrorHandler("User not found", 404));
   }
 
   // IDENTIFY USER TO BE DELETED
   const userToDelete = await User.findById(userIdToDelete);
   if (!userToDelete) {
-    return next(new ErrorHandler("User not found or unauthorized!", 404));
+    return next(new ErrorHandler("User not found", 404));
   }
 
-  let DeletedUser = {};
-
-  // ROLE BASED ACCESS CONTROL
-
-  if (currentUserRole === userRoles.SUPER_ADMIN) {
-    DeletedUser = await User.findByIdAndDelete(userIdToDelete);
-    return res.status(200).json({
-      success: true,
-      message: "User Deleted Successfully",
-      data: DeletedUser,
-    });
+  // Prevent deletion of own account
+  if (userIdToDelete === currentUserId) {
+    return next(new ErrorHandler("Cannot delete your own account", 403));
   }
 
-  if (currentUserRole === userRoles.ADMIN) {
-    if (
-      userToDelete.role === userRoles.SUPER_ADMIN ||
-      userToDelete.role === userRoles.ADMIN
-    ) {
-      return next(
-        new ErrorHandler("You are not authorized to delete this user!", 401)
-      );
-    }
-    DeletedUser = await User.findByIdAndDelete(userIdToDelete);
-    return res.status(200).json({
-      success: true,
-      message: "User Deleted Successfully",
-      data: DeletedUser,
-    });
-  }
+  const DeletedUser = await User.findByIdAndDelete(userIdToDelete);
 
-  if (
-    currentUserRole === userRoles.EMPLOYEE ||
-    currentUserRole === userRoles.CUSTOMER ||
-    currentUserRole === userRoles.SELLER
-  ) {
-    return next(
-      new ErrorHandler("You are not authorized to use this resource!", 401)
-    );
-  }
+  res.status(200).json({
+    success: true,
+    message: "User Deleted Successfully",
+    data: DeletedUser,
+  });
 });
