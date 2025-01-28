@@ -9,17 +9,17 @@ const productSchema = new mongoose.Schema(
       trim: true,
     },
     key: {
-      type: Number,
+      type: String,
       unique: true,
       trim: true,
     },
     partID: {
-      type: Number,
+      type: String,
       required: [true, "Please enter part ID"],
     },
     itemID: {
       required: [true, "Please enter item ID"],
-      type: Number,
+      type: String,
       unique: true,
     },
     price: {
@@ -197,11 +197,11 @@ productSchema.pre("save", async function (next) {
   }
 
   // ---------------------------------- CHECK FOR UNIQUE KEY CONSTRAINT -----------------------------------------------
-  const existingProduct = await mongoose
-    .model("Product")
-    .findOne({ key: this.key });
-  if (existingProduct) {
-    return next(new Error("Product key must be unique."));
+    const existingProduct = await mongoose
+      .model("Product")
+      .findOne({ key: this.key });
+    if (existingProduct) {
+    return next(new Error("A product with this name and color combination already exists."));
   }
   next();
 });

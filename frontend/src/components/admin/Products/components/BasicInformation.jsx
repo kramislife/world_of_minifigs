@@ -57,15 +57,15 @@ const BasicInformation = ({ formData, onChange, onCheckboxChange }) => {
         {/* Item ID */}
         <div className="space-y-2">
           <Label
-            htmlFor="itemId"
+            htmlFor="itemID"
             className="flex items-center gap-2 text-lg font-semibold"
           >
             Item ID
           </Label>
           <Input
-            id="itemId"
-            name="itemId"
-            value={formData.itemId}
+            id="itemID"
+            name="itemID"
+            value={formData.itemID}
             onChange={onChange}
             placeholder="Enter Item ID"
             className="border-2 rounded-lg px-4 py-2 transition duration-300 focus:outline-none focus:border-blue-500 hover:border-blue-300"
@@ -75,15 +75,15 @@ const BasicInformation = ({ formData, onChange, onCheckboxChange }) => {
         {/* Part ID */}
         <div className="space-y-2">
           <Label
-            htmlFor="partId"
+            htmlFor="partID"
             className="flex items-center gap-2 text-lg font-semibold"
           >
             Part ID
           </Label>
           <Input
-            id="partId"
-            name="partId"
-            value={formData.partId}
+            id="partID"
+            name="partID"
+            value={formData.partID}
             onChange={onChange}
             placeholder="Enter Part ID"
             className="border-2 rounded-lg px-4 py-2 transition duration-300 focus:outline-none focus:border-blue-500 hover:border-blue-300"

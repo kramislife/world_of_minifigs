@@ -130,10 +130,11 @@ export const getProductById = catchAsyncErrors(async (req, res, next) => {
 
   const similarProducts = await Product.find({
     product_name: { $regex: escapedProductName, $options: "i" }, // Case-insensitive partial match
-    _id: { $ne: productId }, // Exclude the current product
+    partID: product.partID,
+    _id: { $ne: product._id } // Exclude the current product
   })
     .populate("product_category", "name")
-    .populate("product_collection", "name")
+    .populate("product_collection", "name") 
     .populate("product_designer", "name")
     .populate("product_skill_level", "name")
     .populate("product_color", "name");
@@ -144,7 +145,7 @@ export const getProductById = catchAsyncErrors(async (req, res, next) => {
   // }
 
   res.status(200).json({
-    message: "Product Retrieved Successfully",
+    message: "Product Retrieved Successfully", 
     product,
     similarProducts,
   });

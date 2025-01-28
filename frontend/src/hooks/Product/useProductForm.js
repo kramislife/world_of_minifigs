@@ -105,7 +105,7 @@ const useProductForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log(formData);
+    console.log("Form submission data:", formData);
 
     if (!formData.name) {
       toast.error("Product name is required");
@@ -127,8 +127,8 @@ const useProductForm = () => {
 
     const newProduct = {
       product_name: formData.name,
-      itemID: formData.itemId,
-      partID: formData.partId,
+      itemID: formData.itemID.toString(),
+      partID: formData.partID.toString(),
       price: parseFloat(formData.price) || 0,
       discount: parseFloat(formData.discount) || 0,
       stock: parseInt(formData.stock, 10) || 0,
@@ -151,8 +151,7 @@ const useProductForm = () => {
       product_availability:
         formData.availability === "In Stock"
           ? null
-          : formData.preorder_availability_date ||
-            new Date().toISOString().split("T")[0],
+          : formData.preorderDate || new Date().toISOString().split("T")[0],
       product_length: parseFloat(
         formData.specifications.find((spec) => spec.name === "length")?.value ||
           0
@@ -171,27 +170,17 @@ const useProductForm = () => {
       ratings: 0,
       seller: formData.seller || "Brick Extreme",
       tags: formData.tags.split(",").map((tag) => tag.trim()) || [],
-      is_active: formData.isActive === "yes" ? true : false,
+      is_active: formData.isActive === "yes",
       manufacturer: formData.manufacturer || "Unknown",
       is_preorder: formData.preorder,
-      preorder_date: formData.preorderDate
-        ? formData.preorderDate.toISOString().split("T")[0]
+      preorder_availability_date: formData.preorderDate
+        ? new Date(formData.preorderDate).toISOString().split("T")[0]
         : null,
       product_color: formData.productColors[0],
       createdBy: user?._id,
     };
 
-    // Debug logs
-    console.log("Form submission data:", {
-      categories: {
-        main: newProduct.product_category,
-        sub: newProduct.product_sub_categories,
-      },
-      collections: {
-        main: newProduct.product_collection,
-        sub: newProduct.product_sub_collections,
-      },
-    });
+    console.log("Sending to server:", newProduct);
 
     try {
       const response = await createProduct(newProduct).unwrap();
