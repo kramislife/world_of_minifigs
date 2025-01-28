@@ -36,7 +36,8 @@ const ProductDetails = ({
   // Determine what to display based on similarProducts prop
   const displayItems = useMemo(() => {
     if (similarProducts) {
-      return similarProducts; // Already includes main product + similar products
+      // Filter similar products to only include those with the same partID
+      return similarProducts.filter((item) => item.partID === product.partID);
     }
     return product?.product_images?.length > 0
       ? product.product_images
@@ -46,11 +47,11 @@ const ProductDetails = ({
   // Update current product when navigating
   useEffect(() => {
     if (similarProducts) {
-      setCurrentProduct(similarProducts[currentImageIndex]);
+      setCurrentProduct(displayItems[currentImageIndex]);
     } else {
-      setCurrentProduct(product); // Keep same product when showing multiple images
+      setCurrentProduct(product);
     }
-  }, [currentImageIndex, similarProducts, product]);
+  }, [currentImageIndex, similarProducts, product, displayItems]);
 
   // Update scrollIntoView helper
   const scrollThumbnailIntoView = (index) => {
@@ -151,25 +152,30 @@ const ProductDetails = ({
                     <button
                       key={index}
                       onClick={() => setCurrentImageIndex(index)}
-                      className={`min-w-[130px] max-w-[130px] md:min-w-0 md:max-w-full aspect-square rounded-lg overflow-hidden border-2 transition-all ${
-                        currentImageIndex === index
-                          ? "border-red-600 border-4"
-                          : "border border-slate-700"
-                      }`}
+                      className="group relative min-w-[130px] max-w-[130px] md:min-w-0 md:max-w-full aspect-square"
                     >
-                      <img
-                        src={
-                          similarProducts
-                            ? item.product_images[0]?.url
-                            : item.url
-                        }
-                        alt={
-                          similarProducts
-                            ? item.product_name
-                            : `${product.product_name} view ${index + 1}`
-                        }
-                        className="w-full h-full object-fill transition-transform duration-300"
-                      />
+                      {/* Image Container */}
+                      <div
+                        className={`w-full h-full rounded-lg overflow-hidden border-2 transition-all ${
+                          currentImageIndex === index
+                            ? "border-red-600 border-4"
+                            : "border border-slate-700"
+                        }`}
+                      >
+                        <img
+                          src={
+                            similarProducts
+                              ? item.product_images[0]?.url
+                              : item.url
+                          }
+                          alt={
+                            similarProducts
+                              ? `${item.product_name}`
+                              : `${product.product_name} view ${index + 1}`
+                          }
+                          className="w-full h-full object-fill transition-transform duration-300"
+                        />
+                      </div>                   
                     </button>
                   ))}
                 </div>
@@ -186,11 +192,7 @@ const ProductDetails = ({
                       ? currentProduct?.product_images[0]?.url
                       : product.product_images[currentImageIndex]?.url
                   }
-                  alt={
-                    similarProducts
-                      ? currentProduct?.product_name
-                      : `${product.product_name} view ${currentImageIndex + 1}`
-                  }
+                  alt={currentProduct?.product_name}
                   className="w-full h-full object-fill"
                   initial={{ opacity: 0, x: 100 }}
                   animate={{ opacity: 1, x: 0 }}
