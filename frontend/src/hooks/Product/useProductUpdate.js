@@ -95,12 +95,6 @@ const useProductUpdate = (id) => {
           data?.product?.product_category?.reduce((acc, cat) => {
             // Add main category
             acc.push(cat._id);
-            // Add sub-categories if they exist
-            if (cat.sub_categories) {
-              cat.sub_categories.forEach((subCat) => {
-                acc.push(subCat._id);
-              });
-            }
             return acc;
           }, []) || [],
         productCollections:
@@ -127,26 +121,6 @@ const useProductUpdate = (id) => {
       });
     }
   }, [isError, error, data]);
-
-  useEffect(() => {
-    if (data?.product) {
-      // First, get all collection IDs from the product
-      const productCollectionIds =
-        data.product.product_collection?.map((col) => col._id) || [];
-
-      // Get all sub-collection IDs from the product
-      const productSubCollectionIds =
-        data.product.product_sub_collections?.map((sub) => sub._id) || [];
-
-      setFormData((prev) => ({
-        ...prev,
-        // Set the collection IDs
-        productCollections: productCollectionIds,
-        // Set the sub-collection IDs
-        productSubCollections: productSubCollectionIds,
-      }));
-    }
-  }, [data]);
 
   // Handle update errors
   useEffect(() => {

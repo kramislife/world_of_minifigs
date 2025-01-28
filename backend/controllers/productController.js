@@ -112,7 +112,9 @@ export const getProductById = catchAsyncErrors(async (req, res, next) => {
     .populate("product_collection", "name")
     .populate("product_designer", "name")
     .populate("product_skill_level", "name")
-    .populate("product_color", "name");
+    .populate("product_color", "name")
+    .populate("product_sub_categories", "name category")
+    .populate("product_sub_collections", "name collection");
 
   if (!product) {
     return next(new ErrorHandler("Product not found", 400));
@@ -131,10 +133,10 @@ export const getProductById = catchAsyncErrors(async (req, res, next) => {
   const similarProducts = await Product.find({
     product_name: { $regex: escapedProductName, $options: "i" }, // Case-insensitive partial match
     partID: product.partID,
-    _id: { $ne: product._id } // Exclude the current product
+    _id: { $ne: product._id }, // Exclude the current product
   })
     .populate("product_category", "name")
-    .populate("product_collection", "name") 
+    .populate("product_collection", "name")
     .populate("product_designer", "name")
     .populate("product_skill_level", "name")
     .populate("product_color", "name");
@@ -145,7 +147,7 @@ export const getProductById = catchAsyncErrors(async (req, res, next) => {
   // }
 
   res.status(200).json({
-    message: "Product Retrieved Successfully", 
+    message: "Product Retrieved Successfully",
     product,
     similarProducts,
   });
