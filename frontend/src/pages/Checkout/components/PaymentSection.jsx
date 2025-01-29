@@ -20,17 +20,12 @@ const PaymentSection = ({
   onPaymentMethodChange,
   total,
   onSubmit,
-  handleCardDetailsChange,
-  cardDetails = {
-    cardNumber: "",
-    expiryDate: "",
-    cvv: "",
-    nameOnCard: "",
-  },
+  handleStripeSuccess,
   onPayPalApprove,
 }) => {
   const paymentMethods = [
     {
+      // Stripe
       type: PAYMENT_METHODS.CREDIT_CARD,
       content: (
         <div className="flex items-center gap-1">
@@ -42,12 +37,14 @@ const PaymentSection = ({
       className: "bg-white",
     },
     {
+      // PayPal
       type: PAYMENT_METHODS.PAYPAL,
       content: <img src={PayPal} alt="PayPal" className="h-20 w-auto" />,
       className: "bg-yellow-300",
     },
   ];
 
+  // Payment button styles
   const getPaymentButtonStyles = (isSelected) => `
     w-full h-10 rounded-md transition-all duration-200 flex items-center justify-center
     ${
@@ -83,13 +80,11 @@ const PaymentSection = ({
           ))}
         </div>
 
+        {/* If the payment method is Stripe, show the CardSection component */}
         {paymentMethod === PAYMENT_METHODS.CREDIT_CARD ? (
-          <CardSection
-            onSubmit={onSubmit}
-            onCardDetailsChange={handleCardDetailsChange}
-            cardDetails={cardDetails}
-          />
+          <CardSection total={total} onSubmit={handleStripeSuccess} />
         ) : (
+          // If the payment method is PayPal, show the PayPalSection component
           <PayPalSection
             onSubmit={onSubmit}
             onApprove={onPayPalApprove}

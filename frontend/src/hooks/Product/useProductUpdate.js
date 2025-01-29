@@ -17,8 +17,8 @@ const useProductUpdate = (id) => {
     price: "",
     discount: "",
     stock: "",
-    itemId: "",
-    partId: "",
+    itemID: "",
+    partID: "",
 
     // Descriptions
     description1: "",
@@ -74,8 +74,8 @@ const useProductUpdate = (id) => {
         price: data?.product?.price || "",
         discount: data?.product?.discount || "",
         stock: data?.product?.stock || "",
-        itemId: data?.product?.item_id || "",
-        partId: data?.product?.part_id || "",
+        itemID: data?.product?.itemID || "",
+        partID: data?.product?.partID || "",
         description1: data?.product?.product_description_1 || "",
         description2: data?.product?.product_description_2 || "",
         description3: data?.product?.product_description_3 || "",
@@ -95,12 +95,6 @@ const useProductUpdate = (id) => {
           data?.product?.product_category?.reduce((acc, cat) => {
             // Add main category
             acc.push(cat._id);
-            // Add sub-categories if they exist
-            if (cat.sub_categories) {
-              cat.sub_categories.forEach((subCat) => {
-                acc.push(subCat._id);
-              });
-            }
             return acc;
           }, []) || [],
         productCollections:
@@ -127,26 +121,6 @@ const useProductUpdate = (id) => {
       });
     }
   }, [isError, error, data]);
-
-  useEffect(() => {
-    if (data?.product) {
-      // First, get all collection IDs from the product
-      const productCollectionIds =
-        data.product.product_collection?.map((col) => col._id) || [];
-
-      // Get all sub-collection IDs from the product
-      const productSubCollectionIds =
-        data.product.product_sub_collections?.map((sub) => sub._id) || [];
-
-      setFormData((prev) => ({
-        ...prev,
-        // Set the collection IDs
-        productCollections: productCollectionIds,
-        // Set the sub-collection IDs
-        productSubCollections: productSubCollectionIds,
-      }));
-    }
-  }, [data]);
 
   // Handle update errors
   useEffect(() => {
@@ -213,8 +187,8 @@ const useProductUpdate = (id) => {
 
     const productData = {
       product_name: formData.name,
-      item_id: formData.itemId,
-      part_id: formData.partId,
+      itemID: formData.itemID,
+      partID: formData.partID,
       price: parseFloat(formData.price) || 0,
       discount: parseFloat(formData.discount) || 0,
       stock: parseInt(formData.stock, 10) || 0,
@@ -268,7 +242,7 @@ const useProductUpdate = (id) => {
     };
 
     try {
-      console.log("Updating product with color:", productData.product_color);
+      console.log("Updating product with data:", productData);
       await updateProduct({ id, productData }).unwrap();
       toast.success("Product updated successfully!");
       navigate("/admin/products");

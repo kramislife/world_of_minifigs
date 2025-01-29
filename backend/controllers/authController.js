@@ -110,12 +110,21 @@ export const loginUser = catchAsyncErrors(async (req, res, next) => {
   }).select("+password");
 
   //3. IF USER DOES NOT EXIST OR PASSWORD DO NOT MATCH
-
   if (!user || !(await user.comparePassword(password))) {
     return next(new ErrorHandler("Invalid login credentials", 401));
   }
 
-  // 4. CHECK IF USER IS VERIFIED
+  // 4. CHECK IF USER IS SUSPENDED
+  if (user.isSuspended) {
+    return next(
+      new ErrorHandler(
+        "Your account has been suspended. Please contact support for assistance.",
+        403
+      )
+    );
+  }
+
+  // 5. CHECK IF USER IS VERIFIED
   if (!user.is_verified) {
     return next(
       new ErrorHandler("User not verified, please verify your email", 401)

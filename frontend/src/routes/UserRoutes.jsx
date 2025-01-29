@@ -42,6 +42,8 @@ import UpdateSubCollection from "@/components/admin/Collections/SubCollections/U
 import Checkout from "@/pages/Checkout/Checkout";
 import Order from "@/pages/Order/Order";
 import SubCollectionsPage from "@/pages/Collections/SubCollectionsPage";
+// import AddUser from "@/components/admin/Users/AddUser";
+import UpdateUser from "@/components/admin/Users/UpdateUser";
 
 const UserRoutes = (
   <>
@@ -156,9 +158,15 @@ const UserRoutes = (
       <Route path="new-designer" element={<AddDesigner />} />
       <Route path="update-designer/:id" element={<UpdateDesigner />} />
 
-      {/* User & Order Management */}
+      {/* User Management */}
       <Route path="users" element={<ViewUsers />} />
+      {/* <Route path="new-user" element={<AddUser />} /> */}
+      <Route path="update-user/:id" element={<UpdateUser />} />
+
+      {/* Order Management */}
       <Route path="orders" element={<ViewOrder />} />
+
+      {/* Review Management */}
       <Route path="reviews" element={<ViewReviews />} />
 
       {/* Sub-Collection Management */}
