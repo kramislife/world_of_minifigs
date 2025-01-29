@@ -28,6 +28,7 @@ const Checkout = () => {
     handleCardDetailsChange,
     cardDetails,
     handlePayPalApprove,
+    handleStripeSuccess,
   } = useCheckout();
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -85,6 +86,7 @@ const Checkout = () => {
                   onPayPalApprove={handlePayPalApprove}
                   handleCardDetailsChange={handleCardDetailsChange}
                   cardDetails={cardDetails}
+                  handleStripeSuccess={handleStripeSuccess}
                 />
               </form>
             </div>

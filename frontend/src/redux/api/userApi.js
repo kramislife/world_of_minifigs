@@ -4,6 +4,7 @@ import { setisAuthenticated, setUser } from "../features/userSlice";
 export const userApi = createApi({
   reducerPath: "userApi",
   baseQuery: fetchBaseQuery({ baseUrl: "/api/v1" }),
+  tagTypes: ["User"],
   endpoints: (builder) => ({
     getMe: builder.query({
       query: () => "/profile/me",
@@ -47,6 +48,31 @@ export const userApi = createApi({
       }),
       invalidates: ["getUserAddresses"],
     }),
+    getAllUsers: builder.query({
+      query: () => "/admin/users",
+      transformResponse: (result) => result,
+      providesTags: ["User"],
+    }),
+    deleteUser: builder.mutation({
+      query: (id) => ({
+        url: `/admin/users/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["User"],
+    }),
+    getSingleUser: builder.query({
+      query: (id) => `/admin/users/${id}`,
+      transformResponse: (result) => result,
+      providesTags: ["User"],
+    }),
+    updateUser: builder.mutation({
+      query: ({ id, ...userData }) => ({
+        url: `/admin/users/${id}`,
+        method: "PUT",
+        body: userData,
+      }),
+      invalidatesTags: ["User"],
+    }),
   }),
 });
 
@@ -57,4 +83,8 @@ export const {
   useCreateAddressMutation,
   useUpdateAddressMutation,
   useDeleteAddressMutation,
+  useGetAllUsersQuery,
+  useDeleteUserMutation,
+  useGetSingleUserQuery,
+  useUpdateUserMutation,
 } = userApi;

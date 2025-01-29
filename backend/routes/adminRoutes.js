@@ -536,4 +536,40 @@ router
     deleteColorbyId
   );
 
+// GET ALL USERS
+router
+  .route("/admin/users")
+  .get(
+    isAuthenticatedUser,
+    isAuthorizedUser(
+      userRoles.SUPER_ADMIN,
+      userRoles.ADMIN,
+      userRoles.EMPLOYEE
+    ),
+    getAllUsers
+  );
+
+// GET SPECIFIC USER INFORMATION, Update and Delete
+router
+  .route("/admin/users/:id")
+  .get(
+    isAuthenticatedUser,
+    isAuthorizedUser(
+      userRoles.SUPER_ADMIN,
+      userRoles.ADMIN,
+      userRoles.EMPLOYEE
+    ),
+    getSingleUser
+  )
+  .put(
+    isAuthenticatedUser,
+    isAuthorizedUser(userRoles.SUPER_ADMIN, userRoles.ADMIN),
+    updateSingleUser
+  )
+  .delete(
+    isAuthenticatedUser,
+    isAuthorizedUser(userRoles.SUPER_ADMIN),
+    deleteSingleUser
+  );
+
 export default router;

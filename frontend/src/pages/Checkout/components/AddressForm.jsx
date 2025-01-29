@@ -50,6 +50,8 @@ const AddressForm = ({ isEdit = false, editAddress = null, userName = "" }) => {
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="space-y-6">
+            
+            {/* SelectCountry */}
             <Select
               options={countryOptions}
               value={userCountry}
@@ -77,6 +79,7 @@ const AddressForm = ({ isEdit = false, editAddress = null, userName = "" }) => {
                 placeholder=" "
               /> */}
 
+              {/* Address Label */}
               <Input
                 variant="floating"
                 label="Address Label (e.g., Home, Work)"
@@ -87,6 +90,7 @@ const AddressForm = ({ isEdit = false, editAddress = null, userName = "" }) => {
               />
             </div>
 
+            {/* Phone Number */}
             <Input
               variant="floating"
               label="Phone Number"
@@ -99,6 +103,7 @@ const AddressForm = ({ isEdit = false, editAddress = null, userName = "" }) => {
               placeholder=" "
             />
 
+            {/* Street Address */}
             <Input
               variant="floating"
               label="Street Address"
@@ -110,6 +115,7 @@ const AddressForm = ({ isEdit = false, editAddress = null, userName = "" }) => {
               placeholder=" "
             />
 
+            {/* Apartment, suite, etc. (optional) */}
             <Input
               variant="floating"
               label="Apartment, suite, etc. (optional)"
@@ -120,6 +126,7 @@ const AddressForm = ({ isEdit = false, editAddress = null, userName = "" }) => {
               placeholder=" "
             />
 
+            {/* City */}
             <div className="grid grid-cols-3 gap-4">
               <Input
                 variant="floating"
@@ -149,6 +156,7 @@ const AddressForm = ({ isEdit = false, editAddress = null, userName = "" }) => {
               />
             </div>
 
+            {/* Setting the address as default */}
             <div className="flex items-center space-x-2">
               <Checkbox
                 id="is_default"
@@ -166,6 +174,7 @@ const AddressForm = ({ isEdit = false, editAddress = null, userName = "" }) => {
               </label>
             </div>
 
+            {/* Submit Button */}
             <Button
               type="submit"
               className="w-full bg-blue-500 hover:bg-blue-600 text-white h-12"
