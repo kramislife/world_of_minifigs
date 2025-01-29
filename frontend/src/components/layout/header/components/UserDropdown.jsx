@@ -7,7 +7,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useLazyLogoutQuery } from "@/redux/api/authApi";
-import { User, LogOut, Settings, LayoutDashboard } from "lucide-react";
+import { User, LogOut, Settings, LayoutDashboard, Package } from "lucide-react";
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -53,11 +53,16 @@ const UserDropdown = () => {
           },
         ]
       : []),
-      {
-        label: "Profile",
-        icon: <User className="mr-2 h-4 w-4" />,
-        onClick: () => navigate("/profile"),
-      },
+    {
+      label: "My Orders",
+      icon: <Package className="mr-2 h-4 w-4" />,
+      onClick: () => navigate("/my-orders"),
+    },
+    {
+      label: "Profile",
+      icon: <User className="mr-2 h-4 w-4" />,
+      onClick: () => navigate("/profile"),
+    },
     {
       label: "Settings",
       icon: <Settings className="mr-2 h-4 w-4" />,

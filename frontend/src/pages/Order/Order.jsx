@@ -2,7 +2,17 @@ import React from "react";
 import { useParams } from "react-router-dom";
 import { useGetOrderDetailsQuery } from "@/redux/api/orderApi";
 import { format } from "date-fns";
-import { Loader2, Package, Truck, CreditCard, MapPin } from "lucide-react";
+import {
+  Loader2,
+  Package,
+  Truck,
+  CreditCard,
+  MapPin,
+  CheckCircle2,
+  Clock,
+  AlertCircle,
+  BadgeCheck,
+} from "lucide-react";
 import { motion } from "framer-motion";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
@@ -39,14 +49,34 @@ const Order = () => {
       y: 0,
       transition: {
         duration: 0.6,
-        staggerChildren: 0.1
-      }
-    }
+        staggerChildren: 0.1,
+      },
+    },
   };
 
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 }
+    visible: { opacity: 1, y: 0 },
+  };
+
+  const getStatusColor = (status) => {
+    const statusColors = {
+      processing: "text-yellow-400",
+      shipped: "text-blue-400",
+      delivered: "text-green-400",
+      cancelled: "text-red-400",
+    };
+    return statusColors[status.toLowerCase()] || "text-gray-400";
+  };
+
+  const getStatusIcon = (status) => {
+    const icons = {
+      processing: <Clock className="w-5 h-5" />,
+      shipped: <Truck className="w-5 h-5" />,
+      delivered: <CheckCircle2 className="w-5 h-5" />,
+      cancelled: <AlertCircle className="w-5 h-5" />,
+    };
+    return icons[status.toLowerCase()] || <Package className="w-5 h-5" />;
   };
 
   return (
@@ -54,17 +84,63 @@ const Order = () => {
       initial="hidden"
       animate="visible"
       variants={containerVariants}
-      className="container mx-auto px-4 py-8 max-w-6xl"
+      className="container mx-auto px-4 py-8 max-w-7xl"
     >
       <div className="space-y-8">
-        {/* Order Header */}
+        {/* Order Status Timeline */}
+        <Card className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 border-gray-700">
+          <CardContent className="pt-6">
+            <div className="flex justify-between items-center relative">
+              <div className="absolute left-0 top-1/2 w-full h-1 bg-gray-700 -z-10" />
+              {["Confirmed", "Processing", "Shipped", "Delivered"].map(
+                (step, index) => (
+                  <div key={step} className="flex flex-col items-center gap-2">
+                    <div
+                      className={`
+                    w-8 h-8 rounded-full flex items-center justify-center
+                    ${
+                      index <=
+                      [
+                        "confirmed",
+                        "processing",
+                        "shipped",
+                        "delivered",
+                      ].indexOf(order.data.orderStatus.toLowerCase())
+                        ? "bg-emerald-400"
+                        : "bg-gray-700"
+                    }
+                  `}
+                    >
+                      <BadgeCheck className="w-5 h-5 text-gray-900" />
+                    </div>
+                    <span className="text-sm text-gray-400">{step}</span>
+                  </div>
+                )
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Order Header - enhanced */}
         <Card className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 border-gray-700">
           <CardHeader className="pb-4">
-            <div className="flex items-center gap-2">
-              <Package className="w-6 h-6 text-emerald-400" />
-              <CardTitle className="text-2xl font-bold text-white">
-                Order #{order.data._id}
-              </CardTitle>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Package className="w-6 h-6 text-emerald-400" />
+                <CardTitle className="text-2xl font-bold text-white">
+                  Order #{order.data._id}
+                </CardTitle>
+              </div>
+              <div
+                className={`px-4 py-2 rounded-full ${getStatusColor(
+                  order.data.orderStatus
+                )} bg-gray-800/50`}
+              >
+                <div className="flex items-center gap-2">
+                  {getStatusIcon(order.data.orderStatus)}
+                  <span>{order.data.orderStatus}</span>
+                </div>
+              </div>
             </div>
           </CardHeader>
           <CardContent>
@@ -94,7 +170,7 @@ const Order = () => {
           </CardContent>
         </Card>
 
-        {/* Order Items */}
+        {/* Order Items - enhanced */}
         <motion.div variants={itemVariants} className="space-y-6">
           <h2 className="text-xl font-semibold text-white flex items-center gap-2">
             <Package className="w-5 h-5 text-emerald-400" />
@@ -105,31 +181,43 @@ const Order = () => {
               <motion.div
                 key={item._id}
                 variants={itemVariants}
-                className="group flex items-center gap-4 p-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-all duration-200"
+                className="group flex items-center gap-6 p-6 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-all duration-200 border border-gray-700/50"
               >
                 <div className="relative">
                   <img
                     src={item.image}
                     alt={item.name}
-                    className="w-24 h-24 object-cover rounded-lg transition-transform duration-200 group-hover:scale-105"
+                    className="w-32 h-32 object-cover rounded-lg transition-transform duration-200 group-hover:scale-105"
                   />
-                  <div className="absolute -top-2 -right-2 w-6 h-6 bg-emerald-400 rounded-full flex items-center justify-center text-xs font-bold">
+                  <div className="absolute -top-2 -right-2 w-7 h-7 bg-emerald-400 rounded-full flex items-center justify-center text-sm font-bold text-gray-900">
                     {item.quantity}
                   </div>
                 </div>
-                <div className="flex-1">
-                  <h3 className="text-white font-medium text-lg">{item.name}</h3>
-                  <p className="text-gray-400">
-                    ${item.price.toFixed(2)} per item
-                  </p>
-                  <p className="text-sm text-emerald-400/80">
-                    Status: {item.status}
-                  </p>
+                <div className="flex-1 space-y-2">
+                  <h3 className="text-white font-medium text-lg">
+                    {item.name}
+                  </h3>
+                  <div className="flex gap-4 text-sm">
+                    <span className="text-gray-400">SKU: {item._id}</span>
+                    <span className="text-gray-400">|</span>
+                    <span className="text-gray-400">
+                      ${item.price.toFixed(2)} per item
+                    </span>
+                  </div>
+                  <div
+                    className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm ${getStatusColor(
+                      item.status
+                    )} bg-gray-800/50`}
+                  >
+                    {getStatusIcon(item.status)}
+                    <span>{item.status}</span>
+                  </div>
                 </div>
-                <div className="text-right">
+                <div className="text-right space-y-2">
                   <p className="text-lg font-semibold text-emerald-400">
                     ${(item.quantity * item.price).toFixed(2)}
                   </p>
+                  <p className="text-sm text-gray-400">Qty: {item.quantity}</p>
                 </div>
               </motion.div>
             ))}
