@@ -2,7 +2,10 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const orderApi = createApi({
   reducerPath: "orderApi",
-  baseQuery: fetchBaseQuery({ baseUrl: "/api/v1" }),
+  baseQuery: fetchBaseQuery({
+    baseUrl: "/api/v1",
+    credentials: "include",
+  }),
   tagTypes: ["Order"],
   endpoints: (builder) => ({
     createOrder: builder.mutation({
@@ -15,18 +18,30 @@ export const orderApi = createApi({
     }),
 
     getAllOrders: builder.query({
-      query: () => "/orders",
+      query: () => ({
+        url: "/orders",
+        method: "GET",
+        credentials: "include",
+      }),
       providesTags: ["Order"],
     }),
 
     getOrderDetails: builder.query({
-      query: (id) => `/orders/${id}`,
+      query: (id) => ({
+        url: `/orders/${id}`,
+        method: "GET",
+        credentials: "include",
+      }),
       providesTags: ["Order"],
     }),
 
     // Admin endpoints
     getAllOrdersAdmin: builder.query({
-      query: () => "/admin/orders",
+      query: () => ({
+        url: "/admin/orders",
+        method: "GET",
+        credentials: "include",
+      }),
       providesTags: ["Order"],
     }),
 
