@@ -2,7 +2,7 @@ import { Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
-export const orderColumns = ({ onViewDetails }) => [
+export const createOrderColumns = ({ onViewDetails }) => [
   {
     header: "ID",
     accessorKey: "id",
@@ -54,10 +54,11 @@ export const orderColumns = ({ onViewDetails }) => [
       const statusVariantMap = {
         Pending: "warning",
         Processing: "info",
-        Shipped: "secondary",
+        Shipped: "primary",
         Delivered: "success",
-        Cancelled: "destructive",
-        "Pre-Order": "purple",
+        Cancelled: "error",
+        "On Hold": "muted",
+        "Pre-Order": "accent",
       };
 
       return (
