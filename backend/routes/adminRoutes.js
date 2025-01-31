@@ -6,6 +6,7 @@ import {
   newProduct,
   updateProduct,
   uploadProductImage,
+  updateProductStock,
 } from "../controllers/productController.js";
 
 import {
@@ -466,6 +467,19 @@ router
     isAuthenticatedUser,
     isAuthorizedUser(userRoles.SUPER_ADMIN, userRoles.ADMIN),
     deleteAllProducts
+  );
+
+// UPDATE PRODUCT STOCK WHEN ORDER IS CANCELLED
+router
+  .route("/admin/products/:id/stock")
+  .patch(
+    isAuthenticatedUser,
+    isAuthorizedUser(
+      userRoles.SUPER_ADMIN,
+      userRoles.ADMIN,
+      userRoles.EMPLOYEE
+    ),
+    updateProductStock
   );
 
 // ---------------------------------- COLOR --------------------------------------------------

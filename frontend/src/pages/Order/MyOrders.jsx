@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { useGetAllOrdersQuery } from "@/redux/api/orderApi";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Metadata from "@/components/layout/Metadata/Metadata";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { orderStatus } from "@/constant/orderStatus";
@@ -12,6 +12,8 @@ import EmptyState from "./components/EmptyState";
 const MyOrders = () => {
   const { data, isLoading, error } = useGetAllOrdersQuery();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const statusParam = searchParams.get("status");
 
   const ordersByStatus = useMemo(() => {
     if (!data?.data) return {};
@@ -26,6 +28,11 @@ const MyOrders = () => {
 
   const handleOrderClick = (orderId) => {
     navigate(`/order/${orderId}`);
+  };
+
+  const handleTabChange = (value) => {
+    // Update URL when tab changes
+    setSearchParams({ status: value });
   };
 
   if (isLoading) return <LoadingSpinner />;
@@ -49,7 +56,11 @@ const MyOrders = () => {
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold mb-6 text-white">My Orders</h1>
 
-        <Tabs defaultValue="Pending" className="w-full">
+        <Tabs 
+          defaultValue={statusParam || "Pending"} 
+          className="w-full"
+          onValueChange={handleTabChange}
+        >
           <TabsList className="grid w-full grid-cols-4 lg:grid-cols-7 gap-4">
             {orderStatus.map((status) => (
               <TabsTrigger

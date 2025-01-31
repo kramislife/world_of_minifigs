@@ -94,6 +94,20 @@ export const productApi = createApi({
       invalidatesTags: ["Product"],
     }),
 
+    // Updating Product Stock when Order is Cancelled
+    updateProductStock: builder.mutation({
+      query: ({ id, stock }) => ({
+        url: `/admin/products/${id}/stock`,
+        method: "PATCH",
+        body: { stock },
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        "Products",
+        { type: "Product", id },
+        { type: "ProductDetails", id },
+      ],
+    }),
+
     // --------------------------------- CATEGORIES ---------------------------------------
 
     getCategory: builder.query({
@@ -493,4 +507,5 @@ export const {
   useUploadCategoryImageMutation,
   useUploadSubCategoryImageMutation,
   useUploadSubCollectionImageMutation,
+  useUpdateProductStockMutation,
 } = productApi;
