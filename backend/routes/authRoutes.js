@@ -15,7 +15,7 @@ import { isAuthenticatedUser } from "../middlewares/auth.middleware.js";
 const router = express.Router();
 
 router.route("/register").post(registerUser);
-router.route("/verify_user").get(verifyUser);
+router.route("/verify_user/:token").get(verifyUser);
 router.route("/login").post(loginUser);
 router.route("/logout").post(logoutUser);
 router.route("/password/forgot").post(forgotPassword);

@@ -42,7 +42,7 @@ export const registerUser = catchAsyncErrors(async (req, res, next) => {
   await new_user.save();
 
   // 6. CREATE VERIFICATION LINK
-  const verificationLink = `http://localhost:3000/verify/${token}`;
+  const verificationLink = `${process.env.FRONTEND_URL}/verify_user/${token}`;
 
   // 7. SEND THE VERIFICATION LINK TO THE USER'S EMAIL
   await sendVerificationEmail(new_user, verificationLink);
