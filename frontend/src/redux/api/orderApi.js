@@ -35,7 +35,7 @@ export const orderApi = createApi({
       providesTags: ["Order"],
     }),
 
-    // Admin endpoints
+    // Admin endpoints to get all orders
     getAllOrdersAdmin: builder.query({
       query: () => ({
         url: "/admin/orders",
@@ -45,6 +45,7 @@ export const orderApi = createApi({
       providesTags: ["Order"],
     }),
 
+    // Admin endpoints to update order status
     updateOrderAdmin: builder.mutation({
       query: ({ id, orderData }) => ({
         url: `/admin/orders/${id}`,
@@ -54,12 +55,12 @@ export const orderApi = createApi({
       invalidatesTags: ["Order"],
     }),
 
-    // User endpoints
+    // User endpoints to cancel order when status is pending
     updateOrder: builder.mutation({
-      query: ({ id, orderData }) => ({
+      query: ({ id, body }) => ({
         url: `/orders/${id}`,
         method: "PUT",
-        body: orderData,
+        body: body,
       }),
       invalidatesTags: ["Order"],
     }),

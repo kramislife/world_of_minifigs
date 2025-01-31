@@ -1,6 +1,7 @@
-import React from "react";
-import { useParams } from "react-router-dom";
-import { useGetOrderDetailsQuery } from "@/redux/api/orderApi";
+import React, { useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useGetOrderDetailsQuery, useUpdateOrderMutation } from "@/redux/api/orderApi";
+import { useUpdateProductStockMutation } from "@/redux/api/productApi";
 import { format } from "date-fns";
 import {
   Loader2,
@@ -15,10 +16,45 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { toast } from "react-toastify";
+import CancelOrderDialog from "./components/CancelOrderDialog";
 
 const Order = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { data: order, isLoading, error } = useGetOrderDetailsQuery(id);
+  const [updateOrder, { isLoading: isUpdating }] = useUpdateOrderMutation();
+  const [updateProductStock] = useUpdateProductStockMutation();
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
+
+  // Cancel Order
+  const handleCancelOrder = async (reason) => {
+    try {
+      await updateOrder({
+        id: order.data._id,
+        body: {
+          cancelOrder: {
+            reason: reason,
+          },
+        },
+      }).unwrap();
+      
+      // Update Product Stock when Order is Cancelled
+      for (const item of order.data.orderItems) {
+        const newStock = item.product.stock + item.quantity;
+        await updateProductStock({
+          id: item.product._id,
+          stock: newStock,
+        }).unwrap();
+      }
+      
+      toast.success("Order cancelled successfully");
+      navigate("/my-orders?status=Cancelled");
+    } catch (error) {
+      toast.error(error.data?.message || "Failed to cancel order");
+    }
+  };
 
   if (isLoading) {
     return (
@@ -118,6 +154,18 @@ const Order = () => {
                 )
               )}
             </div>
+            
+            {order.data.orderStatus.toLowerCase() === "pending" && (
+              <div className="mt-6 flex justify-end">
+                <Button
+                  variant="destructive"
+                  onClick={() => setShowCancelDialog(true)}
+                  className="bg-red-500/20 text-red-400 hover:bg-red-500/30"
+                >
+                  Cancel Order
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -287,6 +335,13 @@ const Order = () => {
             </Card>
           </motion.div>
         </div>
+
+        <CancelOrderDialog
+          open={showCancelDialog}
+          onOpenChange={setShowCancelDialog}
+          onConfirm={handleCancelOrder}
+          isLoading={isUpdating}
+        />
       </div>
     </motion.div>
   );
