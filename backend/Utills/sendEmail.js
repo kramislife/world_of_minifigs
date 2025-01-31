@@ -2,7 +2,7 @@ import nodemailer from "nodemailer";
 
 // SEND EMAIL USING SMTP AND NODEMAILER
 const sendVerificationEmail = async (option, verificationLink) => {
-  // console.log("SENDING EMAIL", option);
+  console.log("SENDING EMAIL", option);
 
   // Create the transporter using SMTP settings
   const transport = nodemailer.createTransport({
@@ -89,7 +89,7 @@ const sendVerificationEmail = async (option, verificationLink) => {
   const message = {
     from: `${process.env.SMTP_FROM_NAME} <${process.env.SMTP_FROM_EMAIL}>`,
     to: option.email,
-    subject: option.subject,
+    subject: option.subject || "Email Verification",
     html: htmlTemplate, // Use the dynamically generated HTML template here
   };
 
