@@ -63,7 +63,7 @@ import {
   deleteSubCollectionByID,
   updateSubCollection,
   uploadSubCollectionImage,
-  getAllCollections,
+  getAllSubCollections,
 } from "../controllers/subCollectionController.js";
 
 const router = express.Router();
@@ -247,7 +247,7 @@ router
 
 // GET ALL SUBCOLLECTIONS
 router
-  .route("/subcollections")
+  .route("/admin/subcollections")
   .get(
     isAuthenticatedUser,
     isAuthorizedUser(
@@ -255,7 +255,7 @@ router
       userRoles.ADMIN,
       userRoles.EMPLOYEE
     ),
-    getAllCollections
+    getAllSubCollections
   );
 
 // CREATE NEW SUBCOLLECTION
@@ -469,7 +469,7 @@ router
     deleteAllProducts
   );
 
-// UPDATE PRODUCT STOCK WHEN ORDER IS CANCELLED
+// UPDATE PRODUCT STOCK
 router
   .route("/admin/products/:id/stock")
   .patch(

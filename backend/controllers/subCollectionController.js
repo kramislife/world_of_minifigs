@@ -5,7 +5,7 @@ import SubCollection from "../models/subCollection.model.js";
 
 //------------------------------------ GET ALL SUB-COLLECTIONS => GET /subcollections ------------------------------------
 
-export const getAllCollections = catchAsyncErrors(async (req, res, next) => {
+export const getAllSubCollections = catchAsyncErrors(async (req, res, next) => {
   const subcollections = await SubCollection.find()
     .populate("collection")
     .sort({ updatedAt: -1 });

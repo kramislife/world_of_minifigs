@@ -26,7 +26,7 @@ export const createCollectionColumns = (
     accessorKey: "isFeatured",
     size: 150,
     cell: ({ row }) => (
-      <Badge variant={row.original.isFeatured ? "purple" : "info"}>
+      <Badge variant={row.original.isFeatured ? "accent" : "info"}>
         {row.original.isFeatured ? "Featured Section" : "Collections Section"}
       </Badge>
     ),
