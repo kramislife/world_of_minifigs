@@ -59,38 +59,56 @@ export const registerUser = catchAsyncErrors(async (req, res, next) => {
 // ----------------------------------------------- VERIFY USER ----------------------------------------------- //
 
 export const verifyUser = catchAsyncErrors(async (req, res, next) => {
-  const token = req.headers["x-verification-token"];
+  const token = req.params.token;
 
-  const user = await User.findOne({ verification_token: token });
 
-  //1. IF USER WITH VERIFICATION CODE DOES NOT EXIST
+  const user = await User.findOneAndUpdate(
+    { 
+      verification_token: token,
+      verification_token_expiry: { $gt: Date.now() }
+    },
+    {
+      $set: {
+        is_verified: true,
+        verification_token: undefined,
+        verification_token_expiry: undefined
+      }
+    },
+    { new: true }
+  );
+
+  // If no user found or token expired
   if (!user) {
-    return next(new ErrorHandler("Forbidden", 403));
+    const userWithToken = await User.findOne({ verification_token: token });
+    
+    if (!userWithToken) {
+      return next(new ErrorHandler("Invalid verification token", 403));
+    }
+
+    // Token expired case
+    if (userWithToken.verification_token_expiry < Date.now()) {
+      // Generate new verification token
+      const newToken = userWithToken.generateVerificationToken();
+      await userWithToken.save();
+
+      // Create verification link with new token
+      const verificationLink = `${process.env.FRONTEND_URL}/verify_user/${newToken}`;
+
+      // Send new verification email
+      await sendVerificationEmail(userWithToken, verificationLink);
+
+      return next(
+        new ErrorHandler(
+          "Verification token expired. Please check your email for new verification link",
+          400
+        )
+      );
+    }
   }
-
-  //2. IF USER IS AVAILABLE AND VERIFICATION CODE TIME IS EXPIRED
-
-  if (user.verification_token_expiry < Date.now()) {
-    await user.generateVerificationToken();
-
-    await user.save();
-
-    return next(
-      new ErrorHandler(
-        "Verification token expired. Please check your email for new verification link",
-        400
-      )
-    );
-  }
-
-  user.is_verified = true;
-  user.verification_token = null;
-  user.verification_token_expiry = null;
-  await user.save();
 
   res.status(200).json({
     status: "success",
-    message: "User verified successfully. Please login.",
+    message: "Email verified successfully. Please login.",
   });
 });
 
