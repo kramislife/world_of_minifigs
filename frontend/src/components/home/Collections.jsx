@@ -45,11 +45,7 @@ const Collections = () => {
       (sub) => sub?.collection?._id === collection._id
     );
 
-    navigate(
-      hasSubCollections
-        ? `/collections/${collection._id}`
-        : `/products?product_collection=${collection._id}`
-    );
+    navigate(`/collections/${collection._id}`);
   };
 
   return (
