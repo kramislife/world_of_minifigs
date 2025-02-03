@@ -45,7 +45,13 @@ const Collections = () => {
       (sub) => sub?.collection?._id === collection._id
     );
 
-    navigate(`/collections/${collection._id}`);
+    // Always navigate to collections route if there are subcollections
+    if (hasSubCollections) {
+      navigate(`/collections/${collection._id}`);
+    } else {
+      // Navigate to products route if no subcollections
+      navigate(`/products?product_collection=${collection._id}`);
+    }
   };
 
   return (
