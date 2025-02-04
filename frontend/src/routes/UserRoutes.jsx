@@ -45,6 +45,9 @@ import MyOrders from "@/pages/Order/MyOrders";
 import SubCollectionsPage from "@/pages/Collections/SubCollectionsPage";
 // import AddUser from "@/components/admin/Users/AddUser";
 import UpdateUser from "@/components/admin/Users/UpdateUser";
+import EmailVerification from "@/components/auth/Register/EmailVerification";
+import ForgotPassword from "@/components/auth/Password/ForgotPassword";
+import ResetPassword from "@/components/auth/Password/ResetPassword";
 
 const UserRoutes = (
   <>
@@ -60,6 +63,9 @@ const UserRoutes = (
     <Route path="contact" element={<Contact />} />
     <Route path="login" element={<Login />} />
     <Route path="register" element={<Register />} />
+    <Route path="verify_user/:token" element={<EmailVerification />} />
+    <Route path="password/forgot" element={<ForgotPassword />} />
+    <Route path="password/reset/:token" element={<ResetPassword />} />
 
     {/* Protected User Routes */}
     <Route element={<ProtectedRoutes />}>
