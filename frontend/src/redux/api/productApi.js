@@ -94,6 +94,20 @@ export const productApi = createApi({
       invalidatesTags: ["Product"],
     }),
 
+    // Updating Product Stock when Order is Cancelled
+    updateProductStock: builder.mutation({
+      query: ({ id, stock }) => ({
+        url: `/admin/products/${id}/stock`,
+        method: "PATCH",
+        body: { stock },
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        "Products",
+        { type: "Product", id },
+        { type: "ProductDetails", id },
+      ],
+    }),
+
     // --------------------------------- CATEGORIES ---------------------------------------
 
     getCategory: builder.query({
@@ -448,46 +462,6 @@ export const productApi = createApi({
       }),
       invalidatesTags: ["Colors"],
     }),
-
-    // --------------------------------- ORDERS ---------------------------------------
-
-    // GET ALL ORDERS
-    getAllOrders: builder.query({
-      query: () => `/admin/orders`,
-      providesTags: ["Orders"],
-    }),
-
-    // GET ORDER DETAILS
-    getOrderDetails: builder.query({
-      query: (id) => `/admin/orders/${id}`,
-      providesTags: (result, error, id) => [
-        { type: "OrderDetails", id },
-        { type: "Order", id },
-      ],
-    }),
-
-    // UPDATE ORDER
-    updateOrder: builder.mutation({
-      query: ({ id, orderData }) => ({
-        url: `/admin/orders/${id}`,
-        method: "PUT",
-        body: orderData,
-      }),
-      invalidatesTags: (result, error, { id }) => [
-        "Orders",
-        { type: "Order", id },
-        { type: "OrderDetails", id },
-      ],
-    }),
-
-    // DELETE ORDER
-    deleteOrder: builder.mutation({
-      query: (id) => ({
-        url: `/admin/orders/${id}`,
-        method: "DELETE",
-      }),
-      invalidatesTags: ["Orders"],
-    }),
   }),
 });
 
@@ -533,8 +507,5 @@ export const {
   useUploadCategoryImageMutation,
   useUploadSubCategoryImageMutation,
   useUploadSubCollectionImageMutation,
-  useGetAllOrdersQuery,
-  useGetOrderDetailsQuery,
-  useUpdateOrderMutation,
-  useDeleteOrderMutation,
+  useUpdateProductStockMutation,
 } = productApi;

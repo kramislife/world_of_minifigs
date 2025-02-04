@@ -38,8 +38,19 @@ export const authApi = createApi({
         };
       },
     }),
+    verifyEmail: builder.mutation({
+      query: (token) => ({
+        url: `/verify_user/${token}`,
+        method: "GET",
+        credentials: 'include',
+      }),
+      transformResponse: (response) => ({
+        success: response.status === "success",
+        message: response.message
+      }),
+    }),
   }),
 });
 
-export const { useLoginMutation, useRegisterMutation, useLazyLogoutQuery } =
+export const { useLoginMutation, useRegisterMutation, useLazyLogoutQuery, useVerifyEmailMutation } =
   authApi;

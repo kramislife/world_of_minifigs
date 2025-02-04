@@ -17,6 +17,11 @@ import {
 } from "../controllers/collectionControler.js";
 
 import {
+  getAllSubCollections,
+  getSubCollectionById,
+} from "../controllers/subCollectionController.js";
+
+import {
   getAllSkillLevels,
   getSkillLevelById,
 } from "../controllers/skillLevelController.js";
@@ -52,6 +57,13 @@ router.route("/collections").get(getAllCollections);
 
 // GET COLLECTION BY ID
 router.route("/collections/:id").get(getCollectionById);
+
+// ---------------------------------- SUB-COLLECTIONS ---------------------------------------------
+// GET ALL SUB-COLLECTIONS 
+router.route("/subcollections").get(getAllSubCollections);
+
+// GET SUB-COLLECTION BY ID 
+router.route("/subcollections/:id").get(getSubCollectionById);
 
 // ---------------------------------- SKILL --------------------------------------------------
 // GET ALL SKILLS

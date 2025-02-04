@@ -175,7 +175,7 @@ const ProductDetails = ({
                           }
                           className="w-full h-full object-fill transition-transform duration-300"
                         />
-                      </div>                   
+                      </div>
                     </button>
                   ))}
                 </div>
@@ -226,211 +226,218 @@ const ProductDetails = ({
 
           {/* Product Info */}
           <motion.div variants={itemVariants} className="flex flex-col h-full">
-            <div className="mb-6">
-              <h1 className="text-3xl font-bold text-white mb-2">
-                {currentProduct?.product_name || "Unnamed Product"}
-              </h1>
-
-              <div className="flex items-center gap-1 mb-8">
-                {currentProduct?.ratings ? (
-                  <>
-                    <StarRating rating={currentProduct.ratings} />
-                    <span className="text-gray-400 ml-2 text-sm">
-                      ({currentProduct.ratings})
+            {/* Product Header Section */}
+            <div className="mb-8">
+              <div className="flex flex-col gap-3">
+                {/* Title and Item ID */}
+                <div className="flex flex-col gap-2">
+                  <h1 className="text-3xl font-bold text-white">
+                    {currentProduct?.product_name || "Unnamed Product"}
+                  </h1>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-400">
+                      Item ID: {currentProduct?.itemID || "N/A"}
                     </span>
-                  </>
-                ) : (
-                  <span className="text-gray-400 text-sm">No ratings</span>
-                )}
-              </div>
+                    {currentProduct?.partID && (
+                      <>
+                        <span className="text-gray-400">•</span>
+                        <span className="text-sm text-gray-400">
+                          Part ID: {currentProduct.partID}
+                        </span>
+                      </>
+                    )}
+                  </div>
+                </div>
 
-              {/* Updated Price Display */}
-              <div className="flex items-center space-x-4">
-                <span className="text-4xl font-semibold">
-                  $
-                  {(
-                    (currentProduct?.price || 0) *
-                    (1 - (currentProduct?.discount || 0) / 100)
-                  ).toFixed(2)}
-                </span>
-                {currentProduct?.discount > 0 && (
-                  <span className="text-xl text-red-500 line-through">
-                    ${(currentProduct?.price || 0).toFixed(2)}
-                  </span>
-                )}
+                {/* Ratings Section */}
+                <div className="flex items-center gap-3">
+                  {currentProduct?.ratings > 0 && (
+                    <div className="flex items-center gap-2">
+                      <StarRating rating={currentProduct.ratings} />
+                      <span className="text-gray-400 text-sm">
+                        ({currentProduct.ratings})
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Price Section with Enhanced Styling */}
+                <div className="flex items-center gap-4 mt-2">
+                  <div className="flex  items-center gap-2">
+                    <span className="text-4xl font-bold text-white">
+                      $
+                      {(
+                        (currentProduct?.price || 0) *
+                        (1 - (currentProduct?.discount || 0) / 100)
+                      ).toFixed(2)}
+                    </span>
+                    {currentProduct?.discount > 0 && (
+                      <span className="text-md text-gray-400 line-through">
+                        ${(currentProduct?.price || 0).toFixed(2)}
+                      </span>
+                    )}
+                    {currentProduct?.discount > 0 && (
+                      <Badge
+                        variant="destructive"
+                        className="bg-red-500 hover:bg-red-600 mt-1"
+                      >
+                        {currentProduct.discount}% OFF
+                      </Badge>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Availability Section */}
-            {currentProduct?.product_availability && (
-              <div className="mb-6">
-                <div className="flex items-center space-x-2">
+            {/* Product Details Section */}
+            <div className="space-y-6">
+              {/* Availability Status */}
+              {currentProduct?.product_availability && (
+                <div className="flex items-center gap-3">
                   <ProductStatus stock={currentProduct?.stock} variant="dot" />
                   {currentProduct?.pre_order &&
                     currentProduct?.release_date && (
                       <span className="text-gray-400 text-sm">
-                        (Available{" "}
+                        Available{" "}
                         {new Date(
                           currentProduct.release_date
                         ).toLocaleDateString()}
-                        )
                       </span>
                     )}
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Details Section */}
-            <div className="mb-6">
-              {/* Category and Collection row */}
-              <div className="flex flex-col gap-4">
-                {/* Categories and Subcategories */}
-                {currentProduct?.product_category && (
-                  <div className="flex flex-col gap-2">
-                    <span className="text-sm text-gray-400">Categories:</span>
-                    <div className="flex flex-wrap gap-2">
-                      {Array.isArray(currentProduct.product_category) ? (
-                        currentProduct.product_category.map(
-                          (category, index) => (
-                            <div key={index} className="flex flex-wrap gap-2">
+              {/* Categories & Collections */}
+              {((Array.isArray(currentProduct?.product_category) &&
+                currentProduct.product_category.length > 0) ||
+                (Array.isArray(currentProduct?.product_collection) &&
+                  currentProduct.product_collection.length > 0)) && (
+                <div className="flex flex-col gap-3">
+                  <span className="text-sm font-medium text-gray-300">
+                    Categories & Collections
+                  </span>
+                  <div className="flex flex-wrap gap-2">
+                    {/* Categories and Subcategories */}
+                    {Array.isArray(currentProduct?.product_category) &&
+                      currentProduct.product_category.map((category, index) => {
+                        const categorySubItems = Array.isArray(
+                          currentProduct?.product_sub_categories
+                        )
+                          ? currentProduct.product_sub_categories.filter(
+                              (subCat) => subCat.category === category._id
+                            )
+                          : [];
+
+                        return (
+                          <div
+                            key={`cat-${index}`}
+                            className="flex flex-wrap gap-2"
+                          >
+                            {categorySubItems.length > 0 ? (
+                              categorySubItems.map((subCat, subIndex) => (
+                                <Badge
+                                  key={`subcat-${subIndex}`}
+                                  variant="default"
+                                  className="bg-blue-600/10 text-blue-400 hover:bg-blue-600/20 border border-blue-600/20 transition-colors duration-200 py-1.5"
+                                >
+                                  {subCat?.name}
+                                </Badge>
+                              ))
+                            ) : (
                               <Badge
                                 variant="default"
-                                className="bg-brand border border-slate-700 hover:bg-darkBrand py-2 px-5"
+                                className="bg-purple-600/10 text-purple-400 hover:bg-purple-600/20 border border-purple-600/20 transition-colors duration-200"
                               >
                                 {category?.name}
                               </Badge>
-                              {category?.subcategories?.map(
-                                (subcat, subIndex) => (
+                            )}
+                          </div>
+                        );
+                      })}
+
+                    {/* Collections and Subcollections */}
+                    {Array.isArray(currentProduct?.product_collection) &&
+                      currentProduct.product_collection.map(
+                        (collection, index) => {
+                          const collectionSubItems = Array.isArray(
+                            currentProduct?.product_sub_collections
+                          )
+                            ? currentProduct.product_sub_collections.filter(
+                                (subCol) => subCol.collection === collection._id
+                              )
+                            : [];
+
+                          return (
+                            <div
+                              key={`col-${index}`}
+                              className="flex flex-wrap gap-2"
+                            >
+                              {collectionSubItems.length > 0 ? (
+                                collectionSubItems.map((subCol, subIndex) => (
                                   <Badge
-                                    key={subIndex}
-                                    variant="outline"
-                                    className="hover:bg-brand/10"
+                                    key={`subcol-${subIndex}`}
+                                    variant="default"
+                                    className="bg-green-600/10 text-green-400 hover:bg-green-600/20 border border-green-600/20 transition-colors duration-200 py-1.5"
                                   >
-                                    {subcat?.name}
+                                    {subCol?.name}
                                   </Badge>
-                                )
+                                ))
+                              ) : (
+                                <Badge
+                                  variant="default"
+                                  className="bg-amber-600/10 text-amber-400 hover:bg-amber-600/20 border border-amber-600/20 transition-colors duration-200 py-1.5"
+                                >
+                                  {collection?.name}
+                                </Badge>
                               )}
                             </div>
-                          )
-                        )
-                      ) : (
-                        <div className="flex flex-wrap gap-2">
-                          <Badge
-                            variant="default"
-                            className="bg-brand border border-slate-700 hover:bg-darkBrand py-2 px-5"
-                          >
-                            {currentProduct.product_category?.name}
-                          </Badge>
-                          {currentProduct.product_category?.subcategories?.map(
-                            (subcat, index) => (
-                              <Badge
-                                key={index}
-                                variant="outline"
-                                className="hover:bg-brand/10"
-                              >
-                                {subcat?.name}
-                              </Badge>
-                            )
-                          )}
-                        </div>
+                          );
+                        }
                       )}
-                    </div>
                   </div>
-                )}
+                </div>
+              )}
 
-                {/* Collections and Subcollections */}
-                {currentProduct?.product_collection && (
-                  <div className="flex flex-col gap-2">
-                    <span className="text-sm text-gray-400">Collections:</span>
-                    <div className="flex flex-wrap gap-2">
-                      {Array.isArray(currentProduct.product_collection) ? (
-                        currentProduct.product_collection.map(
-                          (collection, index) => (
-                            <div key={index} className="flex flex-wrap gap-2">
-                              <Badge
-                                variant="default"
-                                className="bg-brand border border-slate-700 hover:bg-darkBrand py-2 px-5"
-                              >
-                                {collection?.name}
-                              </Badge>
-                              {collection?.subcollections?.map(
-                                (subcoll, subIndex) => (
-                                  <Badge
-                                    key={subIndex}
-                                    variant="outline"
-                                    className="hover:bg-brand/10"
-                                  >
-                                    {subcoll?.name}
-                                  </Badge>
-                                )
-                              )}
-                            </div>
-                          )
-                        )
-                      ) : (
-                        <div className="flex flex-wrap gap-2">
-                          <Badge
-                            variant="default"
-                            className="bg-brand border border-slate-700 hover:bg-darkBrand py-2 px-5"
-                          >
-                            {currentProduct.product_collection?.name}
-                          </Badge>
-                          {currentProduct.product_collection?.subcollections?.map(
-                            (subcoll, index) => (
-                              <Badge
-                                key={index}
-                                variant="outline"
-                                className="hover:bg-brand/10"
-                              >
-                                {subcoll?.name}
-                              </Badge>
-                            )
-                          )}
-                        </div>
-                      )}
-                    </div>
+              {/* Color Section with Enhanced Styling */}
+              {currentProduct?.product_color && (
+                <div className="flex flex-col gap-3">
+                  <span className="text-sm font-medium text-gray-300">
+                    Color
+                  </span>
+                  <div className="flex flex-wrap gap-2">
+                    <Badge
+                      variant="default"
+                      className="bg-gray-700/50 text-gray-200 hover:bg-gray-700/70 border border-gray-600 transition-colors duration-200"
+                    >
+                      {currentProduct.product_color.name}
+                    </Badge>
                   </div>
-                )}
+                </div>
+              )}
 
-                {/* Includes Section - reverted to original design */}
-                {currentProduct?.product_includes && (
-                  <div className="flex flex-col gap-2">
-                    <span className="text-sm text-gray-400">Includes:</span>
-                    <div className="flex flex-wrap gap-2">
-                      <span className="px-5 py-2 bg-brand rounded-md text-sm border border-slate-700 hover:bg-darkBrand transition-colors">
-                        {currentProduct.product_includes}
-                      </span>
+              {/* Product Description Section */}
+              <div className="space-y-4">
+                {[
+                  currentProduct?.product_description_1,
+                  currentProduct?.product_description_2,
+                  currentProduct?.product_description_3,
+                ]
+                  .filter((description) => description?.trim())
+                  .map((description, index) => (
+                    <div key={index} className="flex items-start gap-3">
+                      <CircleCheckBig className="w-5 h-5 text-green-500 mt-1 flex-shrink-0" />
+                      <p className="text-gray-300 leading-relaxed">
+                        {description}
+                      </p>
                     </div>
-                  </div>
-                )}
+                  ))}
               </div>
-            </div>
 
-            {/* Description Section */}
-            <div className="mb-6">
-              {[
-                currentProduct?.product_description_1,
-                currentProduct?.product_description_2,
-                currentProduct?.product_description_3,
-              ]
-                .filter((description) => description?.trim()) // Only include non-empty descriptions after trimming whitespace
-                .map((description, index) => (
-                  <div
-                    key={index}
-                    className="flex items-start gap-3 mb-3 last:mb-0"
-                  >
-                    <CircleCheckBig className="w-4 h-4 text-green-500 mt-1.5 flex-shrink-0" />
-                    <p className="text-gray-300 leading-loose">{description}</p>
-                  </div>
-                ))}
-            </div>
-
-            {/* Cart Section */}
-            <div className="mt-auto relative">
-              <div className="flex space-x-4">
+              {/* Cart Actions */}
+              <div className="mt-8 flex gap-4">
                 <Button
                   ref={buttonRef}
-                  className="w-full bg-red-600 hover:bg-red-700 hover:scale-105 transition-all duration-300 relative"
+                  className="flex-1 bg-red-600 hover:bg-red-700 hover:scale-105 transition-all duration-300 relative h-12 text-lg"
                   disabled={
                     !currentProduct?.stock || currentProduct?.stock <= 0
                   }
@@ -438,10 +445,9 @@ const ProductDetails = ({
                 >
                   Add to Cart
                 </Button>
-
                 <Button
                   variant="outline"
-                  className="bg-brand hover:bg-darkBrand hover:text-white hover:scale-105 transition-all duration-300 border-slate-700 w-full"
+                  className="flex-1 bg-brand hover:bg-darkBrand hover:text-white hover:scale-105 transition-all duration-300 border-slate-700 h-12 text-lg"
                   disabled={
                     !currentProduct?.stock || currentProduct?.stock <= 0
                   }

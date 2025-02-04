@@ -9,6 +9,8 @@ import {
   ShoppingBag,
   AlertTriangle,
   Clock,
+  Check,
+  ChevronsUpDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -18,8 +20,42 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useUpdateOrderAdminMutation } from "@/redux/api/orderApi";
+import { toast } from "react-toastify";
 
 const OrderDetailsDialog = ({ isOpen, onClose, order }) => {
+  const [updateOrder] = useUpdateOrderAdminMutation();
+
+  const orderStatuses = [
+    "Pending",
+    "Processing",
+    "Shipped",
+    "Delivered",
+    "Cancelled",
+    "On Hold",
+    "Returned",
+  ];
+
+  const handleStatusChange = async (newStatus) => {
+    try {
+      await updateOrder({
+        id: order._id,
+        orderData: { orderStatus: newStatus },
+      }).unwrap();
+
+      toast.success(`Order status updated to ${newStatus}`);
+    } catch (error) {
+      toast.error(error?.data?.message || "Failed to update order status");
+    }
+  };
+
   if (!order) return null;
 
   const renderAddress = (address, title) => (
@@ -57,43 +93,82 @@ const OrderDetailsDialog = ({ isOpen, onClose, order }) => {
 
         <div className="p-6 max-h-[80vh] overflow-y-auto scrollbar-none">
           <div className="space-y-6">
-            {/* Status Section - Enhanced with better spacing and visual hierarchy */}
+            {/* Status Section - Enhanced with status update dropdown */}
             <div className="grid grid-cols-2 gap-4">
               <div className="p-4 bg-gray-900/40 rounded-lg border border-gray-800 space-y-3">
                 <div className="flex items-center gap-2 text-gray-300">
                   <Truck className="h-4 w-4 text-primary" />
                   <span className="font-semibold">Order Status:</span>
-                  <span
-                    className={`px-2 py-0.5 rounded-full text-sm font-medium
-                    ${
-                      order.orderStatus === "Pending"
-                        ? "bg-yellow-500/20 text-yellow-300"
-                        : ""
-                    }
-                    ${
-                      order.orderStatus === "Processing"
-                        ? "bg-blue-500/20 text-blue-300"
-                        : ""
-                    }
-                    ${
-                      order.orderStatus === "Shipped"
-                        ? "bg-indigo-500/20 text-indigo-300"
-                        : ""
-                    }
-                    ${
-                      order.orderStatus === "Delivered"
-                        ? "bg-green-500/20 text-green-300"
-                        : ""
-                    }
-                    ${
-                      order.orderStatus === "Cancelled"
-                        ? "bg-red-500/20 text-red-300"
-                        : ""
-                    }
-                  `}
+                  <Select
+                    value={order.orderStatus}
+                    onValueChange={handleStatusChange}
                   >
-                    {order.orderStatus}
-                  </span>
+                    <SelectTrigger className="w-[180px] h-8">
+                      <SelectValue>
+                        <span
+                          className={`px-2 py-0.5 rounded-full text-sm font-medium
+                          ${
+                            order.orderStatus === "Pending"
+                              ? "bg-yellow-500/20 text-yellow-300"
+                              : ""
+                          }
+                          ${
+                            order.orderStatus === "Processing"
+                              ? "bg-blue-500/20 text-blue-300"
+                              : ""
+                          }
+                          ${
+                            order.orderStatus === "Shipped"
+                              ? "bg-indigo-500/20 text-indigo-300"
+                              : ""
+                          }
+                          ${
+                            order.orderStatus === "Delivered"
+                              ? "bg-green-500/20 text-green-300"
+                              : ""
+                          }
+                          ${
+                            order.orderStatus === "Cancelled"
+                              ? "bg-red-500/20 text-red-300"
+                              : ""
+                          }
+                          ${
+                            order.orderStatus === "On Hold"
+                              ? "bg-orange-500/20 text-orange-300"
+                              : ""
+                          }
+                          ${
+                            order.orderStatus === "Returned"
+                              ? "bg-purple-500/20 text-purple-300"
+                              : ""
+                          }`}
+                        >
+                          {order.orderStatus}
+                        </span>
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {orderStatuses.map((status) => (
+                        <SelectItem
+                          key={status}
+                          value={status}
+                          className={`
+                            ${status === "Pending" ? "text-yellow-300" : ""}
+                            ${status === "Processing" ? "text-blue-300" : ""}
+                            ${status === "Shipped" ? "text-indigo-300" : ""}
+                            ${status === "Delivered" ? "text-green-300" : ""}
+                            ${status === "Cancelled" ? "text-red-300" : ""}
+                            ${status === "On Hold" ? "text-orange-300" : ""}
+                            ${status === "Returned" ? "text-purple-300" : ""}
+                          `}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span>{status}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="flex items-center gap-2 text-gray-300">
                   <CreditCard className="h-4 w-4 text-primary" />
@@ -174,11 +249,11 @@ const OrderDetailsDialog = ({ isOpen, onClose, order }) => {
               </div>
             </div>
 
-            {/* Order Items - Enhanced with better visual hierarchy */}
+            {/* Order Items - Enhanced with better error handling */}
             <div className="p-4 bg-gray-900/40 rounded-lg border border-gray-800">
               <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
                 <ShoppingBag className="h-4 w-4 text-primary" />
-                Order Items ({order.orderItems?.length})
+                Order Items ({order.orderItems?.length || 0})
               </h3>
               <div className="divide-y divide-gray-700/50">
                 {order.orderItems?.map((item, index) => (
@@ -186,41 +261,57 @@ const OrderDetailsDialog = ({ isOpen, onClose, order }) => {
                     key={index}
                     className="flex items-center gap-4 py-4 group hover:bg-gray-800/20 rounded-lg transition-colors"
                   >
-                    {item.image && (
+                    {item.image ? (
                       <img
                         src={item.image}
                         alt={item.name}
                         className="w-12 h-12 object-cover rounded"
                       />
+                    ) : (
+                      <div className="w-12 h-12 bg-gray-800 rounded flex items-center justify-center">
+                        <Package className="h-6 w-6 text-gray-400" />
+                      </div>
                     )}
                     <div className="flex-1 min-w-0">
                       <h4 className="text-white font-medium truncate">
-                        {item.name}
+                        {item.name || "Unnamed Product"}
                       </h4>
                       <div className="flex justify-between items-center mt-1">
                         <span className="text-sm text-gray-400">
-                          Qty: {item.quantity} × ${item.price}
+                          Qty: {item.quantity} × $
+                          {item.price?.toFixed(2) || "0.00"}
                         </span>
                         <span className="text-primary font-medium">
-                          ${(item.quantity * item.price).toFixed(2)}
+                          $
+                          {((item.quantity || 0) * (item.price || 0)).toFixed(
+                            2
+                          )}
                         </span>
                       </div>
                       <div className="flex items-center gap-2 mt-1">
-                        {item.isPreOrder && (
-                          <Badge variant="warning" className="text-xs">
-                            Pre-order
+                        {item.product ? (
+                          <>
+                            {item.isPreOrder && (
+                              <Badge variant="warning" className="text-xs">
+                                Pre-order
+                              </Badge>
+                            )}
+                            <Badge
+                              variant={
+                                item.status === "Delivered"
+                                  ? "success"
+                                  : "secondary"
+                              }
+                              className="text-xs"
+                            >
+                              {item.status}
+                            </Badge>
+                          </>
+                        ) : (
+                          <Badge variant="destructive" className="text-xs">
+                            Product Unavailable
                           </Badge>
                         )}
-                        <Badge
-                          variant={
-                            item.status === "Delivered"
-                              ? "success"
-                              : "secondary"
-                          }
-                          className="text-xs"
-                        >
-                          {item.status}
-                        </Badge>
                       </div>
                     </div>
                   </div>
