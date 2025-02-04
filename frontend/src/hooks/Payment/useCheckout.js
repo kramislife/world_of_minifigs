@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { PAYMENT_METHODS } from "@/constant/paymentMethod";
@@ -11,6 +11,7 @@ import { toast } from "react-toastify";
 import { useGetMeQuery, useGetUserAddressesQuery } from "@/redux/api/userApi";
 import { useCreateOrderMutation } from "@/redux/api/orderApi";
 import { useCreatePayPalOrderMutation } from "@/redux/api/checkoutApi";
+import { selectCartTotal } from "@/redux/features/cartSlice";
 
 const useCheckout = () => {
   const dispatch = useDispatch();
@@ -18,62 +19,79 @@ const useCheckout = () => {
   const { cartItems } = useSelector((state) => state.cart);
   const { data: userData } = useGetMeQuery();
   const { data: userAddresses } = useGetUserAddressesQuery();
+  const [createOrder] = useCreateOrderMutation();
 
+  // Initialize email with user's email
+  const [email, setEmail] = useState("");
   const [selectedShippingAddress, setSelectedShippingAddress] = useState(null);
+  const [paymentMethod, setPaymentMethod] = useState(PAYMENT_METHODS.CREDIT_CARD);
+  const [orderNotes, setOrderNotes] = useState("");
 
-  // Payment Method State, default is credit card
-  const [paymentMethod, setPaymentMethod] = useState(
-    PAYMENT_METHODS.CREDIT_CARD
-  );
+  // Set email when user data is loaded
+  useEffect(() => {
+    if (userData?.email) {
+      setEmail(userData.email);
+      console.log("Setting user email:", userData.email);
+    }
+  }, [userData]);
 
-  // Calculate total price so that when the quantity of the item, the total price is updated
-  const total = useMemo(
-    () =>
-      cartItems.reduce(
-        (sum, item) => sum + Number(item.price) * Number(item.quantity),
-        0
-      ),
-    [cartItems]
-  );
+  // Move total calculation to cartSlice as it's cart-related logic
+  const total = useSelector(selectCartTotal);
 
-  // Allows user to select an address for shipping 
+  // Simplified address change handler
   const handleAddressChange = (field, value) => {
     if (field === "selectedAddress") {
       setSelectedShippingAddress(value);
     }
   };
 
-  // Handler to change payment method dynamically
   const handlePaymentMethodChange = (value) => setPaymentMethod(value);
 
-  // Mutation hooks for creating orders and PayPal transactions
-  const [createOrder] = useCreateOrderMutation();
+  // Move order-related mutations to the top
   const [createPayPalOrder] = useCreatePayPalOrderMutation();
 
-  // Helper function to format cart items
-  const formatCartItems = () =>
-    cartItems.map((item) => ({
-      product: item.product,
-      name: item.name,
-      quantity: parseInt(item.quantity, 10),
-      price: parseFloat(item.price),
-      image: item.image,
-      isPreorder: item.isPreorder || false,
-    }));
+  // Update the formatCartItems function
+  const formatCartItems = () => cartItems.map((item) => ({
+    product: item.product,
+    name: item.name,
+    quantity: Number(item.quantity),
+    price: Number(item.price),
+    image: item.image,
+    isPreOrder: Boolean(item.isPreOrder),
+    status: "Pending"
+  }));
 
   // Creating a base order data for the order
-  const createBaseOrderData = (paymentInfo) => ({
-    shippingAddress: selectedShippingAddress._id,
-    billingAddress: selectedShippingAddress._id,
-    orderItems: formatCartItems(),
-    itemsPrice: parseFloat(total),
-    taxPrice: 0,
-    shippingPrice: 0,
-    discountPrice: 0,
-    paymentInfo,
-    totalPrice: parseFloat(total),
-    orderStatus: "Processing",
-  });
+  const createBaseOrderData = (paymentInfo) => {
+    if (!email) {
+      console.error("Email is missing in order data");
+      throw new Error("Email is required for order creation");
+    }
+
+    // Create order data with explicit string conversion for email
+    const orderData = {
+      email: String(email).trim().toLowerCase(), // Ensure email is properly formatted
+      shippingAddress: selectedShippingAddress._id,
+      orderItems: formatCartItems(),
+      paymentInfo: {
+        method: paymentInfo.method,
+        transactionId: paymentInfo.transactionId,
+        status: paymentInfo.status,
+        paidAt: paymentInfo.paidAt
+      },
+      itemsPrice: Number(total),
+      taxPrice: 0,
+      shippingPrice: 0,
+      discountPrice: 0,
+      totalPrice: Number(total),
+      orderNotes: orderNotes,
+    };
+
+    // Log the exact data being sent
+    console.log("Order data being sent:", JSON.stringify(orderData, null, 2));
+    
+    return orderData;
+  };
 
   // Helper function to handle successful order creation
   const handleOrderSuccess = async (order) => {
@@ -90,11 +108,6 @@ const useCheckout = () => {
     if (e) e.preventDefault();
 
     try {
-      if (!selectedShippingAddress) {
-        toast.error("Please select a shipping address");
-        return;
-      }
-
       // Handle PayPal payment
       if (paymentMethod === PAYMENT_METHODS.PAYPAL) {
         const paypalOrderData = {
@@ -124,6 +137,16 @@ const useCheckout = () => {
   // Generic payment success handler
   const handlePaymentSuccess = async (paymentDetails) => {
     try {
+      if (!selectedShippingAddress) {
+        toast.error("Please select a shipping address");
+        return;
+      }
+
+      if (!email || !email.trim()) {
+        toast.error("Email is required for order creation");
+        return;
+      }
+
       toast.loading("Processing order...");
 
       const orderData = createBaseOrderData({
@@ -133,10 +156,14 @@ const useCheckout = () => {
         paidAt: new Date().toISOString(),
       });
 
+      // Log the final data structure
+      console.log("Final order data:", JSON.stringify(orderData, null, 2));
+
       const order = await createOrder(orderData).unwrap();
       await handleOrderSuccess(order);
     } catch (error) {
       toast.dismiss();
+      console.error("Order creation error:", error?.data || error);
       toast.error(
         error?.data?.message || error?.message || "Failed to create order"
       );
@@ -181,6 +208,15 @@ const useCheckout = () => {
     dispatch(removeFromCart(productId));
   };
 
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value);
+    console.log("Email changed to:", e.target.value);
+  };
+
+  const handleOrderNotesChange = (notes) => {
+    setOrderNotes(notes);
+  };
+
   return {
     paymentMethod,
     cartItems,
@@ -195,6 +231,10 @@ const useCheckout = () => {
     selectedShippingAddress,
     handlePayPalApprove,
     handleStripeSuccess,
+    email,
+    handleEmailChange,
+    orderNotes,
+    handleOrderNotesChange,
   };
 };
 
