@@ -7,9 +7,10 @@ import {
   generateAccessToken,
   generateCookies,
 } from "../Utills/generateToken.js";
-import { getResetPasswordTemplate } from "../Utills/Emails/ResetEmailTemplate.js";
 import Address from "../models/userAddress.model.js";
-import sendVerificationEmail from "../Utills/sendEmail.js";
+import sendEmail from "../Utills/sendEmail.js";
+import { getResetPasswordTemplate } from "../Utills/Emails/ResetPasswordTemplate.js";
+import { getVerificationEmailTemplate } from "../Utills/Emails/VerificationEmailTemplate.js";
 
 // --------------------------------------- REGISTER USER --------------------------------------- //
 export const registerUser = catchAsyncErrors(async (req, res, next) => {
@@ -45,7 +46,11 @@ export const registerUser = catchAsyncErrors(async (req, res, next) => {
   const verificationLink = `${process.env.FRONTEND_URL}/verify_user/${token}`;
 
   // 7. SEND THE VERIFICATION LINK TO THE USER'S EMAIL
-  await sendVerificationEmail(new_user, verificationLink);
+  await sendEmail({
+    email: new_user.email,
+    subject: `Verify Your Email | ${process.env.SMTP_FROM_NAME}`,
+    message: getVerificationEmailTemplate(new_user, verificationLink),
+  });
 
   // 8. SEND RESPONSE TO THE USER
   res.status(201).json({
@@ -57,22 +62,20 @@ export const registerUser = catchAsyncErrors(async (req, res, next) => {
 });
 
 // ----------------------------------------------- VERIFY USER ----------------------------------------------- //
-
 export const verifyUser = catchAsyncErrors(async (req, res, next) => {
   const token = req.params.token;
 
-
   const user = await User.findOneAndUpdate(
-    { 
+    {
       verification_token: token,
-      verification_token_expiry: { $gt: Date.now() }
+      verification_token_expiry: { $gt: Date.now() },
     },
     {
       $set: {
         is_verified: true,
         verification_token: undefined,
-        verification_token_expiry: undefined
-      }
+        verification_token_expiry: undefined,
+      },
     },
     { new: true }
   );
@@ -80,7 +83,7 @@ export const verifyUser = catchAsyncErrors(async (req, res, next) => {
   // If no user found or token expired
   if (!user) {
     const userWithToken = await User.findOne({ verification_token: token });
-    
+
     if (!userWithToken) {
       return next(new ErrorHandler("Invalid verification token", 403));
     }
@@ -95,7 +98,11 @@ export const verifyUser = catchAsyncErrors(async (req, res, next) => {
       const verificationLink = `${process.env.FRONTEND_URL}/verify_user/${newToken}`;
 
       // Send new verification email
-      await sendVerificationEmail(userWithToken, verificationLink);
+      await sendEmail({
+        email: userWithToken.email,
+        subject: `Verify Your Email | ${process.env.SMTP_FROM_NAME}`,
+        message: getVerificationEmailTemplate(userWithToken, verificationLink),
+      });
 
       return next(
         new ErrorHandler(
@@ -108,7 +115,7 @@ export const verifyUser = catchAsyncErrors(async (req, res, next) => {
 
   res.status(200).json({
     status: "success",
-    message: "Email verified successfully. Please login.",
+    message: "Email verification successful",
   });
 });
 
@@ -212,11 +219,8 @@ export const logoutUser = catchAsyncErrors(async (req, res, next) => {
   });
 });
 
-// --------------------------------------------------------- FORGOT PASSWORD ----------------------------------------------------------------
-
+// -------------------------------------------------- FORGOT PASSWORD --------------------------------------------------
 export const forgotPassword = catchAsyncErrors(async (req, res, next) => {
-  // console.log("IN FORGOT PASSWORD");
-
   const { email } = req.body;
 
   const user = await User.findOne({ email });
@@ -224,32 +228,28 @@ export const forgotPassword = catchAsyncErrors(async (req, res, next) => {
   if (!user) {
     return next(
       new ErrorHandler(
-        "If the email is registered with us, you will receive an email with a password reset link.",
+        "This email is not registered with us. Please register to continue.",
         404
       )
     );
   }
 
-  // 1. GENERATE A RANDOM RESET TOKEN
+  // Generate reset password token
   const reset_password_token = user.generateResetPasswordToken();
-
   await user.save();
-  // console.log("USER ", user);
 
-  // CREATE RESET PASSWORD URL
-  const resetUrl = `${process.env.FRONTEND_URL}/api/v1/password/reset/${reset_password_token} `;
-  // console.log("RESET PASSWORD URL  ", resetUrl);
-
-  const message = getResetPasswordTemplate(user, resetUrl);
+  // Create reset password URL
+  const resetUrl = `${process.env.FRONTEND_URL}/password/reset/${reset_password_token}`;
 
   try {
     await sendEmail({
       email: user.email,
-      subject: `${process.env.SMTP_FROM_NAME} password recovery`,
-      message: message,
+      subject: `Password Recovery | ${process.env.SMTP_FROM_NAME}`,
+      message: getResetPasswordTemplate(user, resetUrl),
     });
 
     res.status(200).json({
+      success: true,
       message: `Email sent to ${user.email}`,
     });
   } catch (err) {
@@ -257,14 +257,12 @@ export const forgotPassword = catchAsyncErrors(async (req, res, next) => {
     user.reset_password_token_expiry = undefined;
     await user.save();
 
-    return next(new ErrorHandler(`${err.message}`, 500));
+    return next(new ErrorHandler(err.message, 500));
   }
 });
 
 // -------------------------------------------------- RESET PASSWORD --------------------------------------------------
 export const resetPassword = catchAsyncErrors(async (req, res, next) => {
-  // console.log("IN RESET PASSWORD");
-
   const resetPasswordToken = req.params.token;
 
   if (!resetPasswordToken) {
@@ -283,16 +281,56 @@ export const resetPassword = catchAsyncErrors(async (req, res, next) => {
     reset_password_token_expiry: { $gt: Date.now() },
   });
 
+  // If no user found or token expired
   if (!user) {
-    return next(
-      new ErrorHandler("Invalid or expired password reset token", 400)
-    );
+    const userWithToken = await User.findOne({ reset_password_token: hashedToken });
+
+    if (!userWithToken) {
+      return next(new ErrorHandler("Invalid reset password token", 403));
+    }
+
+    // Token expired case
+    if (userWithToken.reset_password_token_expiry < Date.now()) {
+      // Generate new reset password token
+      const newToken = userWithToken.generateResetPasswordToken();
+      await userWithToken.save();
+
+      // Send new reset password email
+      try {
+        const resetUrl = `${process.env.FRONTEND_URL}/password/reset/${newToken}`;
+        
+        await sendEmail({
+          email: userWithToken.email,
+          subject: `Password Reset Link | ${process.env.SMTP_FROM_NAME}`,
+          message: getResetPasswordTemplate(userWithToken, resetUrl),
+        });
+
+        return next(
+          new ErrorHandler(
+            "Reset password token expired. Please check your email for a new reset link",
+            400
+          )
+        );
+      } catch (error) {
+        userWithToken.reset_password_token = undefined;
+        userWithToken.reset_password_token_expiry = undefined;
+        await userWithToken.save();
+        
+        return next(new ErrorHandler("Error sending new reset password email", 500));
+      }
+    }
   }
 
   const { password, confirmPassword } = req.body;
 
   if (!password || !confirmPassword) {
-    next(new ErrorHandler("Password did not match", 400));
+    return next(
+      new ErrorHandler("Please provide both password and confirm password", 400)
+    );
+  }
+
+  if (password !== confirmPassword) {
+    return next(new ErrorHandler("Passwords do not match", 400));
   }
 
   user.password = password;
@@ -300,19 +338,18 @@ export const resetPassword = catchAsyncErrors(async (req, res, next) => {
   user.reset_password_token_expiry = undefined;
   await user.save();
 
-  // SEND EMAIL CONFIRMATION
-
-  const emailOption = {
-    email: user.email,
-    subject: "Password Reset Successful",
-    message: `      <p>Hello ${user.name},</p>
-      <p>Your password has been successfully reset. If this was not you, please contact support immediately.</p>
-    `,
-  };
+  // Send confirmation email
   try {
-    await sendEmail(emailOption);
+    await sendEmail({
+      email: user.email,
+      subject: `Password Reset Successful | ${process.env.SMTP_FROM_NAME}`,
+      message: `
+        <p>Hello ${user.name},</p>
+        <p>Your password has been successfully reset. If this was not you, please contact support immediately at <a href="mailto:${process.env.SMTP_FROM_EMAIL}">${process.env.SMTP_FROM_EMAIL}</a></p>
+      `,
+    });
   } catch (error) {
-    console.log(err.message);
+    console.log("Error sending confirmation email:", error.message);
   }
 
   res.status(200).json({
