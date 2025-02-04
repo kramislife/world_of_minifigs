@@ -41,6 +41,7 @@ import AddSubCollection from "@/components/admin/Collections/SubCollections/AddS
 import UpdateSubCollection from "@/components/admin/Collections/SubCollections/UpdateSubCollection";
 import Checkout from "@/pages/Checkout/Checkout";
 import Order from "@/pages/Order/Order";
+import MyOrders from "@/pages/Order/MyOrders";
 import SubCollectionsPage from "@/pages/Collections/SubCollectionsPage";
 // import AddUser from "@/components/admin/Users/AddUser";
 import UpdateUser from "@/components/admin/Users/UpdateUser";
@@ -49,58 +50,25 @@ const UserRoutes = (
   <>
     {/* Public Routes */}
     <Route index element={<Home />} />
-    <Route path="about" element={<About />} />
-    <Route path="contact" element={<Contact />} />
-
-    {/* Product Routes */}
     <Route path="products" element={<Products />} />
     <Route path="collections" element={<CollectionsPage />} />
     <Route path="collections/:id" element={<SubCollectionsPage />} />
     <Route path="products/best-selling/:id" element={<ProductView />} />
     <Route path="products/latest/:id" element={<ProductView />} />
     <Route path="products/:id" element={<ProductView />} />
-
-    {/* Auth Routes */}
+    <Route path="about" element={<About />} />
+    <Route path="contact" element={<Contact />} />
     <Route path="login" element={<Login />} />
     <Route path="register" element={<Register />} />
 
     {/* Protected User Routes */}
-    <Route
-      path="profile"
-      element={
-        <ProtectedRoutes>
-          <Profile />
-        </ProtectedRoutes>
-      }
-    />
-    <Route
-      path="settings"
-      element={
-        <ProtectedRoutes>
-          <Settings />
-        </ProtectedRoutes>
-      }
-    />
-
-    {/* Checkout Routes */}
-    <Route
-      path="checkout"
-      element={
-        <ProtectedRoutes>
-          <Checkout />
-        </ProtectedRoutes>
-      }
-    />
-
-    {/* New Order Routes */}
-    <Route
-      path="order/:id"
-      element={
-        <ProtectedRoutes>
-          <Order />
-        </ProtectedRoutes>
-      }
-    />
+    <Route element={<ProtectedRoutes />}>
+      <Route path="profile" element={<Profile />} />
+      <Route path="settings" element={<Settings />} />
+      <Route path="checkout" element={<Checkout />} />
+      <Route path="my-orders" element={<MyOrders />} />
+      <Route path="order/:id" element={<Order />} />
+    </Route>
 
     {/* Protected Admin/Employee Routes */}
     <Route
@@ -168,14 +136,6 @@ const UserRoutes = (
 
       {/* Review Management */}
       <Route path="reviews" element={<ViewReviews />} />
-
-      {/* Sub-Collection Management */}
-      {/* <Route path="subcollections" element={<ViewSubCollections />} />
-      <Route path="new-subcollection" element={<AddSubCollection />} />
-      <Route
-        path="update-subcollection/:id"
-        element={<UpdateSubCollection />}
-      /> */}
     </Route>
   </>
 );

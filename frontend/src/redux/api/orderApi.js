@@ -2,7 +2,10 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const orderApi = createApi({
   reducerPath: "orderApi",
-  baseQuery: fetchBaseQuery({ baseUrl: "/api/v1" }),
+  baseQuery: fetchBaseQuery({
+    baseUrl: "/api/v1",
+    credentials: "include",
+  }),
   tagTypes: ["Order"],
   endpoints: (builder) => ({
     createOrder: builder.mutation({
@@ -15,21 +18,34 @@ export const orderApi = createApi({
     }),
 
     getAllOrders: builder.query({
-      query: () => "/orders",
+      query: () => ({
+        url: "/orders",
+        method: "GET",
+        credentials: "include",
+      }),
       providesTags: ["Order"],
     }),
 
     getOrderDetails: builder.query({
-      query: (id) => `/orders/${id}`,
+      query: (id) => ({
+        url: `/orders/${id}`,
+        method: "GET",
+        credentials: "include",
+      }),
       providesTags: ["Order"],
     }),
 
-    // Admin endpoints
+    // Admin endpoints to get all orders
     getAllOrdersAdmin: builder.query({
-      query: () => "/admin/orders",
+      query: () => ({
+        url: "/admin/orders",
+        method: "GET",
+        credentials: "include",
+      }),
       providesTags: ["Order"],
     }),
 
+    // Admin endpoints to update order status
     updateOrderAdmin: builder.mutation({
       query: ({ id, orderData }) => ({
         url: `/admin/orders/${id}`,
@@ -39,12 +55,12 @@ export const orderApi = createApi({
       invalidatesTags: ["Order"],
     }),
 
-    // User endpoints
+    // User endpoints to cancel order when status is pending
     updateOrder: builder.mutation({
-      query: ({ id, orderData }) => ({
+      query: ({ id, body }) => ({
         url: `/orders/${id}`,
         method: "PUT",
-        body: orderData,
+        body: body,
       }),
       invalidatesTags: ["Order"],
     }),

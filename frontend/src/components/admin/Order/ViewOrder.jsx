@@ -1,11 +1,11 @@
 import React, { useState, useMemo } from "react";
 import ViewLayout from "@/components/admin/shared/ViewLayout";
-import { useGetAllOrdersQuery } from "@/redux/api/productApi";
-import { orderColumns } from "@/components/admin/shared/table/columns/OrderColumns";
+import { useGetAllOrdersAdminQuery } from "@/redux/api/orderApi";
+import { createOrderColumns } from "@/components/admin/shared/table/columns/OrderColumns";
 import OrderDetailsDialog from "./OrderDetailsDialog";
 
 const ViewOrder = () => {
-  const { data: orderData, isLoading, error } = useGetAllOrdersQuery();
+  const { data: orderData, isLoading, error } = useGetAllOrdersAdminQuery();
   const [globalFilter, setGlobalFilter] = useState("");
 
   // Dialog state
@@ -20,8 +20,8 @@ const ViewOrder = () => {
 
   // Get columns with view handler
   const columns = useMemo(
-    () => orderColumns({ onViewDetails: handleViewDetails }),
-    [handleViewDetails]
+    () => createOrderColumns({ onViewDetails: handleViewDetails }),
+    []
   );
 
   // Transform data for table

@@ -1,6 +1,6 @@
 import React from "react";
 import { useSelector } from "react-redux";
-import { Navigate, useLocation } from "react-router-dom";
+import { Navigate, useLocation, Outlet } from "react-router-dom";
 import { useGetMeQuery } from "@/redux/api/userApi";
 import LoadingSpinner from "@/components/layout/spinner/LoadingSpinner";
 
@@ -26,7 +26,8 @@ const ProtectedRoutes = ({ children, adminOnly = false }) => {
     }
   }
 
-  return children;
+  // Return children if provided, otherwise return Outlet for nested routes
+  return children || <Outlet />;
 };
 
 export default ProtectedRoutes;

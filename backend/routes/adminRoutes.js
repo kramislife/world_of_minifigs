@@ -6,6 +6,7 @@ import {
   newProduct,
   updateProduct,
   uploadProductImage,
+  updateProductStock,
 } from "../controllers/productController.js";
 
 import {
@@ -62,7 +63,7 @@ import {
   deleteSubCollectionByID,
   updateSubCollection,
   uploadSubCollectionImage,
-  getAllCollections,
+  getAllSubCollections,
 } from "../controllers/subCollectionController.js";
 
 const router = express.Router();
@@ -246,7 +247,7 @@ router
 
 // GET ALL SUBCOLLECTIONS
 router
-  .route("/subcollections")
+  .route("/admin/subcollections")
   .get(
     isAuthenticatedUser,
     isAuthorizedUser(
@@ -254,7 +255,7 @@ router
       userRoles.ADMIN,
       userRoles.EMPLOYEE
     ),
-    getAllCollections
+    getAllSubCollections
   );
 
 // CREATE NEW SUBCOLLECTION
@@ -466,6 +467,19 @@ router
     isAuthenticatedUser,
     isAuthorizedUser(userRoles.SUPER_ADMIN, userRoles.ADMIN),
     deleteAllProducts
+  );
+
+// UPDATE PRODUCT STOCK
+router
+  .route("/admin/products/:id/stock")
+  .patch(
+    isAuthenticatedUser,
+    isAuthorizedUser(
+      userRoles.SUPER_ADMIN,
+      userRoles.ADMIN,
+      userRoles.EMPLOYEE
+    ),
+    updateProductStock
   );
 
 // ---------------------------------- COLOR --------------------------------------------------

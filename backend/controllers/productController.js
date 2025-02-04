@@ -286,3 +286,29 @@ export const deleteProductImage = catchAsyncErrors(async (req, res, next) => {
     product: updatedProduct,
   });
 });
+
+// Update Product Stock when Order is Cancelled
+export const updateProductStock = catchAsyncErrors(async (req, res, next) => {
+  const { id } = req.params;
+  const { stock } = req.body;
+
+  if (stock < 0) {
+    return next(new ErrorHandler("Stock cannot be negative", 400));
+  }
+
+  const product = await Product.findByIdAndUpdate(
+    id,
+    { stock },
+    { new: true, runValidators: true }
+  );
+
+  if (!product) {
+    return next(new ErrorHandler("Product not found", 404));
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "Product stock updated successfully",
+    data: product,
+  });
+});
