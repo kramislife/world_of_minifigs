@@ -9,13 +9,12 @@ import sendEmail from "../Utills/sendEmail.js";
 // --------------- CREATE A NEW ORDER -----------------------------
 
 export const createOrder = catchAsyncErrors(async (req, res, next) => {
-  console.log("In Create Order");
+  console.log("Received order data:", req.body);
 
   // TAKE DATA FROM THE REQUEST BODY
-
   const {
+    email,
     shippingAddress,
-    billingAddress,
     orderItems,
     paymentInfo,
     itemsPrice,
@@ -27,9 +26,7 @@ export const createOrder = catchAsyncErrors(async (req, res, next) => {
 
   // VALIDATE ORDER ITEMS
   if (!orderItems || orderItems.length === 0) {
-    return next(
-      new ErrorHandler(" Please add some products to your order", 400)
-    );
+    return next(new ErrorHandler("Please add some products to your order", 400));
   }
 
   // VALIDATE REFERENCE IDS
@@ -37,32 +34,27 @@ export const createOrder = catchAsyncErrors(async (req, res, next) => {
     return next(new ErrorHandler("Please add shipping address", 400));
   }
 
-  // CALCULAT PRICE AND TOTAL
-  const totalPrice =
-    itemsPrice + taxPrice + shippingPrice - (discountPrice || 0);
+  // CALCULATE PRICE AND TOTAL
+  const totalPrice = itemsPrice + taxPrice + shippingPrice - (discountPrice || 0);
 
   // CHECK STOCKS FOR NON PREORDER ITEMS
   for (const item of orderItems) {
     const product = await Product.findById(item.product);
 
     if (!product) {
-      return next(
-        new ErrorHandler(`Product with id ${item.product} not found`, 404)
-      );
+      return next(new ErrorHandler(`Product with id ${item.product} not found`, 404));
     }
 
     if (!item.isPreorder && product.stock < item.quantity) {
-      return next(
-        new ErrorHandler(`Insuffecient stock for product : ${item.name}`, 404)
-      );
+      return next(new ErrorHandler(`Insufficient stock for product : ${item.name}`, 404));
     }
   }
 
   // CREATE NEW ORDER
   const newOrder = await Order({
     user: req.user.user_id,
+    email,
     shippingAddress,
-    billingAddress,
     orderItems,
     paymentInfo,
     itemsPrice,
@@ -70,7 +62,8 @@ export const createOrder = catchAsyncErrors(async (req, res, next) => {
     shippingPrice,
     discountPrice: discountPrice || 0,
     totalPrice,
-    orderNotes,
+    orderNotes: orderNotes || "",
+    paidAt: Date.now(),
   });
 
   const saveOrder = await newOrder.save();
@@ -221,7 +214,7 @@ export const getAllOrdersAdmin = catchAsyncErrors(async (req, res, next) => {
   const orders = await Order.find()
     .sort({ createdAt: -1 })
     .populate("user", "name email")
-    .populate("shippingAddress billingAddress", "address city postalCode")
+    .populate("shippingAddress", "address city postalCode")
     .sort({ createdAt: -1 });
 
   res.status(200).json({

@@ -1,28 +1,47 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Minus, Plus, Trash2 } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "react-hot-toast";
 
 //  Used to update the quantity of the item in the cart (Below Product Name)
-const QuantityControl = ({ quantity, onUpdate }) => (
-  <div className="flex items-center gap-2 border border-white/10 rounded-lg p-1">
-    <button
-      type="button"
-      onClick={() => onUpdate(quantity - 1)}
-      disabled={quantity <= 1}
-      className="p-1 rounded-md hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed"
-    >
-      <Minus size={14} className="text-gray-400" />
-    </button>
-    <span className="text-sm text-gray-400 w-6 text-center">{quantity}</span>
-    <button
-      type="button"
-      onClick={() => onUpdate(quantity + 1)}
-      className="p-1 rounded-md hover:bg-white/10"
-    >
-      <Plus size={14} className="text-gray-400" />
-    </button>
-  </div>
-);
+const QuantityControl = ({ quantity, onUpdate, maxStock }) => {
+  const handleQuantityChange = (newQuantity) => {
+    if (newQuantity < 1) {
+      toast.error("Quantity cannot be less than 1");
+      return;
+    }
+    
+    if (maxStock && newQuantity > maxStock) {
+      toast.error(`Only ${maxStock} items available in stock`);
+      return;
+    }
+
+    onUpdate(newQuantity);
+  };
+
+  return (
+    <div className="flex items-center gap-2 border border-white/10 rounded-lg p-1">
+      <button
+        type="button"
+        onClick={() => handleQuantityChange(quantity - 1)}
+        disabled={quantity <= 1}
+        className="p-1 rounded-md hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        <Minus size={14} className="text-gray-400" />
+      </button>
+      <span className="text-sm text-gray-400 w-6 text-center">{quantity}</span>
+      <button
+        type="button"
+        onClick={() => handleQuantityChange(quantity + 1)}
+        disabled={maxStock && quantity >= maxStock}
+        className="p-1 rounded-md hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        <Plus size={14} className="text-gray-400" />
+      </button>
+    </div>
+  );
+};
 
 //  Used to display the product (image, name, quantity, price)
 const CartItem = ({ item, handleQuantityUpdate, removeItem }) => (
@@ -51,6 +70,7 @@ const CartItem = ({ item, handleQuantityUpdate, removeItem }) => (
           <QuantityControl
             quantity={item.quantity}
             onUpdate={(newQty) => handleQuantityUpdate(item.product, newQty)}
+            maxStock={item.maxStock}
           />
           <button
             type="button"
@@ -103,7 +123,7 @@ const OrderTotal = ({ total }) => (
   </div>
 );
 
-const OrderSummary = ({ cartItems, total, updateQuantity, removeItem }) => {
+const OrderSummary = ({ cartItems, total, updateQuantity, removeItem, orderNotes, onOrderNotesChange }) => {
   const handleQuantityUpdate = (productId, newQuantity) => {
     if (newQuantity < 1) return;
     updateQuantity(productId, newQuantity);
@@ -126,8 +146,7 @@ const OrderSummary = ({ cartItems, total, updateQuantity, removeItem }) => {
         <CardTitle className="text-white">Order Summary</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
-          {/* Cart Items */}
+        <div className="space-y-6">
           {cartItems.map((item) => (
             <CartItem
               key={item.product}
@@ -137,8 +156,16 @@ const OrderSummary = ({ cartItems, total, updateQuantity, removeItem }) => {
             />
           ))}
 
-          <DiscountInput />
-          <OrderTotal total={total} />
+          <div className="space-y-4">
+            <Textarea
+              placeholder="Add any special instructions or notes for your order..."
+              value={orderNotes}
+              onChange={(e) => onOrderNotesChange(e.target.value)}
+              className="bg-brand/10 border-white/10 min-h-[100px] text-white placeholder:text-white/80"
+            />
+            <DiscountInput />
+            <OrderTotal total={total} />
+          </div>
         </div>
       </CardContent>
     </Card>

@@ -6,18 +6,14 @@ import OrderSummary from "./components/OrderSummary";
 import useCheckout from "@/hooks/Payment/useCheckout";
 import Metadata from "@/components/layout/Metadata/Metadata";
 import DeleteConfirmDialog from "@/components/admin/shared/DeleteDialog";
-import { useDeleteAddressMutation } from "@/redux/api/userApi";
+import { useDeleteAddressMutation, useGetUserAddressesQuery } from "@/redux/api/userApi";
 import { toast } from "react-toastify";
-import { useGetUserAddressesQuery } from "@/redux/api/userApi";
 
 const Checkout = () => {
   const {
-    email,
-    address,
     paymentMethod,
     cartItems,
     total,
-    handleEmailChange,
     handleAddressChange,
     handlePaymentMethodChange,
     handleSubmit,
@@ -25,10 +21,13 @@ const Checkout = () => {
     handleRemoveItem,
     userAddresses,
     user,
-    handleCardDetailsChange,
-    cardDetails,
+    selectedShippingAddress,
     handlePayPalApprove,
     handleStripeSuccess,
+    email,
+    handleEmailChange,
+    orderNotes,
+    handleOrderNotesChange
   } = useCheckout();
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -70,7 +69,7 @@ const Checkout = () => {
                   onEmailChange={handleEmailChange}
                 />
                 <ShippingSection
-                  address={address}
+                  address={selectedShippingAddress}
                   onAddressChange={handleAddressChange}
                   userAddresses={userAddresses}
                   userName={user?.name}
@@ -81,11 +80,8 @@ const Checkout = () => {
                   paymentMethod={paymentMethod}
                   onPaymentMethodChange={handlePaymentMethodChange}
                   total={total}
-                  address={address}
                   onSubmit={handleSubmit}
                   onPayPalApprove={handlePayPalApprove}
-                  handleCardDetailsChange={handleCardDetailsChange}
-                  cardDetails={cardDetails}
                   handleStripeSuccess={handleStripeSuccess}
                 />
               </form>
@@ -98,13 +94,14 @@ const Checkout = () => {
                 total={total}
                 updateQuantity={handleUpdateQuantity}
                 removeItem={handleRemoveItem}
+                orderNotes={orderNotes}
+                onOrderNotesChange={handleOrderNotesChange}
               />
             </div>
           </div>
         </div>
       </div>
 
-      {/* Delete Confirmation Dialog */}
       <DeleteConfirmDialog
         isOpen={isDeleteDialogOpen}
         onClose={() => setIsDeleteDialogOpen(false)}

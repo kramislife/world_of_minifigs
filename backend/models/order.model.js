@@ -8,15 +8,19 @@ const orderSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    email: {
+      type: String,
+      required: [true, "Email is required"],
+      match: [/\S+@\S+\.\S+/, "Email is invalid"],
+      lowercase: true,
+      trim: true,
+      immutable: true,
+    },
     shippingAddress: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Address",
       required: true,
     },
-    billingAddress: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Address",
-    }, // Optional
     orderItems: {
       type: [
         {
