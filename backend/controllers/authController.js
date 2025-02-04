@@ -88,25 +88,11 @@ export const verifyUser = catchAsyncErrors(async (req, res, next) => {
       return next(new ErrorHandler("Invalid verification token", 403));
     }
 
-    // Token expired case
+    // Token expired case - Don't automatically send new email
     if (userWithToken.verification_token_expiry < Date.now()) {
-      // Generate new verification token
-      const newToken = userWithToken.generateVerificationToken();
-      await userWithToken.save();
-
-      // Create verification link with new token
-      const verificationLink = `${process.env.FRONTEND_URL}/verify_user/${newToken}`;
-
-      // Send new verification email
-      await sendEmail({
-        email: userWithToken.email,
-        subject: `Verify Your Email | ${process.env.SMTP_FROM_NAME}`,
-        message: getVerificationEmailTemplate(userWithToken, verificationLink),
-      });
-
       return next(
         new ErrorHandler(
-          "Verification token expired. Please check your email for new verification link",
+          "Verification token has expired. Please request a new verification link from the login page.",
           400
         )
       );
@@ -281,61 +267,26 @@ export const resetPassword = catchAsyncErrors(async (req, res, next) => {
     reset_password_token_expiry: { $gt: Date.now() },
   });
 
-  // If no user found or token expired
   if (!user) {
-    const userWithToken = await User.findOne({ reset_password_token: hashedToken });
-
-    if (!userWithToken) {
-      return next(new ErrorHandler("Invalid reset password token", 403));
-    }
-
-    // Token expired case
-    if (userWithToken.reset_password_token_expiry < Date.now()) {
-      // Generate new reset password token
-      const newToken = userWithToken.generateResetPasswordToken();
-      await userWithToken.save();
-
-      // Send new reset password email
-      try {
-        const resetUrl = `${process.env.FRONTEND_URL}/password/reset/${newToken}`;
-        
-        await sendEmail({
-          email: userWithToken.email,
-          subject: `Password Reset Link | ${process.env.SMTP_FROM_NAME}`,
-          message: getResetPasswordTemplate(userWithToken, resetUrl),
-        });
-
-        return next(
-          new ErrorHandler(
-            "Reset password token expired. Please check your email for a new reset link",
-            400
-          )
-        );
-      } catch (error) {
-        userWithToken.reset_password_token = undefined;
-        userWithToken.reset_password_token_expiry = undefined;
-        await userWithToken.save();
-        
-        return next(new ErrorHandler("Error sending new reset password email", 500));
-      }
-    }
-  }
-
-  const { password, confirmPassword } = req.body;
-
-  if (!password || !confirmPassword) {
+    // Don't automatically generate new token and send email
     return next(
-      new ErrorHandler("Please provide both password and confirm password", 400)
+      new ErrorHandler(
+        "Reset password token is invalid or has expired. Please request a new reset link.",
+        400
+      )
     );
   }
 
-  if (password !== confirmPassword) {
+  // If passwords don't match
+  if (req.body.password !== req.body.confirmPassword) {
     return next(new ErrorHandler("Passwords do not match", 400));
   }
 
-  user.password = password;
+  // Update the password
+  user.password = req.body.password;
   user.reset_password_token = undefined;
   user.reset_password_token_expiry = undefined;
+
   await user.save();
 
   // Send confirmation email
