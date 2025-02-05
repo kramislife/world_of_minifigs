@@ -16,6 +16,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-toastify";
 import { useState, useEffect } from "react";
+import { Badge } from "@/components/ui/badge";
 
 const CartSheet = ({ isOpen, setIsOpen }) => {
   const navigate = useNavigate();
@@ -35,6 +36,9 @@ const CartSheet = ({ isOpen, setIsOpen }) => {
       setCheckoutDisabled(false);
     }
   }, [isAuthenticated]);
+
+  // Add debug log to check cart items structure
+  console.log("Cart Items:", cartItems);
 
   const handleQuantityUpdate = (productId, newQuantity) => {
     if (newQuantity < 1) {
@@ -108,12 +112,19 @@ const CartSheet = ({ isOpen, setIsOpen }) => {
                           className="flex gap-4 items-start border-b border-white/10 pb-4 last:border-0 last:pb-0"
                         >
                           {/* Product Image */}
-                          <div className="w-28 h-28 bg-darkBrand rounded-lg overflow-hidden flex-shrink-0">
+                          <div className="relative w-32 h-32 bg-darkBrand rounded-lg overflow-hidden flex-shrink-0">
                             <img
                               src={item.image}
                               alt={item.name}
                               className="w-full h-full object-cover"
                             />
+                            {item.color && (
+                              <div
+                                className="absolute bottom-0 right-0 w-6 h-6 rounded-tl-lg border border-white/20"
+                                style={{ backgroundColor: item.color }}
+                                title={item.color}
+                              />
+                            )}
                           </div>
 
                           {/* Product Details */}
@@ -121,9 +132,14 @@ const CartSheet = ({ isOpen, setIsOpen }) => {
                             <h3 className="text-white font-medium text-lg line-clamp-1">
                               {item.name}
                             </h3>
+                            {item.color && (
+                              <p className="text-sm text-gray-400 mt-2">
+                                Color: {item.color}
+                              </p>
+                            )}
                             {item.includes && (
-                              <p className="text-sm text-gray-400 mt-1">
-                                {item.includes}
+                              <p className="text-sm text-gray-400 mt-2">
+                                {item.includes.replace(/^,\s*/, "")}
                               </p>
                             )}
                             <div className="flex items-center justify-between mt-3">

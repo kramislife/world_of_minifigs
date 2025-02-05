@@ -22,9 +22,10 @@ const cartSlice = createSlice({
         ...action.payload,
         price:
           Number(action.payload.discounted_price || action.payload.price) || 0,
+        color: action.payload.color || null,
       };
       const existingItemIndex = state.cartItems.findIndex(
-        (i) => i.product === item.product
+        (i) => i.product === item.product && i.color?.code === item.color?.code
       );
 
       if (existingItemIndex !== -1) {
