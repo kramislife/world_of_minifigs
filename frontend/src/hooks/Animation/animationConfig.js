@@ -1,37 +1,6 @@
-// Animation config for BestSelling component
 
-export const bestSellingAnimations = {
-  containerVariants: {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        delayChildren: 0.2,
-        staggerChildren: 0.15,
-      },
-    },
-  },
-
-  itemVariants: {
-    hidden: {
-      opacity: 0,
-      y: 20,
-    },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        type: "spring",
-        stiffness: 80,
-        damping: 15,
-      },
-    },
-  },
-};
-
-// Animation config for LatestProduct component
-
-export const latestProductAnimations = {
+// Shared base animations for product grids 
+const baseProductGridAnimations = {
   containerVariants: {
     hidden: { opacity: 0 },
     visible: {
@@ -42,11 +11,11 @@ export const latestProductAnimations = {
       },
     },
   },
-
+  
   cardVariants: {
     hidden: {
       opacity: 0,
-      y: 50,
+      y: 20,
     },
     visible: {
       opacity: 1,
@@ -54,14 +23,64 @@ export const latestProductAnimations = {
       transition: {
         type: "spring",
         stiffness: 100,
-        damping: 12,
+        damping: 15,
+      },
+    },
+  },
+
+  titleVariants: {
+    hidden: { opacity: 0, y: -20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.6,
+        ease: [0.22, 1, 0.36, 1],
+      },
+    },
+  },
+
+  buttonVariants: {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.5, delay: 0.2 },
+    },
+  },
+};
+
+// BestSelling specific animations
+export const bestSellingAnimations = {
+  ...baseProductGridAnimations,
+  containerVariants: {
+    ...baseProductGridAnimations.containerVariants,
+    visible: {
+      ...baseProductGridAnimations.containerVariants.visible,
+      transition: {
+        staggerChildren: 0.15,
+        delayChildren: 0.2, // Shorter delay for first section
       },
     },
   },
 };
 
-// Animation config for FeaturedProduct component
+// LatestProduct specific animations
+export const latestProductAnimations = {
+  ...baseProductGridAnimations,
+  containerVariants: {
+    ...baseProductGridAnimations.containerVariants,
+    visible: {
+      ...baseProductGridAnimations.containerVariants.visible,
+      transition: {
+        staggerChildren: 0.2,
+        delayChildren: 0.4, // Longer delay for second section
+      },
+    },
+  },
+};
 
+// Featured Products animations
 export const featuredProductAnimations = {
   containerVariants: {
     hidden: { opacity: 0 },
@@ -109,8 +128,7 @@ export const featuredProductAnimations = {
   },
 };
 
-// Animation config for Categories component
-
+// Collections animations
 export const categoryAnimations = {
   containerVariants: {
     hidden: { opacity: 0 },
@@ -119,8 +137,6 @@ export const categoryAnimations = {
       transition: {
         staggerChildren: 0.2,
         delayChildren: 0.3,
-        duration: 0.5,
-        when: "beforeChildren",
       },
     },
   },
@@ -137,7 +153,6 @@ export const categoryAnimations = {
         type: "spring",
         stiffness: 100,
         damping: 15,
-        duration: 0.6,
       },
     },
   },
@@ -154,8 +169,7 @@ export const categoryAnimations = {
   },
 };
 
-// Animation config for Subscribe component
-
+// Subscribe animations
 export const subscribeAnimations = {
   containerVariants: {
     hidden: { opacity: 0 },
