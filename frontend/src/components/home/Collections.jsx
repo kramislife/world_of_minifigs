@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion, useInView } from "framer-motion";
 import CollectionGrid from "@/pages/Collections/CollectionGrid";
 import { CategoryFallback } from "@/components/product/shared/FallbackStates";
-import { categoryAnimations } from "@/hooks/Animation/animationConfig";
+import { collectionsAnimations } from "@/hooks/Animation/animationConfig";
 import { useCollections } from '@/hooks/Product/useCollections';
 
 const Collections = () => {
@@ -22,19 +22,18 @@ const Collections = () => {
       {limitedCollections.length > 0 ? (
         <>
           <motion.h2
-            variants={categoryAnimations.titleVariants}
+            variants={collectionsAnimations.titleVariants}
             initial="hidden"
             animate={isInView ? "visible" : "hidden"}
-            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             className="text-3xl text-gray-300 font-extrabold mb-4 text-center pt-6 header-text"
           >
             Browse by Collections
           </motion.h2>
 
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
+            variants={collectionsAnimations.buttonVariants}
+            initial="hidden"
+            animate={isInView ? "visible" : "hidden"}
             className="flex items-center justify-center pb-10"
           >
             <button
@@ -49,6 +48,7 @@ const Collections = () => {
             collections={limitedCollections}
             onCollectionClick={handleCollectionClick}
             isInView={isInView}
+            animations={collectionsAnimations}
           />
         </>
       ) : (
