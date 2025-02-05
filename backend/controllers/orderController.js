@@ -3,7 +3,7 @@ import catchAsyncErrors from "../middlewares/catchAsyncErrors.js";
 import Order from "../models/order.model.js";
 import Product from "../models/product.model.js";
 import ErrorHandler from "../Utills/customErrorHandler.js";
-import { getOrderUpdateEmailTemplate } from "../Utills/Emails/UpdateEmailTemplate.js";
+import { OrderConfirmationTemplate } from "../Utills/Emails/OrderConfirmationTemplate.js";
 import sendEmail from "../Utills/sendEmail.js";
 
 // --------------- CREATE A NEW ORDER -----------------------------
@@ -26,7 +26,9 @@ export const createOrder = catchAsyncErrors(async (req, res, next) => {
 
   // VALIDATE ORDER ITEMS
   if (!orderItems || orderItems.length === 0) {
-    return next(new ErrorHandler("Please add some products to your order", 400));
+    return next(
+      new ErrorHandler("Please add some products to your order", 400)
+    );
   }
 
   // VALIDATE REFERENCE IDS
@@ -35,18 +37,23 @@ export const createOrder = catchAsyncErrors(async (req, res, next) => {
   }
 
   // CALCULATE PRICE AND TOTAL
-  const totalPrice = itemsPrice + taxPrice + shippingPrice - (discountPrice || 0);
+  const totalPrice =
+    itemsPrice + taxPrice + shippingPrice - (discountPrice || 0);
 
   // CHECK STOCKS FOR NON PREORDER ITEMS
   for (const item of orderItems) {
     const product = await Product.findById(item.product);
 
     if (!product) {
-      return next(new ErrorHandler(`Product with id ${item.product} not found`, 404));
+      return next(
+        new ErrorHandler(`Product with id ${item.product} not found`, 404)
+      );
     }
 
     if (!item.isPreorder && product.stock < item.quantity) {
-      return next(new ErrorHandler(`Insufficient stock for product : ${item.name}`, 404));
+      return next(
+        new ErrorHandler(`Insufficient stock for product : ${item.name}`, 404)
+      );
     }
   }
 
@@ -71,6 +78,60 @@ export const createOrder = catchAsyncErrors(async (req, res, next) => {
   if (!saveOrder) {
     return next(new ErrorHandler("Failed to save order", 400));
   }
+
+  // Populate the order with user and address details
+  const populatedOrder = await Order.findById(saveOrder._id)
+    .populate("user", "username email")
+    .populate(
+      "shippingAddress",
+      "contact_number address_line1 address_line2 city state postal_code country"
+    )
+    .populate({
+      path: "orderItems.product",
+      select: "product_name product_images product_color",
+      populate: {
+        path: "product_color",
+        select: "name code"
+      }
+    });
+
+  // Format the order items to include the correct image URL and color
+  const formattedOrderItems = populatedOrder.orderItems.map(item => ({
+    name: item.name,
+    quantity: item.quantity,
+    price: item.price,
+    image: item.product.product_images[0]?.url || 'https://via.placeholder.com/80',
+    color: item.color || (item.product.product_color ? item.product.product_color.name : null),
+    includes: item.includes || null
+  }));
+
+  // Add debug log to check the populated data
+  console.log("Populated Order:", JSON.stringify(populatedOrder, null, 2));
+
+  // Send order confirmation email
+  const emailOptions = {
+    email: email,
+    subject: `Order Confirmation #${saveOrder._id}`,
+    message: OrderConfirmationTemplate(
+      populatedOrder.user?.username || "Valued Customer",
+      saveOrder._id,
+      saveOrder.orderStatus,
+      {
+        ...populatedOrder.toObject(),
+        orderItems: formattedOrderItems,
+        shippingAddress: {
+          address: `${populatedOrder.shippingAddress?.address_line1 || ""} ${
+            populatedOrder.shippingAddress?.address_line2 || ""
+          }, ${populatedOrder.shippingAddress?.city || ""}, ${
+            populatedOrder.shippingAddress?.country || ""
+          }, ${populatedOrder.shippingAddress?.postal_code || ""}`,
+          phoneNo: populatedOrder.shippingAddress?.contact_number || "N/A",
+        },
+      }
+    ),
+  };
+
+  await sendEmail(emailOptions);
 
   res.status(201).json({
     success: true,

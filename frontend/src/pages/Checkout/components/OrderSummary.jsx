@@ -2,7 +2,7 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
-import { toast } from "react-hot-toast";
+import { toast } from "react-toastify";
 
 //  Used to update the quantity of the item in the cart (Below Product Name)
 const QuantityControl = ({ quantity, onUpdate, maxStock }) => {
@@ -62,8 +62,13 @@ const CartItem = ({ item, handleQuantityUpdate, removeItem }) => (
           <h3 className="text-white text-lg font-medium line-clamp-1">
             {item.name}
           </h3>
+          {item.color && (
+            <p className="text-sm text-gray-400 mt-2">
+              Color: {item.color}
+            </p>
+          )}
           {item.includes && (
-            <p className="text-sm text-gray-400 mt-1">{item.includes}</p>
+            <p className="text-sm text-gray-400 mt-2">{item.includes.replace(/^,\s*/, "")}</p>
           )}
         </div>
         <div className="flex items-center gap-2">

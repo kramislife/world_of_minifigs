@@ -50,7 +50,7 @@ const useCheckout = () => {
   // Move order-related mutations to the top
   const [createPayPalOrder] = useCreatePayPalOrderMutation();
 
-  // Update the formatCartItems function
+  // Update the formatCartItems function to handle color correctly
   const formatCartItems = () => cartItems.map((item) => ({
     product: item.product,
     name: item.name,
@@ -58,7 +58,8 @@ const useCheckout = () => {
     price: Number(item.price),
     image: item.image,
     isPreOrder: Boolean(item.isPreOrder),
-    status: "Pending"
+    color: item.color || undefined, // Just pass the color name string
+    includes: item.includes || undefined
   }));
 
   // Creating a base order data for the order
@@ -68,11 +69,15 @@ const useCheckout = () => {
       throw new Error("Email is required for order creation");
     }
 
-    // Create order data with explicit string conversion for email
     const orderData = {
-      email: String(email).trim().toLowerCase(), // Ensure email is properly formatted
+      email: String(email).trim().toLowerCase(),
       shippingAddress: selectedShippingAddress._id,
-      orderItems: formatCartItems(),
+      orderItems: formatCartItems().map(item => ({
+        ...item,
+          // Only include color if it exists
+        ...(item.color && { color: item.color }),
+        ...(item.includes && { includes: item.includes })
+      })),
       paymentInfo: {
         method: paymentInfo.method,
         transactionId: paymentInfo.transactionId,
@@ -87,7 +92,6 @@ const useCheckout = () => {
       orderNotes: orderNotes,
     };
 
-    // Log the exact data being sent
     console.log("Order data being sent:", JSON.stringify(orderData, null, 2));
     
     return orderData;

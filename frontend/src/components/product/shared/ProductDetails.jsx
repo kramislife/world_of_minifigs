@@ -94,36 +94,21 @@ const ProductDetails = ({
 
   // Handle add to cart with animation
   const handleAddToCart = () => {
-    try {
-      const discountedPrice =
-        currentProduct.price * (1 - (currentProduct.discount || 0) / 100);
+    const itemToAdd = {
+      product: currentProduct._id,
+      name: currentProduct.product_name,
+      price: currentProduct.price * (1 - (currentProduct.discount || 0) / 100),
+      image: currentProduct.product_images[0]?.url,
+      quantity: 1,
+      stock: currentProduct.stock,
+      color: currentProduct.product_color?.name || null,
+      includes: currentProduct.product_includes || ''
+    };
 
-      // Trigger the animation
-      setShowAnimation(true);
+    console.log('Adding to cart:', itemToAdd);
 
-      // Delay the actual cart addition to match animation
-      setTimeout(() => {
-        dispatch(
-          addToCart({
-            product: currentProduct._id,
-            name: currentProduct.product_name,
-            quantity: 1,
-            price: discountedPrice,
-            image: currentProduct.product_images[0]?.url,
-            includes: currentProduct.product_includes,
-          })
-        );
-
-        setShowAnimation(false);
-        // Open cart sheet after animation completes
-        setIsCartOpen(true);
-      }, 800);
-
-      // console.log(`Added to cart: ${currentProduct.product_name}`);
-    } catch (error) {
-      toast.error("Failed to add item to cart");
-      console.error("Add to cart error:", error);
-    }
+    dispatch(addToCart(itemToAdd));
+    setIsCartOpen(true);
   };
 
   return (
@@ -394,6 +379,26 @@ const ProductDetails = ({
                           );
                         }
                       )}
+                  </div>
+                </div>
+              )}
+
+              {/* Includes Section */}
+              {currentProduct?.product_includes && (
+                <div className="flex flex-col gap-3">
+                  <span className="text-sm font-medium text-gray-300">Includes</span>
+                  <div className="flex flex-wrap gap-2">
+                    {currentProduct.product_includes.split(',')
+                      .filter(item => item.trim())
+                      .map((item, index) => (
+                        <Badge
+                          key={index}
+                          variant="default"
+                          className="bg-indigo-600/10 text-indigo-400 hover:bg-indigo-600/20 border border-indigo-600/20 transition-colors duration-200 py-1.5"
+                        >
+                          {item.trim()}
+                        </Badge>
+                    ))}
                   </div>
                 </div>
               )}
