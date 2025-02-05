@@ -1,4 +1,3 @@
-
 // Shared base animations for product grids 
 const baseProductGridAnimations = {
   containerVariants: {
@@ -128,35 +127,21 @@ export const featuredProductAnimations = {
   },
 };
 
-// Collections animations
-export const categoryAnimations = {
+// Collections animations 
+export const collectionsAnimations = {
+  ...baseProductGridAnimations,
   containerVariants: {
-    hidden: { opacity: 0 },
+    ...baseProductGridAnimations.containerVariants,
     visible: {
-      opacity: 1,
+      ...baseProductGridAnimations.containerVariants.visible,
       transition: {
         staggerChildren: 0.2,
         delayChildren: 0.3,
       },
     },
   },
-
-  cardVariants: {
-    hidden: {
-      opacity: 0,
-      y: 50,
-    },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        type: "spring",
-        stiffness: 100,
-        damping: 15,
-      },
-    },
-  },
-
+  
+  // Additional collection-specific animations
   imageVariants: {
     initial: { scale: 1.2, opacity: 0 },
     animate: { scale: 1, opacity: 1 },
