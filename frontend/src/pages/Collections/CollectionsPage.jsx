@@ -1,39 +1,15 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
-import {
-  useGetCollectionQuery,
-  useGetSubCollectionsQuery,
-} from "@/redux/api/productApi";
-import { toast } from "react-toastify";
 import LoadingSpinner from "@/components/layout/spinner/LoadingSpinner";
 import Metadata from "@/components/layout/Metadata/Metadata";
 import { CategoryFallback } from "@/components/product/shared/FallbackStates";
 import CollectionGrid from "./CollectionGrid";
+import { useCollections } from '@/hooks/Product/useCollections';
 
+// A page to view all collections when the "View All Collections" button on the Home Page is clicked
 const CollectionsPage = () => {
-  const navigate = useNavigate();
-
-  const { data, isLoading, isError, error } = useGetCollectionQuery();
-  const { data: subCollectionsData } = useGetSubCollectionsQuery();
-
-  const collections = data?.collections?.filter((c) => !c.isFeatured) || [];
+  const { collections, handleCollectionClick, isError } = useCollections(false);
 
   if (isError) {
-    toast.error(error?.data?.message);
-  }
-
-  const handleCollectionClick = (collection) => {
-    const hasSubCollections = subCollectionsData?.subcollections?.some(
-      (sub) => sub.collection?._id === collection._id
-    );
-    navigate(
-      hasSubCollections
-        ? `/collections/${collection._id}`
-        : `/products?product_collection=${collection._id}`
-    );
-  };
-
-  if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <LoadingSpinner />
