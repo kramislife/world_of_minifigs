@@ -4,6 +4,7 @@ import { PlaceholderImage } from "@/components/product/shared/FallbackStates";
 import { motion } from "framer-motion";
 import { categoryAnimations } from "@/hooks/Animation/animationConfig";
 
+// A grid layout to view the collections in three column card layout
 const CollectionGrid = ({ collections, onCollectionClick }) => {
   return (
     <motion.div

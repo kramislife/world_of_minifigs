@@ -1,30 +1,21 @@
 import React from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import {
-  useGetCollectionDetailsQuery,
-  useGetSubCollectionsQuery,
-} from "@/redux/api/productApi";
+import { useParams } from "react-router-dom";
 import LoadingSpinner from "@/components/layout/spinner/LoadingSpinner";
 import Metadata from "@/components/layout/Metadata/Metadata";
-import { Button } from "@/components/ui/button";
 import { CategoryFallback } from "@/components/product/shared/FallbackStates";
-import { ArrowLeft } from "lucide-react";
 import CollectionGrid from "./CollectionGrid";
+import { useSubCollections } from "@/hooks/Product/useSubCollections";
 
 const SubCollectionsPage = () => {
-  const navigate = useNavigate();
   const { id: collectionId } = useParams();
 
-  const { data: collectionDetails, isLoading: isCollectionLoading } =
-    useGetCollectionDetailsQuery(collectionId);
-  const { data: subCollectionsData, isLoading: isSubCollectionsLoading } =
-    useGetSubCollectionsQuery();
-
-  const isLoading = isCollectionLoading || isSubCollectionsLoading;
-
-  const handleSubCollectionClick = (subCollection) => {
-    navigate(`/products?product_sub_collections=${subCollection._id}`);
-  };
+  // Custom hook to get subcollections for a specific collection
+  const {
+    subCollections,
+    collectionDetails,
+    isLoading,
+    handleSubCollectionClick,
+  } = useSubCollections(collectionId);
 
   if (isLoading) {
     return (
@@ -33,11 +24,6 @@ const SubCollectionsPage = () => {
       </div>
     );
   }
-
-  const subCollections =
-    subCollectionsData?.subcollections?.filter(
-      (sub) => sub.collection?._id === collectionId
-    ) || [];
 
   return (
     <>
@@ -54,13 +40,6 @@ const SubCollectionsPage = () => {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4 pt-5">
               <div className="flex items-center">
                 <div className="flex items-center">
-                  {/* <Button
-                    variant="ghost"
-                    className="p-2 hover:bg-transparent rounded-full mr-2"
-                    onClick={() => navigate("/collections")}
-                  >
-                    <ArrowLeft className="h-6 w-6 text-red-500" />
-                  </Button> */}
                   <h2 className="text-3xl font-bold">
                     {collectionDetails?.collection?.name}
                   </h2>
