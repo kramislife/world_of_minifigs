@@ -49,7 +49,7 @@ const CartItem = ({ item, handleQuantityUpdate, removeItem }) => (
     key={item.product}
     className="flex gap-3 items-center pt-2 pb-5 border-b border-white/10 last:border-0"
   >
-    <div className="relative w-24 h-24 bg-darkBrand rounded-lg overflow-hidden">
+    <div className="relative w-32 h-32 bg-darkBrand rounded-lg overflow-hidden">
       <img
         src={item.image}
         alt={item.name}
@@ -57,18 +57,18 @@ const CartItem = ({ item, handleQuantityUpdate, removeItem }) => (
       />
     </div>
     <div className="flex-1 flex justify-between items-start">
-      <div className="flex flex-col space-y-5">
+      <div className="flex flex-col space-y-3">
         <div>
           <h3 className="text-white text-lg font-medium line-clamp-1">
             {item.name}
           </h3>
           {item.color && (
-            <p className="text-sm text-gray-400 mt-2">
+            <p className="text-sm text-gray-400 mt-1">
               Color: {item.color}
             </p>
           )}
           {item.includes && (
-            <p className="text-sm text-gray-400 mt-2">{item.includes.replace(/^,\s*/, "")}</p>
+            <p className="text-sm text-gray-400 mt-1">{item.includes.replace(/^,\s*/, "")}</p>
           )}
         </div>
         <div className="flex items-center gap-2">
@@ -82,7 +82,7 @@ const CartItem = ({ item, handleQuantityUpdate, removeItem }) => (
             onClick={() => removeItem(item.product)}
             className="p-1 rounded-md hover:bg-white/10 text-red-500 hover:text-red-400"
           >
-            <Trash2 size={15} />
+            <Trash2 size={18} />
           </button>
         </div>
       </div>

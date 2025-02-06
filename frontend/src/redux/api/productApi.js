@@ -19,7 +19,16 @@ export const productApi = createApi({
         }
         return `/products?${queryString}`;
       },
-      providesTags: ["Products"],
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.products.map(({ _id }) => ({
+                type: "Product",
+                id: _id,
+              })),
+              { type: "Products", id: "LIST" },
+            ]
+          : [{ type: "Products", id: "LIST" }],
     }),
 
     // GET PRODUCT DETAILS
