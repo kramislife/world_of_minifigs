@@ -56,7 +56,7 @@ export const useCartSheet = () => {
     }
   };
 
-  const handleCheckout = () => {
+  const handleCheckout = (onClose) => {
     if (!isAuthenticated) {
       setShowLoginMessage(true);
       setCheckoutDisabled(true);
@@ -68,6 +68,7 @@ export const useCartSheet = () => {
       return;
     }
 
+    onClose?.(); // Close the sheet before navigating
     navigate("/checkout");
   };
 
