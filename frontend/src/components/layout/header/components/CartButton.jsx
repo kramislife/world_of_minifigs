@@ -1,6 +1,6 @@
 import { ShoppingCart } from "lucide-react";
 
-const CartButton = ({ itemCount = 0, onClick }) => {
+export const CartButton = ({ itemCount = 0, onClick }) => {
   return (
     <button
       className="text-white hover:text-gray-200 relative"

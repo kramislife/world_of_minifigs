@@ -119,7 +119,12 @@ export const getProductById = catchAsyncErrors(async (req, res, next) => {
   if (!product) {
     return next(new ErrorHandler("Product not found", 400));
   }
-  // console.log("PRODUCT", product.product_name);
+
+  // Calculate discounted price for the single product
+  const productWithDiscountedPrice = {
+    ...product.toObject(),
+    discounted_price: calculateDiscountedPrice(product),
+  };
 
   // Extract the base product name (before any parentheses or color variations)
   const baseProductName = product.product_name.split(/[\(\-]/)[0].trim();
@@ -131,9 +136,9 @@ export const getProductById = catchAsyncErrors(async (req, res, next) => {
   );
 
   const similarProducts = await Product.find({
-    product_name: { $regex: escapedProductName, $options: "i" }, // Case-insensitive partial match
+    product_name: { $regex: escapedProductName, $options: "i" },
     partID: product.partID,
-    _id: { $ne: product._id }, // Exclude the current product
+    _id: { $ne: product._id },
   })
     .populate("product_category", "name")
     .populate("product_collection", "name")
@@ -141,15 +146,16 @@ export const getProductById = catchAsyncErrors(async (req, res, next) => {
     .populate("product_skill_level", "name")
     .populate("product_color", "name");
 
-  console.log("SIMILAR PRODUCTS", similarProducts);
-  // if (product || similarProducts) {
-  //   allProducts(...product, ...similarProducts);
-  // }
+  // Calculate discounted price for similar products
+  const similarProductsWithDiscountedPrice = similarProducts.map((product) => ({
+    ...product.toObject(),
+    discounted_price: calculateDiscountedPrice(product),
+  }));
 
   res.status(200).json({
     message: "Product Retrieved Successfully",
-    product,
-    similarProducts,
+    product: productWithDiscountedPrice,
+    similarProducts: similarProductsWithDiscountedPrice,
   });
 });
 
