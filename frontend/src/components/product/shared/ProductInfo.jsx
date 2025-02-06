@@ -7,12 +7,14 @@ import ProductStatus from "./ProductStatus";
 import ProductActions from "./ProductActions";
 
 const ProductInfo = ({ product, itemVariants, onAddToCart }) => {
-  // A function that display the product categories and collections
+  // Check if we have any categorization
   const hasCategorization =
     Array.isArray(product?.product_category) ||
-    Array.isArray(product?.product_collection);
+    Array.isArray(product?.product_collection) ||
+    Array.isArray(product?.product_sub_categories) ||
+    Array.isArray(product?.product_sub_collections);
 
-  // A function that group subcategories by their parent category
+  // Group subcategories by their parent category
   const getSubcategoriesForCategory = (categoryId) => {
     return Array.isArray(product?.product_sub_categories)
       ? product.product_sub_categories.filter(
@@ -21,7 +23,7 @@ const ProductInfo = ({ product, itemVariants, onAddToCart }) => {
       : [];
   };
 
-  // A function to group subcollections by their parent collection
+  // Group subcollections by their parent collection
   const getSubcollectionsForCollection = (collectionId) => {
     return Array.isArray(product?.product_sub_collections)
       ? product.product_sub_collections.filter(
@@ -30,29 +32,43 @@ const ProductInfo = ({ product, itemVariants, onAddToCart }) => {
       : [];
   };
 
+  // Check if category has subcategories
+  const hasSubCategories = (categoryId) => {
+    return getSubcategoriesForCategory(categoryId).length > 0;
+  };
+
+  // Check if collection has subcollections
+  const hasSubCollections = (collectionId) => {
+    return getSubcollectionsForCollection(collectionId).length > 0;
+  };
+
   return (
     <motion.div variants={itemVariants} className="flex flex-col h-full">
       {/* Product Header Section */}
-      <div className="mb-8">
+      <div className="mb-5">
         <div className="flex flex-col gap-3">
-          {/* Title and Item ID */}
+          {/* Title and Item/Part ID */}
           <div className="flex flex-col gap-2">
             <h1 className="text-3xl font-bold text-white">
               {product?.product_name || "Unnamed Product"}
             </h1>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-400">
-                Item ID: {product?.itemID || "N/A"}
-              </span>
-              {product?.partID && (
-                <>
+            {(product?.itemID || product?.partID) && (
+              <div className="flex items-center gap-2">
+                {product?.itemID && (
+                  <span className="text-sm text-gray-400">
+                    Item ID: {product.itemID}
+                  </span>
+                )}
+                {product?.itemID && product?.partID && (
                   <span className="text-gray-400">•</span>
+                )}
+                {product?.partID && (
                   <span className="text-sm text-gray-400">
                     Part ID: {product.partID}
                   </span>
-                </>
-              )}
-            </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Ratings Section */}
@@ -86,75 +102,84 @@ const ProductInfo = ({ product, itemVariants, onAddToCart }) => {
           <ProductStatus stock={product?.stock} variant="dot" />
         )}
 
-        {/* Product Classification (Categories, Subcategories, Collections, and Subcollections) */}
-        {hasCategorization &&
-          Array.isArray(product?.product_category) &&
-          product.product_category.length > 0 && (
-            <div className="flex flex-col gap-3">
-              <span className="text-sm font-medium text-gray-300">
-                Product Classification
-              </span>
-              <div className="flex flex-wrap gap-2">
-                {/* Categories with their Subcategories */}
-                {product.product_category.map((category) => {
+        {/* Product Classification Section */}
+        {hasCategorization && (
+          <div className="flex flex-col gap-3">
+            <span className="text-sm font-medium text-gray-300">
+              Product Classification
+            </span>
+            <div className="flex flex-wrap gap-2 mt-1">
+              {/* Categories and Subcategories */}
+              {Array.isArray(product?.product_category) &&
+                product.product_category.map((category) => {
                   const subCategories = getSubcategoriesForCategory(
                     category._id
                   );
-                  return (
-                    <React.Fragment key={category._id}>
+
+                  // If category has subcategories, only show subcategories
+                  if (hasSubCategories(category._id)) {
+                    return subCategories.map((subCat) => (
                       <Badge
+                        key={subCat._id}
                         variant="default"
-                        className="bg-purple-600/10 text-purple-400 hover:bg-purple-600/20 border border-purple-600/20 transition-colors duration-200 py-1.5"
+                        className="bg-blue-600/10 text-blue-400 hover:bg-blue-600/20 border border-blue-600/20 transition-colors duration-200 py-1.5"
                       >
-                        {category.name}
+                        {subCat.name}
                       </Badge>
-                      {subCategories.map((subCat) => (
-                        <Badge
-                          key={subCat._id}
-                          variant="default"
-                          className="bg-blue-600/10 text-blue-400 hover:bg-blue-600/20 border border-blue-600/20 transition-colors duration-200 py-1.5"
-                        >
-                          {subCat.name}
-                        </Badge>
-                      ))}
-                    </React.Fragment>
+                    ));
+                  }
+
+                  // If no subcategories, show the category
+                  return (
+                    <Badge
+                      key={category._id}
+                      variant="default"
+                      className="bg-purple-600/10 text-purple-400 hover:bg-purple-600/20 border border-purple-600/20 transition-colors duration-200 py-1.5"
+                    >
+                      {category.name}
+                    </Badge>
                   );
                 })}
 
-                {/* Collections with their Subcollections */}
-                {Array.isArray(product?.product_collection) &&
-                  product.product_collection.map((collection) => {
-                    const subCollections = getSubcollectionsForCollection(
-                      collection._id
-                    );
-                    return (
-                      <React.Fragment key={collection._id}>
-                        <Badge
-                          variant="default"
-                          className="bg-amber-600/10 text-amber-400 hover:bg-amber-600/20 border border-amber-600/20 transition-colors duration-200 py-1.5"
-                        >
-                          {collection.name}
-                        </Badge>
-                        {subCollections.map((subCol) => (
-                          <Badge
-                            key={subCol._id}
-                            variant="default"
-                            className="bg-green-600/10 text-green-400 hover:bg-green-600/20 border border-green-600/20 transition-colors duration-200 py-1.5"
-                          >
-                            {subCol.name}
-                          </Badge>
-                        ))}
-                      </React.Fragment>
-                    );
-                  })}
-              </div>
+              {/* Collections and Subcollections */}
+              {Array.isArray(product?.product_collection) &&
+                product.product_collection.map((collection) => {
+                  const subCollections = getSubcollectionsForCollection(
+                    collection._id
+                  );
+
+                  // If collection has subcollections, only show subcollections
+                  if (hasSubCollections(collection._id)) {
+                    return subCollections.map((subCol) => (
+                      <Badge
+                        key={subCol._id}
+                        variant="default"
+                        className="bg-green-600/10 text-green-400 hover:bg-green-600/20 border border-green-600/20 transition-colors duration-200 py-1.5"
+                      >
+                        {subCol.name}
+                      </Badge>
+                    ));
+                  }
+
+                  // If no subcollections, show the collection
+                  return (
+                    <Badge
+                      key={collection._id}
+                      variant="default"
+                      className="bg-amber-600/10 text-amber-400 hover:bg-amber-600/20 border border-amber-600/20 transition-colors duration-200 py-1.5"
+                    >
+                      {collection.name}
+                    </Badge>
+                  );
+                })}
             </div>
-          )}
+          </div>
+        )}
 
         {/* Includes Section */}
         {product?.product_includes && (
           <div className="flex flex-col gap-3">
-            <span className="text-sm font-medium text-gray-300">Includes</span>
+            <span className="text-sm font-medium text-gray-300 ">Includes</span>
             <div className="flex flex-wrap gap-2">
               {product.product_includes
                 .split(",")
@@ -163,7 +188,7 @@ const ProductInfo = ({ product, itemVariants, onAddToCart }) => {
                   <Badge
                     key={index}
                     variant="default"
-                    className="bg-indigo-600/10 text-indigo-400 hover:bg-indigo-600/20 border border-indigo-600/20 transition-colors duration-200 py-1.5"
+                    className="bg-indigo-600/10 text-indigo-400 mt-1 hover:bg-indigo-600/20 border border-indigo-600/20 transition-colors duration-200 py-1.5"
                   >
                     {item.trim()}
                   </Badge>

@@ -1,6 +1,5 @@
 import { ShoppingCart, Plus, Minus, ImageIcon } from "lucide-react";
 import { Link } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import LoadingSpinner from "@/components/layout/spinner/LoadingSpinner";
 import { useCartSheet } from "@/hooks/Product/useCartSheet";
@@ -247,7 +246,7 @@ const CartSheet = ({ isOpen, setIsOpen }) => {
           {!isLoading && updatedCartItems.length > 0 && (
             <CartFooter
               total={total}
-              onCheckout={handleCheckout}
+              onCheckout={() => handleCheckout(() => setIsOpen(false))}
               showLoginMessage={showLoginMessage}
               checkoutDisabled={checkoutDisabled}
               isAuthenticated={isAuthenticated}

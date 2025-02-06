@@ -3,9 +3,11 @@ import { Button } from "@/components/ui/button";
 import { useDispatch } from "react-redux";
 import { addToCart } from "@/redux/features/cartSlice";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const ProductActions = ({ product, onAddToCart }) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   // A function to handle adding a product to the cart
   const handleAddToCart = () => {
@@ -40,6 +42,7 @@ const ProductActions = ({ product, onAddToCart }) => {
         variant="outline"
         className="flex-1 bg-brand hover:bg-darkBrand hover:text-white hover:scale-105 transition-all duration-300 border-slate-700 text-md"
         disabled={!product?.stock || product?.stock <= 0}
+        onClick={() => navigate(`/checkout`)}
       >
         Buy Now
       </Button>
