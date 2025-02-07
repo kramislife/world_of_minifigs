@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import ContactSection from "./components/ContactSection";
 import ShippingSection from "./components/ShippingSection";
 import PaymentSection from "./components/PaymentSection";
@@ -11,8 +13,14 @@ import {
   useGetUserAddressesQuery,
 } from "@/redux/api/userApi";
 import { toast } from "react-toastify";
+import { clearBuyNowItem } from "@/redux/features/buyNowSlice";
 
 const Checkout = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const [searchParams] = useSearchParams();
+  const mode = searchParams.get("mode");
+
   const {
     paymentMethod,
     cartItems,
@@ -31,7 +39,25 @@ const Checkout = () => {
     handleEmailChange,
     orderNotes,
     handleOrderNotesChange,
+    isBuyNow,
   } = useCheckout();
+
+  // Clear buy now item when leaving checkout page
+  useEffect(() => {
+    return () => {
+      if (mode !== "buy_now") {
+        dispatch(clearBuyNowItem());
+      }
+    };
+  }, [dispatch, mode]);
+
+  // Redirect if no items
+  useEffect(() => {
+    if (!cartItems || cartItems.length === 0) {
+      toast.error("No items in checkout");
+      navigate("/");
+    }
+  }, [cartItems, navigate]);
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [addressToDelete, setAddressToDelete] = useState(null);
@@ -60,7 +86,7 @@ const Checkout = () => {
 
   return (
     <>
-      <Metadata title="Checkout" />
+      <Metadata title={`Checkout - ${isBuyNow ? "Buy Now" : "Cart"}`} />
       <div className="min-h-screen bg-brand-gradient py-10">
         <div className="mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
@@ -99,6 +125,7 @@ const Checkout = () => {
                 removeItem={handleRemoveItem}
                 orderNotes={orderNotes}
                 onOrderNotesChange={handleOrderNotesChange}
+                isBuyNow={isBuyNow}
               />
             </div>
           </div>
