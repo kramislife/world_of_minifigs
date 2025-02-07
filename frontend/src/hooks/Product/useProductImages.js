@@ -8,15 +8,36 @@ export const useProductImages = (
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [currentProduct, setCurrentProduct] = useState(product);
 
-  // Determine what to display based on similarProducts prop
+  // Sort and filter similar products based on partID
   const displayItems = useMemo(() => {
     if (similarProducts) {
-      return similarProducts.filter((item) => item.partID === product.partID);
+      // Filter products with the same partID
+      const filteredProducts = similarProducts.filter(
+        (item) => item.partID === product.partID
+      );
+
+      // Sort products by itemID to maintain consistent order
+      return filteredProducts.sort((a, b) => {
+        // Extract numeric part of itemID for proper sorting
+        const idA = parseInt(a.itemID || a._id);
+        const idB = parseInt(b.itemID || b._id);
+        return idA - idB;
+      });
     }
     return product?.product_images?.length > 0
       ? product.product_images
       : [{ url: product?.product_images?.[0]?.url }];
   }, [similarProducts, product]);
+
+  // Find current index when product changes
+  useEffect(() => {
+    if (similarProducts && product) {
+      const index = displayItems.findIndex((item) => item._id === product._id);
+      if (index !== -1) {
+        setCurrentImageIndex(index);
+      }
+    }
+  }, [product, similarProducts, displayItems]);
 
   // Update current product when navigating
   useEffect(() => {

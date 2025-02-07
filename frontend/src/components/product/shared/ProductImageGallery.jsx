@@ -7,6 +7,7 @@ import {
   ProductImagePlaceholder,
   ProductThumbnailPlaceholder,
 } from "./FallbackStates";
+import { useNavigate } from "react-router-dom";
 
 const ProductImageGallery = ({
   currentProduct,
@@ -19,6 +20,8 @@ const ProductImageGallery = ({
   similarProducts,
   itemVariants,
 }) => {
+  const navigate = useNavigate();
+
   // Check if we have valid images to display
   const hasValidImages =
     displayItems?.length > 0 &&
@@ -62,6 +65,46 @@ const ProductImageGallery = ({
     );
   }
 
+  // Modify the navigation handlers to update URL
+  const handlePrevImage = () => {
+    if (similarProducts) {
+      const prevIndex =
+        currentImageIndex === 0
+          ? displayItems.length - 1
+          : currentImageIndex - 1;
+      const prevProduct = displayItems[prevIndex];
+      if (prevProduct?._id) {
+        navigate(`/products/${prevProduct._id}`);
+      }
+    }
+    prevImage();
+  };
+
+  const handleNextImage = () => {
+    if (similarProducts) {
+      const nextIndex =
+        currentImageIndex === displayItems.length - 1
+          ? 0
+          : currentImageIndex + 1;
+      const nextProduct = displayItems[nextIndex];
+      if (nextProduct?._id) {
+        navigate(`/products/${nextProduct._id}`);
+      }
+    }
+    nextImage();
+  };
+
+  // Modify thumbnail click handler
+  const handleThumbnailClick = (index) => {
+    if (similarProducts) {
+      const selectedProduct = displayItems[index];
+      if (selectedProduct?._id) {
+        navigate(`/products/${selectedProduct._id}`);
+      }
+    }
+    setCurrentImageIndex(index);
+  };
+
   return (
     <motion.div
       variants={itemVariants}
@@ -77,7 +120,7 @@ const ProductImageGallery = ({
             {displayItems.map((item, index) => (
               <button
                 key={index}
-                onClick={() => setCurrentImageIndex(index)}
+                onClick={() => handleThumbnailClick(index)}
                 className="group relative min-w-[130px] max-w-[130px] md:min-w-0 md:max-w-full aspect-square"
               >
                 <div
@@ -156,7 +199,7 @@ const ProductImageGallery = ({
               variant="ghost"
               size="icon"
               className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70"
-              onClick={prevImage}
+              onClick={handlePrevImage}
             >
               <ChevronLeft className="w-6 h-6 text-white" />
             </Button>
@@ -164,7 +207,7 @@ const ProductImageGallery = ({
               variant="ghost"
               size="icon"
               className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70"
-              onClick={nextImage}
+              onClick={handleNextImage}
             >
               <ChevronRight className="w-6 h-6 text-white" />
             </Button>
