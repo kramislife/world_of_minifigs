@@ -37,13 +37,8 @@ const cartSlice = createSlice({
       );
 
       if (existingItemIndex !== -1) {
-        // If item exists, remove it and add updated version to the start
-        const updatedItem = {
-          ...state.cartItems[existingItemIndex],
-          quantity: state.cartItems[existingItemIndex].quantity + 1,
-        };
-        state.cartItems.splice(existingItemIndex, 1);
-        state.cartItems.unshift(updatedItem);
+        // Update quantity without changing position
+        state.cartItems[existingItemIndex].quantity += 1;
       } else {
         // Add new item to the start of the array
         state.cartItems.unshift({ ...newItem, quantity: 1 });
@@ -63,10 +58,8 @@ const cartSlice = createSlice({
       );
 
       if (itemIndex !== -1) {
-        const updatedItem = { ...state.cartItems[itemIndex], quantity };
-        // Remove item from current position and add to start
-        state.cartItems.splice(itemIndex, 1);
-        state.cartItems.unshift(updatedItem);
+        // Update quantity without changing position
+        state.cartItems[itemIndex].quantity = quantity;
       }
       localStorage.setItem("cart", JSON.stringify(state));
     },

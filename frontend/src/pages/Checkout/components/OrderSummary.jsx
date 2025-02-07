@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Minus, Plus, Trash2 } from "lucide-react";
+import { Minus, Plus, Trash2, ImageIcon } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "react-toastify";
 
 //  Used to update the quantity of the item in the cart (Below Product Name)
@@ -11,7 +12,7 @@ const QuantityControl = ({ quantity, onUpdate, maxStock }) => {
       toast.error("Quantity cannot be less than 1");
       return;
     }
-    
+
     if (maxStock && newQuantity > maxStock) {
       toast.error(`Only ${maxStock} items available in stock`);
       return;
@@ -47,14 +48,30 @@ const QuantityControl = ({ quantity, onUpdate, maxStock }) => {
 const CartItem = ({ item, handleQuantityUpdate, removeItem }) => (
   <div
     key={item.product}
-    className="flex gap-3 items-center pt-2 pb-5 border-b border-white/10 last:border-0"
+    className="flex gap-3 items-center pb-5 border-b border-white/10 last:border-0"
   >
-    <div className="relative w-32 h-32 bg-darkBrand rounded-lg overflow-hidden">
+    <div className="relative w-28 h-28 bg-darkBrand rounded-lg overflow-hidden">
       <img
         src={item.image}
         alt={item.name}
         className="w-full h-full object-cover"
+        onError={(e) => {
+          e.target.style.display = "none";
+          e.target.nextElementSibling.style.display = "flex";
+        }}
       />
+      <div className="hidden w-full h-full items-center justify-center absolute inset-0 bg-darkBrand">
+        <ImageIcon className="w-8 h-8 text-gray-500" />
+      </div>
+
+      {/* Discount Badge */}
+      {item.discount > 0 && (
+        <div className="absolute top-2 right-2 z-10">
+          <Badge variant="destructive" className="text-xs">
+            {item.discount}% OFF
+          </Badge>
+        </div>
+      )}
     </div>
     <div className="flex-1 flex justify-between items-start">
       <div className="flex flex-col space-y-3">
@@ -63,19 +80,19 @@ const CartItem = ({ item, handleQuantityUpdate, removeItem }) => (
             {item.name}
           </h3>
           {item.color && (
-            <p className="text-sm text-gray-400 mt-1">
-              Color: {item.color}
-            </p>
+            <p className="text-sm text-gray-400 mt-1"> {item.color}</p>
           )}
           {item.includes && (
-            <p className="text-sm text-gray-400 mt-1">{item.includes.replace(/^,\s*/, "")}</p>
+            <p className="text-sm text-gray-400 mt-1">
+              {item.includes.replace(/^,\s*/, "")}
+            </p>
           )}
         </div>
         <div className="flex items-center gap-2">
           <QuantityControl
             quantity={item.quantity}
             onUpdate={(newQty) => handleQuantityUpdate(item.product, newQty)}
-            maxStock={item.maxStock}
+            maxStock={item.stock}
           />
           <button
             type="button"
@@ -87,23 +104,33 @@ const CartItem = ({ item, handleQuantityUpdate, removeItem }) => (
         </div>
       </div>
       {/* Price */}
-      <span className="text-emerald-400">
-        ${(item.price * item.quantity).toFixed(2)}
-      </span>
+      <div className="flex flex-col items-end">
+        <span className="text-emerald-400">
+          ${(item.discounted_price || 0).toFixed(2)}
+        </span>
+        {item.price && item.price > (item.discounted_price || 0) && (
+          <span className="text-sm text-gray-400 line-through mt-1">
+            ${item.price.toFixed(2)}
+          </span>
+        )}
+      </div>
     </div>
   </div>
 );
 
 //  Used to apply a discount code or gift card
-const DiscountInput = () => (
+const DiscountInput = ({ onApplyDiscount, discountCode, setDiscountCode }) => (
   <div className="flex gap-2 pt-4">
     <input
       type="text"
+      value={discountCode}
+      onChange={(e) => setDiscountCode(e.target.value)}
       placeholder="Discount code or gift card"
       className="flex-1 bg-brand/10 border-white/10 border rounded-lg px-4 py-2 transition duration-300 focus:outline-none focus:border-blue-500 hover:border-blue-300 h-12 placeholder:text-white/80 font-extralight text-white"
     />
     <button
       type="button"
+      onClick={onApplyDiscount}
       className="px-4 py-2 bg-blue-500/30 text-white rounded-md text-sm hover:bg-blue-500/20 transition-colors"
     >
       Apply
@@ -112,12 +139,19 @@ const DiscountInput = () => (
 );
 
 //  Used to display the total price of the order
-const OrderTotal = ({ total }) => (
+const OrderTotal = ({ subtotal, discount, total }) => (
   <div className="space-y-3 pt-4">
     <div className="flex justify-between text-gray-400 text-sm">
       <span>Subtotal</span>
-      <span className="text-gray-400">${total.toFixed(2)}</span>
+      <span>${subtotal.toFixed(2)}</span>
     </div>
+
+    {discount > 0 && (
+      <div className="flex justify-between text-gray-400 text-sm">
+        <span>Discount</span>
+        <span className="text-red-400">-${discount.toFixed(2)}</span>
+      </div>
+    )}
 
     <div className="flex justify-between text-white font-medium pt-5 border-t border-white/10">
       <span>Total</span>
@@ -128,10 +162,30 @@ const OrderTotal = ({ total }) => (
   </div>
 );
 
-const OrderSummary = ({ cartItems, total, updateQuantity, removeItem, orderNotes, onOrderNotesChange }) => {
-  const handleQuantityUpdate = (productId, newQuantity) => {
-    if (newQuantity < 1) return;
-    updateQuantity(productId, newQuantity);
+const OrderSummary = ({
+  cartItems,
+  total,
+  updateQuantity,
+  removeItem,
+  orderNotes,
+  onOrderNotesChange,
+}) => {
+  const [discountCode, setDiscountCode] = useState("");
+  const [appliedDiscount, setAppliedDiscount] = useState(0);
+
+  const subtotal = total;
+  const finalTotal = total - appliedDiscount;
+
+  const handleApplyDiscount = () => {
+    // Here you would typically validate the discount code with your backend
+    // For now, we'll just simulate a 10% discount
+    if (discountCode.toLowerCase() === "discount10") {
+      const discountAmount = total * 0.1;
+      setAppliedDiscount(discountAmount);
+      toast.success("Discount applied successfully!");
+    } else {
+      toast.error("Invalid discount code");
+    }
   };
 
   //  If the cart is empty, display a message
@@ -156,7 +210,7 @@ const OrderSummary = ({ cartItems, total, updateQuantity, removeItem, orderNotes
             <CartItem
               key={item.product}
               item={item}
-              handleQuantityUpdate={handleQuantityUpdate}
+              handleQuantityUpdate={updateQuantity}
               removeItem={removeItem}
             />
           ))}
@@ -168,8 +222,16 @@ const OrderSummary = ({ cartItems, total, updateQuantity, removeItem, orderNotes
               onChange={(e) => onOrderNotesChange(e.target.value)}
               className="bg-brand/10 border-white/10 min-h-[100px] text-white placeholder:text-white/80"
             />
-            <DiscountInput />
-            <OrderTotal total={total} />
+            <DiscountInput
+              onApplyDiscount={handleApplyDiscount}
+              discountCode={discountCode}
+              setDiscountCode={setDiscountCode}
+            />
+            <OrderTotal
+              subtotal={subtotal}
+              discount={appliedDiscount}
+              total={finalTotal}
+            />
           </div>
         </div>
       </CardContent>

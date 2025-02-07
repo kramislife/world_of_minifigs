@@ -13,6 +13,8 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
+import { toast } from "react-toastify";
+import { useNavigate, useLocation } from "react-router-dom";
 
 // A custom hook to handle the cart sheet
 const CartSheet = ({ isOpen, setIsOpen }) => {
@@ -23,9 +25,11 @@ const CartSheet = ({ isOpen, setIsOpen }) => {
     showLoginMessage,
     checkoutDisabled,
     handleQuantityUpdate,
-    handleCheckout,
     refetch,
   } = useCartSheet();
+
+  const navigate = useNavigate();
+  const location = useLocation();
 
   // Get the total price of the cart items
   const total = useSelector(selectCartTotal);
@@ -187,6 +191,20 @@ const CartSheet = ({ isOpen, setIsOpen }) => {
     </div>
   );
 
+  const onCheckout = () => {
+    if (!isAuthenticated) {
+      toast.error("Please login to proceed with purchase");
+      navigate("/login", {
+        state: {
+          from: location.pathname,
+        },
+      });
+      return;
+    }
+    navigate("/checkout");
+    setIsOpen(false);
+  };
+
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetContent className="w-full bg-brand-gradient p-0 z-[1000] overflow-hidden sm:max-w-xl">
@@ -246,7 +264,7 @@ const CartSheet = ({ isOpen, setIsOpen }) => {
           {!isLoading && updatedCartItems.length > 0 && (
             <CartFooter
               total={total}
-              onCheckout={() => handleCheckout(() => setIsOpen(false))}
+              onCheckout={onCheckout}
               showLoginMessage={showLoginMessage}
               checkoutDisabled={checkoutDisabled}
               isAuthenticated={isAuthenticated}

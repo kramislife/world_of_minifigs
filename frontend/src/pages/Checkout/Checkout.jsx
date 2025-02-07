@@ -6,7 +6,10 @@ import OrderSummary from "./components/OrderSummary";
 import useCheckout from "@/hooks/Payment/useCheckout";
 import Metadata from "@/components/layout/Metadata/Metadata";
 import DeleteConfirmDialog from "@/components/admin/shared/DeleteDialog";
-import { useDeleteAddressMutation, useGetUserAddressesQuery } from "@/redux/api/userApi";
+import {
+  useDeleteAddressMutation,
+  useGetUserAddressesQuery,
+} from "@/redux/api/userApi";
 import { toast } from "react-toastify";
 
 const Checkout = () => {
@@ -27,7 +30,7 @@ const Checkout = () => {
     email,
     handleEmailChange,
     orderNotes,
-    handleOrderNotesChange
+    handleOrderNotesChange,
   } = useCheckout();
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
