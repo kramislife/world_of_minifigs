@@ -35,7 +35,7 @@ const ProductActions = ({ product, onAddToCart }) => {
   // Handle buy now
   const handleBuyNow = () => {
     if (!isAuthenticated) {
-      toast.error("Please login to proceed with purchase");
+      toast.info("Please login to proceed with purchase");
       navigate("/login", {
         state: {
           from: location.pathname,

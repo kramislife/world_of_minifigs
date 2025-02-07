@@ -34,6 +34,18 @@ const CartSheet = ({ isOpen, setIsOpen }) => {
   // Get the total price of the cart items
   const total = useSelector(selectCartTotal);
 
+  // Check if user just logged in and came from checkout attempt
+  useEffect(() => {
+    const isFromLogin = location.state?.from === "/login";
+    const wasCheckoutAttempted = location.state?.isCheckout;
+
+    if (isAuthenticated && isFromLogin && wasCheckoutAttempted) {
+      setIsOpen(true);
+      // Clear the location state to prevent reopening on subsequent navigations
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [isAuthenticated, location, navigate, setIsOpen]);
+
   // Refetch data when sheet is opened
   useEffect(() => {
     if (isOpen && updatedCartItems.length > 0) {
@@ -148,14 +160,13 @@ const CartSheet = ({ isOpen, setIsOpen }) => {
     </li>
   );
 
-  // Cart Footer Component
+  // Modified CartFooter component to handle login redirect
   const CartFooter = ({
     total,
     onCheckout,
     showLoginMessage,
     checkoutDisabled,
     isAuthenticated,
-    onClose,
   }) => (
     <div className="sticky bottom-0 px-6 py-5 bg-brand border-t border-white/10">
       <div className="flex justify-between items-center mb-4">
@@ -172,36 +183,32 @@ const CartSheet = ({ isOpen, setIsOpen }) => {
           disabled={checkoutDisabled}
         >
           <ShoppingCart size={18} />
-          Proceed to Checkout
+          {isAuthenticated ? "Proceed to Checkout" : "Login to Checkout"}
         </Button>
         {showLoginMessage && !isAuthenticated && (
-          <p className="text-right text-sm animate-fade-in">
-            <span className="text-blue-400">Please </span>
-            <Link
-              to="/login"
-              className="underline text-blue-400 hover:text-blue-300 transition-colors"
-              onClick={onClose}
-            >
-              login
-            </Link>
-            <span className="text-blue-400"> to proceed with checkout</span>
+          <p className="text-right text-sm animate-fade-in text-blue-400">
+            Please login to proceed with checkout
           </p>
         )}
       </div>
     </div>
   );
 
+  // Modified onCheckout handler
   const onCheckout = () => {
     if (!isAuthenticated) {
-      toast.error("Please login to proceed with purchase");
+      setIsOpen(false); // Close the sheet before navigating
+      toast.info("Please login to proceed with checkout");
       navigate("/login", {
         state: {
           from: location.pathname,
+          isCheckout: true,
+          returnToCart: true, // Add flag to indicate we should return to cart
         },
       });
       return;
     }
-    navigate("/checkout");
+    navigate("/checkout?mode=cart");
     setIsOpen(false);
   };
 
@@ -268,7 +275,6 @@ const CartSheet = ({ isOpen, setIsOpen }) => {
               showLoginMessage={showLoginMessage}
               checkoutDisabled={checkoutDisabled}
               isAuthenticated={isAuthenticated}
-              onClose={() => setIsOpen(false)}
             />
           )}
         </div>

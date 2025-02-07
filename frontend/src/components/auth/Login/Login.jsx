@@ -47,6 +47,18 @@ const Login = () => {
     }
   }, [isAuthenticated, user, navigate, from, returnTo]);
 
+  const onLoginSuccess = () => {
+    const returnPath = location.state?.from || "/";
+
+    // Navigate back with state to trigger cart opening
+    navigate(returnPath, {
+      state: {
+        from: "/login",
+        isCheckout: location.state?.isCheckout,
+      },
+    });
+  };
+
   const submitHandler = async (e) => {
     e.preventDefault();
 
@@ -56,6 +68,7 @@ const Login = () => {
         password,
       }).unwrap();
       toast.success(result?.message);
+      onLoginSuccess();
     } catch (err) {
       toast.error(err?.data?.message || "An error occurred during login");
     }

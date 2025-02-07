@@ -100,8 +100,8 @@ const ProductInfo = ({ product, itemVariants, onAddToCart }) => {
 
           {/* Product Classification Section */}
           <div className="flex flex-col gap-3">
-            <span className="text-sm font-medium text-gray-300">
-              Classification
+            <span className="text-sm font-semibold text-gray-300">
+              Features & Classifications
             </span>
             <div className="flex flex-wrap gap-2">
               {/* Only render badges when we have data */}
@@ -180,8 +180,8 @@ const ProductInfo = ({ product, itemVariants, onAddToCart }) => {
           {/* Includes Section */}
           {product?.product_includes && (
             <div className="flex flex-col gap-3">
-              <span className="text-sm font-medium text-gray-300 ">
-                Includes
+              <span className="text-sm font-semibold text-gray-300 ">
+                Bundle Details
               </span>
               <div className="flex flex-wrap gap-2">
                 {product.product_includes
