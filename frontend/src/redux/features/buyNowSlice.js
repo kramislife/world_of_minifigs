@@ -21,6 +21,12 @@ const buyNowSlice = createSlice({
       state.item = action.payload;
       localStorage.setItem("buyNow", JSON.stringify(state));
     },
+    updateBuyNowQuantity: (state, action) => {
+      if (state.item) {
+        state.item.quantity = action.payload;
+        localStorage.setItem("buyNow", JSON.stringify(state));
+      }
+    },
     clearBuyNowItem: (state) => {
       state.item = null;
       localStorage.removeItem("buyNow");
@@ -28,5 +34,6 @@ const buyNowSlice = createSlice({
   },
 });
 
-export const { setBuyNowItem, clearBuyNowItem } = buyNowSlice.actions;
+export const { setBuyNowItem, updateBuyNowQuantity, clearBuyNowItem } =
+  buyNowSlice.actions;
 export default buyNowSlice.reducer;

@@ -55,7 +55,7 @@ const Checkout = () => {
   useEffect(() => {
     if (!cartItems || cartItems.length === 0) {
       toast.error("No items in checkout");
-      navigate("/");
+      navigate("/products");
     }
   }, [cartItems, navigate]);
 
