@@ -109,7 +109,7 @@ const CartItem = ({ item, handleQuantityUpdate, removeItem }) => (
           ${(item.discounted_price || 0).toFixed(2)}
         </span>
         {item.price && item.price > (item.discounted_price || 0) && (
-          <span className="text-sm text-gray-400 line-through mt-1">
+          <span className="text-xs text-gray-400 line-through mt-1">
             ${item.price.toFixed(2)}
           </span>
         )}

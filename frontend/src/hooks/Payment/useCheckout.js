@@ -11,6 +11,10 @@ import { toast } from "react-toastify";
 import { useGetMeQuery, useGetUserAddressesQuery } from "@/redux/api/userApi";
 import { useCreateOrderMutation } from "@/redux/api/orderApi";
 import { useCreatePayPalOrderMutation } from "@/redux/api/checkoutApi";
+import {
+  updateBuyNowQuantity,
+  clearBuyNowItem,
+} from "@/redux/features/buyNowSlice";
 
 const useCheckout = () => {
   const dispatch = useDispatch();
@@ -219,13 +223,28 @@ const useCheckout = () => {
 
   // Cart Handlers
   const handleUpdateQuantity = (productId, newQuantity) => {
-    if (newQuantity > 0) {
-      dispatch(updateQuantity({ product: productId, quantity: newQuantity }));
+    if (isBuyNow) {
+      // For buy now items, update the quantity using the new action
+      if (newQuantity > 0 && newQuantity <= buyNowItem.stock) {
+        dispatch(updateBuyNowQuantity(newQuantity));
+      }
+    } else {
+      // For cart items, use existing cart update logic
+      if (newQuantity > 0) {
+        dispatch(updateQuantity({ product: productId, quantity: newQuantity }));
+      }
     }
   };
 
   const handleRemoveItem = (productId) => {
-    dispatch(removeFromCart(productId));
+    if (isBuyNow) {
+      // For buy now items, clear the buy now item and redirect to home
+      dispatch(clearBuyNowItem());
+      navigate("/");
+    } else {
+      // For cart items, use existing remove logic
+      dispatch(removeFromCart(productId));
+    }
   };
 
   const handleEmailChange = (e) => {
