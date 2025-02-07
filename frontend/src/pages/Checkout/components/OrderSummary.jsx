@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Minus, Plus, Trash2, ImageIcon } from "lucide-react";
+import { Minus, Plus, Trash2, ImageIcon, ShoppingCart } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "react-toastify";
@@ -202,7 +202,10 @@ const OrderSummary = ({
   return (
     <Card className="bg-darkBrand/20 backdrop-blur-xl border-white/10">
       <CardHeader>
-        <CardTitle className="text-white">Order Summary</CardTitle>
+      <CardTitle className="text-white flex items-center  gap-2 text-lg">
+          <ShoppingCart className="w-5 h-5 text-blue-400" />
+          Order Summary
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
