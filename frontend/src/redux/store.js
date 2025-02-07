@@ -7,11 +7,13 @@ import { orderApi } from "./api/orderApi";
 
 import userReducer from "./features/userSlice";
 import cartReducer from "./features/cartSlice";
+import buyNowReducer from "./features/buyNowSlice";
 
 export const store = configureStore({
   reducer: {
     auth: userReducer,
     cart: cartReducer,
+    buyNow: buyNowReducer,
     [productApi.reducerPath]: productApi.reducer,
     [authApi.reducerPath]: authApi.reducer,
     [userApi.reducerPath]: userApi.reducer,

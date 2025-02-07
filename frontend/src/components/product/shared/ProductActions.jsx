@@ -1,32 +1,51 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "@/redux/features/cartSlice";
+import { setBuyNowItem } from "@/redux/features/buyNowSlice";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const ProductActions = ({ product, onAddToCart }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
+  const { isAuthenticated } = useSelector((state) => state.auth);
 
-  // A function to handle adding a product to the cart
+  const formatProductForCart = () => ({
+    product: product._id,
+    name: product.product_name,
+    discounted_price: product.discounted_price || product.price,
+    price: product.price,
+    discount: product.discount,
+    image: product.product_images[0]?.url,
+    quantity: 1,
+    stock: product.stock,
+    color: product.product_color?.name || null,
+    includes: product.product_includes || "",
+  });
+
+  // Handle adding to cart
   const handleAddToCart = () => {
-    const itemToAdd = {
-      product: product._id,
-      name: product.product_name,
-      discounted_price: product.discounted_price || product.price,
-      price: product.price,
-      discount: product.discount,
-      image: product.product_images[0]?.url,
-      quantity: 1,
-      stock: product.stock,
-      color: product.product_color?.name || null,
-      includes: product.product_includes || "",
-    };
-
-    dispatch(addToCart(itemToAdd));
+    dispatch(addToCart(formatProductForCart()));
     onAddToCart?.();
     toast.success("Added to cart successfully");
+  };
+
+  // Handle buy now
+  const handleBuyNow = () => {
+    if (!isAuthenticated) {
+      toast.error("Please login to proceed with purchase");
+      navigate("/login", {
+        state: {
+          from: location.pathname,
+          returnTo: "product",
+        },
+      });
+      return;
+    }
+    dispatch(setBuyNowItem(formatProductForCart()));
+    navigate("/checkout?mode=buy_now");
   };
 
   return (
@@ -42,7 +61,7 @@ const ProductActions = ({ product, onAddToCart }) => {
         variant="outline"
         className="flex-1 bg-brand hover:bg-darkBrand hover:text-white hover:scale-105 transition-all duration-300 border-slate-700 text-md"
         disabled={!product?.stock || product?.stock <= 0}
-        onClick={() => navigate(`/checkout`)}
+        onClick={handleBuyNow}
       >
         Buy Now
       </Button>

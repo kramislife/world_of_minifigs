@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { PAYMENT_METHODS } from "@/constant/paymentMethod";
 import {
   updateQuantity,
@@ -11,12 +11,28 @@ import { toast } from "react-toastify";
 import { useGetMeQuery, useGetUserAddressesQuery } from "@/redux/api/userApi";
 import { useCreateOrderMutation } from "@/redux/api/orderApi";
 import { useCreatePayPalOrderMutation } from "@/redux/api/checkoutApi";
-import { selectCartTotal } from "@/redux/features/cartSlice";
 
 const useCheckout = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const isBuyNow = searchParams.get("mode") === "buy_now";
+
   const { cartItems } = useSelector((state) => state.cart);
+  const buyNowItem = useSelector((state) => state.buyNow.item);
+
+  // Use either buy now item or cart items based on mode
+  const checkoutItems = isBuyNow && buyNowItem ? [buyNowItem] : cartItems;
+
+  // Calculate total based on active items
+  const total = useMemo(() => {
+    return checkoutItems.reduce((sum, item) => {
+      const price = Number(item.discounted_price) || 0;
+      const quantity = Number(item.quantity) || 0;
+      return sum + price * quantity;
+    }, 0);
+  }, [checkoutItems]);
+
   const { data: userData } = useGetMeQuery();
   const { data: userAddresses } = useGetUserAddressesQuery();
   const [createOrder] = useCreateOrderMutation();
@@ -24,7 +40,9 @@ const useCheckout = () => {
   // Initialize email with user's email
   const [email, setEmail] = useState("");
   const [selectedShippingAddress, setSelectedShippingAddress] = useState(null);
-  const [paymentMethod, setPaymentMethod] = useState(PAYMENT_METHODS.CREDIT_CARD);
+  const [paymentMethod, setPaymentMethod] = useState(
+    PAYMENT_METHODS.CREDIT_CARD
+  );
   const [orderNotes, setOrderNotes] = useState("");
 
   // Set email when user data is loaded
@@ -34,9 +52,6 @@ const useCheckout = () => {
       console.log("Setting user email:", userData.email);
     }
   }, [userData]);
-
-  // Move total calculation to cartSlice as it's cart-related logic
-  const total = useSelector(selectCartTotal);
 
   // Simplified address change handler
   const handleAddressChange = (field, value) => {
@@ -51,16 +66,17 @@ const useCheckout = () => {
   const [createPayPalOrder] = useCreatePayPalOrderMutation();
 
   // Update the formatCartItems function to handle color correctly
-  const formatCartItems = () => cartItems.map((item) => ({
-    product: item.product,
-    name: item.name,
-    quantity: Number(item.quantity),
-    price: Number(item.price),
-    image: item.image,
-    isPreOrder: Boolean(item.isPreOrder),
-    color: item.color || undefined, // Just pass the color name string
-    includes: item.includes || undefined
-  }));
+  const formatCartItems = () =>
+    checkoutItems.map((item) => ({
+      product: item.product,
+      name: item.name,
+      quantity: Number(item.quantity),
+      price: Number(item.discounted_price) || 0,
+      image: item.image,
+      isPreOrder: Boolean(item.isPreOrder),
+      color: item.color || undefined, // Just pass the color name string
+      includes: item.includes || undefined,
+    }));
 
   // Creating a base order data for the order
   const createBaseOrderData = (paymentInfo) => {
@@ -72,17 +88,17 @@ const useCheckout = () => {
     const orderData = {
       email: String(email).trim().toLowerCase(),
       shippingAddress: selectedShippingAddress._id,
-      orderItems: formatCartItems().map(item => ({
+      orderItems: formatCartItems().map((item) => ({
         ...item,
-          // Only include color if it exists
+        // Only include color if it exists
         ...(item.color && { color: item.color }),
-        ...(item.includes && { includes: item.includes })
+        ...(item.includes && { includes: item.includes }),
       })),
       paymentInfo: {
         method: paymentInfo.method,
         transactionId: paymentInfo.transactionId,
         status: paymentInfo.status,
-        paidAt: paymentInfo.paidAt
+        paidAt: paymentInfo.paidAt,
       },
       itemsPrice: Number(total),
       taxPrice: 0,
@@ -93,7 +109,7 @@ const useCheckout = () => {
     };
 
     console.log("Order data being sent:", JSON.stringify(orderData, null, 2));
-    
+
     return orderData;
   };
 
@@ -223,7 +239,7 @@ const useCheckout = () => {
 
   return {
     paymentMethod,
-    cartItems,
+    cartItems: checkoutItems,
     total,
     handleAddressChange,
     handlePaymentMethodChange,

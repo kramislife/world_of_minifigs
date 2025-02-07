@@ -95,6 +95,7 @@ subCollectionSchema.pre("findOneAndUpdate", async function (next) {
 });
 
 subCollectionSchema.index({ key: 1 });
+subCollectionSchema.index({ collection: 1 });
 
 const SubCollection = mongoose.model("SubCollection", subCollectionSchema);
 
