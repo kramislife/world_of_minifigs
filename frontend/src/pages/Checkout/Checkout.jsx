@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import ContactSection from "./components/ContactSection";
 import ShippingSection from "./components/ShippingSection";
 import PaymentSection from "./components/PaymentSection";
@@ -6,18 +8,23 @@ import OrderSummary from "./components/OrderSummary";
 import useCheckout from "@/hooks/Payment/useCheckout";
 import Metadata from "@/components/layout/Metadata/Metadata";
 import DeleteConfirmDialog from "@/components/admin/shared/DeleteDialog";
-import { useDeleteAddressMutation } from "@/redux/api/userApi";
+import {
+  useDeleteAddressMutation,
+  useGetUserAddressesQuery,
+} from "@/redux/api/userApi";
 import { toast } from "react-toastify";
-import { useGetUserAddressesQuery } from "@/redux/api/userApi";
+import { clearBuyNowItem } from "@/redux/features/buyNowSlice";
 
 const Checkout = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const [searchParams] = useSearchParams();
+  const mode = searchParams.get("mode");
+
   const {
-    email,
-    address,
     paymentMethod,
     cartItems,
     total,
-    handleEmailChange,
     handleAddressChange,
     handlePaymentMethodChange,
     handleSubmit,
@@ -25,11 +32,32 @@ const Checkout = () => {
     handleRemoveItem,
     userAddresses,
     user,
-    handleCardDetailsChange,
-    cardDetails,
+    selectedShippingAddress,
     handlePayPalApprove,
     handleStripeSuccess,
+    email,
+    handleEmailChange,
+    orderNotes,
+    handleOrderNotesChange,
+    isBuyNow,
   } = useCheckout();
+
+  // Clear buy now item when leaving checkout page
+  useEffect(() => {
+    return () => {
+      if (mode !== "buy_now") {
+        dispatch(clearBuyNowItem());
+      }
+    };
+  }, [dispatch, mode]);
+
+  // Redirect if no items
+  useEffect(() => {
+    if (!cartItems || cartItems.length === 0) {
+      toast.error("No items in checkout");
+      navigate("/products");
+    }
+  }, [cartItems, navigate]);
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [addressToDelete, setAddressToDelete] = useState(null);
@@ -58,7 +86,7 @@ const Checkout = () => {
 
   return (
     <>
-      <Metadata title="Checkout" />
+      <Metadata title={`Checkout - ${isBuyNow ? "Buy Now" : "Cart"}`} />
       <div className="min-h-screen bg-brand-gradient py-10">
         <div className="mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
@@ -70,7 +98,7 @@ const Checkout = () => {
                   onEmailChange={handleEmailChange}
                 />
                 <ShippingSection
-                  address={address}
+                  address={selectedShippingAddress}
                   onAddressChange={handleAddressChange}
                   userAddresses={userAddresses}
                   userName={user?.name}
@@ -81,11 +109,8 @@ const Checkout = () => {
                   paymentMethod={paymentMethod}
                   onPaymentMethodChange={handlePaymentMethodChange}
                   total={total}
-                  address={address}
                   onSubmit={handleSubmit}
                   onPayPalApprove={handlePayPalApprove}
-                  handleCardDetailsChange={handleCardDetailsChange}
-                  cardDetails={cardDetails}
                   handleStripeSuccess={handleStripeSuccess}
                 />
               </form>
@@ -98,13 +123,15 @@ const Checkout = () => {
                 total={total}
                 updateQuantity={handleUpdateQuantity}
                 removeItem={handleRemoveItem}
+                orderNotes={orderNotes}
+                onOrderNotesChange={handleOrderNotesChange}
+                isBuyNow={isBuyNow}
               />
             </div>
           </div>
         </div>
       </div>
 
-      {/* Delete Confirmation Dialog */}
       <DeleteConfirmDialog
         isOpen={isDeleteDialogOpen}
         onClose={() => setIsDeleteDialogOpen(false)}

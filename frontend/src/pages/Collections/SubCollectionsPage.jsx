@@ -1,76 +1,68 @@
-import React from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import {
-  useGetCollectionDetailsQuery,
-  useGetSubCollectionsQuery,
-} from "@/redux/api/productApi";
+import React, { useRef } from "react";
+import { motion, useInView } from "framer-motion";
+import { useParams } from "react-router-dom";
 import LoadingSpinner from "@/components/layout/spinner/LoadingSpinner";
 import Metadata from "@/components/layout/Metadata/Metadata";
-import { Button } from "@/components/ui/button";
 import { CategoryFallback } from "@/components/product/shared/FallbackStates";
-import { ArrowLeft } from "lucide-react";
 import CollectionGrid from "./CollectionGrid";
+import { useSubCollections } from "@/hooks/Product/useSubCollections";
+import { collectionsAnimations } from "@/hooks/Animation/animationConfig";
 
 const SubCollectionsPage = () => {
-  const navigate = useNavigate();
   const { id: collectionId } = useParams();
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, amount: 0.2 });
 
-  const { data: collectionDetails, isLoading: isCollectionLoading } =
-    useGetCollectionDetailsQuery(collectionId);
-  const { data: subCollectionsData, isLoading: isSubCollectionsLoading } =
-    useGetSubCollectionsQuery();
+  const {
+    subCollections,
+    collectionDetails,
+    isLoading,
+    isError,
+    handleSubCollectionClick,
+  } = useSubCollections(collectionId);
 
-  const isLoading = isCollectionLoading || isSubCollectionsLoading;
-
-  const handleSubCollectionClick = (subCollection) => {
-    navigate(`/products?product_sub_collections=${subCollection._id}`);
-  };
-
-  if (isLoading) {
+  if (isError) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <LoadingSpinner />
+        <CategoryFallback
+          title="Error Loading Collections"
+          message="There was an error loading the collections. Please try again later."
+        />
       </div>
     );
   }
-
-  const subCollections =
-    subCollectionsData?.subcollections?.filter(
-      (sub) => sub.collection?._id === collectionId
-    ) || [];
 
   return (
     <>
       <Metadata
         title={
           collectionDetails?.collection?.name
-            ? `${collectionDetails.collection.name} Sub-Collections`
+            ? `${collectionDetails.collection.name}`
             : "Sub-Collections"
         }
       />
-      <section className="p-4">
-        {subCollections.length > 0 ? (
+      <section ref={ref} className="p-4">
+        {isLoading ? (
+          <div className="flex justify-center items-center min-h-[400px]">
+            <LoadingSpinner />
+          </div>
+        ) : subCollections.length > 0 ? (
           <>
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4 pt-5">
-              <div className="flex items-center">
-                <div className="flex items-center">
-                  {/* <Button
-                    variant="ghost"
-                    className="p-2 hover:bg-transparent rounded-full mr-2"
-                    onClick={() => navigate("/collections")}
-                  >
-                    <ArrowLeft className="h-6 w-6 text-red-500" />
-                  </Button> */}
-                  <h2 className="text-3xl font-bold">
-                    {collectionDetails?.collection?.name}
-                  </h2>
-                </div>
-              </div>
-            </div>
+            <motion.h2
+              variants={collectionsAnimations.titleVariants}
+              initial="hidden"
+              animate={isInView ? "visible" : "hidden"}
+              className="text-3xl text-gray-300 font-extrabold mb-4 pt-6 header-text flex items-center gap-2 py-5"
+            >
+              <div className="w-1 h-8 bg-red-500 rounded mr-2" />
+              <span>{collectionDetails?.collection?.name}</span>
+            </motion.h2>
 
             <CollectionGrid
               collections={subCollections}
               onCollectionClick={handleSubCollectionClick}
+              isInView={isInView}
+              animations={collectionsAnimations}
             />
           </>
         ) : (

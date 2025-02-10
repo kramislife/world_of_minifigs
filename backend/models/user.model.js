@@ -168,6 +168,9 @@ userSchema.methods.generateResetPasswordToken = function () {
     Date.now() + process.env.PASSWORD_RESET_EXPIRY * 60 * 1000
   ); // 30 minutes from now
 
+    // new Date(
+    //   Date.now() + 5 * 1000);
+
   return resetPasswordToken;
 };
 

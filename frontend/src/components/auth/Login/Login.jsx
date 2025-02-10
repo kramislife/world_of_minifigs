@@ -14,15 +14,23 @@ const Login = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from?.pathname || "/";
+
+  // Get the saved product info and action
+  const from = location.state?.from || "/";
+  const returnTo = location.state?.returnTo;
 
   const { isAuthenticated, user } = useSelector((state) => state.auth);
   const [login, { isLoading }] = useLoginMutation();
 
   useEffect(() => {
     if (isAuthenticated) {
-      // If user is admin/employee and trying to access admin routes, let them
-      // Otherwise, redirect based on role
+      // If returning to product page, just go back to the product
+      if (returnTo === "product") {
+        navigate(from);
+        return;
+      }
+
+      // Otherwise handle normal admin/employee routing
       const isAdminOrEmployee = ["admin", "employee", "superAdmin"].includes(
         user?.role
       );
@@ -37,7 +45,19 @@ const Login = () => {
         navigate(isAdminOrEmployee ? "/admin" : from);
       }
     }
-  }, [isAuthenticated, user, navigate, from]);
+  }, [isAuthenticated, user, navigate, from, returnTo]);
+
+  const onLoginSuccess = () => {
+    const returnPath = location.state?.from || "/";
+
+    // Navigate back with state to trigger cart opening
+    navigate(returnPath, {
+      state: {
+        from: "/login",
+        isCheckout: location.state?.isCheckout,
+      },
+    });
+  };
 
   const submitHandler = async (e) => {
     e.preventDefault();
@@ -48,6 +68,7 @@ const Login = () => {
         password,
       }).unwrap();
       toast.success(result?.message);
+      onLoginSuccess();
     } catch (err) {
       toast.error(err?.data?.message || "An error occurred during login");
     }
@@ -128,7 +149,7 @@ const Login = () => {
                   className="text-right"
                 >
                   <Link
-                    to="/forgot_password"
+                    to="/password/forgot"
                     className="text-sm hover:text-blue transition-colors duration-300 font-md underline tracking-widest text-red-500 hover:text-white"
                   >
                     Forgot Password?

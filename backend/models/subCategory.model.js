@@ -103,6 +103,7 @@ subCategorySchema.pre("findOneAndUpdate", async function (next) {
 });
 
 subCategorySchema.index({ key: 1 });
+subCategorySchema.index({ category: 1 });
 
 const SubCategory = mongoose.model("SubCategory", subCategorySchema);
 

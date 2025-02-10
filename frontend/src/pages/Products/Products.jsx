@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import FilterAccordion from "@/components/product/FilterAccordion";
 import ProductSection from "@/components/product/ProductSection";
 import Metadata from "@/components/layout/Metadata/Metadata";
@@ -23,6 +23,7 @@ const Products = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [currentSort, setCurrentSort] = useState("date_desc");
   const scrollToTop = useScrollToTop();
+  const navigate = useNavigate();
 
   // Fetch all product data
   const { productData, isProductLoading, productError, filterData } =
@@ -61,6 +62,11 @@ const Products = () => {
     newSearchParams.set("page", "1");
     setSearchParams(newSearchParams);
     scrollToTop();
+  };
+
+  // Add this new handler for image navigation
+  const handleImageNavigation = (productId) => {
+    navigate(`/product/${productId}`);
   };
 
   // Loading state
@@ -146,7 +152,10 @@ const Products = () => {
               />
             </div>
             {paginatedProducts && paginatedProducts.length > 0 ? (
-              <ProductSection products={paginatedProducts} />
+              <ProductSection
+                products={paginatedProducts}
+                onImageNavigation={handleImageNavigation}
+              />
             ) : (
               <div className="flex flex-col items-center justify-center py-16">
                 <h3 className="text-3xl font-semibold text-gray-300 mb-2">
