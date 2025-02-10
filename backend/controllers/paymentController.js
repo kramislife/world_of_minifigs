@@ -60,3 +60,31 @@ export const getStripeApiKey = catchAsyncErrors(async (req, res, next) => {
     stripeApiKey: process.env.STRIPE_PUBLISHABLE_KEY,
   });
 });
+
+// Process Refund
+export const processRefund = catchAsyncErrors(async (req, res, next) => {
+  const { paymentIntentId } = req.body;
+
+  if (!paymentIntentId) {
+    return next(new ErrorHandler("Payment Intent ID is required", 400));
+  }
+
+  try {
+    // Create refund
+    const refund = await stripe.refunds.create({
+      payment_intent: paymentIntentId,
+    });
+
+    if (refund.status === 'succeeded') {
+      res.status(200).json({
+        success: true,
+        message: "Refund processed successfully",
+        refund,
+      });
+    } else {
+      return next(new ErrorHandler("Refund could not be processed", 400));
+    }
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 500));
+  }
+});
