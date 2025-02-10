@@ -185,23 +185,66 @@ const productSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// ----------------------------------- PRE-SAVE HOOK TO GENERATE PRODUCT KEY -----------------------------------
+// Add these indexes to improve query performance
+productSchema.index({ product_category: 1 });
+productSchema.index({ product_sub_categories: 1 });
+productSchema.index({ product_collection: 1 });
+productSchema.index({ product_sub_collections: 1 });
 
+// Add population configuration
+productSchema.pre(/^find/, function (next) {
+  this.populate([
+    {
+      path: "product_category",
+      select: "name key",
+    },
+    {
+      path: "product_sub_categories",
+      select: "name key category",
+      populate: {
+        path: "category",
+        select: "name key",
+      },
+    },
+    {
+      path: "product_collection",
+      select: "name key",
+    },
+    {
+      path: "product_sub_collections",
+      select: "name key collection",
+      populate: {
+        path: "collection",
+        select: "name key",
+      },
+    },
+  ]);
+  next();
+});
+
+// Optimize the existing pre-save hook
 productSchema.pre("save", async function (next) {
+  // Only generate key if name and color are present and key doesn't exist
   if (this.product_name && this.product_color && !this.key) {
     this.product_name = this.product_name.trim();
     this.key = `${this.product_name
       .toLowerCase()
       .trim()
       .replace(/\s+/g, "_")}_${this.product_color.toString()}`;
-  }
 
   // ---------------------------------- CHECK FOR UNIQUE KEY CONSTRAINT -----------------------------------------------
     const existingProduct = await mongoose
       .model("Product")
-      .findOne({ key: this.key });
+      .findOne({ key: this.key })
+      .select("_id");
+
     if (existingProduct) {
-    return next(new Error("A product with this name and color combination already exists."));
+      return next(
+        new Error(
+          "A product with this name and color combination already exists."
+        )
+      );
+    }
   }
   next();
 });
@@ -211,24 +254,30 @@ productSchema.pre("save", async function (next) {
 productSchema.pre("findOneAndUpdate", async function (next) {
   const update = this.getUpdate();
   if (update.product_name || update.product_color) {
+    const doc = await this.model
+      .findOne(this.getQuery())
+      .select("product_name product_color");
+
     const productName = update.product_name
       ? update.product_name.trim()
-      : (await mongoose.model("Product").findById(this.getQuery()._id))
-          .product_name;
+      : doc.product_name;
     const productColor = update.product_color
       ? update.product_color
-      : (await mongoose.model("Product").findById(this.getQuery()._id))
-          .product_color;
+      : doc.product_color;
 
     update.key = `${productName
       .toLowerCase()
       .trim()
       .replace(/\s+/g, "_")}_${productColor.toString()}`;
 
-    // Check if the key is unique
-    const existingProduct = await mongoose
-      .model("Product")
-      .findOne({ key: update.key, _id: { $ne: this.getQuery()._id } });
+    // Check unique key only when necessary
+    const existingProduct = await this.model
+      .findOne({
+        key: update.key,
+        _id: { $ne: this.getQuery()._id },
+      })
+      .select("_id");
+
     if (existingProduct) {
       return next(new Error("Product key must be unique."));
     }

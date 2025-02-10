@@ -1,36 +1,28 @@
 import React from "react";
-import { motion } from "framer-motion";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import StarRating from "@/components/product/shared/StarRating";
 import { PlaceholderImage } from "@/components/product/shared/FallbackStates";
-import ProductStatus from "@/components/product/shared/ProductStatus";
 
 const ProductCard = ({ product }) => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const category = searchParams.get("category");
 
-  const hasImages =
-    product?.product_images && product.product_images.length > 0;
+  // Check if the product has images otherwise show the placeholder image
+  const hasImages = product?.product_images && product.product_images.length > 0;
 
+  // Function to handle the "View Details" button click
   const handleViewDetails = () => {
-    if (category) {
-      navigate(`/products/${category}/${product?._id}`);
-    } else {
-      navigate(`/products/${product?._id}`);
-    }
+    const path = category 
+      ? `/products/${category}/${product?._id}`
+      : `/products/${product?._id}`;
+    navigate(path);
   };
 
-  const discountedPrice = product?.discounted_price || 0;
-
   return (
-    <motion.div
+    <div
       onClick={handleViewDetails}
       className="bg-brand-gradient/80 text-slate-100 border border-slate-700 rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-100 group relative cursor-pointer"
-      layout
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.95 }}
     >
       {/* Discount Badge */}
       {product?.discount > 0 && (
@@ -62,30 +54,11 @@ const ProductCard = ({ product }) => {
         </button>
       </div>
 
-      {/* Product Info */}
+      {/* Product Name */}
       <div className="p-5 flex flex-col gap-5">
-        {/* Product Name */}
         <h3 className="text-lg font-semibold transition-colors line-clamp-1">
           {product?.product_name || "Unnamed Product"}
         </h3>
-
-        {/* Categories */}
-        {/* <div className="flex flex-wrap gap-1">
-          {product?.product_category?.length > 0 ? (
-            product.product_category.map((category, index) => (
-              <span
-                key={index}
-                className="text-xs px-2.5 py-1 rounded-full border bg-blue-500/20 text-blue-400 border-blue-500/10 transition-colors duration-300"
-              >
-                {category.name}
-              </span>
-            ))
-          ) : (
-            <span className="text-xs px-2.5 py-1 rounded-full border text-gray-500 border-gray-500/20 capitalize transition-colors duration-300">
-              No categories
-            </span>
-          )}
-        </div> */}
 
         {/* Pricing and Ratings */}
         <div className="flex flex-col gap-3 mt-auto">
@@ -115,22 +88,10 @@ const ProductCard = ({ product }) => {
                 ({product?.reviews?.length || 0})
               </span>
             </div>
-
-            {/* Stock Status */}
-            {/* <div className="flex items-center h-6">
-              {product?.product_category?.length > 0 ? (
-                <span className="text-sm bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full">
-                  {product.product_category.map((col) => col.name).join(", ")}
-                </span>
-              ) : (
-                <span className="text-sm text-slate-500">No collection</span>
-              )}
-              <ProductStatus stock={product?.stock} />
-            </div> */}
           </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 

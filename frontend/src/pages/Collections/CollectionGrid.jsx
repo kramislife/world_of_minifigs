@@ -2,29 +2,29 @@ import React from "react";
 import { Card, CardFooter } from "@/components/ui/card";
 import { PlaceholderImage } from "@/components/product/shared/FallbackStates";
 import { motion } from "framer-motion";
-import { categoryAnimations } from "@/hooks/Animation/animationConfig";
 
-const CollectionGrid = ({ collections, onCollectionClick }) => {
+// A grid layout to view the collections in three column card layout
+const CollectionGrid = ({ collections, onCollectionClick, isInView, animations }) => {
   return (
     <motion.div
       className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mx-auto mb-8"
-      variants={categoryAnimations.containerVariants}
+      variants={animations.containerVariants}
       initial="hidden"
-      animate="visible"
+      animate={isInView ? "visible" : "hidden"}
     >
       {collections.map((collection) => (
         <motion.div
           key={collection._id}
           onClick={() => onCollectionClick(collection)}
           className="cursor-pointer"
-          variants={categoryAnimations.cardVariants}
+          variants={animations.cardVariants}
         >
           <Card className="overflow-hidden bg-gradient-r border-none rounded-lg cursor-pointer">
             <div className="relative w-full">
               <motion.div
                 initial="initial"
                 animate="animate"
-                variants={categoryAnimations.imageVariants}
+                variants={animations.imageVariants}
               >
                 {collection.image?.url ? (
                   <img
@@ -40,7 +40,7 @@ const CollectionGrid = ({ collections, onCollectionClick }) => {
                 className="absolute inset-0 bg-darkBrand/50"
                 initial="initial"
                 whileHover="hover"
-                variants={categoryAnimations.overlayVariants}
+                variants={animations.overlayVariants}
               />
             </div>
 

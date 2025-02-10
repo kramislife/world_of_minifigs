@@ -1,4 +1,5 @@
 import { createSlice, createSelector } from "@reduxjs/toolkit";
+import { productApi } from "../api/productApi";
 
 // Load initial state from localStorage
 const loadCartFromStorage = () => {
@@ -13,58 +14,115 @@ const loadCartFromStorage = () => {
 
 const initialState = loadCartFromStorage();
 
+const updateCartItem = (item, updatedProduct) => ({
+  ...item,
+  name: updatedProduct.product_name,
+  image: updatedProduct.product_images?.[0]?.url || item.image,
+  discounted_price: updatedProduct.discounted_price || updatedProduct.price,
+  price: updatedProduct.price,
+  discount: updatedProduct.discount,
+  stock: updatedProduct.stock,
+  color: updatedProduct.product_color?.name || null,
+  includes: updatedProduct.product_includes || "",
+});
+
 const cartSlice = createSlice({
   name: "cart",
   initialState,
   reducers: {
     addToCart: (state, action) => {
-      const item = {
-        ...action.payload,
-        price:
-          Number(action.payload.discounted_price || action.payload.price) || 0,
-      };
+      const newItem = action.payload;
       const existingItemIndex = state.cartItems.findIndex(
-        (i) => i.product === item.product
+        (item) => item.product === newItem.product
       );
 
       if (existingItemIndex !== -1) {
-        // Update quantity of existing item
-        state.cartItems[existingItemIndex].quantity += item.quantity;
-        // Move the updated item to the top
-        const updatedItem = state.cartItems.splice(existingItemIndex, 1)[0];
-        state.cartItems.unshift(updatedItem);
+        // Update quantity without changing position
+        state.cartItems[existingItemIndex].quantity += 1;
       } else {
-        // Add new item to the beginning of the array
-        state.cartItems.unshift(item);
+        // Add new item to the start of the array
+        state.cartItems.unshift({ ...newItem, quantity: 1 });
       }
-      // Save to localStorage
       localStorage.setItem("cart", JSON.stringify(state));
     },
     removeFromCart: (state, action) => {
       state.cartItems = state.cartItems.filter(
         (item) => item.product !== action.payload
       );
-      // Save to localStorage
       localStorage.setItem("cart", JSON.stringify(state));
     },
     updateQuantity: (state, action) => {
       const { product, quantity } = action.payload;
-      const itemIndex = state.cartItems.findIndex((i) => i.product === product);
+      const itemIndex = state.cartItems.findIndex(
+        (item) => item.product === product
+      );
+
       if (itemIndex !== -1) {
-        // Update quantity
+        // Update quantity without changing position
         state.cartItems[itemIndex].quantity = quantity;
-        // Move the updated item to the top
-        const updatedItem = state.cartItems.splice(itemIndex, 1)[0];
-        state.cartItems.unshift(updatedItem);
       }
-      // Save to localStorage
       localStorage.setItem("cart", JSON.stringify(state));
     },
     clearCart: (state) => {
       state.cartItems = [];
-      // Clear localStorage
-      localStorage.removeItem("cart");
+      localStorage.setItem("cart", JSON.stringify(state));
     },
+  },
+  // Add extraReducers to handle product updates
+  extraReducers: (builder) => {
+    // Handle product updates
+    builder.addMatcher(
+      productApi.endpoints.updateProduct.matchFulfilled,
+      (state, { payload }) => {
+        const updatedProduct = payload?.product;
+        if (updatedProduct) {
+          state.cartItems = state.cartItems.map((item) =>
+            item.product === updatedProduct._id
+              ? updateCartItem(item, updatedProduct)
+              : item
+          );
+          localStorage.setItem("cart", JSON.stringify(state));
+        }
+      }
+    );
+
+    // Handle successful product fetch
+    builder.addMatcher(
+      productApi.endpoints.getProducts.matchFulfilled,
+      (state, { payload }) => {
+        if (payload?.products) {
+          const updatedItems = state.cartItems.map((item) => {
+            const updatedProduct = payload.products.find(
+              (p) => p._id === item.product
+            );
+            return updatedProduct ? updateCartItem(item, updatedProduct) : item;
+          });
+
+          if (
+            JSON.stringify(updatedItems) !== JSON.stringify(state.cartItems)
+          ) {
+            state.cartItems = updatedItems;
+            localStorage.setItem("cart", JSON.stringify(state));
+          }
+        }
+      }
+    );
+
+    // Handle successful single product fetch
+    builder.addMatcher(
+      productApi.endpoints.getProductDetails.matchFulfilled,
+      (state, { payload }) => {
+        const updatedProduct = payload?.product;
+        if (updatedProduct) {
+          state.cartItems = state.cartItems.map((item) =>
+            item.product === updatedProduct._id
+              ? updateCartItem(item, updatedProduct)
+              : item
+          );
+          localStorage.setItem("cart", JSON.stringify(state));
+        }
+      }
+    );
   },
 });
 
@@ -76,8 +134,7 @@ export const selectCartTotal = createSelector(
   [selectCartItems],
   (cartItems) => {
     return cartItems.reduce((sum, item) => {
-      // Ensure price and quantity are numbers and valid
-      const price = Number(item.price) || 0;
+      const price = Number(item.discounted_price) || 0;
       const quantity = Number(item.quantity) || 0;
       return sum + price * quantity;
     }, 0);

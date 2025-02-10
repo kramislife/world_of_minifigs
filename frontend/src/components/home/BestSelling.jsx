@@ -1,65 +1,27 @@
-import React, { useEffect } from "react";
+import React from "react";
 import ProductGrid from "@/components/product/shared/ProductGrid";
+import { useCategoryProducts } from "@/hooks/Product/useCategoryProducts";
+import LoadingSpinner from "@/components/layout/spinner/LoadingSpinner";
 import { bestSellingAnimations } from "@/hooks/Animation/animationConfig";
-import {
-  useGetCategoryByKeyQuery,
-  useGetProductsQuery,
-} from "@/redux/api/productApi";
-import { toast } from "react-toastify";
-import LoadingSpinner from "../layout/spinner/LoadingSpinner";
 
 const BestSelling = () => {
-  // Fetch the category with key "best_seller"
+  const { products, isLoading, categoryId } = useCategoryProducts("best_seller");
 
-  const {
-    data: categoryData,
-    isLoading: isCategoryLoading,
-    isError: isCategoryError,
-    error: categoryError,
-  } = useGetCategoryByKeyQuery("best_seller");
-
-  // Derive the best seller category ID
-  const bestSellerId = categoryData?.category[0]?._id;
-
-  // Fetch products based on the best seller category ID
-  const {
-    data: productsData,
-    isLoading: isProductsLoading,
-    isError: isProductsError,
-    error: productsError,
-  } = useGetProductsQuery(
-    bestSellerId ? { product_category: bestSellerId } : null,
-    { skip: !bestSellerId }
-  );
-
-  // Handle errors for category and products
-  useEffect(() => {
-    if (isCategoryError) {
-      toast.error(categoryError?.message || "Failed to fetch category");
-    }
-    if (isProductsError) {
-      toast.error(productsError?.message || "Failed to fetch products");
-    }
-  }, [isCategoryError, categoryError, isProductsError, productsError]);
-
-  if (isCategoryLoading || (bestSellerId && isProductsLoading)) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[90vh]">
         <LoadingSpinner />
       </div>
     );
   }
-  
+
   return (
-    <>
-      <ProductGrid
-        title="Best Selling Products"
-        products={productsData?.products || []}
-        animations={bestSellingAnimations}
-        baseUrl={`/product_category=${bestSellerId}`}
-        isLoading={isCategoryLoading || (bestSellerId && isProductsLoading)}
-      />
-    </>
+    <ProductGrid
+      title="Best Selling Products"
+      products={products}
+      baseUrl={`/product_category=${categoryId}`}
+      animations={bestSellingAnimations}
+    />
   );
 };
 

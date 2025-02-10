@@ -38,7 +38,9 @@ const ProductView = () => {
     <>
       <Metadata title={data?.product?.product_name || "Product Details"} />
       {isLoading ? (
-        <LoadingSpinner />
+        <div className="flex items-center justify-center h-screen">
+          <LoadingSpinner />
+        </div>
       ) : (
         <div className="min-h-screen bg-brand-gradient">
           {/* Product Details */}

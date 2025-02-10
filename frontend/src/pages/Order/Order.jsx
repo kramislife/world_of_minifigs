@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useGetOrderDetailsQuery, useUpdateOrderMutation } from "@/redux/api/orderApi";
 import { useUpdateProductStockMutation } from "@/redux/api/productApi";
+import { useProcessRefundMutation } from "@/redux/api/checkoutApi";
 import { format } from "date-fns";
 import {
   Loader2,
@@ -26,11 +27,19 @@ const Order = () => {
   const { data: order, isLoading, error } = useGetOrderDetailsQuery(id);
   const [updateOrder, { isLoading: isUpdating }] = useUpdateOrderMutation();
   const [updateProductStock] = useUpdateProductStockMutation();
+  const [processRefund] = useProcessRefundMutation();
   const [showCancelDialog, setShowCancelDialog] = useState(false);
 
   // Cancel Order
   const handleCancelOrder = async (reason) => {
     try {
+      // First check if the order was paid with Stripe
+      if (order.data.paymentInfo.method === "Stripe") {
+        // Process the refund
+        await processRefund(order.data.paymentInfo.transactionId).unwrap();
+      }
+
+      // Update the order status
       await updateOrder({
         id: order.data._id,
         body: {
@@ -40,7 +49,7 @@ const Order = () => {
         },
       }).unwrap();
       
-      // Update Product Stock when Order is Cancelled
+      // Then, restore the stock for each item in the order
       for (const item of order.data.orderItems) {
         const newStock = item.product.stock + item.quantity;
         await updateProductStock({
@@ -49,10 +58,10 @@ const Order = () => {
         }).unwrap();
       }
       
-      toast.success("Order cancelled successfully");
+      toast.success("Order cancelled and refund processed successfully");
       navigate("/my-orders?status=Cancelled");
     } catch (error) {
-      toast.error(error.data?.message || "Failed to cancel order");
+      toast.error(error.data?.message || "Failed to cancel order and process refund");
     }
   };
 

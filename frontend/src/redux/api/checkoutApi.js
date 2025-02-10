@@ -33,6 +33,13 @@ export const checkoutApi = createApi({
         body: { amount },
       }),
     }),
+    processRefund: builder.mutation({
+      query: (paymentIntentId) => ({
+        url: "/payment/refund",
+        method: "POST",
+        body: { paymentIntentId },
+      }),
+    }),
   }),
 });
 
@@ -41,4 +48,5 @@ export const {
   useCapturePayPalOrderMutation,
   useGetStripeApiKeyQuery,
   useProcessStripePaymentMutation,
+  useProcessRefundMutation,
 } = checkoutApi;

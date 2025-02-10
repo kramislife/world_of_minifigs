@@ -50,7 +50,6 @@ const AddressForm = ({ isEdit = false, editAddress = null, userName = "" }) => {
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="space-y-6">
-            
             {/* SelectCountry */}
             <Select
               options={countryOptions}
@@ -71,14 +70,6 @@ const AddressForm = ({ isEdit = false, editAddress = null, userName = "" }) => {
             />
 
             <div className="grid grid-cols-1 gap-4">
-              {/* <Input
-                variant="floating"
-                label="Full Name"
-                value={userName}
-                disabled
-                placeholder=" "
-              /> */}
-
               {/* Address Label */}
               <Input
                 variant="floating"
