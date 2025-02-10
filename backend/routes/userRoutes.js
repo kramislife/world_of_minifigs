@@ -17,6 +17,11 @@ import {
 } from "../controllers/collectionControler.js";
 
 import {
+  getAllSubCategories,
+  getSubCategoryById,
+} from "../controllers/subCategoryController.js";
+
+import {
   getAllSubCollections,
   getSubCollectionById,
 } from "../controllers/subCollectionController.js";
@@ -37,6 +42,7 @@ import {
   getSingleAddress,
   updateAddress,
 } from "../controllers/authController.js";
+import { getAllColors } from "../controllers/colorController.js";
 
 const router = express.Router();
 
@@ -58,12 +64,20 @@ router.route("/collections").get(getAllCollections);
 // GET COLLECTION BY ID
 router.route("/collections/:id").get(getCollectionById);
 
+// ---------------------------------- SUB-CATEGORIES ---------------------------------------------
+// GET ALL SUB-CATEGORIES 
+router.route("/subcategories").get(getAllSubCategories);
+
+// GET SUB-CATEGORY BY ID 
+router.route("/subcategories/:id").get(getSubCategoryById);
+
 // ---------------------------------- SUB-COLLECTIONS ---------------------------------------------
 // GET ALL SUB-COLLECTIONS 
 router.route("/subcollections").get(getAllSubCollections);
 
 // GET SUB-COLLECTION BY ID 
 router.route("/subcollections/:id").get(getSubCollectionById);
+
 
 // ---------------------------------- SKILL --------------------------------------------------
 // GET ALL SKILLS
@@ -110,4 +124,9 @@ router.route("/me/addresses/:id").get(isAuthenticatedUser, getSingleAddress);
 // DELETE AN ADDRESS
 router.route("/me/addresses/:id").delete(isAuthenticatedUser, deleteAddress);
 
+// ---------------------------------- COLORS --------------------------------------------------
+// GET ALL COLORS 
+router.route("/colors").get(getAllColors);
+
+  
 export default router;
