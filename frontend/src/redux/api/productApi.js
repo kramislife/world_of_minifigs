@@ -439,7 +439,7 @@ export const productApi = createApi({
     // --------------------------------- GET COLORS ---------------------------------------
 
     getColors: builder.query({
-      query: () => `/admin/colors`,
+      query: () => `/colors`,
       providesTags: ["Colors"],
     }),
 
