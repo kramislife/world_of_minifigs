@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Minus, Plus, Trash2, ImageIcon, ShoppingCart } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { toast } from "react-toastify";
+import { useOrderSummary } from "@/hooks/Payment/useOrderSummary";
 
 //  Used to update the quantity of the item in the cart (Below Product Name)
 const QuantityControl = ({ quantity, onUpdate, maxStock }) => {
@@ -45,7 +45,7 @@ const QuantityControl = ({ quantity, onUpdate, maxStock }) => {
 };
 
 //  Used to display the product (image, name, quantity, price)
-const CartItem = ({ item, handleQuantityUpdate, removeItem }) => (
+const CartItem = ({ item, handleQuantityUpdate, removeItem, isBuyNow }) => (
   <div
     key={item.product}
     className="flex gap-3 items-center pb-5 border-b border-white/10 last:border-0"
@@ -94,13 +94,16 @@ const CartItem = ({ item, handleQuantityUpdate, removeItem }) => (
             onUpdate={(newQty) => handleQuantityUpdate(item.product, newQty)}
             maxStock={item.stock}
           />
-          <button
-            type="button"
-            onClick={() => removeItem(item.product)}
-            className="p-1 rounded-md hover:bg-white/10 text-red-500 hover:text-red-400"
-          >
-            <Trash2 size={18} />
-          </button>
+          {/* Only show trash button if not in buy now mode */}
+          {!isBuyNow && (
+            <button
+              type="button"
+              onClick={() => removeItem(item.product)}
+              className="p-1 rounded-md hover:bg-white/10 text-red-500 hover:text-red-400"
+            >
+              <Trash2 size={18} />
+            </button>
+          )}
         </div>
       </div>
       {/* Price */}
@@ -162,38 +165,28 @@ const OrderTotal = ({ subtotal, discount, total }) => (
   </div>
 );
 
-const OrderSummary = ({
-  cartItems,
-  total,
-  updateQuantity,
-  removeItem,
-  orderNotes,
-  onOrderNotesChange,
-}) => {
-  const [discountCode, setDiscountCode] = useState("");
-  const [appliedDiscount, setAppliedDiscount] = useState(0);
+const OrderSummary = () => {
+  const {
+    mode,
+    displayItems,
+    orderNotes,
+    setOrderNotes,
+    discountCode,
+    setDiscountCode,
+    subtotal,
+    appliedDiscount,
+    displayTotal,
+    handleQuantityUpdate,
+    handleRemoveItem,
+    handleApplyDiscount,
+  } = useOrderSummary();
 
-  const subtotal = total;
-  const finalTotal = total - appliedDiscount;
-
-  const handleApplyDiscount = () => {
-    // Here you would typically validate the discount code with your backend
-    // For now, we'll just simulate a 10% discount
-    if (discountCode.toLowerCase() === "discount10") {
-      const discountAmount = total * 0.1;
-      setAppliedDiscount(discountAmount);
-      toast.success("Discount applied successfully!");
-    } else {
-      toast.error("Invalid discount code");
-    }
-  };
-
-  //  If the cart is empty, display a message
-  if (!cartItems?.length) {
+  if (!displayItems?.length) {
     return (
       <Card className="bg-darkBrand/20 backdrop-blur-xl border-white/10">
         <CardContent className="flex flex-col items-center justify-center py-8">
-          <p className="text-white text-center">Your cart is empty</p>
+          <ShoppingCart className="w-12 h-12 text-gray-500 mb-4" />
+          <p className="text-white text-center">No items to display</p>
         </CardContent>
       </Card>
     );
@@ -202,38 +195,45 @@ const OrderSummary = ({
   return (
     <Card className="bg-darkBrand/20 backdrop-blur-xl border-white/10">
       <CardHeader>
-      <CardTitle className="text-white flex items-center  gap-2 text-lg">
+        <CardTitle className="text-white flex items-center gap-2 text-lg">
           <ShoppingCart className="w-5 h-5 text-blue-400" />
           Order Summary
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
-          {cartItems.map((item) => (
+          {/* Display Items */}
+          {displayItems.map((item) => (
             <CartItem
               key={item.product}
               item={item}
-              handleQuantityUpdate={updateQuantity}
-              removeItem={removeItem}
+              handleQuantityUpdate={handleQuantityUpdate}
+              removeItem={handleRemoveItem}
+              isBuyNow={mode === "buy_now"}
             />
           ))}
 
+          {/* Order Notes and Totals */}
           <div className="space-y-4">
             <Textarea
               placeholder="Add any special instructions or notes for your order..."
               value={orderNotes}
-              onChange={(e) => onOrderNotesChange(e.target.value)}
+              onChange={(e) => setOrderNotes(e.target.value)}
               className="bg-brand/10 border-white/10 min-h-[100px] text-white placeholder:text-white/80"
             />
-            <DiscountInput
-              onApplyDiscount={handleApplyDiscount}
-              discountCode={discountCode}
-              setDiscountCode={setDiscountCode}
-            />
+
+            {mode !== "buy_now" && (
+              <DiscountInput
+                onApplyDiscount={handleApplyDiscount}
+                discountCode={discountCode}
+                setDiscountCode={setDiscountCode}
+              />
+            )}
+
             <OrderTotal
               subtotal={subtotal}
               discount={appliedDiscount}
-              total={finalTotal}
+              total={displayTotal}
             />
           </div>
         </div>

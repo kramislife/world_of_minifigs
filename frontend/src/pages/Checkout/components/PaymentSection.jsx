@@ -19,6 +19,10 @@ const PaymentSection = ({
   paymentMethod,
   onPaymentMethodChange,
   total,
+  email,
+  selectedAddress,
+  orderItems,
+  orderNotes,
   onSubmit,
   handleStripeSuccess,
   onPayPalApprove,
@@ -54,6 +58,12 @@ const PaymentSection = ({
     }
   `;
 
+  // Handle payment method change with preventDefault
+  const handlePaymentMethodChange = (methodType, e) => {
+    e.preventDefault(); // Prevent form submission
+    onPaymentMethodChange(methodType);
+  };
+
   return (
     <Card className="bg-darkBrand/20 backdrop-blur-xl border-white/10">
       <CardHeader>
@@ -70,7 +80,8 @@ const PaymentSection = ({
           {paymentMethods.map((method) => (
             <button
               key={method.type}
-              onClick={() => onPaymentMethodChange(method.type)}
+              onClick={(e) => handlePaymentMethodChange(method.type, e)}
+              type="button" // Add type="button" to prevent form submission
               className={`${getPaymentButtonStyles(
                 paymentMethod === method.type
               )} ${method.className}`}
@@ -82,13 +93,23 @@ const PaymentSection = ({
 
         {/* If the payment method is Stripe, show the CardSection component */}
         {paymentMethod === PAYMENT_METHODS.CREDIT_CARD ? (
-          <CardSection total={total} onSubmit={handleStripeSuccess} />
-        ) : (
-          // If the payment method is PayPal, show the PayPalSection component
-          <PayPalSection
-            onSubmit={onSubmit}
-            onApprove={onPayPalApprove}
+          <CardSection
             total={total}
+            email={email}
+            selectedAddress={selectedAddress}
+            orderItems={orderItems}
+            orderNotes={orderNotes}
+            onSubmit={onSubmit}
+            handleStripeSuccess={handleStripeSuccess}
+          />
+        ) : (
+          <PayPalSection
+            total={total}
+            email={email}
+            selectedAddress={selectedAddress}
+            orderItems={orderItems}
+            orderNotes={orderNotes}
+            onApprove={onPayPalApprove}
           />
         )}
       </CardContent>

@@ -5,30 +5,44 @@ import NotFound from "@/components/layout/error/NotFound";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { PayPalScriptProvider } from "@paypal/react-paypal-js";
+import { useGetPayPalCredentialsQuery } from "@/redux/api/checkoutApi";
+import { Provider } from "react-redux";
+import { store } from "@/redux/store";
 
-const paypalOptions = {
-  "client-id": import.meta.env.VITE_PAYPAL_CLIENT_ID,
-  currency: "USD",
-  intent: "capture",
-  "data-client-token": import.meta.env.VITE_PAYPAL_CLIENT_TOKEN,
+const PayPalWrapper = ({ children }) => {
+  const { data: paypalData } = useGetPayPalCredentialsQuery();
+
+
+  const paypalOptions = {
+    "client-id": paypalData?.clientId,
+    currency: "USD",
+    intent: "capture",
+    components: "buttons",
+    "disable-funding": "card",
+  };
+
+  return (
+    <PayPalScriptProvider options={paypalOptions}>
+      {children}
+    </PayPalScriptProvider>
+  );
 };
 
 const App = () => {
   return (
-    <PayPalScriptProvider options={paypalOptions}>
-      <BrowserRouter>
-        <ToastContainer position="top-center" autoClose={3000} />
-        <Routes>
-          {/* Main Route Layout */}
-          <Route element={<RootLayout />}>
-            {UserRoutes}
-
-            {/* 404 Page */}
-            <Route path="*" element={<NotFound />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
-    </PayPalScriptProvider>
+    <Provider store={store}>
+      <PayPalWrapper>
+        <BrowserRouter>
+          <ToastContainer position="top-center" autoClose={3000} />
+          <Routes>
+            <Route element={<RootLayout />}>
+              {UserRoutes}
+              <Route path="*" element={<NotFound />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </PayPalWrapper>
+    </Provider>
   );
 };
 

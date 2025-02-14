@@ -1,8 +1,19 @@
 import Stripe from "stripe";
 import catchAsyncErrors from "../middlewares/catchAsyncErrors.js";
 import ErrorHandler from "../Utills/customErrorHandler.js";
+import Order from "../models/order.model.js";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+// ------------------------------- Stripe Payment------------------------------------------------
+
+// Get Stripe API Key
+export const getStripeApiKey = catchAsyncErrors(async (req, res, next) => {
+  res.status(200).json({
+    success: true,
+    stripeApiKey: process.env.STRIPE_PUBLISHABLE_KEY,
+  });
+});
 
 // Create Payment Intent
 export const processPayment = catchAsyncErrors(async (req, res, next) => {
@@ -53,38 +64,65 @@ export const confirmPayment = catchAsyncErrors(async (req, res, next) => {
   }
 });
 
-// Get Stripe API Key
-export const getStripeApiKey = catchAsyncErrors(async (req, res, next) => {
-  res.status(200).json({
-    success: true,
-    stripeApiKey: process.env.STRIPE_PUBLISHABLE_KEY,
-  });
-});
-
 // Process Refund
 export const processRefund = catchAsyncErrors(async (req, res, next) => {
-  const { paymentIntentId } = req.body;
+  const { orderId, reason } = req.body;
 
-  if (!paymentIntentId) {
-    return next(new ErrorHandler("Payment Intent ID is required", 400));
+  if (!orderId) {
+    return next(new ErrorHandler("Please provide order ID", 400));
   }
 
   try {
-    // Create refund
+    // Get order details
+    const order = await Order.findById(orderId);
+
+    if (!order) {
+      return next(new ErrorHandler("Order not found", 404));
+    }
+
+    // Check if order is already cancelled
+    if (order.orderStatus === "Cancelled") {
+      return next(new ErrorHandler("Order is already cancelled", 400));
+    }
+
+    // Check if payment was made via Stripe
+    if (order.paymentInfo.method !== "Stripe") {
+      return next(
+        new ErrorHandler("Refund only available for Stripe payments", 400)
+      );
+    }
+
+    // Get payment intent ID from order
+    const paymentIntentId = order.paymentInfo.transactionId;
+
+    // Process refund through Stripe
     const refund = await stripe.refunds.create({
       payment_intent: paymentIntentId,
+      reason: "requested_by_customer",
     });
 
-    if (refund.status === 'succeeded') {
-      res.status(200).json({
-        success: true,
-        message: "Refund processed successfully",
-        refund,
-      });
-    } else {
-      return next(new ErrorHandler("Refund could not be processed", 400));
-    }
+    // Update order status
+    order.orderStatus = "Cancelled";
+    order.cancellationReason = reason;
+    order.cancelledAt = Date.now();
+    order.paymentInfo.status = "Refunded";
+    await order.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Order cancelled and payment refunded successfully",
+      refund,
+    });
   } catch (error) {
     return next(new ErrorHandler(error.message, 500));
   }
+});
+
+// ------------------------------- PayPal Payment------------------------------------------------
+// Get PayPal Client ID
+export const getPayPalClientId = catchAsyncErrors(async (req, res, next) => {
+  res.status(200).json({
+    success: true,
+    clientId: process.env.PAYPAL_CLIENT_ID,
+  });
 });

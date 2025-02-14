@@ -15,60 +15,61 @@ const calculateDiscountedPrice = (product) => {
     : product.price || 0;
 };
 
+const populateProductFields = (query) => {
+  return query
+    .populate("product_category", "name")
+    .populate("product_collection", "name")
+    .populate("product_skill_level", "name")
+    .populate("product_designer", "name")
+    .populate("product_color", "name");
+};
+
+const addDiscountedPrice = (products) => {
+  return products.map((product) => ({
+    ...product.toObject(),
+    discounted_price: calculateDiscountedPrice(product),
+  }));
+};
+
 //------------------------------------  GET ALL PRODUCT => GET /products  ------------------------------------
 
 export const getProduct = catchAsyncErrors(async (req, res, next) => {
+  // Handle specific product IDs request
+  if (req.query.ids) {
+    const productIds = req.query.ids.split(",");
+    const products = await populateProductFields(
+      Product.find({ _id: { $in: productIds } })
+    );
+
+    return res.status(200).json({
+      message: `${products.length} Products retrieved successfully`,
+      products: addDiscountedPrice(products),
+    });
+  }
+
+  // Handle paginated product listing
   const resPerPage = 9;
   const currentPage = Number(req.query.page) || 1;
-
-  // Create API filters instance
   const apiFilters = new API_Filters(Product, req.query).search().filters();
 
-  // Get all filtered products for counting (without pagination)
-  const allFilteredProducts = await apiFilters.query
-    .clone()
-    .populate("product_category", "name")
-    .populate("product_collection", "name")
-    .populate("product_skill_level", "name")
-    .populate("product_designer", "name")
-    .populate("product_color", "name");
-
+  const allFilteredProducts = await populateProductFields(
+    apiFilters.query.clone()
+  );
   const filteredProductCount = allFilteredProducts.length;
 
-  // Apply pagination for display products
   apiFilters.pagination(resPerPage);
-
-  // Get paginated products for display
-  const paginatedProducts = await apiFilters.query
-    .clone()
-    .populate("product_category", "name")
-    .populate("product_collection", "name")
-    .populate("product_skill_level", "name")
-    .populate("product_designer", "name")
-    .populate("product_color", "name");
-
-  // Calculate total pages
-  const totalPages = Math.ceil(filteredProductCount / resPerPage);
-
-  // Add discounted_price to each product before sending
-  const productsWithDiscountedPrice = paginatedProducts.map((product) => ({
-    ...product.toObject(),
-    discounted_price: calculateDiscountedPrice(product),
-  }));
-
-  const allProductsWithDiscountedPrice = allFilteredProducts.map((product) => ({
-    ...product.toObject(),
-    discounted_price: calculateDiscountedPrice(product),
-  }));
+  const paginatedProducts = await populateProductFields(
+    apiFilters.query.clone()
+  );
 
   res.status(200).json({
     resPerPage,
     currentPage,
-    totalPages,
+    totalPages: Math.ceil(filteredProductCount / resPerPage),
     filteredProductCount,
     message: `${filteredProductCount} Products retrieved successfully`,
-    products: productsWithDiscountedPrice,
-    allProducts: allProductsWithDiscountedPrice,
+    products: addDiscountedPrice(paginatedProducts),
+    allProducts: addDiscountedPrice(allFilteredProducts),
   });
 });
 
@@ -106,13 +107,7 @@ export const getBestSellerProduct = catchAsyncErrors(async (req, res, next) => {
 //------------------------------------  GET A PRODUCT BY ID  => GET /products/:id  ------------------------------------
 
 export const getProductById = catchAsyncErrors(async (req, res, next) => {
-  const productId = req.params.id;
-  const product = await Product.findById(productId)
-    .populate("product_category", "name")
-    .populate("product_collection", "name")
-    .populate("product_designer", "name")
-    .populate("product_skill_level", "name")
-    .populate("product_color", "name")
+  const product = await populateProductFields(Product.findById(req.params.id))
     .populate("product_sub_categories", "name category")
     .populate("product_sub_collections", "name collection");
 
@@ -120,42 +115,28 @@ export const getProductById = catchAsyncErrors(async (req, res, next) => {
     return next(new ErrorHandler("Product not found", 400));
   }
 
-  // Calculate discounted price for the single product
-  const productWithDiscountedPrice = {
-    ...product.toObject(),
-    discounted_price: calculateDiscountedPrice(product),
-  };
-
-  // Extract the base product name (before any parentheses or color variations)
+  // Find similar products
   const baseProductName = product.product_name.split(/[\(\-]/)[0].trim();
-
-  // Escape special characters in the product_name
   const escapedProductName = baseProductName.replace(
     /[.*+?^${}()|[\]\\]/g,
     "\\$&"
   );
 
-  const similarProducts = await Product.find({
-    product_name: { $regex: escapedProductName, $options: "i" },
-    partID: product.partID,
-    _id: { $ne: product._id },
-  })
-    .populate("product_category", "name")
-    .populate("product_collection", "name")
-    .populate("product_designer", "name")
-    .populate("product_skill_level", "name")
-    .populate("product_color", "name");
-
-  // Calculate discounted price for similar products
-  const similarProductsWithDiscountedPrice = similarProducts.map((product) => ({
-    ...product.toObject(),
-    discounted_price: calculateDiscountedPrice(product),
-  }));
+  const similarProducts = await populateProductFields(
+    Product.find({
+      product_name: { $regex: escapedProductName, $options: "i" },
+      partID: product.partID,
+      _id: { $ne: product._id },
+    })
+  );
 
   res.status(200).json({
     message: "Product Retrieved Successfully",
-    product: productWithDiscountedPrice,
-    similarProducts: similarProductsWithDiscountedPrice,
+    product: {
+      ...product.toObject(),
+      discounted_price: calculateDiscountedPrice(product),
+    },
+    similarProducts: addDiscountedPrice(similarProducts),
   });
 });
 
@@ -181,11 +162,11 @@ export const newProduct = catchAsyncErrors(async (req, res, next) => {
 //------------------------------------  UPDATE A PRODUCT BY ADMIN => PUT /admin/product/:id  ------------------------------------
 
 export const updateProduct = catchAsyncErrors(async (req, res, next) => {
-  const productId = req?.params?.id;
-
-  const updatedProduct = await Product.findByIdAndUpdate(productId, req.body, {
-    new: true,
-  });
+  const updatedProduct = await Product.findByIdAndUpdate(
+    req.params.id,
+    req.body,
+    { new: true }
+  );
 
   if (!updatedProduct) {
     return next(new ErrorHandler("Product not found", 404));
@@ -200,8 +181,7 @@ export const updateProduct = catchAsyncErrors(async (req, res, next) => {
 //------------------------------------  DELETE A PRODUCT BY ID  DELETE  => /admin/product/:id  ------------------------------------
 
 export const deleteProductByID = catchAsyncErrors(async (req, res, next) => {
-  const productId = req?.params?.id;
-  const deletedProduct = await Product.findByIdAndDelete(productId);
+  const deletedProduct = await Product.findByIdAndDelete(req.params.id);
 
   if (!deletedProduct) {
     return next(new ErrorHandler("Product Not Found", 404));
@@ -227,20 +207,16 @@ export const deleteAllProducts = catchAsyncErrors(async (req, res, next) => {
 
 // ------------------------------- UPLOAD PRODUCT IMAGE  ------------------------------------
 export const uploadProductImage = catchAsyncErrors(async (req, res, next) => {
-  // Map images to URLs using `Promise.all`
   const urls = await Promise.all(
     req.body.images.map((image) =>
       upload_product_images(image, "world_of_minifigs//products")
     )
   );
 
-  console.log("URLs:", urls);
-
-  // Update the product directly using findByIdAndUpdate
   const product = await Product.findByIdAndUpdate(
-    req.params.id, // Find the product by ID
-    { $push: { product_images: { $each: urls } } }, // Update operation
-    { new: true, runValidators: true } // Options
+    req.params.id,
+    { $push: { product_images: { $each: urls } } },
+    { new: true, runValidators: true }
   );
 
   if (!product) {
@@ -295,7 +271,6 @@ export const deleteProductImage = catchAsyncErrors(async (req, res, next) => {
 
 // Update Product Stock when Order is Cancelled
 export const updateProductStock = catchAsyncErrors(async (req, res, next) => {
-  const { id } = req.params;
   const { stock } = req.body;
 
   if (stock < 0) {
@@ -303,7 +278,7 @@ export const updateProductStock = catchAsyncErrors(async (req, res, next) => {
   }
 
   const product = await Product.findByIdAndUpdate(
-    id,
+    req.params.id,
     { stock },
     { new: true, runValidators: true }
   );

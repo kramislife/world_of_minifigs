@@ -1,5 +1,20 @@
 import mongoose from "mongoose";
 
+// Consolidate common status enums
+const STATUS_ENUM = {
+  ORDER: [
+    "Pending",
+    "Processing",
+    "Shipped",
+    "Delivered",
+    "Cancelled",
+    "Pre-Order",
+    "On Hold",
+  ],
+  PAYMENT: ["Pending", "Success", "Failed", "Refunded"],
+  ITEM: ["Pending", "Shipped", "Delivered", "Cancelled"],
+};
+
 // Define the Order Schema
 const orderSchema = new mongoose.Schema(
   {
@@ -43,17 +58,8 @@ const orderSchema = new mongoose.Schema(
             type: Number,
             required: true,
           },
-          price: {
-            type: Number,
-            required: true,
-          },
           image: {
             type: String,
-          },
-          status: {
-            type: String,
-            enum: ["Pending", "Shipped", "Delivered", "Cancelled"],
-            default: "Pending",
           },
           isPreOrder: {
             type: Boolean,
@@ -78,7 +84,7 @@ const orderSchema = new mongoose.Schema(
       transactionId: { type: String },
       status: {
         type: String,
-        enum: ["Pending", "Success", "Failed"],
+        enum: STATUS_ENUM.PAYMENT,
         default: "Pending",
       },
       paidAt: { type: Date },
@@ -105,15 +111,7 @@ const orderSchema = new mongoose.Schema(
     },
     orderStatus: {
       type: String,
-      enum: [
-        "Pending",
-        "Processing",
-        "Shipped",
-        "Delivered",
-        "Cancelled",
-        "Pre-Order",
-        "On Hold",
-      ],
+      enum: STATUS_ENUM.ORDER,
       default: "Pending",
     },
     shippingInfo: {
@@ -171,42 +169,46 @@ orderSchema.virtual("totalItems").get(function () {
 
 // ---------------------- Pre-Save Hook to Calculate Total Price ----------------------
 orderSchema.pre("save", async function (next) {
-  // Ensure prices are non-negative
-  if (
-    this.itemsPrice < 0 ||
-    this.taxPrice < 0 ||
-    this.shippingPrice < 0 ||
-    this.discountPrice < 0
-  ) {
-    throw new Error("Prices cannot be negative.");
-  }
-  // Calculate total price
-  this.totalPrice =
-    this.itemsPrice + this.taxPrice + this.shippingPrice - this.discountPrice;
-
-  const productModel = mongoose.model("Product");
-
   try {
-    // Check stock and validate pre-order items
-    for (const item of this.orderItems) {
-      const product = await productModel.findById(item.product);
-      if (!product) {
-        throw new Error(`Product with ID ${item.product} does not exist.`);
-      }
-
-      if (!item.isPreOrder && product.stock < item.quantity) {
-        throw new Error(`Insufficient stock for product: ${item.name}`);
-      }
-
-      if (
-        item.isPreOrder &&
-        (!item.availabilityDate || item.availabilityDate < new Date())
-      ) {
-        throw new Error(
-          `Pre-order items must have a valid future availability date. Problem with item: ${item.name}`
-        );
-      }
+    // Validate prices
+    const prices = [
+      this.itemsPrice,
+      this.taxPrice,
+      this.shippingPrice,
+      this.discountPrice,
+    ];
+    if (prices.some((price) => price < 0)) {
+      throw new Error("Prices cannot be negative.");
     }
+
+    // Calculate total price
+    this.totalPrice =
+      this.itemsPrice + this.taxPrice + this.shippingPrice - this.discountPrice;
+
+    // Validate products and stock
+    const productModel = mongoose.model("Product");
+    await Promise.all(
+      this.orderItems.map(async (item) => {
+        const product = await productModel.findById(item.product);
+        if (!product) {
+          throw new Error(`Product with ID ${item.product} does not exist.`);
+        }
+
+        if (!item.isPreOrder && product.stock < item.quantity) {
+          throw new Error(`Insufficient stock for product: ${item.name}`);
+        }
+
+        if (
+          item.isPreOrder &&
+          (!item.availabilityDate || item.availabilityDate < new Date())
+        ) {
+          throw new Error(
+            `Pre-order items must have a valid future availability date. Problem with item: ${item.name}`
+          );
+        }
+      })
+    );
+
     next();
   } catch (err) {
     next(err);

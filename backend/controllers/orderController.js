@@ -9,10 +9,8 @@ import sendEmail from "../Utills/sendEmail.js";
 // --------------- CREATE A NEW ORDER -----------------------------
 
 export const createOrder = catchAsyncErrors(async (req, res, next) => {
-  console.log("Received order data:", req.body);
-
-  // TAKE DATA FROM THE REQUEST BODY
   const {
+    user,
     email,
     shippingAddress,
     orderItems,
@@ -20,124 +18,149 @@ export const createOrder = catchAsyncErrors(async (req, res, next) => {
     itemsPrice,
     taxPrice,
     shippingPrice,
-    discountPrice,
+    totalPrice,
     orderNotes,
   } = req.body;
 
-  // VALIDATE ORDER ITEMS
-  if (!orderItems || orderItems.length === 0) {
-    return next(
-      new ErrorHandler("Please add some products to your order", 400)
-    );
+  // Validate user
+  if (!user) {
+    return next(new ErrorHandler("User ID is required", 400));
   }
 
-  // VALIDATE REFERENCE IDS
+  // Validate required fields
+  if (!email) {
+    return next(new ErrorHandler("Email is required", 400));
+  }
+
   if (!shippingAddress) {
-    return next(new ErrorHandler("Please add shipping address", 400));
+    return next(new ErrorHandler("Shipping address is required", 400));
   }
 
-  // CALCULATE PRICE AND TOTAL
-  const totalPrice =
-    itemsPrice + taxPrice + shippingPrice - (discountPrice || 0);
+  if (!orderItems || orderItems.length === 0) {
+    return next(new ErrorHandler("Order items are required", 400));
+  }
 
-  // CHECK STOCKS FOR NON PREORDER ITEMS
+  if (!paymentInfo || !paymentInfo.method) {
+    return next(new ErrorHandler("Payment information is required", 400));
+  }
+
+  // Validate order items
   for (const item of orderItems) {
-    const product = await Product.findById(item.product);
-
-    if (!product) {
+    if (!item.product) {
       return next(
-        new ErrorHandler(`Product with id ${item.product} not found`, 404)
+        new ErrorHandler("Product ID is required for each item", 400)
       );
     }
-
-    if (!item.isPreorder && product.stock < item.quantity) {
+    if (!item.name) {
       return next(
-        new ErrorHandler(`Insufficient stock for product : ${item.name}`, 404)
+        new ErrorHandler("Product name is required for each item", 400)
+      );
+    }
+    if (!item.quantity || item.quantity < 1) {
+      return next(
+        new ErrorHandler("Valid quantity is required for each item", 400)
+      );
+    }
+    if (!item.price || item.price < 0) {
+      return next(
+        new ErrorHandler("Valid price is required for each item", 400)
       );
     }
   }
 
-  // CREATE NEW ORDER
-  const newOrder = await Order({
-    user: req.user.user_id,
-    email,
-    shippingAddress,
-    orderItems,
-    paymentInfo,
-    itemsPrice,
-    taxPrice,
-    shippingPrice,
-    discountPrice: discountPrice || 0,
-    totalPrice,
-    orderNotes: orderNotes || "",
-    paidAt: Date.now(),
-  });
-
-  const saveOrder = await newOrder.save();
-
-  if (!saveOrder) {
-    return next(new ErrorHandler("Failed to save order", 400));
+  // Validate prices
+  if (!itemsPrice || itemsPrice < 0) {
+    return next(new ErrorHandler("Valid items price is required", 400));
   }
 
-  // Populate the order with user and address details
-  const populatedOrder = await Order.findById(saveOrder._id)
-    .populate("user", "username email")
-    .populate(
-      "shippingAddress",
-      "contact_number address_line1 address_line2 city state postal_code country"
-    )
-    .populate({
-      path: "orderItems.product",
-      select: "product_name product_images product_color",
-      populate: {
-        path: "product_color",
-        select: "name code"
-      }
+  if (typeof taxPrice !== "number") {
+    return next(new ErrorHandler("Valid tax price is required", 400));
+  }
+
+  if (typeof shippingPrice !== "number") {
+    return next(new ErrorHandler("Valid shipping price is required", 400));
+  }
+
+  if (!totalPrice || totalPrice < 0) {
+    return next(new ErrorHandler("Valid total price is required", 400));
+  }
+
+  try {
+    const order = await Order.create({
+      user,
+      email,
+      shippingAddress,
+      orderItems,
+      paymentInfo,
+      itemsPrice,
+      taxPrice,
+      shippingPrice,
+      totalPrice,
+      orderNotes,
+      paidAt: Date.now(),
     });
 
-  // Format the order items to include the correct image URL and color
-  const formattedOrderItems = populatedOrder.orderItems.map(item => ({
-    name: item.name,
-    quantity: item.quantity,
-    price: item.price,
-    image: item.product.product_images[0]?.url || 'https://via.placeholder.com/80',
-    color: item.color || (item.product.product_color ? item.product.product_color.name : null),
-    includes: item.includes || null
-  }));
-
-  // Add debug log to check the populated data
-  console.log("Populated Order:", JSON.stringify(populatedOrder, null, 2));
-
-  // Send order confirmation email
-  const emailOptions = {
-    email: email,
-    subject: `Order Confirmation #${saveOrder._id}`,
-    message: OrderConfirmationTemplate(
-      populatedOrder.user?.username || "Valued Customer",
-      saveOrder._id,
-      saveOrder.orderStatus,
-      {
-        ...populatedOrder.toObject(),
-        orderItems: formattedOrderItems,
-        shippingAddress: {
-          address: `${populatedOrder.shippingAddress?.address_line1 || ""} ${
-            populatedOrder.shippingAddress?.address_line2 || ""
-          }, ${populatedOrder.shippingAddress?.city || ""}, ${
-            populatedOrder.shippingAddress?.country || ""
-          }, ${populatedOrder.shippingAddress?.postal_code || ""}`,
-          phoneNo: populatedOrder.shippingAddress?.contact_number || "N/A",
+    // Populate the order with user and address details
+    const populatedOrder = await Order.findById(order._id)
+      .populate("user", "username email")
+      .populate(
+        "shippingAddress",
+        "contact_number address_line1 address_line2 city state postal_code country"
+      )
+      .populate({
+        path: "orderItems.product",
+        select: "product_name product_images product_color",
+        populate: {
+          path: "product_color",
+          select: "name code",
         },
-      }
-    ),
-  };
+      });
 
-  await sendEmail(emailOptions);
+    // Format the order items to include the correct image URL and color
+    const formattedOrderItems = populatedOrder.orderItems.map((item) => ({
+      name: item.name,
+      quantity: item.quantity,
+      price: item.price,
+      image:
+        item.product.product_images[0]?.url || "https://via.placeholder.com/80",
+      color:
+        item.color ||
+        (item.product.product_color ? item.product.product_color.name : null),
+      includes: item.includes || null,
+    }));
 
-  res.status(201).json({
-    success: true,
-    message: "Order created successfully",
-    data: saveOrder,
-  });
+    // Send order confirmation email
+    const emailOptions = {
+      email: email,
+      subject: `Order Confirmation #${order._id}`,
+      message: OrderConfirmationTemplate(
+        populatedOrder.user?.username || "Valued Customer",
+        order._id,
+        order.orderStatus,
+        {
+          ...populatedOrder.toObject(),
+          orderItems: formattedOrderItems,
+          shippingAddress: {
+            address: `${populatedOrder.shippingAddress?.address_line1 || ""} ${
+              populatedOrder.shippingAddress?.address_line2 || ""
+            }, ${populatedOrder.shippingAddress?.city || ""}, ${
+              populatedOrder.shippingAddress?.country || ""
+            }, ${populatedOrder.shippingAddress?.postal_code || ""}`,
+            phoneNo: populatedOrder.shippingAddress?.contact_number || "N/A",
+          },
+        }
+      ),
+    };
+
+    await sendEmail(emailOptions);
+
+    res.status(201).json({
+      success: true,
+      order,
+    });
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 400));
+  }
 });
 
 // ---------------------------- GET ALL ORDERS FOR LOGGED IN USER -----------------------------

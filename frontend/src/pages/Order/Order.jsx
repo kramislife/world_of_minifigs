@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useGetOrderDetailsQuery, useUpdateOrderMutation } from "@/redux/api/orderApi";
+import {
+  useGetOrderDetailsQuery,
+  useUpdateOrderMutation,
+} from "@/redux/api/orderApi";
 import { useUpdateProductStockMutation } from "@/redux/api/productApi";
-import { useProcessRefundMutation } from "@/redux/api/checkoutApi";
 import { format } from "date-fns";
 import {
   Loader2,
@@ -18,7 +20,6 @@ import {
 import { motion } from "framer-motion";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { toast } from "react-toastify";
 import CancelOrderDialog from "./components/CancelOrderDialog";
 
 const Order = () => {
@@ -27,43 +28,7 @@ const Order = () => {
   const { data: order, isLoading, error } = useGetOrderDetailsQuery(id);
   const [updateOrder, { isLoading: isUpdating }] = useUpdateOrderMutation();
   const [updateProductStock] = useUpdateProductStockMutation();
-  const [processRefund] = useProcessRefundMutation();
   const [showCancelDialog, setShowCancelDialog] = useState(false);
-
-  // Cancel Order
-  const handleCancelOrder = async (reason) => {
-    try {
-      // First check if the order was paid with Stripe
-      if (order.data.paymentInfo.method === "Stripe") {
-        // Process the refund
-        await processRefund(order.data.paymentInfo.transactionId).unwrap();
-      }
-
-      // Update the order status
-      await updateOrder({
-        id: order.data._id,
-        body: {
-          cancelOrder: {
-            reason: reason,
-          },
-        },
-      }).unwrap();
-      
-      // Then, restore the stock for each item in the order
-      for (const item of order.data.orderItems) {
-        const newStock = item.product.stock + item.quantity;
-        await updateProductStock({
-          id: item.product._id,
-          stock: newStock,
-        }).unwrap();
-      }
-      
-      toast.success("Order cancelled and refund processed successfully");
-      navigate("/my-orders?status=Cancelled");
-    } catch (error) {
-      toast.error(error.data?.message || "Failed to cancel order and process refund");
-    }
-  };
 
   if (isLoading) {
     return (
@@ -163,7 +128,7 @@ const Order = () => {
                 )
               )}
             </div>
-            
+
             {order.data.orderStatus.toLowerCase() === "pending" && (
               <div className="mt-6 flex justify-end">
                 <Button
@@ -234,47 +199,51 @@ const Order = () => {
             Order Items
           </h2>
           <div className="space-y-4">
-            {order.data.orderItems.map((item, index) => (
+            {order?.data?.orderItems?.map((item, index) => (
               <motion.div
-                key={item._id}
+                key={item?._id || index}
                 variants={itemVariants}
                 className="group flex items-center gap-6 p-6 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-all duration-200 border border-gray-700/50"
               >
                 <div className="relative">
                   <img
-                    src={item.image}
-                    alt={item.name}
+                    src={item?.image}
+                    alt={item?.name}
                     className="w-32 h-32 object-cover rounded-lg transition-transform duration-200 group-hover:scale-105"
                   />
                   <div className="absolute -top-2 -right-2 w-7 h-7 bg-emerald-400 rounded-full flex items-center justify-center text-sm font-bold text-gray-900">
-                    {item.quantity}
+                    {item?.quantity || 0}
                   </div>
                 </div>
                 <div className="flex-1 space-y-2">
                   <h3 className="text-white font-medium text-lg">
-                    {item.name}
+                    {item?.name || "Unnamed Item"}
                   </h3>
                   <div className="flex gap-4 text-sm">
-                    <span className="text-gray-400">SKU: {item._id}</span>
+                    <span className="text-gray-400">
+                      SKU: {item?._id || "N/A"}
+                    </span>
                     <span className="text-gray-400">|</span>
                     <span className="text-gray-400">
-                      ${item.price.toFixed(2)} per item
+                      ${(item?.price || 0).toFixed(2)} per item
                     </span>
                   </div>
                   <div
                     className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm ${getStatusColor(
-                      item.status
+                      item?.status || "pending"
                     )} bg-gray-800/50`}
                   >
-                    {getStatusIcon(item.status)}
-                    <span>{item.status}</span>
+                    {getStatusIcon(item?.status || "pending")}
+                    <span>{item?.status || "Pending"}</span>
                   </div>
                 </div>
                 <div className="text-right space-y-2">
                   <p className="text-lg font-semibold text-emerald-400">
-                    ${(item.quantity * item.price).toFixed(2)}
+                    ${((item?.quantity || 0) * (item?.price || 0)).toFixed(2)}
                   </p>
-                  <p className="text-sm text-gray-400">Qty: {item.quantity}</p>
+                  <p className="text-sm text-gray-400">
+                    Qty: {item?.quantity || 0}
+                  </p>
                 </div>
               </motion.div>
             ))}
@@ -348,7 +317,7 @@ const Order = () => {
         <CancelOrderDialog
           open={showCancelDialog}
           onOpenChange={setShowCancelDialog}
-          onConfirm={handleCancelOrder}
+          orderId={order.data._id}
           isLoading={isUpdating}
         />
       </div>

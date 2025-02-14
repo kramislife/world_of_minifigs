@@ -13,6 +13,10 @@ import {
 } from "@/redux/api/checkoutApi";
 import { toast } from "react-toastify";
 import { ArrowUpRight } from "lucide-react";
+import { useCreateOrderMutation } from "@/redux/api/orderApi";
+import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { clearCart } from "@/redux/features/cartSlice";
 
 // Extract Stripe appearance configuration
 const STRIPE_APPEARANCE = {
@@ -52,13 +56,25 @@ const EmptyStateMessage = () => (
 );
 
 // Extract StripeForm component with payment processing logic
-const StripeForm = ({ onSubmit, total }) => {
+const StripeForm = ({
+  total,
+  email,
+  selectedAddress,
+  orderItems,
+  orderNotes,
+}) => {
   const stripe = useStripe();
   const elements = useElements();
+  const navigate = useNavigate();
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState(null);
   const [isReady, setIsReady] = useState(false);
   const [processStripePayment] = useProcessStripePaymentMutation();
+  const [createOrder] = useCreateOrderMutation();
+  const dispatch = useDispatch();
+
+  // Get user from Redux store
+  const { user } = useSelector((state) => state.auth);
 
   const handleReady = useCallback(() => {
     setIsReady(true);
@@ -70,12 +86,21 @@ const StripeForm = ({ onSubmit, total }) => {
 
     if (!stripe || !elements || processing) return;
 
+    // Validate required fields
+    if (!email || !selectedAddress || !orderItems?.length || !user) {
+      toast.error(
+        "Please fill in all required fields and ensure you're logged in"
+      );
+      return;
+    }
+
     setProcessing(true);
     setError(null);
 
     try {
-      // Create payment intent
+      // First create payment intent
       const paymentResponse = await processStripePayment(total).unwrap();
+
       if (!paymentResponse.success || !paymentResponse.client_secret) {
         throw new Error("Failed to create payment intent");
       }
@@ -83,8 +108,7 @@ const StripeForm = ({ onSubmit, total }) => {
       // Submit the payment form
       const { error: submitError } = await elements.submit();
       if (submitError) {
-        setError(submitError.message);
-        return;
+        throw new Error(submitError.message);
       }
 
       // Confirm the payment
@@ -98,35 +122,66 @@ const StripeForm = ({ onSubmit, total }) => {
       });
 
       if (error) {
-        handlePaymentError(error);
-      } else if (paymentIntent.status === "succeeded") {
-        await handlePaymentSuccess(paymentIntent);
+        throw new Error(error.message);
+      }
+
+      if (paymentIntent.status === "succeeded") {
+        // Prepare order data
+        const orderData = {
+          user: user._id, // Add user ID here
+          email,
+          shippingAddress: selectedAddress._id,
+          orderItems: orderItems.map((item) => ({
+            product: item._id || item.product,
+            name: item.name,
+            quantity: item.quantity,
+            price: item.price || item.discounted_price,
+            image: item.image,
+            color: item.color,
+            includes: item.includes,
+          })),
+          paymentInfo: {
+            method: "Stripe",
+            transactionId: paymentIntent.id,
+            status: "Success",
+          },
+          itemsPrice: total,
+          taxPrice: 0,
+          shippingPrice: 0,
+          totalPrice: total,
+          orderNotes,
+        };
+
+        console.log("Order Data being sent:", orderData);
+
+        // Create the order
+        const response = await createOrder(orderData).unwrap();
+
+        if (response.success) {
+          // Clear the cart after successful order
+          dispatch(clearCart());
+          toast.success("Order placed successfully!");
+          navigate(`/order/${response.order._id}`);
+        } else {
+          throw new Error("Failed to create order");
+        }
       } else {
-        setError("Your payment was not successful, please try again.");
+        throw new Error("Payment was not successful");
       }
     } catch (error) {
-      handlePaymentError(error);
+      console.error("Payment/Order error:", error);
+      setError(
+        error.data?.message || error.message || "An unexpected error occurred"
+      );
+      toast.error(
+        error.data?.message ||
+          error.message ||
+          "Payment failed. Please try again."
+      );
+
+      console.log("Order Items Structure:", orderItems);
     } finally {
       setProcessing(false);
-    }
-  };
-
-  const handlePaymentError = (error) => {
-    console.error("Payment submission error:", error);
-    setError("An unexpected error occurred.");
-    toast.error(error.data?.message || "Payment failed. Please try again.");
-  };
-
-  const handlePaymentSuccess = async (paymentIntent) => {
-    if (typeof onSubmit === "function") {
-      await onSubmit({
-        paymentMethod: "Stripe",
-        transactionId: paymentIntent.id,
-        status: "Success",
-      });
-    } else {
-      console.error("onSubmit prop is not a function");
-      toast.error("Error processing payment completion");
     }
   };
 
@@ -151,7 +206,13 @@ const StripeForm = ({ onSubmit, total }) => {
 };
 
 // Main StripeWrapper component
-const CardSection = ({ total, onSubmit }) => {
+const CardSection = ({
+  total,
+  email,
+  selectedAddress,
+  orderItems,
+  orderNotes,
+}) => {
   const { data: stripeApiData } = useGetStripeApiKeyQuery();
   const [stripePromise, setStripePromise] = useState(null);
 
@@ -179,7 +240,13 @@ const CardSection = ({ total, onSubmit }) => {
 
   return (
     <Elements stripe={stripePromise} options={options}>
-      <StripeForm onSubmit={onSubmit} total={total} />
+      <StripeForm
+        total={total}
+        email={email}
+        selectedAddress={selectedAddress}
+        orderItems={orderItems}
+        orderNotes={orderNotes}
+      />
     </Elements>
   );
 };
