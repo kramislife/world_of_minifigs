@@ -1,132 +1,77 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import React from "react";
 import ContactSection from "./components/ContactSection";
 import ShippingSection from "./components/ShippingSection";
 import PaymentSection from "./components/PaymentSection";
 import OrderSummary from "./components/OrderSummary";
-import useCheckout from "@/hooks/Payment/useCheckout";
 import Metadata from "@/components/layout/Metadata/Metadata";
 import DeleteConfirmDialog from "@/components/admin/shared/DeleteDialog";
-import {
-  useDeleteAddressMutation,
-  useGetUserAddressesQuery,
-} from "@/redux/api/userApi";
-import { toast } from "react-toastify";
-import { clearBuyNowItem } from "@/redux/features/buyNowSlice";
+import { PAYMENT_METHODS } from "@/constant/paymentMethod";
+import { useCheckout } from "@/hooks/Payment/useCheckout";
+import { useOrderSummary } from "@/hooks/Payment/useOrderSummary";
 
 const Checkout = () => {
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const [searchParams] = useSearchParams();
-  const mode = searchParams.get("mode");
-
   const {
-    paymentMethod,
-    cartItems,
-    total,
-    handleAddressChange,
-    handlePaymentMethodChange,
-    handleSubmit,
-    handleUpdateQuantity,
-    handleRemoveItem,
-    userAddresses,
-    user,
-    selectedShippingAddress,
-    handlePayPalApprove,
-    handleStripeSuccess,
     email,
     handleEmailChange,
-    orderNotes,
-    handleOrderNotesChange,
-    isBuyNow,
+    user,
+    isDeleteDialogOpen,
+    setIsDeleteDialogOpen,
+    handleDeleteClick,
+    handleDeleteConfirm,
+    isDeleting,
+    selectedAddress,
+    handleAddressChange,
   } = useCheckout();
 
-  // Clear buy now item when leaving checkout page
-  useEffect(() => {
-    return () => {
-      if (mode !== "buy_now") {
-        dispatch(clearBuyNowItem());
-      }
-    };
-  }, [dispatch, mode]);
+  // Add state for payment method
+  const [paymentMethod, setPaymentMethod] = React.useState(
+    PAYMENT_METHODS.CREDIT_CARD
+  );
 
-  // Redirect if no items
-  useEffect(() => {
-    if (!cartItems || cartItems.length === 0) {
-      toast.error("No items in checkout");
-      navigate("/products");
-    }
-  }, [cartItems, navigate]);
+  // Get total from useOrderSummary hook
+  const { displayItems, orderNotes, displayTotal } = useOrderSummary();
 
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [addressToDelete, setAddressToDelete] = useState(null);
-  const [deleteAddress, { isLoading: isDeleting }] = useDeleteAddressMutation();
-  const { refetch: refetchAddresses } = useGetUserAddressesQuery();
-
-  const handleDeleteClick = (address) => {
-    setAddressToDelete(address);
-    setIsDeleteDialogOpen(true);
+  const handleSubmit = async (paymentData) => {
+    // This will be handled in CardSection now
+    console.log("Payment successful:", paymentData);
   };
 
-  const handleDeleteConfirm = async () => {
-    if (!addressToDelete) return;
-
-    try {
-      const response = await deleteAddress(addressToDelete._id).unwrap();
-      toast.success(response.message || "Address deleted successfully");
-      await refetchAddresses();
-    } catch (error) {
-      toast.error(error.data?.message || "Failed to delete address");
-    } finally {
-      setIsDeleteDialogOpen(false);
-      setAddressToDelete(null);
-    }
-  };
+  console.log("Order Items in Checkout:", displayItems);
 
   return (
     <>
-      <Metadata title={`Checkout - ${isBuyNow ? "Buy Now" : "Cart"}`} />
+      <Metadata title={`Checkout`} />
       <div className="min-h-screen bg-brand-gradient py-10">
         <div className="mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
             {/* Left Column - Forms */}
             <div className="space-y-6 overflow-y-auto">
-              <form onSubmit={handleSubmit} className="space-y-5">
+              <form className="space-y-5">
                 <ContactSection
                   email={email}
                   onEmailChange={handleEmailChange}
                 />
                 <ShippingSection
-                  address={selectedShippingAddress}
                   onAddressChange={handleAddressChange}
-                  userAddresses={userAddresses}
                   userName={user?.name}
                   onDeleteClick={handleDeleteClick}
-                  key={userAddresses?.length}
                 />
                 <PaymentSection
                   paymentMethod={paymentMethod}
-                  onPaymentMethodChange={handlePaymentMethodChange}
-                  total={total}
+                  onPaymentMethodChange={setPaymentMethod}
+                  total={displayTotal}
+                  email={email}
+                  selectedAddress={selectedAddress}
+                  orderItems={displayItems}
+                  orderNotes={orderNotes}
                   onSubmit={handleSubmit}
-                  onPayPalApprove={handlePayPalApprove}
-                  handleStripeSuccess={handleStripeSuccess}
                 />
               </form>
             </div>
 
             {/* Right Column - Order Summary */}
             <div className="lg:sticky lg:top-28 h-fit">
-              <OrderSummary
-                cartItems={cartItems}
-                total={total}
-                updateQuantity={handleUpdateQuantity}
-                removeItem={handleRemoveItem}
-                orderNotes={orderNotes}
-                onOrderNotesChange={handleOrderNotesChange}
-                isBuyNow={isBuyNow}
-              />
+              <OrderSummary />
             </div>
           </div>
         </div>

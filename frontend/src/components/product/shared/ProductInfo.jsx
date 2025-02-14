@@ -73,6 +73,7 @@ const ProductInfo = ({ product, itemVariants, onAddToCart }) => {
               transition={{ delay: 0.3 }}
             >
               <div className="flex items-center gap-2">
+                {/* Discounted price is pre-calculated by backend */}
                 <span className="text-4xl font-bold text-white">
                   ${(product?.discounted_price || 0).toFixed(2)}
                 </span>

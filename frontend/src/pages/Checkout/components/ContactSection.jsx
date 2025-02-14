@@ -4,6 +4,13 @@ import { Input } from "@/components/ui/input";
 import { Mail } from "lucide-react";
 
 const ContactSection = ({ email, onEmailChange }) => {
+  const isValidEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const isValid = !email || isValidEmail(email);
+
   return (
     <Card className="bg-darkBrand/20 backdrop-blur-xl border-white/10">
       <CardHeader>
@@ -23,9 +30,18 @@ const ContactSection = ({ email, onEmailChange }) => {
               onChange={onEmailChange}
               required
               placeholder=" "
-              className="bg-transparent border-white/10 focus:border-blue-500 transition-colors"
+              className={`bg-transparent border-white/10 transition-colors ${
+                !isValid
+                  ? "border-red-500 focus:border-red-500"
+                  : "focus:border-blue-500"
+              }`}
             />
-            {email && (
+            {email && !isValid && (
+              <p className="text-xs text-red-400 mt-1 ml-1">
+                Please enter a valid email address
+              </p>
+            )}
+            {email && isValid && (
               <p className="text-xs text-blue-400 mt-3 ml-1">
                 Order confirmation will be sent to this email address
               </p>
