@@ -1,6 +1,6 @@
-import { Truck } from "lucide-react";
+import { Truck, StickyNote, CheckCheck } from "lucide-react";
 
-const ShippingDetails = ({ shippingAddress }) => {
+const ShippingDetails = ({ shippingAddress, orderNotes }) => {
   return (
     <div className="bg-brand/80 rounded-xl p-6">
       <div className="flex items-center gap-2 mb-4">
@@ -39,7 +39,7 @@ const ShippingDetails = ({ shippingAddress }) => {
             </p>
           </div>
         </div>
-        <div>
+        <div className="space-y-4">
           <div>
             <p className="text-sm text-gray-400">Postal Code</p>
             <p className="font-medium text-white mt-1">
@@ -47,6 +47,20 @@ const ShippingDetails = ({ shippingAddress }) => {
             </p>
           </div>
         </div>
+      </div>
+      <div className="mt-5 border-t border-white/10 pt-5">
+        {orderNotes && (
+          <div>
+            <div className="flex items-center gap-2">
+              <StickyNote className="w-4 h-4 text-yellow-500" />
+              <p className="text-sm text-gray-400">Order Notes</p>
+            </div>
+            <div className="flex gap-2 mt-2">
+              <CheckCheck className="w-4 h-4 text-green-500" />
+              <p className="text-sm text-white">{orderNotes}</p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

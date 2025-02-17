@@ -165,12 +165,10 @@ const OrderTotal = ({ subtotal, discount, total }) => (
   </div>
 );
 
-const OrderSummary = () => {
+const OrderSummary = ({ onOrderNotesChange, orderNotes }) => {
   const {
     mode,
     displayItems,
-    orderNotes,
-    setOrderNotes,
     discountCode,
     setDiscountCode,
     subtotal,
@@ -218,7 +216,7 @@ const OrderSummary = () => {
             <Textarea
               placeholder="Add any special instructions or notes for your order..."
               value={orderNotes}
-              onChange={(e) => setOrderNotes(e.target.value)}
+              onChange={(e) => onOrderNotesChange(e.target.value)}
               className="bg-brand/10 border-white/10 min-h-[100px] text-white placeholder:text-white/80"
             />
 

@@ -24,6 +24,9 @@ export const useCheckout = () => {
   );
   const [selectedAddress, setSelectedAddress] = useState(null);
 
+  // Add state for order notes
+  const [orderNotes, setOrderNotes] = useState("");
+
   // Update email when user data is available
   useEffect(() => {
     if (isAuthenticated) {
@@ -102,7 +105,7 @@ export const useCheckout = () => {
       taxPrice: 0,
       shippingPrice: 0,
       totalPrice: total.toFixed(2),
-      orderNotes,
+      orderNotes: orderNotes || "",
       paidAt: new Date().toISOString(),
     };
   };
@@ -121,5 +124,7 @@ export const useCheckout = () => {
     selectedAddress,
     handleAddressChange,
     createOrderData,
+    orderNotes,
+    setOrderNotes,
   };
 };
