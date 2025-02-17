@@ -49,7 +49,9 @@ const OrderDetailsDialog = ({ isOpen, onClose, order }) => {
           <DialogTitle>
             <div className="flex items-center justify-between border-b border-gray-500/50 pb-5">
               <div className="space-y-1.5">
-                <span className="text-sm font-medium text-gray-400">Order ID</span>
+                <span className="text-sm font-medium text-gray-400">
+                  Order ID
+                </span>
                 <p className="text-lg font-bold text-white font-mono">
                   #{order._id}
                 </p>
@@ -69,7 +71,10 @@ const OrderDetailsDialog = ({ isOpen, onClose, order }) => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mt-5">
           <div className="lg:col-span-2 space-y-5">
             <OrderItems orderItems={order.orderItems} />
-            <ShippingDetails shippingAddress={order.shippingAddress} />
+            <ShippingDetails
+              shippingAddress={order.shippingAddress}
+              orderNotes={order.orderNotes}
+            />
           </div>
 
           <div className="space-y-5">

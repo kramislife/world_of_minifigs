@@ -21,6 +21,8 @@ const Checkout = () => {
     isDeleting,
     selectedAddress,
     handleAddressChange,
+    orderNotes,
+    setOrderNotes,
   } = useCheckout();
 
   // Add state for payment method
@@ -29,7 +31,7 @@ const Checkout = () => {
   );
 
   // Get total from useOrderSummary hook
-  const { displayItems, orderNotes, displayTotal } = useOrderSummary();
+  const { displayItems, displayTotal } = useOrderSummary();
 
   const handleSubmit = async (paymentData) => {
     // This will be handled in CardSection now
@@ -71,7 +73,10 @@ const Checkout = () => {
 
             {/* Right Column - Order Summary */}
             <div className="lg:sticky lg:top-28 h-fit">
-              <OrderSummary />
+              <OrderSummary
+                onOrderNotesChange={setOrderNotes}
+                orderNotes={orderNotes}
+              />
             </div>
           </div>
         </div>
