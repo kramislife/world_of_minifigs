@@ -15,7 +15,6 @@ export const createOrder = catchAsyncErrors(async (req, res, next) => {
     shippingAddress,
     orderItems,
     paymentInfo,
-    itemsPrice,
     taxPrice,
     shippingPrice,
     totalPrice,
@@ -69,8 +68,8 @@ export const createOrder = catchAsyncErrors(async (req, res, next) => {
   }
 
   // Validate prices
-  if (!itemsPrice || itemsPrice < 0) {
-    return next(new ErrorHandler("Valid items price is required", 400));
+  if (!totalPrice || totalPrice < 0) {
+    return next(new ErrorHandler("Valid total price is required", 400));
   }
 
   if (typeof taxPrice !== "number") {
@@ -92,7 +91,6 @@ export const createOrder = catchAsyncErrors(async (req, res, next) => {
       shippingAddress,
       orderItems,
       paymentInfo,
-      itemsPrice,
       taxPrice,
       shippingPrice,
       totalPrice,
@@ -120,7 +118,7 @@ export const createOrder = catchAsyncErrors(async (req, res, next) => {
     const formattedOrderItems = populatedOrder.orderItems.map((item) => ({
       name: item.name,
       quantity: item.quantity,
-      price: item.price,
+      price: item.discountedPrice,
       image:
         item.product.product_images[0]?.url || "https://via.placeholder.com/80",
       color:

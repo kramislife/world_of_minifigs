@@ -6,6 +6,7 @@ import { useCreateOrderMutation } from "@/redux/api/orderApi";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { clearCart } from "@/redux/features/cartSlice";
+import { useCheckout } from "@/hooks/Payment/useCheckout";
 
 // Extract PayPal button styles
 const PAYPAL_BUTTON_STYLES = {
@@ -56,6 +57,7 @@ const PayPalSection = ({
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
+  const { createOrderData } = useCheckout();
 
   // Reset states when total changes
   useEffect(() => {
@@ -149,33 +151,24 @@ const PayPalSection = ({
         throw new Error("Payment not completed");
       }
 
-      const orderData = {
-        user: user._id,
-        email,
-        shippingAddress: selectedAddress._id,
-        orderItems: orderItems.map((item) => ({
-          product: item._id || item.product,
-          name: item.name,
-          quantity: item.quantity,
-          price: item.price || item.discounted_price,
-          image: item.image,
-          color: item.color,
-          includes: item.includes,
-        })),
-        paymentInfo: {
-          method: "PayPal",
-          transactionId: details.id,
-          status: "Success",
-          paypalOrderId: data.orderID,
-          payerEmail: details.payer.email_address,
-        },
-        itemsPrice: total,
-        taxPrice: 0,
-        shippingPrice: 0,
-        totalPrice: total,
-        orderNotes,
+      const paymentInfo = {
+        method: "PayPal",
+        transactionId: details.purchase_units[0].payments.captures[0].id,
+        paypalOrderId: details.id,
+        status: "Success",
+        payerEmail: details.payer.email_address,
         paidAt: new Date().toISOString(),
       };
+
+      const orderData = createOrderData(
+        paymentInfo,
+        total,
+        orderItems,
+        email,
+        selectedAddress,
+        orderNotes,
+        user
+      );
 
       const response = await createOrder(orderData).unwrap();
 
@@ -243,7 +236,7 @@ const PayPalSection = ({
           Total: ${total.toFixed(2)}
         </h4>
       </div>
-      {(isProcessing || paypalWindowOpen)}
+      {isProcessing || paypalWindowOpen}
       <div className="p-4 border rounded-md border-white/10">
         <PayPalButtons
           key={key}

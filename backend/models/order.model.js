@@ -39,6 +39,7 @@ const orderSchema = new mongoose.Schema(
     orderItems: {
       type: [
         {
+          _id: false,
           product: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Product",
@@ -55,6 +56,18 @@ const orderSchema = new mongoose.Schema(
             type: String,
           },
           quantity: {
+            type: Number,
+            required: true,
+          },
+          price: {
+            type: Number,
+            required: true,
+          },
+          discount: {
+            type: Number,
+            default: 0,
+          },
+          discountedPrice: {
             type: Number,
             required: true,
           },
@@ -82,16 +95,14 @@ const orderSchema = new mongoose.Schema(
         required: true,
       },
       transactionId: { type: String },
+      paypalOrderId: { type: String },
       status: {
         type: String,
         enum: STATUS_ENUM.PAYMENT,
         default: "Pending",
       },
+      payerEmail: { type: String },
       paidAt: { type: Date },
-    },
-    itemsPrice: {
-      type: Number,
-      required: true,
     },
     taxPrice: {
       type: Number,
@@ -100,10 +111,6 @@ const orderSchema = new mongoose.Schema(
     shippingPrice: {
       type: Number,
       required: true,
-    },
-    discountPrice: {
-      type: Number,
-      default: 0,
     },
     totalPrice: {
       type: Number,
@@ -171,19 +178,13 @@ orderSchema.virtual("totalItems").get(function () {
 orderSchema.pre("save", async function (next) {
   try {
     // Validate prices
-    const prices = [
-      this.itemsPrice,
-      this.taxPrice,
-      this.shippingPrice,
-      this.discountPrice,
-    ];
+    const prices = [this.totalPrice, this.taxPrice, this.shippingPrice];
     if (prices.some((price) => price < 0)) {
       throw new Error("Prices cannot be negative.");
     }
 
     // Calculate total price
-    this.totalPrice =
-      this.itemsPrice + this.taxPrice + this.shippingPrice - this.discountPrice;
+    this.totalPrice = this.totalPrice + this.taxPrice + this.shippingPrice;
 
     // Validate products and stock
     const productModel = mongoose.model("Product");
