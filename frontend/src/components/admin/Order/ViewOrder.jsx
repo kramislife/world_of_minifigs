@@ -33,7 +33,7 @@ const ViewOrder = () => {
         id: index + 1,
         _id: order._id,
         user: order.user,
-        orderId: order.orderId,
+        email: order.email,
         totalItems: order.orderItems?.length || 0,
         totalPrice: order.totalPrice,
         orderStatus: order.orderStatus,
@@ -41,15 +41,12 @@ const ViewOrder = () => {
         createdAt: new Date(order.createdAt).toLocaleString(),
         // Include all fields needed for the details dialog
         orderItems: order.orderItems,
-        itemsPrice: order.itemsPrice,
         taxPrice: order.taxPrice,
         shippingPrice: order.shippingPrice,
-        discountPrice: order.discountPrice,
         priority: order.priority,
         orderNotes: order.orderNotes,
         deliveredAt: order.deliveredAt,
         shippingAddress: order.shippingAddress,
-        billingAddress: order.billingAddress,
       }));
   }, [orderData]);
 

@@ -310,124 +310,64 @@ export const getAllOrdersAdmin = catchAsyncErrors(async (req, res, next) => {
 
 // ------------------------- UPDATE ORDER STATUS BY ID - ADMIN ---------------------------
 
+const validateStatusTransition = (currentStatus, newStatus) => {
+  const statusTransitions = {
+    Pending: ["Processing", "On Hold", "Cancelled"],
+    Processing: ["Shipped", "On Hold", "Cancelled"],
+    Shipped: ["Delivered", "Returned"],
+    Delivered: ["Returned"],
+    Cancelled: [],
+    "On Hold": ["Processing", "Cancelled"],
+    Returned: [],
+  };
+
+  return statusTransitions[currentStatus]?.includes(newStatus);
+};
+
 export const updateOrderForAdmin = catchAsyncErrors(async (req, res, next) => {
   const orderId = req.params.id;
+  const { orderStatus } = req.body;
 
-  // FIND THE ORDER
-  const order = await Order.findById(orderId).populate("user", "name email");
+  // Find the order
+  const order = await Order.findById(orderId);
 
   if (!order) {
     return next(new ErrorHandler("Order not found", 404));
   }
 
-  const { orderStatus, shippingInfo } = req.body;
-
-  // VALIDATE REQUEST
-  if (!orderStatus && !shippingInfo) {
+  // Validate status transition
+  if (
+    orderStatus &&
+    !validateStatusTransition(order.orderStatus, orderStatus)
+  ) {
     return next(
       new ErrorHandler(
-        "Provide either order status or shipping info to update.",
+        `Invalid status transition from ${order.orderStatus} to ${orderStatus}`,
         400
       )
     );
   }
 
-  // RESTRICT UPDATES FOR DELIVERED/CANCELLED ORDERS
-  if (["Delivered", "Cancelled"].includes(order.orderStatus)) {
-    return next(
-      new ErrorHandler(
-        `Cannot update order as it is already ${order.orderStatus}.`,
-        400
-      )
-    );
+  // Update order
+  if (orderStatus) {
+    order.orderStatus = orderStatus;
+
+    // Set timestamps based on status
+    if (orderStatus === "Shipped") {
+      order.shippedAt = Date.now();
+    } else if (orderStatus === "Delivered") {
+      order.deliveredAt = Date.now();
+    } else if (orderStatus === "Cancelled") {
+      order.cancelledAt = Date.now();
+    }
   }
 
-  const validStatuses = [
-    "Pending",
-    "Processing",
-    "Shipped",
-    "Delivered",
-    "Cancelled",
-    "On Hold",
-    "Returned",
-  ];
+  // Save the updated order
+  const updatedOrder = await order.save();
 
-  let session = null; // Declare session and initialize later
-
-  try {
-    session = await mongoose.startSession(); // Initialize session
-    session.startTransaction();
-
-    // UPDATE ORDER STATUS
-    let statusUpdated = false;
-    if (orderStatus) {
-      if (!validStatuses.includes(orderStatus)) {
-        throw new Error("Invalid order status. Please choose a valid status.");
-      }
-
-      if (order.orderStatus !== orderStatus) {
-        statusUpdated = true; // Flag to determine if email notification is needed
-      }
-
-      order.orderStatus = orderStatus;
-
-      if (orderStatus === "Shipped") {
-        order.shippingInfo.shippedAt = Date.now();
-      } else if (orderStatus === "Delivered") {
-        order.deliveredAt = Date.now();
-      } else if (orderStatus === "Cancelled") {
-        order.cancelledAt = Date.now();
-      }
-    }
-
-    // UPDATE SHIPPING INFO (MERGING NEW INFO)
-    if (shippingInfo) {
-      order.shippingInfo = {
-        ...order.shippingInfo.toObject(),
-        ...shippingInfo,
-      };
-    }
-
-    // TRACK ADMIN/EMPLOYEE WHO MODIFIED THE ORDER
-    order.updatedBy = req.user.user_id;
-
-    // SAVE THE ORDER
-    const updatedOrder = await order.save({ session });
-
-    // Commit transaction
-    await session.commitTransaction();
-
-    // End session
-    session.endSession();
-
-    // SEND NOTIFICATION (IF STATUS UPDATED)
-    if (statusUpdated) {
-      const options = {
-        to: order.user.email,
-        subject: `Order #${order._id} Status Update`,
-        html: getOrderUpdateEmailTemplate(
-          order.user.name,
-          order._id,
-          order.orderStatus
-        ),
-      };
-      sendEmail(options);
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "Order updated successfully",
-      data: updatedOrder,
-    });
-  } catch (error) {
-    // Ensure session is defined before trying to abort the transaction
-    if (session) {
-      await session.abortTransaction(); // Abort if an error occurs
-      session.endSession(); // End session
-    }
-
-    return next(
-      new ErrorHandler(error.message || "Failed to update order", 500)
-    );
-  }
+  res.status(200).json({
+    success: true,
+    message: "Order updated successfully",
+    data: updatedOrder,
+  });
 });
