@@ -10,11 +10,24 @@ import { Provider } from "react-redux";
 import { store } from "@/redux/store";
 
 const PayPalWrapper = ({ children }) => {
-  const { data: paypalData } = useGetPayPalCredentialsQuery();
+  const {
+    data: paypalData,
+    isLoading,
+    isError,
+  } = useGetPayPalCredentialsQuery();
 
+  // Don't render PayPalScriptProvider until we have the client ID
+  if (isLoading) {
+    return children; // Return children without PayPal wrapper while loading
+  }
+
+  if (isError || !paypalData?.clientId) {
+    console.warn("PayPal credentials not available");
+    return children; // Return children without PayPal wrapper if there's an error
+  }
 
   const paypalOptions = {
-    "client-id": paypalData?.clientId,
+    "client-id": paypalData.clientId,
     currency: "USD",
     intent: "capture",
     components: "buttons",

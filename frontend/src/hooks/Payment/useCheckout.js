@@ -71,6 +71,42 @@ export const useCheckout = () => {
     }
   };
 
+  // Add new function to create order data
+  const createOrderData = (
+    paymentInfo,
+    total,
+    orderItems,
+    email,
+    selectedAddress,
+    orderNotes,
+    user
+  ) => {
+    return {
+      user: user._id,
+      email,
+      shippingAddress: selectedAddress._id,
+      orderItems: orderItems.map((item) => ({
+        product: item._id || item.product,
+        name: item.name,
+        color: item.color,
+        includes: item.includes,
+        quantity: item.quantity,
+        price: item.price,
+        discount: item.discount || 0,
+        discountedPrice: item.discounted_price || item.price,
+        image: item.image,
+        isPreOrder: item.isPreOrder || false,
+        availabilityDate: item.availabilityDate,
+      })),
+      paymentInfo,
+      taxPrice: 0,
+      shippingPrice: 0,
+      totalPrice: total.toFixed(2),
+      orderNotes,
+      paidAt: new Date().toISOString(),
+    };
+  };
+
   return {
     email,
     handleEmailChange,
@@ -84,5 +120,6 @@ export const useCheckout = () => {
     setPaymentMethod,
     selectedAddress,
     handleAddressChange,
+    createOrderData,
   };
 };

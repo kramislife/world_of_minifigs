@@ -17,6 +17,7 @@ import { useCreateOrderMutation } from "@/redux/api/orderApi";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { clearCart } from "@/redux/features/cartSlice";
+import { useCheckout } from "@/hooks/Payment/useCheckout";
 
 // Extract Stripe appearance configuration
 const STRIPE_APPEARANCE = {
@@ -72,6 +73,7 @@ const StripeForm = ({
   const [processStripePayment] = useProcessStripePaymentMutation();
   const [createOrder] = useCreateOrderMutation();
   const dispatch = useDispatch();
+  const { createOrderData } = useCheckout();
 
   // Get user from Redux store
   const { user } = useSelector((state) => state.auth);
@@ -126,35 +128,23 @@ const StripeForm = ({
       }
 
       if (paymentIntent.status === "succeeded") {
-        // Prepare order data
-        const orderData = {
-          user: user._id, // Add user ID here
-          email,
-          shippingAddress: selectedAddress._id,
-          orderItems: orderItems.map((item) => ({
-            product: item._id || item.product,
-            name: item.name,
-            quantity: item.quantity,
-            price: item.price || item.discounted_price,
-            image: item.image,
-            color: item.color,
-            includes: item.includes,
-          })),
-          paymentInfo: {
-            method: "Stripe",
-            transactionId: paymentIntent.id,
-            status: "Success",
-          },
-          itemsPrice: total,
-          taxPrice: 0,
-          shippingPrice: 0,
-          totalPrice: total,
-          orderNotes,
+        const paymentInfo = {
+          method: "Stripe",
+          transactionId: paymentIntent.id,
+          status: "Success",
+          paidAt: new Date().toISOString(),
         };
 
-        console.log("Order Data being sent:", orderData);
+        const orderData = createOrderData(
+          paymentInfo,
+          total,
+          orderItems,
+          email,
+          selectedAddress,
+          orderNotes,
+          user
+        );
 
-        // Create the order
         const response = await createOrder(orderData).unwrap();
 
         if (response.success) {

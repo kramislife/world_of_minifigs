@@ -239,7 +239,7 @@ const Order = () => {
                 </div>
                 <div className="text-right space-y-2">
                   <p className="text-lg font-semibold text-emerald-400">
-                    ${((item?.quantity || 0) * (item?.price || 0)).toFixed(2)}
+                    ${((item?.quantity || 0) * (item?.discountedPrice || 0)).toFixed(2)}
                   </p>
                   <p className="text-sm text-gray-400">
                     Qty: {item?.quantity || 0}
@@ -287,7 +287,7 @@ const Order = () => {
               <CardContent className="pt-6 space-y-3">
                 <div className="flex justify-between text-gray-300">
                   <span>Subtotal</span>
-                  <span>${order.data.itemsPrice.toFixed(2)}</span>
+                  <span>${order.data.totalPrice.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-gray-300">
                   <span>Shipping</span>
