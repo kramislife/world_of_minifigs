@@ -15,6 +15,7 @@ export const orderStatus = [
     color: "text-yellow-400",
     bgColor: "bg-yellow-500/20",
     label: "Pending",
+    allowedTransitions: ["Processing", "On Hold", "Cancelled"],
   },
   {
     id: "Processing",
@@ -23,6 +24,7 @@ export const orderStatus = [
     color: "text-blue-400",
     bgColor: "bg-blue-500/20",
     label: "Processing",
+    allowedTransitions: ["Shipped", "On Hold", "Cancelled"],
   },
   {
     id: "Shipped",
@@ -31,6 +33,7 @@ export const orderStatus = [
     color: "text-indigo-400",
     bgColor: "bg-indigo-500/20",
     label: "Shipped",
+    allowedTransitions: ["Delivered", "Returned"],
   },
   {
     id: "Delivered",
@@ -39,6 +42,7 @@ export const orderStatus = [
     color: "text-green-400",
     bgColor: "bg-green-500/20",
     label: "Delivered",
+    allowedTransitions: ["Returned"],
   },
   {
     id: "Cancelled",
@@ -47,6 +51,7 @@ export const orderStatus = [
     color: "text-red-400",
     bgColor: "bg-red-500/20",
     label: "Cancelled",
+    allowedTransitions: [],
   },
   {
     id: "On Hold",
@@ -55,5 +60,12 @@ export const orderStatus = [
     color: "text-orange-400",
     bgColor: "bg-orange-500/20",
     label: "On Hold",
-  }
+    allowedTransitions: ["Processing", "Cancelled"],
+  },
 ];
+
+// Helper function to check if a status transition is valid
+export const isValidStatusTransition = (currentStatus, newStatus) => {
+  const status = orderStatus.find((s) => s.value === currentStatus);
+  return status?.allowedTransitions.includes(newStatus);
+};
