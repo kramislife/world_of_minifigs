@@ -48,8 +48,8 @@ const ShippingDetails = ({ shippingAddress, orderNotes }) => {
           </div>
         </div>
       </div>
-      <div className="mt-5 border-t border-white/10 pt-5">
-        {orderNotes && (
+      {orderNotes && (
+        <div className="mt-5 border-t border-white/10 pt-5">
           <div>
             <div className="flex items-center gap-2">
               <StickyNote className="w-4 h-4 text-yellow-500" />
@@ -60,8 +60,8 @@ const ShippingDetails = ({ shippingAddress, orderNotes }) => {
               <p className="text-sm text-white">{orderNotes}</p>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };
