@@ -24,9 +24,12 @@ const Login = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
+      // Ensure 'from' is a string
+      const fromPath = typeof from === "string" ? from : "/";
+
       // If returning to product page, just go back to the product
       if (returnTo === "product") {
-        navigate(from);
+        navigate(fromPath);
         return;
       }
 
@@ -35,14 +38,14 @@ const Login = () => {
         user?.role
       );
 
-      if (from.startsWith("/admin")) {
+      if (fromPath.startsWith("/admin")) {
         if (isAdminOrEmployee) {
-          navigate(from);
+          navigate(fromPath);
         } else {
           navigate("/");
         }
       } else {
-        navigate(isAdminOrEmployee ? "/admin" : from);
+        navigate(isAdminOrEmployee ? "/admin" : fromPath);
       }
     }
   }, [isAuthenticated, user, navigate, from, returnTo]);
