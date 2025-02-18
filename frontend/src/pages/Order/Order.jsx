@@ -4,7 +4,6 @@ import {
   useGetOrderDetailsQuery,
   useUpdateOrderMutation,
 } from "@/redux/api/orderApi";
-import { useUpdateProductStockMutation } from "@/redux/api/productApi";
 import { format } from "date-fns";
 import {
   Loader2,
@@ -24,10 +23,7 @@ import CancelOrderDialog from "./components/CancelOrderDialog";
 
 const Order = () => {
   const { id } = useParams();
-  const navigate = useNavigate();
   const { data: order, isLoading, error } = useGetOrderDetailsQuery(id);
-  const [updateOrder, { isLoading: isUpdating }] = useUpdateOrderMutation();
-  const [updateProductStock] = useUpdateProductStockMutation();
   const [showCancelDialog, setShowCancelDialog] = useState(false);
 
   if (isLoading) {
@@ -318,7 +314,6 @@ const Order = () => {
           open={showCancelDialog}
           onOpenChange={setShowCancelDialog}
           orderId={order.data._id}
-          isLoading={isUpdating}
         />
       </div>
     </motion.div>

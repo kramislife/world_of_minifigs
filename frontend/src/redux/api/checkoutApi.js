@@ -1,4 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { productApi } from "./productApi";
 
 export const checkoutApi = createApi({
   reducerPath: "checkoutApi",
@@ -42,6 +43,14 @@ export const checkoutApi = createApi({
         method: "POST",
         body: data,
       }),
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          dispatch(productApi.util.invalidateTags(["Product", "Products"]));
+        } catch (error) {
+          // Handle error if needed
+        }
+      },
     }),
   }),
 });

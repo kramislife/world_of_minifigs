@@ -11,7 +11,6 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import { Loader2 } from "lucide-react";
 import { useProcessRefundMutation } from "@/redux/api/checkoutApi";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
