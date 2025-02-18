@@ -9,7 +9,6 @@ import { format } from "date-fns";
 import { useUpdateOrderAdminMutation } from "@/redux/api/orderApi";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
-
 import OrderItems from "./components/OrderItems";
 import ShippingDetails from "./components/ShippingDetails";
 import OrderStatus from "./components/OrderStatus";
@@ -35,6 +34,7 @@ const OrderDetailsDialog = ({ isOpen, onClose, order }) => {
       }).unwrap();
       toast.success("Order status updated successfully");
       setSelectedStatus(selectedStatus);
+      onClose();
     } catch (error) {
       toast.error(error.data?.message || "Failed to update order status");
     }
@@ -44,7 +44,7 @@ const OrderDetailsDialog = ({ isOpen, onClose, order }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto scrollbar-none bg-brand-gradient border border-gray-800 rounded-xl py-10 px-6">
+      <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto scrollbar-none bg-brand-gradient border border-gray-800 rounded-xl py-10 px-5">
         <DialogHeader>
           <DialogTitle>
             <div className="flex items-center justify-between border-b border-gray-500/50 pb-5">
