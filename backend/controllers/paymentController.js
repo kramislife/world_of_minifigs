@@ -2,6 +2,7 @@ import Stripe from "stripe";
 import catchAsyncErrors from "../middlewares/catchAsyncErrors.js";
 import ErrorHandler from "../Utills/customErrorHandler.js";
 import Order from "../models/order.model.js";
+import mongoose from "mongoose";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -73,8 +74,8 @@ export const processRefund = catchAsyncErrors(async (req, res, next) => {
   }
 
   try {
-    // Get order details
-    const order = await Order.findById(orderId);
+    // Get order details with populated product information
+    const order = await Order.findById(orderId).populate("orderItems.product");
 
     if (!order) {
       return next(new ErrorHandler("Order not found", 404));
@@ -95,24 +96,43 @@ export const processRefund = catchAsyncErrors(async (req, res, next) => {
     // Get payment intent ID from order
     const paymentIntentId = order.paymentInfo.transactionId;
 
-    // Process refund through Stripe
-    const refund = await stripe.refunds.create({
-      payment_intent: paymentIntentId,
-      reason: "requested_by_customer",
-    });
+    try {
+      // Process refund through Stripe
+      const refund = await stripe.refunds.create({
+        payment_intent: paymentIntentId,
+        reason: "requested_by_customer",
+      });
 
-    // Update order status
-    order.orderStatus = "Cancelled";
-    order.cancellationReason = reason;
-    order.cancelledAt = Date.now();
-    order.paymentInfo.status = "Refunded";
-    await order.save();
+      // Update order status and save to trigger stock restoration
+      order.orderStatus = "Cancelled";
+      order.cancellationReason = reason;
+      order.cancelledAt = Date.now();
+      order.paymentInfo.status = "Refunded";
 
-    res.status(200).json({
-      success: true,
-      message: "Order cancelled and payment refunded successfully",
-      refund,
-    });
+      // Save the order to trigger the pre-save hook
+      await order.save();
+
+      // Verify stock restoration
+      const productModel = mongoose.model("Product");
+      for (const item of order.orderItems) {
+        if (!item.isPreOrder) {
+          const updatedProduct = await productModel.findById(item.product);
+          console.log(
+            `Verified stock for product ${updatedProduct._id}: ${updatedProduct.stock}`
+          );
+        }
+      }
+
+      res.status(200).json({
+        success: true,
+        message: "Order cancelled and payment refunded successfully",
+        refund,
+      });
+    } catch (stripeError) {
+      return next(
+        new ErrorHandler(`Stripe Error: ${stripeError.message}`, 500)
+      );
+    }
   } catch (error) {
     return next(new ErrorHandler(error.message, 500));
   }

@@ -186,58 +186,54 @@ orderSchema.pre("save", async function (next) {
     // Calculate total price
     this.totalPrice = this.totalPrice + this.taxPrice + this.shippingPrice;
 
-    // Validate products and stock
     const productModel = mongoose.model("Product");
-    await Promise.all(
-      this.orderItems.map(async (item) => {
-        const product = await productModel.findById(item.product);
-        if (!product) {
-          throw new Error(`Product with ID ${item.product} does not exist.`);
-        }
 
-        if (!item.isPreOrder && product.stock < item.quantity) {
-          throw new Error(`Insufficient stock for product: ${item.name}`);
-        }
+    // If this is a new order (not cancelled), decrease stock
+    if (this.isNew) {
+      await Promise.all(
+        this.orderItems.map(async (item) => {
+          const product = await productModel.findById(item.product);
+          if (!product) {
+            throw new Error(`Product with ID ${item.product} does not exist.`);
+          }
 
-        if (
-          item.isPreOrder &&
-          (!item.availabilityDate || item.availabilityDate < new Date())
-        ) {
-          throw new Error(
-            `Pre-order items must have a valid future availability date. Problem with item: ${item.name}`
-          );
-        }
-      })
-    );
+          if (!item.isPreOrder) {
+            if (product.stock < item.quantity) {
+              throw new Error(`Insufficient stock for product: ${item.name}`);
+            }
+            product.stock -= item.quantity;
+            await product.save();
+          }
+        })
+      );
+    }
+
+    // If order status is being changed to "Cancelled", restore stock
+    if (this.isModified("orderStatus") && this.orderStatus === "Cancelled") {
+      console.log("Restoring stock for cancelled order:", this._id);
+
+      await Promise.all(
+        this.orderItems.map(async (item) => {
+          if (!item.isPreOrder) {
+            const product = await productModel.findById(item.product);
+            if (product) {
+              console.log(
+                `Restoring ${item.quantity} units to product ${product._id}`
+              );
+              product.stock += item.quantity;
+              await product.save();
+              console.log(
+                `New stock for product ${product._id}: ${product.stock}`
+              );
+            }
+          }
+        })
+      );
+    }
 
     next();
   } catch (err) {
     next(err);
-  }
-});
-
-// --------------------- Deduct Stock After Order is Placed ---------------------
-orderSchema.post("save", async function () {
-  const productModel = mongoose.model("Product");
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
-  try {
-    for (const item of this.orderItems) {
-      if (!item.isPreOrder) {
-        await productModel.findByIdAndUpdate(
-          item.product,
-          { $inc: { stock: -item.quantity } },
-          { session }
-        );
-      }
-    }
-    await session.commitTransaction();
-  } catch (err) {
-    await session.abortTransaction();
-    throw new Error(`Error updating stock: ${err.message}`);
-  } finally {
-    session.endSession();
   }
 });
 

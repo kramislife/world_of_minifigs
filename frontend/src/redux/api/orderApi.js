@@ -1,4 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { productApi } from "./productApi";
 
 export const orderApi = createApi({
   reducerPath: "orderApi",
@@ -15,6 +16,14 @@ export const orderApi = createApi({
         body: orderData,
       }),
       invalidatesTags: ["Order"],
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          dispatch(productApi.util.invalidateTags(["Product"]));
+        } catch (error) {
+          // Handle error if needed
+        }
+      },
     }),
 
     getAllOrders: builder.query({
@@ -63,6 +72,16 @@ export const orderApi = createApi({
         body: body,
       }),
       invalidatesTags: ["Order"],
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          if (data?.data?.orderStatus === "Cancelled") {
+            dispatch(productApi.util.invalidateTags(["Product", "Products"]));
+          }
+        } catch (error) {
+          // Handle error if needed
+        }
+      },
     }),
   }),
 });
