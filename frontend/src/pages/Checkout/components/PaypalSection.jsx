@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { ArrowUpRight, Loader2 } from "lucide-react";
-import { PayPalButtons, usePayPalScriptReducer } from "@paypal/react-paypal-js";
+import { PayPalButtons, usePayPalScriptReducer, PayPalScriptProvider } from "@paypal/react-paypal-js";
 import { toast } from "react-toastify";
 import { useCreateOrderMutation } from "@/redux/api/orderApi";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { clearCart } from "@/redux/features/cartSlice";
 import { useCheckout } from "@/hooks/Payment/useCheckout";
+import { useGetPayPalCredentialsQuery } from "@/redux/api/checkoutApi";
 
 // Extract PayPal button styles
 const PAYPAL_BUTTON_STYLES = {
@@ -40,7 +41,7 @@ const ProcessingOverlay = () => (
   </div>
 );
 
-const PayPalSection = ({
+const PayPalContent = ({
   total,
   email,
   selectedAddress,
@@ -196,18 +197,6 @@ const PayPalSection = ({
     }
   };
 
-  const handleError = (err) => {
-    console.error("PayPal error:", err);
-    setPaypalWindowOpen(false);
-    const errorMsg =
-      err.message === "Window closed before response"
-        ? "Payment window was closed. Please try again."
-        : "";
-    setError(errorMsg);
-    toast.error(errorMsg);
-    setIsProcessing(false);
-  };
-
   const handleCancel = () => {
     setPaypalWindowOpen(false);
     setError("Payment cancelled");
@@ -244,12 +233,42 @@ const PayPalSection = ({
           createOrder={handleCreateOrder}
           onApprove={handleApprove}
           onCancel={handleCancel}
-          onError={handleError}
           disabled={isProcessing}
           forceReRender={[key, total]}
         />
       </div>
     </div>
+  );
+};
+
+const PayPalSection = (props) => {
+  const {
+    data: paypalData,
+    isLoading,
+    isError,
+  } = useGetPayPalCredentialsQuery();
+
+  if (isLoading) {
+    return <div>Loading PayPal...</div>;
+  }
+
+  if (isError || !paypalData?.clientId) {
+    console.warn("PayPal credentials not available");
+    return <div>PayPal configuration error</div>;
+  }
+
+  const paypalOptions = {
+    "client-id": paypalData.clientId,
+    currency: "USD",
+    intent: "capture",
+    components: "buttons",
+    "disable-funding": "card",
+  };
+
+  return (
+    <PayPalScriptProvider options={paypalOptions}>
+      <PayPalContent {...props} />
+    </PayPalScriptProvider>
   );
 };
 
