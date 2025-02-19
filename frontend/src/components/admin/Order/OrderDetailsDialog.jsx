@@ -47,8 +47,8 @@ const OrderDetailsDialog = ({ isOpen, onClose, order }) => {
       <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto scrollbar-none bg-brand-gradient border border-gray-800 rounded-xl py-10 px-5">
         <DialogHeader>
           <DialogTitle>
-            <div className="flex items-center justify-between border-b border-gray-500/50 pb-5">
-              <div className="space-y-1.5">
+            <div className="flex items-center justify-between border-b border-gray-500/50 pb-4">
+              <div className="space-y-1">
                 <span className="text-sm font-medium text-gray-400">
                   Order ID
                 </span>
@@ -56,7 +56,7 @@ const OrderDetailsDialog = ({ isOpen, onClose, order }) => {
                   #{order._id}
                 </p>
               </div>
-              <div className="space-y-1.5 text-left">
+              <div className="space-y-1 text-left">
                 <span className="text-sm font-medium text-gray-400">
                   Order Date
                 </span>
@@ -68,8 +68,8 @@ const OrderDetailsDialog = ({ isOpen, onClose, order }) => {
           </DialogTitle>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mt-5">
-          <div className="lg:col-span-2 space-y-5">
+        <div className="relative grid grid-cols-1 lg:grid-cols-5 gap-4 mt-4">
+          <div className="lg:col-span-3 space-y-4">
             <OrderItems orderItems={order.orderItems} />
             <ShippingDetails
               shippingAddress={order.shippingAddress}
@@ -77,13 +77,14 @@ const OrderDetailsDialog = ({ isOpen, onClose, order }) => {
             />
           </div>
 
-          <div className="space-y-5">
-            <OrderStatus
-              selectedStatus={selectedStatus}
-              setSelectedStatus={setSelectedStatus}
-              order={order}
-              user={user}
-              handleStatusUpdate={handleStatusUpdate}
+          <div className="lg:col-span-2">
+            <div className="sticky top-0 space-y-4">
+              <OrderStatus
+                selectedStatus={selectedStatus}
+                setSelectedStatus={setSelectedStatus}
+                order={order}
+                user={user}
+                handleStatusUpdate={handleStatusUpdate}
               isLoading={isLoading}
             />
             <CustomerInfo user={order.user} email={order.email} />
@@ -92,7 +93,8 @@ const OrderDetailsDialog = ({ isOpen, onClose, order }) => {
               shippingPrice={order.shippingPrice}
               taxPrice={order.taxPrice}
               totalPrice={order.totalPrice}
-            />
+              />
+            </div>
           </div>
         </div>
       </DialogContent>
