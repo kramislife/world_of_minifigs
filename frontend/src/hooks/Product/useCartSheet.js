@@ -41,17 +41,6 @@ export const useCartSheet = (isOpen, setIsOpen) => {
     }
   }, [isAuthenticated]);
 
-  // Handle returning from login
-  useEffect(() => {
-    const isFromLogin = location.state?.from === "/login";
-    const wasCheckoutAttempted = location.state?.isCheckout;
-
-    if (isAuthenticated && isFromLogin && wasCheckoutAttempted) {
-      setIsOpen(true);
-      navigate(location.pathname, { replace: true, state: {} });
-    }
-  }, [isAuthenticated, location, navigate, setIsOpen]);
-
   // Refetch cart items when sheet opens
   useEffect(() => {
     if (isOpen && cartItems.length > 0) {
@@ -87,8 +76,6 @@ export const useCartSheet = (isOpen, setIsOpen) => {
       navigate("/login", {
         state: {
           from: location.pathname,
-          isCheckout: true,
-          returnToCart: true,
         },
       });
       return;

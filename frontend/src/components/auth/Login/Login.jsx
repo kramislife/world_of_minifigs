@@ -15,8 +15,9 @@ const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Get the saved product info and action
-  const from = location.state?.from || "/";
+  // Get the saved product info and action, ensure from is a string
+  const from =
+    typeof location.state?.from === "string" ? location.state.from : "/";
   const returnTo = location.state?.returnTo;
 
   const { isAuthenticated, user } = useSelector((state) => state.auth);
@@ -24,43 +25,30 @@ const Login = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      // Ensure 'from' is a string
-      const fromPath = typeof from === "string" ? from : "/";
-
-      // If returning to product page, just go back to the product
+      // If returning to product page after "Buy Now", just go back to the product
       if (returnTo === "product") {
-        navigate(fromPath);
+        navigate(from);
         return;
       }
 
-      // Otherwise handle normal admin/employee routing
+      // Handle admin/employee routing
       const isAdminOrEmployee = ["admin", "employee", "superAdmin"].includes(
         user?.role
       );
 
-      if (fromPath.startsWith("/admin")) {
-        if (isAdminOrEmployee) {
-          navigate(fromPath);
-        } else {
-          navigate("/");
-        }
-      } else {
-        navigate(isAdminOrEmployee ? "/admin" : fromPath);
-      }
+      // Ensure from is a string before using startsWith
+      const redirectPath =
+        typeof from === "string" && from.startsWith("/admin")
+          ? isAdminOrEmployee
+            ? from
+            : "/"
+          : isAdminOrEmployee
+          ? "/admin"
+          : from;
+
+      navigate(redirectPath);
     }
   }, [isAuthenticated, user, navigate, from, returnTo]);
-
-  const onLoginSuccess = () => {
-    const returnPath = location.state?.from || "/";
-
-    // Navigate back with state to trigger cart opening
-    navigate(returnPath, {
-      state: {
-        from: "/login",
-        isCheckout: location.state?.isCheckout,
-      },
-    });
-  };
 
   const submitHandler = async (e) => {
     e.preventDefault();
@@ -71,7 +59,6 @@ const Login = () => {
         password,
       }).unwrap();
       toast.success(result?.message);
-      onLoginSuccess();
     } catch (err) {
       toast.error(err?.data?.message || "An error occurred during login");
     }
@@ -114,7 +101,7 @@ const Login = () => {
                 </p>
               </motion.div>
 
-              <form className="space-y-7">
+              <form className="space-y-7" onSubmit={submitHandler}>
                 <motion.div
                   {...loginAnimations.inputVariants}
                   transition={loginAnimations.emailInputTransition}
@@ -125,9 +112,7 @@ const Login = () => {
                     placeholder="Email Address or Username"
                     className="bg-darkBrand/50 border-white/20 text-white placeholder:text-gray-400 h-14 w-full rounded-xl focus:ring-2 focus:ring-light/40 focus:border-light/40 transition-all duration-300 text-md px-3"
                     required
-                    onChange={(e) => {
-                      setEmail_username(e.target.value);
-                    }}
+                    onChange={(e) => setEmail_username(e.target.value)}
                   />
                 </motion.div>
 
@@ -141,9 +126,7 @@ const Login = () => {
                     placeholder="Password"
                     className="bg-darkBrand/50 border-white/20 text-white placeholder:text-gray-400 h-14 rounded-xl focus:ring-2 focus:ring-light/40 focus:border-light/40 transition-all duration-300 text-md w-full px-3"
                     required
-                    onChange={(e) => {
-                      setPassword(e.target.value);
-                    }}
+                    onChange={(e) => setPassword(e.target.value)}
                   />
                 </motion.div>
 
@@ -163,7 +146,6 @@ const Login = () => {
                   <button
                     type="submit"
                     className="w-full bg-gradient-r border border-brand hover:bg-brand-gradient text-white h-14 rounded-xl text-md shadow-lg transition-all duration-300 relative overflow-hidden group tracking-wider"
-                    onClick={submitHandler}
                   >
                     <span className="relative z-10">
                       {isLoading ? "Loading.." : "Log in"}
