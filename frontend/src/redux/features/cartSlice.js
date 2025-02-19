@@ -37,6 +37,15 @@ const cartSlice = createSlice({
       );
 
       if (existingItemIndex !== -1) {
+        // Check if adding one more would exceed stock
+        const currentQuantity = state.cartItems[existingItemIndex].quantity;
+        const stock = state.cartItems[existingItemIndex].stock;
+
+        if (currentQuantity >= stock) {
+          // Don't update if it would exceed stock
+          return;
+        }
+
         // Update quantity without changing position
         state.cartItems[existingItemIndex].quantity += 1;
       } else {

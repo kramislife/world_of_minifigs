@@ -11,6 +11,7 @@ const ProductActions = ({ product, onAddToCart }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated } = useSelector((state) => state.auth);
+  const { cartItems } = useSelector((state) => state.cart);
 
   const formatProductForCart = () => ({
     product: product._id,
@@ -25,8 +26,23 @@ const ProductActions = ({ product, onAddToCart }) => {
     includes: product.product_includes || "",
   });
 
+  // Check if adding to cart would exceed stock
+  const checkStockAvailability = () => {
+    const existingItem = cartItems.find((item) => item.product === product._id);
+    if (existingItem) {
+      if (existingItem.quantity >= product.stock) {
+        toast.error(`Maximum stock limit reached (${product.stock} items)`);
+        return false;
+      }
+    }
+    return true;
+  };
+
   // Handle adding to cart
   const handleAddToCart = () => {
+    if (!checkStockAvailability()) {
+      return;
+    }
     dispatch(addToCart(formatProductForCart()));
     onAddToCart?.();
     toast.success("Added to cart successfully");
