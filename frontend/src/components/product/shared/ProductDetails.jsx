@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import { motion } from "framer-motion";
 import Metadata from "@/components/layout/Metadata/Metadata";
-import CartSheet from "@/components/layout/header/components/CartSheet";
+import CartSheet from "@/components/layout/header/CartSheet";
 import { useProductImages } from "@/hooks/Product/useProductImages";
 import ProductImageGallery from "./ProductImageGallery";
 import ProductInfo from "./ProductInfo";
