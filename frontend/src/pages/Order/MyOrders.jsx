@@ -53,34 +53,72 @@ const MyOrders = () => {
   return (
     <>
       <Metadata title="My Orders" />
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold mb-6 text-white">My Orders</h1>
+      <div className="p-10">
+          <div className="flex items-center justify-between mb-8">
+            <h1 className="text-3xl font-bold text-white bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent">
+              My Orders
+            </h1>
+            <div className="text-gray-400 text-sm">
+              Total Orders: {data.data.length}
+            </div>
+          </div>
 
-        <Tabs 
-          defaultValue={statusParam || "Pending"} 
-          className="w-full"
-          onValueChange={handleTabChange}
-        >
-          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-7 gap-4">
-            {orderStatus.map((status) => (
+          <Tabs
+            defaultValue={statusParam || "Pending"}
+            className="w-full"
+            onValueChange={handleTabChange}
+          >
+            <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2 bg-gray-900/50 p-1 rounded-lg">
+              {orderStatus.map((status) => (
+                <TabsTrigger
+                  key={status.id}
+                  value={status.value}
+                  disabled={!ordersByStatus[status.value]}
+                  className="flex items-center gap-2 transition-all duration-200 hover:bg-gray-700/50"
+                >
+                  {status.icon && (
+                    <status.icon className="w-4 h-4 text-gray-400" />
+                  )}
+                  <span className="hidden md:inline">{status.label}</span>
+                  <span className="md:hidden">{status.label.slice(0, 3)}</span>
+                  {ordersByStatus[status.value] && (
+                    <span className="ml-1 text-xs bg-primary/20 px-1.5 py-0.5 rounded-full">
+                      {ordersByStatus[status.value].length}
+                    </span>
+                  )}
+                </TabsTrigger>
+              ))}
               <TabsTrigger
+                value="all"
+                className="transition-all duration-200 hover:bg-gray-700/50"
+              >
+                All Orders
+              </TabsTrigger>
+            </TabsList>
+
+            {/* Orders by Status */}
+            {orderStatus.map((status) => (
+              <TabsContent
                 key={status.id}
                 value={status.value}
-                disabled={!ordersByStatus[status.value]}
-                className="flex items-center gap-2"
+                className="mt-8 min-h-[300px]"
               >
-                {status.icon && <status.icon className="w-4 h-4" />}
-                {status.label}
-              </TabsTrigger>
+                <div className="grid grid-cols-1">
+                  {ordersByStatus[status.value]?.map((order) => (
+                    <OrderCard
+                      key={order._id}
+                      order={order}
+                      onClick={handleOrderClick}
+                    />
+                  ))}
+                </div>
+              </TabsContent>
             ))}
-            <TabsTrigger value="all">All Orders</TabsTrigger>
-          </TabsList>
 
-          {/* Orders by Status */}
-          {orderStatus.map((status) => (
-            <TabsContent key={status.id} value={status.value} className="mt-6">
-              <div className="grid gap-6">
-                {ordersByStatus[status.value]?.map((order) => (
+            {/* All Orders*/}
+            <TabsContent value="all" className="mt-8 min-h-[300px]">
+              <div className="grid gap-6 sm:grid-cols-1 lg:grid-cols-2">
+                {data.data.map((order) => (
                   <OrderCard
                     key={order._id}
                     order={order}
@@ -89,22 +127,8 @@ const MyOrders = () => {
                 ))}
               </div>
             </TabsContent>
-          ))}
-
-          {/* All Orders*/}
-          <TabsContent value="all" className="mt-6">
-            <div className="grid gap-6">
-              {data.data.map((order) => (
-                <OrderCard
-                  key={order._id}
-                  order={order}
-                  onClick={handleOrderClick}
-                />
-              ))}
-            </div>
-          </TabsContent>
-        </Tabs>
-      </div>
+          </Tabs>
+        </div>
     </>
   );
 };
