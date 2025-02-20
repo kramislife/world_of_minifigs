@@ -4,7 +4,7 @@ const ShippingDetails = ({ shippingAddress, orderNotes }) => {
   return (
     <div className="bg-brand/80 rounded-xl p-6">
       <div className="flex items-center gap-2 mb-4">
-        <Truck className="w-5 h-5 text-green-500" />
+        <Truck className="w-6 h-6 text-green-500" />
         <h3 className="text-lg font-semibold text-white">Shipping Details</h3>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

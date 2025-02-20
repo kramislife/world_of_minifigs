@@ -47,6 +47,8 @@ const ViewOrder = () => {
         orderNotes: order.orderNotes,
         deliveredAt: order.deliveredAt,
         shippingAddress: order.shippingAddress,
+        cancelledAt: order.cancelledAt,
+        cancellationReason: order.cancellationReason,
       }));
   }, [orderData]);
 

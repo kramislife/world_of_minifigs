@@ -1,3 +1,4 @@
+import { Badge } from "@/components/ui/badge";
 import { Package2 } from "lucide-react";
 
 const OrderItems = ({ orderItems }) => {
@@ -21,12 +22,9 @@ const OrderItems = ({ orderItems }) => {
               />
               {item.price > item.discountedPrice && (
                 <div className="absolute top-2 right-2 z-10">
-                  <div className="bg-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-full">
-                    {Math.round(
-                      ((item.price - item.discountedPrice) / item.price) * 100
-                    )}
-                    % OFF
-                  </div>
+                  <Badge variant="destructive">
+                    {item.discount}% OFF
+                  </Badge>
                 </div>
               )}
             </div>
