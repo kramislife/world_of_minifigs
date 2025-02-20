@@ -5,7 +5,7 @@ const PaymentInfo = ({ paymentInfo, shippingPrice, taxPrice, totalPrice }) => {
   return (
     <div className="bg-brand/80 rounded-xl p-6">
       <div className="flex items-center gap-2 mb-6">
-        <CreditCard className="w-5 h-5 text-yellow-500" />
+        <CreditCard className="w-6 h-6 text-yellow-500" />
         <h3 className="text-lg font-semibold text-white">Payment</h3>
       </div>
       <div className="space-y-4">
