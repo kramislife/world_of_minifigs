@@ -5,8 +5,21 @@ import { CircleCheckBig } from "lucide-react";
 import StarRating from "./StarRating";
 import ProductStatus from "./ProductStatus";
 import ProductActions from "./ProductActions";
+import { useNavigate } from "react-router-dom";
 
-const ProductInfo = ({ product, itemVariants, onAddToCart }) => {
+const ProductInfo = ({
+  product,
+  itemVariants,
+  onAddToCart,
+  colorVariants,
+  scrollThumbnailIntoView,
+}) => {
+  const navigate = useNavigate();
+
+  const handleColorChange = (productId) => {
+    navigate(`/products/${productId}`);
+  };
+
   return (
     <AnimatePresence mode="wait">
       <motion.div
@@ -201,8 +214,40 @@ const ProductInfo = ({ product, itemVariants, onAddToCart }) => {
             </div>
           )}
 
+          {/* Color Variants Section */}
+          {colorVariants.length > 0 && (
+            <motion.div
+              className="flex flex-col gap-2"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+            >
+              <span className="text-sm font-semibold text-gray-300">
+                Color Variants
+              </span>
+              <div className="flex flex-wrap gap-2">
+                {colorVariants.map((variant) => (
+                  <button
+                    key={variant.id}
+                    onClick={() => {
+                      handleColorChange(variant.id);
+                      scrollThumbnailIntoView(variant.thumbnailIndex);
+                    }}
+                    className={`w-6 h-6 rounded-full transition-all mt-1 ${
+                      variant.isActive ? "border-red-500 border-2" : "border border-gray-600"
+                    }`}
+                    style={{
+                      backgroundColor: variant.color.code,
+                    }}
+                    title={variant.color.name}
+                  />
+                ))}
+              </div>
+            </motion.div>
+          )}
+
           {/* Product Description Section */}
-          <div className="space-y-4">
+          <div className="space-y-1">
             {[
               product?.product_description_1,
               product?.product_description_2,

@@ -109,7 +109,8 @@ export const getBestSellerProduct = catchAsyncErrors(async (req, res, next) => {
 export const getProductById = catchAsyncErrors(async (req, res, next) => {
   const product = await populateProductFields(Product.findById(req.params.id))
     .populate("product_sub_categories", "name category")
-    .populate("product_sub_collections", "name collection");
+    .populate("product_sub_collections", "name collection")
+    .populate("product_color", "name code");
 
   if (!product) {
     return next(new ErrorHandler("Product not found", 400));
@@ -128,7 +129,7 @@ export const getProductById = catchAsyncErrors(async (req, res, next) => {
       partID: product.partID,
       _id: { $ne: product._id },
     })
-  );
+  ).populate("product_color", "name code");
 
   res.status(200).json({
     message: "Product Retrieved Successfully",

@@ -65,7 +65,7 @@ const ProductActions = ({ product, onAddToCart }) => {
   };
 
   return (
-    <div className="mt-8 flex gap-4">
+    <div className="mt-5 flex gap-4">
       <Button
         className="flex-1 bg-red-600 hover:bg-red-700 hover:scale-105 transition-all duration-300 relative text-md"
         disabled={!product?.stock || product?.stock <= 0}
