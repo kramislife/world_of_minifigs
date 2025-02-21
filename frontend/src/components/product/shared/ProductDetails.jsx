@@ -20,6 +20,7 @@ const ProductDetails = ({
     setCurrentImageIndex,
     currentProduct,
     displayItems,
+    colorVariants,
     nextImage,
     prevImage,
     scrollThumbnailIntoView,
@@ -32,7 +33,7 @@ const ProductDetails = ({
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="mx-auto px-4 py-8"
+        className="mx-auto px-4 py-10"
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <ProductImageGallery
@@ -51,6 +52,8 @@ const ProductDetails = ({
             product={currentProduct}
             itemVariants={itemVariants}
             onAddToCart={() => setIsCartOpen(true)}
+            colorVariants={colorVariants}
+            scrollThumbnailIntoView={scrollThumbnailIntoView}
           />
         </div>
       </motion.div>
