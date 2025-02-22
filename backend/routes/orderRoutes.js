@@ -40,8 +40,6 @@ router
     getAllOrdersForAdmin
   );
 
-export default router;
-
 // UPDATE AN ORDER FOR A USER
 router
   .route("/admin/orders/:id")
@@ -54,3 +52,5 @@ router
     ),
     updateOrderForAdmin
   );
+
+export default router;

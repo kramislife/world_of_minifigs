@@ -106,7 +106,12 @@ const AddressActions = ({ addr, handleDeleteClick, userName }) => (
       userName={userName}
     />
     <button
-      onClick={(e) => handleDeleteClick(addr, e)}
+      type="button"
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        handleDeleteClick(addr);
+      }}
       className="text-red-500 hover:text-red-400 transition-colors"
     >
       <Trash2 className="w-4 h-4" />
@@ -219,9 +224,8 @@ const ShippingSection = ({ onAddressChange, userName, onDeleteClick }) => {
     return parts.join(", ");
   };
 
-  const handleDeleteClick = (addr, e) => {
-    e.stopPropagation();
-    onDeleteClick(addr);
+  const handleDeleteClick = (addr) => {
+    onDeleteClick(addr, refetchAddresses);
   };
 
   const handleMakeDefault = async (addr, e) => {

@@ -3,13 +3,13 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import logo from "@/assets/logo.png";
 
-import SearchSheet from "./components/SearchSheet";
-import CartButton from "./components/CartButton";
+import SearchSheet from "./SearchSheet";
+import CartButton from "./CartButton";
 import DesktopNavbar from "./components/DesktopNavbar";
 import MobileMenu from "./components/MobileMenu";
-import UserDropdown from "./components/UserDropdown";
+import UserDropdown from "./UserDropdown";
 import { User } from "lucide-react";
-import CartSheet from "./components/CartSheet";
+import CartSheet from "./CartSheet";
 
 const Header = () => {
   const navigate = useNavigate();

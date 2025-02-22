@@ -9,135 +9,156 @@ import sendEmail from "../Utills/sendEmail.js";
 // --------------- CREATE A NEW ORDER -----------------------------
 
 export const createOrder = catchAsyncErrors(async (req, res, next) => {
-  console.log("Received order data:", req.body);
-
-  // TAKE DATA FROM THE REQUEST BODY
   const {
+    user,
     email,
     shippingAddress,
     orderItems,
     paymentInfo,
-    itemsPrice,
     taxPrice,
     shippingPrice,
-    discountPrice,
+    totalPrice,
     orderNotes,
   } = req.body;
 
-  // VALIDATE ORDER ITEMS
-  if (!orderItems || orderItems.length === 0) {
-    return next(
-      new ErrorHandler("Please add some products to your order", 400)
-    );
+  // Validate user
+  if (!user) {
+    return next(new ErrorHandler("User ID is required", 400));
   }
 
-  // VALIDATE REFERENCE IDS
+  // Validate required fields
+  if (!email) {
+    return next(new ErrorHandler("Email is required", 400));
+  }
+
   if (!shippingAddress) {
-    return next(new ErrorHandler("Please add shipping address", 400));
+    return next(new ErrorHandler("Shipping address is required", 400));
   }
 
-  // CALCULATE PRICE AND TOTAL
-  const totalPrice =
-    itemsPrice + taxPrice + shippingPrice - (discountPrice || 0);
+  if (!orderItems || orderItems.length === 0) {
+    return next(new ErrorHandler("Order items are required", 400));
+  }
 
-  // CHECK STOCKS FOR NON PREORDER ITEMS
+  if (!paymentInfo || !paymentInfo.method) {
+    return next(new ErrorHandler("Payment information is required", 400));
+  }
+
+  // Validate order items
   for (const item of orderItems) {
-    const product = await Product.findById(item.product);
-
-    if (!product) {
+    if (!item.product) {
       return next(
-        new ErrorHandler(`Product with id ${item.product} not found`, 404)
+        new ErrorHandler("Product ID is required for each item", 400)
       );
     }
-
-    if (!item.isPreorder && product.stock < item.quantity) {
+    if (!item.name) {
       return next(
-        new ErrorHandler(`Insufficient stock for product : ${item.name}`, 404)
+        new ErrorHandler("Product name is required for each item", 400)
+      );
+    }
+    if (!item.quantity || item.quantity < 1) {
+      return next(
+        new ErrorHandler("Valid quantity is required for each item", 400)
+      );
+    }
+    if (!item.price || item.price < 0) {
+      return next(
+        new ErrorHandler("Valid price is required for each item", 400)
       );
     }
   }
 
-  // CREATE NEW ORDER
-  const newOrder = await Order({
-    user: req.user.user_id,
-    email,
-    shippingAddress,
-    orderItems,
-    paymentInfo,
-    itemsPrice,
-    taxPrice,
-    shippingPrice,
-    discountPrice: discountPrice || 0,
-    totalPrice,
-    orderNotes: orderNotes || "",
-    paidAt: Date.now(),
-  });
-
-  const saveOrder = await newOrder.save();
-
-  if (!saveOrder) {
-    return next(new ErrorHandler("Failed to save order", 400));
+  // Validate prices
+  if (!totalPrice || totalPrice < 0) {
+    return next(new ErrorHandler("Valid total price is required", 400));
   }
 
-  // Populate the order with user and address details
-  const populatedOrder = await Order.findById(saveOrder._id)
-    .populate("user", "username email")
-    .populate(
-      "shippingAddress",
-      "contact_number address_line1 address_line2 city state postal_code country"
-    )
-    .populate({
-      path: "orderItems.product",
-      select: "product_name product_images product_color",
-      populate: {
-        path: "product_color",
-        select: "name code"
-      }
+  if (typeof taxPrice !== "number") {
+    return next(new ErrorHandler("Valid tax price is required", 400));
+  }
+
+  if (typeof shippingPrice !== "number") {
+    return next(new ErrorHandler("Valid shipping price is required", 400));
+  }
+
+  if (!totalPrice || totalPrice < 0) {
+    return next(new ErrorHandler("Valid total price is required", 400));
+  }
+
+  try {
+    const order = await Order.create({
+      user,
+      email,
+      shippingAddress,
+      orderItems,
+      paymentInfo,
+      taxPrice,
+      shippingPrice,
+      totalPrice,
+      orderNotes,
+      paidAt: Date.now(),
     });
 
-  // Format the order items to include the correct image URL and color
-  const formattedOrderItems = populatedOrder.orderItems.map(item => ({
-    name: item.name,
-    quantity: item.quantity,
-    price: item.price,
-    image: item.product.product_images[0]?.url || 'https://via.placeholder.com/80',
-    color: item.color || (item.product.product_color ? item.product.product_color.name : null),
-    includes: item.includes || null
-  }));
-
-  // Add debug log to check the populated data
-  console.log("Populated Order:", JSON.stringify(populatedOrder, null, 2));
-
-  // Send order confirmation email
-  const emailOptions = {
-    email: email,
-    subject: `Order Confirmation #${saveOrder._id}`,
-    message: OrderConfirmationTemplate(
-      populatedOrder.user?.username || "Valued Customer",
-      saveOrder._id,
-      saveOrder.orderStatus,
-      {
-        ...populatedOrder.toObject(),
-        orderItems: formattedOrderItems,
-        shippingAddress: {
-          address: `${populatedOrder.shippingAddress?.address_line1 || ""} ${
-            populatedOrder.shippingAddress?.address_line2 || ""
-          }, ${populatedOrder.shippingAddress?.city || ""}, ${
-            populatedOrder.shippingAddress?.country || ""
-          }, ${populatedOrder.shippingAddress?.postal_code || ""}`,
-          phoneNo: populatedOrder.shippingAddress?.contact_number || "N/A",
+    // Populate the order with user and address details
+    const populatedOrder = await Order.findById(order._id)
+      .populate("user", "username email")
+      .populate(
+        "shippingAddress",
+        "contact_number address_line1 address_line2 city state postal_code country"
+      )
+      .populate({
+        path: "orderItems.product",
+        select: "product_name product_images product_color",
+        populate: {
+          path: "product_color",
+          select: "name code",
         },
-      }
-    ),
-  };
+      });
 
-  await sendEmail(emailOptions);
+    // Format the order items to include the correct image URL and color
+    const formattedOrderItems = populatedOrder.orderItems.map((item) => ({
+      name: item.name,
+      quantity: item.quantity,
+      price: item.discountedPrice,
+      image:
+        item.product.product_images[0]?.url || "https://via.placeholder.com/80",
+      color:
+        item.color ||
+        (item.product.product_color ? item.product.product_color.name : null),
+      includes: item.includes || null,
+    }));
 
-  res.status(201).json({
-    success: true,
-    message: "Order created successfully",
-    data: saveOrder,
-  });
+    // Send order confirmation email
+    const emailOptions = {
+      email: email,
+      subject: `Order Confirmation #${order._id}`,
+      message: OrderConfirmationTemplate(
+        populatedOrder.user?.username || "Valued Customer",
+        order._id,
+        order.orderStatus,
+        {
+          ...populatedOrder.toObject(),
+          orderItems: formattedOrderItems,
+          shippingAddress: {
+            address: `${populatedOrder.shippingAddress?.address_line1 || ""} ${
+              populatedOrder.shippingAddress?.address_line2 || ""
+            }, ${populatedOrder.shippingAddress?.city || ""}, ${
+              populatedOrder.shippingAddress?.country || ""
+            }, ${populatedOrder.shippingAddress?.postal_code || ""}`,
+            phoneNo: populatedOrder.shippingAddress?.contact_number || "N/A",
+          },
+        }
+      ),
+    };
+
+    await sendEmail(emailOptions);
+
+    res.status(201).json({
+      success: true,
+      order,
+    });
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 400));
+  }
 });
 
 // ---------------------------- GET ALL ORDERS FOR LOGGED IN USER -----------------------------
@@ -289,124 +310,64 @@ export const getAllOrdersAdmin = catchAsyncErrors(async (req, res, next) => {
 
 // ------------------------- UPDATE ORDER STATUS BY ID - ADMIN ---------------------------
 
+const validateStatusTransition = (currentStatus, newStatus) => {
+  const statusTransitions = {
+    Pending: ["Processing", "On Hold", "Cancelled"],
+    Processing: ["Shipped", "On Hold", "Cancelled"],
+    Shipped: ["Delivered", "Returned"],
+    Delivered: ["Returned"],
+    Cancelled: [],
+    "On Hold": ["Processing", "Cancelled"],
+    Returned: [],
+  };
+
+  return statusTransitions[currentStatus]?.includes(newStatus);
+};
+
 export const updateOrderForAdmin = catchAsyncErrors(async (req, res, next) => {
   const orderId = req.params.id;
+  const { orderStatus } = req.body;
 
-  // FIND THE ORDER
-  const order = await Order.findById(orderId).populate("user", "name email");
+  // Find the order
+  const order = await Order.findById(orderId);
 
   if (!order) {
     return next(new ErrorHandler("Order not found", 404));
   }
 
-  const { orderStatus, shippingInfo } = req.body;
-
-  // VALIDATE REQUEST
-  if (!orderStatus && !shippingInfo) {
+  // Validate status transition
+  if (
+    orderStatus &&
+    !validateStatusTransition(order.orderStatus, orderStatus)
+  ) {
     return next(
       new ErrorHandler(
-        "Provide either order status or shipping info to update.",
+        `Invalid status transition from ${order.orderStatus} to ${orderStatus}`,
         400
       )
     );
   }
 
-  // RESTRICT UPDATES FOR DELIVERED/CANCELLED ORDERS
-  if (["Delivered", "Cancelled"].includes(order.orderStatus)) {
-    return next(
-      new ErrorHandler(
-        `Cannot update order as it is already ${order.orderStatus}.`,
-        400
-      )
-    );
+  // Update order
+  if (orderStatus) {
+    order.orderStatus = orderStatus;
+
+    // Set timestamps based on status
+    if (orderStatus === "Shipped") {
+      order.shippedAt = Date.now();
+    } else if (orderStatus === "Delivered") {
+      order.deliveredAt = Date.now();
+    } else if (orderStatus === "Cancelled") {
+      order.cancelledAt = Date.now();
+    }
   }
 
-  const validStatuses = [
-    "Pending",
-    "Processing",
-    "Shipped",
-    "Delivered",
-    "Cancelled",
-    "On Hold",
-    "Returned",
-  ];
+  // Save the updated order
+  const updatedOrder = await order.save();
 
-  let session = null; // Declare session and initialize later
-
-  try {
-    session = await mongoose.startSession(); // Initialize session
-    session.startTransaction();
-
-    // UPDATE ORDER STATUS
-    let statusUpdated = false;
-    if (orderStatus) {
-      if (!validStatuses.includes(orderStatus)) {
-        throw new Error("Invalid order status. Please choose a valid status.");
-      }
-
-      if (order.orderStatus !== orderStatus) {
-        statusUpdated = true; // Flag to determine if email notification is needed
-      }
-
-      order.orderStatus = orderStatus;
-
-      if (orderStatus === "Shipped") {
-        order.shippingInfo.shippedAt = Date.now();
-      } else if (orderStatus === "Delivered") {
-        order.deliveredAt = Date.now();
-      } else if (orderStatus === "Cancelled") {
-        order.cancelledAt = Date.now();
-      }
-    }
-
-    // UPDATE SHIPPING INFO (MERGING NEW INFO)
-    if (shippingInfo) {
-      order.shippingInfo = {
-        ...order.shippingInfo.toObject(),
-        ...shippingInfo,
-      };
-    }
-
-    // TRACK ADMIN/EMPLOYEE WHO MODIFIED THE ORDER
-    order.updatedBy = req.user.user_id;
-
-    // SAVE THE ORDER
-    const updatedOrder = await order.save({ session });
-
-    // Commit transaction
-    await session.commitTransaction();
-
-    // End session
-    session.endSession();
-
-    // SEND NOTIFICATION (IF STATUS UPDATED)
-    if (statusUpdated) {
-      const options = {
-        to: order.user.email,
-        subject: `Order #${order._id} Status Update`,
-        html: getOrderUpdateEmailTemplate(
-          order.user.name,
-          order._id,
-          order.orderStatus
-        ),
-      };
-      sendEmail(options);
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "Order updated successfully",
-      data: updatedOrder,
-    });
-  } catch (error) {
-    // Ensure session is defined before trying to abort the transaction
-    if (session) {
-      await session.abortTransaction(); // Abort if an error occurs
-      session.endSession(); // End session
-    }
-
-    return next(
-      new ErrorHandler(error.message || "Failed to update order", 500)
-    );
-  }
+  res.status(200).json({
+    success: true,
+    message: "Order updated successfully",
+    data: updatedOrder,
+  });
 });

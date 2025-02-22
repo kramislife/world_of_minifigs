@@ -26,7 +26,7 @@ const FilterAccordion = ({
     subCollectionsData,
   } = useProductFilters({
     categories,
-    colorsData: { prod_color: colors },
+    colorsData: colors,
   });
 
   const handleFilterClick = (key, value) => {
@@ -70,11 +70,25 @@ const FilterAccordion = ({
                   ? "product_sub_categories"
                   : "product_sub_collections";
 
+              // Calculate count based on products that have this sub-item
+              const count =
+                products?.filter((product) => {
+                  if (key === "product_category") {
+                    return product.product_sub_categories?.some(
+                      (sub) => sub._id === subItem._id
+                    );
+                  } else {
+                    return product.product_sub_collections?.some(
+                      (sub) => sub._id === subItem._id
+                    );
+                  }
+                }).length || 0;
+
               return (
                 <label
                   key={subItem._id}
                   className={`flex items-center justify-between p-4 group cursor-pointer ${
-                    subItem.count === 0
+                    count === 0
                       ? "opacity-50 pointer-events-none"
                       : "hover:bg-brand/50 rounded-md"
                   }`}
@@ -88,16 +102,14 @@ const FilterAccordion = ({
                       onCheckedChange={() =>
                         handleFilterClick(filterKey, subItem._id)
                       }
-                      disabled={subItem.count === 0}
+                      disabled={count === 0}
                       className="border-gray-600 data-[state=checked]:bg-red-600 data-[state=checked]:border-red-600"
                     />
                     <span className="text-sm text-gray-300 group-hover:text-red-400">
                       {subItem.name}
                     </span>
                   </div>
-                  <span className="text-sm text-gray-400">
-                    ({subItem.count})
-                  </span>
+                  <span className="text-sm text-gray-400">({count})</span>
                 </label>
               );
             })}
@@ -245,8 +257,7 @@ const FilterAccordion = ({
           })
         ) : (
           <div className="py-4 text-center">
-            <span className="text-sm text-gray-500">
-              <AlertCircle className="w-4 h-4 text-red-500" />
+            <span className="text-sm text-gray-500 ">
               No {getDisplayName(key).toLowerCase()} available
             </span>
           </div>

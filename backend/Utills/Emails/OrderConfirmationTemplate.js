@@ -321,7 +321,7 @@ export const OrderConfirmationTemplate = (
 <table class="summary-table">
   <tr>
     <td align="left">Subtotal:</td>
-    <td align="right">$${orderDetails.itemsPrice.toFixed(2)}</td>
+    <td align="right">$${orderDetails.totalPrice.toFixed(2)}</td>
   </tr>
   <tr>
     <td align="left">Shipping Fee:</td>
