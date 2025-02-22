@@ -11,7 +11,9 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import { Loader2 } from "lucide-react";
+import { useProcessRefundMutation } from "@/redux/api/checkoutApi";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const commonReasons = [
   "Changed my mind about the purchase",
@@ -20,38 +22,56 @@ const commonReasons = [
   "Shipping time is too long",
   "Payment issues",
   "Ordered wrong item/size",
-  "Other"
+  "Other",
 ];
 
-const CancelOrderDialog = ({ 
-  open, 
-  onOpenChange, 
-  onConfirm, 
-  isLoading 
+const CancelOrderDialog = ({
+  open,
+  onOpenChange,
+  orderId,
+  isLoading: isLoadingProp,
 }) => {
+  const navigate = useNavigate();
   const [selectedReasons, setSelectedReasons] = useState([]);
   const [otherReason, setOtherReason] = useState("");
+  const [processRefund, { isLoading: isProcessingRefund }] =
+    useProcessRefundMutation();
+
+  const isLoading = isLoadingProp || isProcessingRefund;
 
   const handleReasonChange = (reason) => {
-    setSelectedReasons(prev => {
+    setSelectedReasons((prev) => {
       if (prev.includes(reason)) {
         // If removing "Other", clear the otherReason text
         if (reason === "Other") {
           setOtherReason("");
         }
-        return prev.filter(r => r !== reason);
+        return prev.filter((r) => r !== reason);
       } else {
         return [...prev, reason];
       }
     });
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (selectedReasons.length > 0) {
-      const reasons = selectedReasons.map(reason => 
+      const reasons = selectedReasons.map((reason) =>
         reason === "Other" ? `Other: ${otherReason}` : reason
       );
-      onConfirm(reasons.join(", "));
+      const formattedReason = reasons.join(", ");
+
+      try {
+        await processRefund({
+          orderId,
+          reason: formattedReason,
+        }).unwrap();
+
+        toast.success("Order cancelled and refund initiated successfully");
+        onOpenChange(false);
+        navigate("/my-orders?status=Cancelled");
+      } catch (error) {
+        toast.error(error?.data?.message || "Failed to process refund");
+      }
     }
   };
 
@@ -76,8 +96,8 @@ const CancelOrderDialog = ({
                   onCheckedChange={() => handleReasonChange(reason)}
                   className="border-gray-600 data-[state=checked]:bg-emerald-500 data-[state=checked]:border-emerald-500"
                 />
-                <Label 
-                  htmlFor={reason} 
+                <Label
+                  htmlFor={reason}
                   className="text-gray-300 font-normal cursor-pointer"
                 >
                   {reason}
@@ -110,7 +130,7 @@ const CancelOrderDialog = ({
             variant="destructive"
             onClick={handleConfirm}
             disabled={
-              selectedReasons.length === 0 || 
+              selectedReasons.length === 0 ||
               (isOtherSelected && !otherReason.trim()) ||
               isLoading
             }

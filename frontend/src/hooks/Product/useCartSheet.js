@@ -1,15 +1,21 @@
 import { useState, useEffect, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useGetProductsQuery } from "@/redux/api/productApi";
-import { removeFromCart, updateQuantity } from "@/redux/features/cartSlice";
+import {
+  removeFromCart,
+  updateQuantity,
+  selectCartTotal,
+} from "@/redux/features/cartSlice";
 import { toast } from "react-toastify";
 
-export const useCartSheet = () => {
+export const useCartSheet = (isOpen, setIsOpen) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch();
   const { cartItems } = useSelector((state) => state.cart);
   const { isAuthenticated } = useSelector((state) => state.auth);
+  const total = useSelector(selectCartTotal);
   const [showLoginMessage, setShowLoginMessage] = useState(false);
   const [checkoutDisabled, setCheckoutDisabled] = useState(false);
 
@@ -35,6 +41,13 @@ export const useCartSheet = () => {
     }
   }, [isAuthenticated]);
 
+  // Refetch cart items when sheet opens
+  useEffect(() => {
+    if (isOpen && cartItems.length > 0) {
+      refetch();
+    }
+  }, [isOpen, cartItems.length, refetch]);
+
   // Merge latest product data with cart items
   const updatedCartItems = useMemo(() => {
     if (!productsData?.products) return cartItems;
@@ -56,21 +69,22 @@ export const useCartSheet = () => {
     }
   };
 
-  const handleCheckout = (onClose) => {
+  const handleCheckout = () => {
     if (!isAuthenticated) {
-      setShowLoginMessage(true);
-      setCheckoutDisabled(true);
+      setIsOpen(false);
+      toast.info("Please login to proceed with checkout");
+      navigate("/login", {
+        state: {
+          from: location.pathname,
+        },
+      });
       return;
     }
-
-    if (cartItems.length === 0) {
-      toast.error("Your cart is empty!");
-      return;
-    }
-
-    onClose?.(); // Close the sheet before navigating
-    navigate("/checkout");
+    navigate("/checkout?mode=cart");
+    setIsOpen(false);
   };
+
+  const hasOutOfStockItems = updatedCartItems.some((item) => item.stock === 0);
 
   return {
     isLoading,
@@ -78,6 +92,8 @@ export const useCartSheet = () => {
     isAuthenticated,
     showLoginMessage,
     checkoutDisabled,
+    total,
+    hasOutOfStockItems,
     handleQuantityUpdate,
     handleCheckout,
     refetch,

@@ -103,20 +103,6 @@ export const productApi = createApi({
       invalidatesTags: ["Product"],
     }),
 
-    // Updating Product Stock when Order is Cancelled
-    updateProductStock: builder.mutation({
-      query: ({ id, stock }) => ({
-        url: `/admin/products/${id}/stock`,
-        method: "PATCH",
-        body: { stock },
-      }),
-      invalidatesTags: (result, error, { id }) => [
-        "Products",
-        { type: "Product", id },
-        { type: "ProductDetails", id },
-      ],
-    }),
-
     // --------------------------------- CATEGORIES ---------------------------------------
 
     getCategory: builder.query({
@@ -439,7 +425,7 @@ export const productApi = createApi({
     // --------------------------------- GET COLORS ---------------------------------------
 
     getColors: builder.query({
-      query: () => `/admin/colors`,
+      query: () => `/colors`,
       providesTags: ["Colors"],
     }),
 
@@ -516,5 +502,4 @@ export const {
   useUploadCategoryImageMutation,
   useUploadSubCategoryImageMutation,
   useUploadSubCollectionImageMutation,
-  useUpdateProductStockMutation,
 } = productApi;

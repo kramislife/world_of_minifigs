@@ -1,280 +1,130 @@
-import { useState, useMemo, useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { PAYMENT_METHODS } from "@/constant/paymentMethod";
-import {
-  updateQuantity,
-  removeFromCart,
-  clearCart,
-} from "@/redux/features/cartSlice";
+import { useState, useEffect } from "react";
+import { useGetMeQuery } from "@/redux/api/userApi";
+import { useDeleteAddressMutation } from "@/redux/api/userApi";
 import { toast } from "react-toastify";
-import { useGetMeQuery, useGetUserAddressesQuery } from "@/redux/api/userApi";
-import { useCreateOrderMutation } from "@/redux/api/orderApi";
-import { useCreatePayPalOrderMutation } from "@/redux/api/checkoutApi";
-import {
-  updateBuyNowQuantity,
-  clearBuyNowItem,
-} from "@/redux/features/buyNowSlice";
+import { PAYMENT_METHODS } from "@/constant/paymentMethod";
+import { useSelector } from "react-redux";
 
-const useCheckout = () => {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const isBuyNow = searchParams.get("mode") === "buy_now";
+export const useCheckout = () => {
+  const { data: user, refetch: refetchUser } = useGetMeQuery();
+  const { isAuthenticated } = useSelector((state) => state.auth);
 
-  const { cartItems } = useSelector((state) => state.cart);
-  const buyNowItem = useSelector((state) => state.buyNow.item);
-
-  // Use either buy now item or cart items based on mode
-  const checkoutItems = isBuyNow && buyNowItem ? [buyNowItem] : cartItems;
-
-  // Calculate total based on active items
-  const total = useMemo(() => {
-    return checkoutItems.reduce((sum, item) => {
-      const price = Number(item.discounted_price) || 0;
-      const quantity = Number(item.quantity) || 0;
-      return sum + price * quantity;
-    }, 0);
-  }, [checkoutItems]);
-
-  const { data: userData } = useGetMeQuery();
-  const { data: userAddresses } = useGetUserAddressesQuery();
-  const [createOrder] = useCreateOrderMutation();
-
-  // Initialize email with user's email
+  // Handle Email Update
   const [email, setEmail] = useState("");
-  const [selectedShippingAddress, setSelectedShippingAddress] = useState(null);
+
+  // Handle Delete Address
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [addressToDelete, setAddressToDelete] = useState(null);
+  const [deleteAddress, { isLoading: isDeleting }] = useDeleteAddressMutation();
+  const [refetchCallback, setRefetchCallback] = useState(null);
+
+  // Handle Payment Method
   const [paymentMethod, setPaymentMethod] = useState(
     PAYMENT_METHODS.CREDIT_CARD
   );
+  const [selectedAddress, setSelectedAddress] = useState(null);
+
+  // Add state for order notes
   const [orderNotes, setOrderNotes] = useState("");
 
-  // Set email when user data is loaded
+  // Update email when user data is available
   useEffect(() => {
-    if (userData?.email) {
-      setEmail(userData.email);
-      console.log("Setting user email:", userData.email);
-    }
-  }, [userData]);
-
-  // Simplified address change handler
-  const handleAddressChange = (field, value) => {
-    if (field === "selectedAddress") {
-      setSelectedShippingAddress(value);
-    }
-  };
-
-  const handlePaymentMethodChange = (value) => setPaymentMethod(value);
-
-  // Move order-related mutations to the top
-  const [createPayPalOrder] = useCreatePayPalOrderMutation();
-
-  // Update the formatCartItems function to handle color correctly
-  const formatCartItems = () =>
-    checkoutItems.map((item) => ({
-      product: item.product,
-      name: item.name,
-      quantity: Number(item.quantity),
-      price: Number(item.discounted_price) || 0,
-      image: item.image,
-      isPreOrder: Boolean(item.isPreOrder),
-      color: item.color || undefined, // Just pass the color name string
-      includes: item.includes || undefined,
-    }));
-
-  // Creating a base order data for the order
-  const createBaseOrderData = (paymentInfo) => {
-    if (!email) {
-      console.error("Email is missing in order data");
-      throw new Error("Email is required for order creation");
-    }
-
-    const orderData = {
-      email: String(email).trim().toLowerCase(),
-      shippingAddress: selectedShippingAddress._id,
-      orderItems: formatCartItems().map((item) => ({
-        ...item,
-        // Only include color if it exists
-        ...(item.color && { color: item.color }),
-        ...(item.includes && { includes: item.includes }),
-      })),
-      paymentInfo: {
-        method: paymentInfo.method,
-        transactionId: paymentInfo.transactionId,
-        status: paymentInfo.status,
-        paidAt: paymentInfo.paidAt,
-      },
-      itemsPrice: Number(total),
-      taxPrice: 0,
-      shippingPrice: 0,
-      discountPrice: 0,
-      totalPrice: Number(total),
-      orderNotes: orderNotes,
-    };
-
-    console.log("Order data being sent:", JSON.stringify(orderData, null, 2));
-
-    return orderData;
-  };
-
-  // Helper function to handle successful order creation
-  const handleOrderSuccess = async (order) => {
-    if (order.success) {
-      toast.dismiss();
-      toast.success("Payment successful! Order created.");
-      dispatch(clearCart());
-      navigate(`/order/${order.data._id}`);
-    }
-  };
-
-  // Submit Handler
-  const handleSubmit = async (e) => {
-    if (e) e.preventDefault();
-
-    try {
-      // Handle PayPal payment
-      if (paymentMethod === PAYMENT_METHODS.PAYPAL) {
-        const paypalOrderData = {
-          orderItems: formatCartItems(),
-          total: Number(total).toFixed(2),
-        };
-
-        const response = await createPayPalOrder(paypalOrderData).unwrap();
-
-        if (!response?.data?.orderID) {
-          throw new Error("Failed to create PayPal order");
+    if (isAuthenticated) {
+      // Refetch user data when authenticated
+      refetchUser().then(() => {
+        if (user?.email) {
+          setEmail(user.email);
         }
-
-        return response.data.orderID;
-      }
-
-      // Handle Stripe payment
-      if (paymentMethod === PAYMENT_METHODS.CREDIT_CARD) {
-        return true;
-      }
-    } catch (error) {
-      console.error("Checkout error:", error);
-      throw error;
-    }
-  };
-
-  // Generic payment success handler
-  const handlePaymentSuccess = async (paymentDetails) => {
-    try {
-      if (!selectedShippingAddress) {
-        toast.error("Please select a shipping address");
-        return;
-      }
-
-      if (!email || !email.trim()) {
-        toast.error("Email is required for order creation");
-        return;
-      }
-
-      toast.loading("Processing order...");
-
-      const orderData = createBaseOrderData({
-        method: paymentDetails.paymentMethod,
-        transactionId: paymentDetails.transactionId,
-        status: paymentDetails.status,
-        paidAt: new Date().toISOString(),
       });
-
-      // Log the final data structure
-      console.log("Final order data:", JSON.stringify(orderData, null, 2));
-
-      const order = await createOrder(orderData).unwrap();
-      await handleOrderSuccess(order);
-    } catch (error) {
-      toast.dismiss();
-      console.error("Order creation error:", error?.data || error);
-      toast.error(
-        error?.data?.message || error?.message || "Failed to create order"
-      );
-      throw error;
     }
-  };
+  }, [isAuthenticated, user?.email, refetchUser]);
 
-  // PayPal Success Handler
-  const handlePayPalApprove = async (data) => {
-    try {
-      await handlePaymentSuccess({
-        paymentMethod: "PayPal",
-        transactionId: data.orderID,
-        status: "Success",
-      });
-    } catch (error) {
-      toast.dismiss();
-      toast.error(
-        error?.data?.message || error?.message || "Failed to complete payment"
-      );
-      throw error;
-    }
-  };
-
-  // Stripe Success Handler
-  const handleStripeSuccess = async (paymentDetails) => {
-    try {
-      await handlePaymentSuccess(paymentDetails);
-    } catch (error) {
-      throw error;
-    }
-  };
-
-  // Cart Handlers
-  const handleUpdateQuantity = (productId, newQuantity) => {
-    if (isBuyNow) {
-      // For buy now items, update the quantity using the new action
-      if (newQuantity > 0 && newQuantity <= buyNowItem.stock) {
-        dispatch(updateBuyNowQuantity(newQuantity));
-      }
-    } else {
-      // For cart items, use existing cart update logic
-      if (newQuantity > 0) {
-        dispatch(updateQuantity({ product: productId, quantity: newQuantity }));
-      }
-    }
-  };
-
-  const handleRemoveItem = (productId) => {
-    if (isBuyNow) {
-      // For buy now items, clear the buy now item and redirect to home
-      dispatch(clearBuyNowItem());
-      navigate("/");
-    } else {
-      // For cart items, use existing remove logic
-      dispatch(removeFromCart(productId));
-    }
-  };
-
+  // Handle Email Update
   const handleEmailChange = (e) => {
     setEmail(e.target.value);
-    console.log("Email changed to:", e.target.value);
   };
 
-  const handleOrderNotesChange = (notes) => {
-    setOrderNotes(notes);
+  // Handle Delete Address
+  const handleDeleteClick = (address, refetchAddresses) => {
+    setAddressToDelete(address);
+    setRefetchCallback(() => refetchAddresses);
+    setIsDeleteDialogOpen(true);
+  };
+
+  // Handle Delete Confirm
+  const handleDeleteConfirm = async () => {
+    try {
+      const response = await deleteAddress(addressToDelete._id).unwrap();
+      if (response.success) {
+        toast.success(response.message || "Address deleted successfully");
+        if (refetchCallback) {
+          await refetchCallback();
+        }
+        setIsDeleteDialogOpen(false);
+        setAddressToDelete(null);
+      }
+    } catch (error) {
+      toast.error(error?.data?.message || "Failed to delete address");
+    }
+  };
+
+  const handleAddressChange = (field, value) => {
+    if (field === "selectedAddress") {
+      setSelectedAddress(value);
+    }
+  };
+
+  // Add new function to create order data
+  const createOrderData = (
+    paymentInfo,
+    total,
+    orderItems,
+    email,
+    selectedAddress,
+    orderNotes,
+    user
+  ) => {
+    return {
+      user: user._id,
+      email,
+      shippingAddress: selectedAddress._id,
+      orderItems: orderItems.map((item) => ({
+        product: item._id || item.product,
+        name: item.name,
+        color: item.color,
+        includes: item.includes,
+        quantity: item.quantity,
+        price: item.price,
+        discount: item.discount || 0,
+        discountedPrice: item.discounted_price || item.price,
+        image: item.image,
+        isPreOrder: item.isPreOrder || false,
+        availabilityDate: item.availabilityDate,
+      })),
+      paymentInfo,
+      taxPrice: 0,
+      shippingPrice: 0,
+      totalPrice: total.toFixed(2),
+      orderNotes: orderNotes || "",
+      paidAt: new Date().toISOString(),
+    };
   };
 
   return {
-    paymentMethod,
-    cartItems: checkoutItems,
-    total,
-    handleAddressChange,
-    handlePaymentMethodChange,
-    handleSubmit,
-    handleUpdateQuantity,
-    handleRemoveItem,
-    userAddresses,
-    user: userData,
-    selectedShippingAddress,
-    handlePayPalApprove,
-    handleStripeSuccess,
     email,
     handleEmailChange,
+    user,
+    isDeleteDialogOpen,
+    setIsDeleteDialogOpen,
+    handleDeleteClick,
+    handleDeleteConfirm,
+    isDeleting,
+    paymentMethod,
+    setPaymentMethod,
+    selectedAddress,
+    handleAddressChange,
+    createOrderData,
     orderNotes,
-    handleOrderNotesChange,
+    setOrderNotes,
   };
 };
-
-export default useCheckout;

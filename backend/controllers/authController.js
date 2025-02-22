@@ -112,7 +112,7 @@ export const loginUser = catchAsyncErrors(async (req, res, next) => {
 
   // 1. VALIDATE INPUT
   if (!email_username || !password) {
-    return next(new ErrorHandler("Invalid login credentials input", 400));
+    return next(new ErrorHandler("Invalid Login Credentials", 400));
   }
 
   // 2. CHECK IF USER EXISTS USING EMAIL OR USERNAME
@@ -120,12 +120,22 @@ export const loginUser = catchAsyncErrors(async (req, res, next) => {
     $or: [{ email: email_username }, { username: email_username }],
   }).select("+password");
 
-  //3. IF USER DOES NOT EXIST OR PASSWORD DO NOT MATCH
-  if (!user || !(await user.comparePassword(password))) {
-    return next(new ErrorHandler("Invalid login credentials", 401));
+  // 3. IF USER DOES NOT EXIST
+  if (!user) {
+    return next(
+      new ErrorHandler(
+        "This account is not registered yet. Please register first.",
+        404
+      )
+    );
   }
 
-  // 4. CHECK IF USER IS SUSPENDED
+  // 4. IF PASSWORD DOES NOT MATCH
+  if (!(await user.comparePassword(password))) {
+    return next(new ErrorHandler("Invalid Login Credentials", 401));
+  }
+
+  // 5. CHECK IF USER IS SUSPENDED
   if (user.isSuspended) {
     return next(
       new ErrorHandler(
@@ -135,41 +145,34 @@ export const loginUser = catchAsyncErrors(async (req, res, next) => {
     );
   }
 
-  // 5. CHECK IF USER IS VERIFIED
+  // 6. CHECK IF USER IS VERIFIED
   if (!user.is_verified) {
     return next(
       new ErrorHandler("User not verified, please verify your email", 401)
     );
   }
 
-  // 5. GENERATE ACCESS TOKEN
-
-  // console.log("LU => ", user);
-
+  // 7. GENERATE ACCESS TOKEN
   const payload = { user_id: user._id, role: user.role };
-  // console.log("LOGIN:", payload);
-
   const accessToken = generateAccessToken(
     payload,
     process.env.JWT_ACCESS_TOKEN_SECRET,
     process.env.JWT_ACCESS_TOKEN_EXPIRY
   );
 
-  // 6. GENERATE REFRESH TOKEN
+  // 8. GENERATE REFRESH TOKEN
   const refreshToken = user.generateRefreshToken();
 
-  // 7. SAVE USER IN DATABASE
+  // 9. SAVE USER IN DATABASE
   await user.save();
 
-  // 8. SAVE ACCESS TOKEN IN COOKIE
+  // 10. SAVE ACCESS TOKEN IN COOKIE
   const maxAge = parseInt(process.env.JWT_ACCESS_TOKEN_EXPIRY) * 60 * 60 * 1000;
-
   generateCookies(res, "accessToken", accessToken, maxAge);
 
-  // 9. SAVE REFRESH TOKEN IN COOKIE
+  // 11. SAVE REFRESH TOKEN IN COOKIE
   const refreshMaxAge =
     parseInt(process.env.JWT_REFRESH_TOKEN_EXPIRY) * 24 * 60 * 60 * 1000;
-
   generateCookies(res, "refreshToken", refreshToken, refreshMaxAge);
 
   res.status(200).json({
