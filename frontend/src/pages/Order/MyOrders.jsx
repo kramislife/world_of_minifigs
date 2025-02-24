@@ -93,6 +93,9 @@ const MyOrders = () => {
                 className="transition-all duration-200 hover:bg-gray-700/50"
               >
                 All Orders
+                <span className="ml-1 text-xs bg-primary/20 px-1.5 py-0.5 rounded-full">
+                  {data.data.length}
+                </span>
               </TabsTrigger>
             </TabsList>
 
@@ -103,7 +106,7 @@ const MyOrders = () => {
                 value={status.value}
                 className="mt-8 min-h-[300px]"
               >
-                <div className="grid grid-cols-1">
+                <div className="grid grid-cols-1 gap-2">
                   {ordersByStatus[status.value]?.map((order) => (
                     <OrderCard
                       key={order._id}
@@ -117,7 +120,7 @@ const MyOrders = () => {
 
             {/* All Orders*/}
             <TabsContent value="all" className="mt-8 min-h-[300px]">
-              <div className="grid gap-6 sm:grid-cols-1 lg:grid-cols-2">
+              <div className="grid gap-2 sm:grid-cols-1 lg:grid-cols-2">
                 {data.data.map((order) => (
                   <OrderCard
                     key={order._id}
