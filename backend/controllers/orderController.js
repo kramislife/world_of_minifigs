@@ -1,9 +1,14 @@
 import catchAsyncErrors from "../middlewares/catchAsyncErrors.js";
 import Order from "../models/order.model.js";
 import ErrorHandler from "../Utills/customErrorHandler.js";
-import { OrderConfirmationTemplate } from "../Utills/Emails/OrderConfirmationTemplate.js";
 import sendEmail from "../Utills/sendEmail.js";
-import { OrderStatusUpdateTemplate } from "../Utills/Emails/OrderStatusUpdateTemplate.js";
+import { OrderConfirmationTemplate } from "../Utills/Emails/OrderStatus/OrderConfirmationTemplate.js";
+import { OrderProcessingTemplate } from "../Utills/Emails/OrderStatus/OrderProcessingTemplate.js";
+import { OrderShippedTemplate } from "../Utills/Emails/OrderStatus/OrderShippedTemplate.js";
+import { OrderDeliveredTemplate } from "../Utills/Emails/OrderStatus/OrderDeliveredTemplate.js";
+import { OrderCancelledTemplate } from "../Utills/Emails/OrderStatus/OrderCancelledTemplate.js";
+import { OrderPreOrderTemplate } from "../Utills/Emails/OrderStatus/OrderPreOrderTemplate.js";
+import { OrderOnHoldTemplate } from "../Utills/Emails/OrderStatus/OrderOnHoldTemplate.js";
 
 // --------------- VALIDATE ORDER DATA -----------------------------
 const validateOrderData = (data, next) => {
@@ -60,26 +65,52 @@ const validateOrderData = (data, next) => {
 
 // --------------- SEND ORDER EMAIL -----------------------------
 const sendOrderEmail = async (type, order, email) => {
+  let template;
+  let subject;
+
+  switch (order.orderStatus) {
+    case "Pending":
+      template = OrderConfirmationTemplate;
+      subject = `Order Confirmation #${order._id}`;
+      break;
+    case "Processing":
+      template = OrderProcessingTemplate;
+      subject = `Your Order #${order._id} is Being Processed`;
+      break;
+    case "Shipped":
+      template = OrderShippedTemplate;
+      subject = `Your Order #${order._id} Has Been Shipped`;
+      break;
+    case "Delivered":
+      template = OrderDeliveredTemplate;
+      subject = `Your Order #${order._id} Has Been Delivered`;
+      break;
+    case "Cancelled":
+      template = OrderCancelledTemplate;
+      subject = `Your Order #${order._id} Has Been Cancelled`;
+      break;
+    case "Pre-Order":
+      template = OrderPreOrderTemplate;
+      subject = `Pre-Order Confirmation #${order._id}`;
+      break;
+    case "On Hold":
+      template = OrderOnHoldTemplate;
+      subject = `Your Order #${order._id} Is On Hold`;
+      break;
+    default:
+      template = OrderConfirmationTemplate;
+      subject = `Order Status Update - #${order._id}`;
+  }
+
   const emailConfig = {
     email,
-    subject:
-      type === "confirmation"
-        ? `Order Confirmation #${order._id}`
-        : `Order Status Update - #${order._id}`,
-    message:
-      type === "confirmation"
-        ? OrderConfirmationTemplate(
-            order.user?.username || "Valued Customer",
-            order._id,
-            order.orderStatus,
-            order
-          )
-        : OrderStatusUpdateTemplate(
-            order.user?.username || "Valued Customer",
-            order._id,
-            order.orderStatus,
-            order
-          ),
+    subject,
+    message: template(
+      order.user?.username || "Valued Customer",
+      order._id,
+      order.orderStatus,
+      order
+    ),
   };
 
   await sendEmail(emailConfig);
@@ -118,12 +149,13 @@ export const createOrder = catchAsyncErrors(async (req, res, next) => {
     const formattedOrderItems = populatedOrder.orderItems.map((item) => ({
       name: item.name,
       quantity: item.quantity,
-      price: item.discountedPrice,
+      price: item.price, // Original price
+      discountedPrice: item.discountedPrice || item.price, // Discounted price or original if no discount
+      hasDiscount: item.discountedPrice && item.discountedPrice < item.price, // Flag to check if item has discount
       image:
-        item.product.product_images[0]?.url || "https://via.placeholder.com/80",
-      color:
-        item.color ||
-        (item.product.product_color ? item.product.product_color.name : null),
+        item.product?.product_images[0]?.url ||
+        "https://via.placeholder.com/80",
+      color: item.color || item.product?.product_color?.name || "N/A",
       includes: item.includes || null,
     }));
 
@@ -328,9 +360,51 @@ export const updateOrderForAdmin = catchAsyncErrors(async (req, res, next) => {
 
   const updatedOrder = await order.save();
 
-  // --------------- SEND STATUS UPDATE EMAIL -----------------------------
+  // --------------- SEND STATUS UPDATE EMAIL WHEN ORDER STATUS IS UPDATED  BY ADMIN-----------------------------
   if (req.body.orderStatus) {
-    await sendOrderEmail("status", updatedOrder, order.email);
+    const populatedOrder = await Order.findById(updatedOrder._id)
+      .populate("user", "username email")
+      .populate(
+        "shippingAddress",
+        "contact_number address_line1 address_line2 city state postal_code country"
+      )
+      .populate({
+        path: "orderItems.product",
+        select: "product_images product_color",
+      });
+
+    // Format order items consistently
+    const formattedOrderItems = populatedOrder.orderItems.map((item) => ({
+      name: item.name,
+      quantity: item.quantity,
+      price: item.price, // Original price
+      discountedPrice: item.discountedPrice || item.price, // Discounted price or original if no discount
+      hasDiscount: item.discountedPrice && item.discountedPrice < item.price, // Flag to check if item has discount
+      image:
+        item.product?.product_images[0]?.url ||
+        "https://via.placeholder.com/80",
+      color: item.color || item.product?.product_color?.name || "N/A",
+      includes: item.includes || null,
+    }));
+
+    // Format shipping address and order details consistently
+    const formattedOrder = {
+      ...populatedOrder.toObject(),
+      orderItems: formattedOrderItems,
+      shippingAddress: {
+        address: `${populatedOrder.shippingAddress?.address_line1 || ""} ${
+          populatedOrder.shippingAddress?.address_line2 || ""
+        }, ${populatedOrder.shippingAddress?.city || ""}, ${
+          populatedOrder.shippingAddress?.country || ""
+        }, ${populatedOrder.shippingAddress?.postal_code || ""}`,
+        phoneNo: populatedOrder.shippingAddress?.contact_number || "N/A",
+      },
+      totalPrice: populatedOrder.totalPrice,
+      shippingPrice: populatedOrder.shippingPrice,
+      taxPrice: populatedOrder.taxPrice,
+    };
+
+    await sendOrderEmail("status", formattedOrder, order.email);
   }
 
   res.status(200).json({

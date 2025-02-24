@@ -8,30 +8,24 @@ import { Link } from "react-router-dom";
 const EmptyState = ({ title, message }) => (
   <>
     <Metadata title={title} />
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold text-white bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent">
-          {title}
-        </h1>
-      </div>
-      <Card className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 border-gray-700/50 backdrop-blur-sm">
-        <CardContent className="py-12">
-          <div className="flex flex-col items-center gap-4">
-            <div className="p-4 bg-gray-800/50 rounded-full">
-              <PackageX className="w-8 h-8 text-gray-400" />
-            </div>
-            <div className="text-center space-y-2">
-              <p className="text-gray-400">{message}</p>
-              <Link to="/products">
-                <Button
-                  variant="outline"
-                  className="mt-4 border-gray-700 hover:bg-gray-800/50"
-                >
-                  Browse Products
-                </Button>
-              </Link>
-            </div>
+    <div className="container mx-auto px-6 py-12 flex flex-col items-center">
+      <h1 className="text-4xl font-extrabold text-white bg-gradient-to-r from-purple-500 to-pink-600 bg-clip-text text-transparent text-center mb-6">
+        {title}
+      </h1>
+      <Card className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 shadow-lg max-w-lg w-full">
+        <CardContent className="p-10 flex flex-col items-center text-center">
+          <div className="p-5 bg-gray-800 rounded-full shadow-md">
+            <PackageX className="w-12 h-12 text-gray-400" />
           </div>
+          <p className="text-gray-300 text-lg mt-4">{message}</p>
+          <Link to="/products">
+            <Button
+              variant="default"
+              className="mt-6 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-600 text-white font-semibold rounded-lg shadow-md hover:opacity-90 transition"
+            >
+              Browse Products
+            </Button>
+          </Link>
         </CardContent>
       </Card>
     </div>

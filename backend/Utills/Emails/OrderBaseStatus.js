@@ -1,13 +1,13 @@
-export const OrderConfirmationTemplate = (
+export const OrderBaseTemplate = (
   customerName,
   orderId,
   orderStatus,
-  orderDetails
+  orderDetails,
+  customMessage,
+  customTitle
 ) => {
   const appName = process.env.SMTP_FROM_NAME || "BrickDroids";
   const supportEmail = process.env.SMTP_FROM_EMAIL;
-
-  // Ensure orderItems is an array and has the correct structure
   const formattedItems = orderDetails.orderItems || [];
 
   return `
@@ -16,7 +16,7 @@ export const OrderConfirmationTemplate = (
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Order Confirmation | ${appName}</title>
+    <title>${customTitle} | ${appName}</title>
     <style>
       * {
         margin: 0;
@@ -75,7 +75,6 @@ export const OrderConfirmationTemplate = (
         width: 100%;
       }
 
-      /* Remove flex styling and use table-based layout */
       .section-header table {
         width: 100%;
         color: #1a237e;
@@ -86,7 +85,6 @@ export const OrderConfirmationTemplate = (
         height: 24px;
         vertical-align: middle;
         color: #1a237e;
-
       }
 
       .section-header h2 {
@@ -105,7 +103,6 @@ export const OrderConfirmationTemplate = (
         line-height: 2;
       }
 
-     /* Order Items */
       .order-table {
         width: 100%;
         border-collapse: separate;
@@ -157,7 +154,7 @@ export const OrderConfirmationTemplate = (
         display: block;
       }
 
-      .card-table{
+      .card-table {
         background-color: #f8f9fa;
         border-radius: 12px;
         padding: 10px 14px;
@@ -165,7 +162,6 @@ export const OrderConfirmationTemplate = (
         width: 100%;
       }
 
-      /* Price Summary */
       .summary-table {
         width: 100%;
         border-collapse: collapse;
@@ -182,7 +178,6 @@ export const OrderConfirmationTemplate = (
         border-top: 1px solid #333;
       }
 
-      /* Mobile Responsive */
       @media only screen and (max-width: 480px) {
         .order-table td {
           padding: 20px 0;
@@ -198,7 +193,7 @@ export const OrderConfirmationTemplate = (
         }
 
         .details-cell {
-          width: calc(100% - 140px); /* Subtracting image and price cell widths */
+          width: calc(100% - 140px);
           padding-left: 20px;
         }
 
@@ -211,25 +206,12 @@ export const OrderConfirmationTemplate = (
   <body>
     <div class="container">
       <div class="header">
-        <h1>Thanks for shopping with us!</h1>
+        <h1>${customTitle}</h1>
       </div>
       <div class="content">
         <div class="order-info">
           Hi ${customerName},<br /><br />
-          We received your order <strong>#${orderId}</strong> on ${new Date().toLocaleString(
-    "en-US",
-    {
-      day: "2-digit",
-      month: "long",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    }
-  )} and you've paid
-          for this via <strong>${orderDetails.paymentInfo.method}</strong>.
-          We're getting your order ready and will let you know once it's on the
-          way. We wish you enjoy shopping with us and hope to see you again real
-          soon!
+          ${customMessage}
         </div>
 
         <div class="card delivery-details">
@@ -237,10 +219,7 @@ export const OrderConfirmationTemplate = (
             <table>
               <tr>
                 <td style="width: 24px;">
-                  <img
-                    src="https://res.cloudinary.com/mark-legostore/image/upload/v1738720061/Location_xz7gzf.png"
-                    alt=""
-                  />
+                  <img src="https://res.cloudinary.com/mark-legostore/image/upload/v1738720061/Location_xz7gzf.png" alt="" />
                 </td>
                 <td>
                   <h2>Delivery Details</h2>
@@ -259,8 +238,7 @@ export const OrderConfirmationTemplate = (
             }
           </p>
           <p>
-            <strong>Email:</strong>
-            <span class="email-text">${orderDetails.email || "N/A"}</span>
+            <strong>Email:</strong> ${orderDetails.email || "N/A"}
           </p>
         </div>
 
@@ -269,10 +247,7 @@ export const OrderConfirmationTemplate = (
             <table>
               <tr>
                 <td style="width: 24px;">
-                  <img
-                    src="https://res.cloudinary.com/mark-legostore/image/upload/v1738720061/Shopping_Cart_am7d9i.png"
-                    alt=""
-                  />
+                  <img src="https://res.cloudinary.com/mark-legostore/image/upload/v1738720061/Shopping_Cart_am7d9i.png" alt="" />
                 </td>
                 <td>
                   <h2>Order Items</h2>
@@ -280,76 +255,78 @@ export const OrderConfirmationTemplate = (
               </tr>
             </table>
           </div>
-        <!-- Order Items -->
-<table class="order-table" width="100%" cellpadding="0" cellspacing="0">
-  ${formattedItems
-    .map(
-      (item) => `
-  <tr>
-   <td class="img-cell" width="100" valign="top" align="left" style="width: 100px; max-width: 100px;">
-  <img 
-    src="${item.image}" 
-    alt="${item.name}" 
-    width="100" 
-    height="100" 
-    style="display: block; border-radius: 5px; width: 100px !important; height: 100px !important;"
-  />
-</td>
-
-    <td class="details-cell" valign="top" style="padding-left: 10px;">
-      <span class="item-name">${item.name}</span>
-      <span class="item-price">$${(item.price * item.quantity).toFixed(
-        2
-      )}</span>
-      <span class="item-meta">Color: ${item.color || "N/A"}</span>
-      ${
-        item.includes && item.includes !== "N/A"
-          ? `<span class="item-meta">Includes: ${item.includes.replace(/^,\s*/, "")}</span>`
-          : ""
-      }
-      <span class="item-meta">Quantity: ${item.quantity}</span>
-    </td>
-  </tr>
-  `
-    )
-    .join("")}
-</table>
+          <table class="order-table" width="100%" cellpadding="0" cellspacing="0">
+            ${formattedItems
+              .map(
+                (item) => `
+            <tr>
+              <td class="img-cell" width="100" valign="top" align="left" style="width: 100px; max-width: 100px;">
+                <img 
+                  src="${item.image}" 
+                  alt="${item.name}" 
+                  width="100" 
+                  height="100" 
+                  style="display: block; border-radius: 5px; width: 100px !important; height: 100px !important;"
+                />
+              </td>
+              <td class="details-cell" valign="top" style="padding-left: 10px;">
+                <span class="item-name">${item.name}</span>
+                <span class="item-price">
+                  $${(item.discountedPrice).toFixed(2)} 
+                  ${
+                    item.hasDiscount
+                      ? `<span style="text-decoration: line-through; color: #999; margin-left: 5px; font-size: 12px;">$${(
+                          item.price
+                        ).toFixed(2)}</span>`
+                      : ""
+                  }
+                </span>
+                <span class="item-meta">Color: ${item.color || "N/A"}</span>
+                ${
+                  item.includes && item.includes !== "N/A"
+                    ? `<span class="item-meta">Includes: ${item.includes.replace(
+                        /^,\s*/,
+                        ""
+                      )}</span>`
+                    : ""
+                }
+                <span class="item-meta">Quantity: ${item.quantity}</span>
+              </td>
+            </tr>
+            `
+              )
+              .join("")}
+          </table>
         </div>
 
         <div class="card-table">
-       <!-- Price Summary -->
-<table class="summary-table">
-  <tr>
-    <td align="left">Subtotal:</td>
-    <td align="right">$${orderDetails.totalPrice.toFixed(2)}</td>
-  </tr>
-  <tr>
-    <td align="left">Shipping Fee:</td>
-    <td align="right">$${orderDetails.shippingPrice.toFixed(2)}</td>
-  </tr>
-  <tr class="total">
-    <td align="left">Total:</td>
-    <td align="right">$${orderDetails.totalPrice.toFixed(2)}</td>
-  </tr>
-</table>
+          <table class="summary-table">
+            <tr>
+              <td align="left">Subtotal:</td>
+              <td align="right">$${orderDetails.totalPrice.toFixed(2)}</td>
+            </tr>
+            <tr>
+              <td align="left">Shipping Fee:</td>
+              <td align="right">$${orderDetails.shippingPrice.toFixed(2)}</td>
+            </tr>
+            <tr class="total">
+              <td align="left">Total:</td>
+              <td align="right">$${orderDetails.totalPrice.toFixed(2)}</td>
+            </tr>
+          </table>
         </div>
 
-        <div
-          class="footer"
-          style="text-align: center; margin-top: 20px; color: #999"
-        >
+        <div class="footer" style="text-align: center; margin-top: 20px; color: #999">
           <p style="line-height: 2">
             For any questions, contact us at
             <a href="mailto:${supportEmail}">${supportEmail}</a>
           </p>
           <p style="margin-top: 10px">
-            &copy; ${new Date().getFullYear()} ${process.env.SMTP_FROM_NAME}.
-            All rights reserved.
+            &copy; ${new Date().getFullYear()} ${appName}. All rights reserved.
           </p>
         </div>
       </div>
     </div>
   </body>
-</html>
-  `;
+</html>`;
 };
