@@ -15,7 +15,7 @@ const Collections = () => {
   const { collections, handleCollectionClick } = useCollections(false);
 
   // Limit to 6 collections for homepage display
-  const limitedCollections = collections.slice(0, 6);
+  const limitedCollections = collections.slice(0, 9);
 
   return (
     <section ref={ref} className="p-4">
