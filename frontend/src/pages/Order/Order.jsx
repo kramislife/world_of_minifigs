@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import CancelOrderDialog from "./components/CancelOrderDialog";
 import Metadata from "@/components/layout/Metadata/Metadata";
 import LoadingSpinner from "@/components/layout/spinner/LoadingSpinner";
+import { orderStatus } from "@/constant/orderStatus";
 
 const Order = () => {
   const { id } = useParams();
@@ -61,51 +62,64 @@ const Order = () => {
     visible: { opacity: 1, y: 0 },
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "Cancelled":
-        return "bg-red-500/20 text-red-400 border-red-500/30";
-      case "Delivered":
-        return "bg-green-500/20 text-green-400 border-green-500/30";
-      default:
-        return "bg-blue-500/20 text-blue-400 border-blue-500/30";
-    }
+  // Helper function to get status config
+  const getStatusConfig = (status) => {
+    return (
+      orderStatus.find((s) => s.value === status) || {
+        color: "text-gray-400",
+        bgColor: "bg-gray-500/20",
+        icon: AlertCircle,
+      }
+    );
   };
 
   return (
     <>
-      <Metadata title={`Order #${order.data._id.slice(-8)}`} />
+      <Metadata title={`Order #${order.data._id}`} />
       <motion.div
         initial="hidden"
         animate="visible"
         variants={containerVariants}
-        className="container mx-auto px-4 py-8 max-w-7xl"
+        className="px-4 py-8"
       >
         <div className="space-y-6">
-          {/* Order Header with Status Badge */}
+          {/* Order Header */}
           <Card className="bg-brand/80 border-gray-600/50">
             <CardHeader className="pb-4">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
-                  <div className="p-2.5 rounded-xl bg-blue-950 border border-blue-800">
-                    <Package2 className="w-6 h-6 text-blue-400" />
+                  <div className="p-3 rounded-xl bg-blue-950 border border-blue-800">
+                    {React.createElement(
+                      getStatusConfig(order.data.orderStatus).icon,
+                      {
+                        className: `w-6 h-6 ${
+                          getStatusConfig(order.data.orderStatus).color
+                        }`,
+                      }
+                    )}
                   </div>
                   <div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-wrap items-center gap-3">
                       <CardTitle className="text-2xl font-bold text-white">
-                        Order #{order.data._id.slice(-8)}
+                        Order #{order.data._id}
                       </CardTitle>
                       <div
-                        className={`px-3 py-1 rounded-full ${getStatusColor(
+                        className={`px-3 py-1 rounded-full ${
+                          getStatusConfig(order.data.orderStatus).bgColor
+                        } border border-${getStatusConfig(
                           order.data.orderStatus
-                        )} border`}
+                        ).color.replace("text-", "")}/30`}
                       >
-                        <span className="text-sm font-medium">
+                        <span
+                          className={`text-sm font-medium ${
+                            getStatusConfig(order.data.orderStatus).color
+                          }`}
+                        >
                           {order.data.orderStatus}
                         </span>
                       </div>
                     </div>
-                    <p className="text-sm text-gray-400">
+                    <p className="text-sm text-gray-400 mt-1">
                       Placed on {format(new Date(order.data.createdAt), "PPP")}
                     </p>
                   </div>
@@ -115,16 +129,83 @@ const Order = () => {
                     ${order.data.totalPrice.toFixed(2)}
                   </div>
                   <p className="text-sm text-gray-400">
-                    {order.data.orderItems.length} items
+                    {order.data.orderItems.length}{" "}
+                    {order.data.orderItems.length === 1 ? "item" : "items"}
                   </p>
                 </div>
               </div>
             </CardHeader>
           </Card>
 
+          {/* Status Timeline */}
+          {order.data.orderStatus !== "Cancelled" && (
+            <Card className="bg-brand/80 border-gray-600/50">
+              <CardContent className="pt-6">
+                <div className="flex justify-between items-center relative">
+                  <div className="absolute left-0 top-1/2 w-full h-1 bg-gray-700 -z-10" />
+                  {["Pending", "Processing", "Shipped", "Delivered"].map(
+                    (step, index) => {
+                      const isActive =
+                        index <=
+                        [
+                          "Pending",
+                          "Processing",
+                          "Shipped",
+                          "Delivered",
+                        ].indexOf(order.data.orderStatus);
+                      const stepConfig = getStatusConfig(step);
+                      return (
+                        <div
+                          key={step}
+                          className="flex flex-col items-center gap-2"
+                        >
+                          <div
+                            className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors duration-200
+                          ${
+                            isActive
+                              ? `${stepConfig.bgColor} ${stepConfig.color}`
+                              : "bg-gray-700 text-gray-400"
+                          }`}
+                          >
+                            {React.createElement(stepConfig.icon, {
+                              className: "w-5 h-5",
+                            })}
+                          </div>
+                          <span
+                            className={`text-sm ${
+                              isActive ? stepConfig.color : "text-gray-400"
+                            }`}
+                          >
+                            {step}
+                          </span>
+                        </div>
+                      );
+                    }
+                  )}
+                </div>
+
+                {order.data.orderStatus === "Pending" && (
+                  <div className="mt-6 flex justify-end">
+                    <Button
+                      variant="destructive"
+                      onClick={() => setShowCancelDialog(true)}
+                      className="bg-red-500/20 text-red-400 hover:bg-red-500/30"
+                    >
+                      Cancel Order
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
           {/* Cancellation Information */}
           {order.data.orderStatus === "Cancelled" && (
-            <Card className="bg-red-500/10 border-red-500/20">
+            <Card
+              className={`${
+                getStatusConfig("Cancelled").bgColor
+              } border-red-500/20`}
+            >
               <CardContent className="pt-6">
                 <div className="flex items-start gap-3">
                   <div className="p-2 rounded-lg bg-red-500/20">
@@ -145,55 +226,6 @@ const Order = () => {
                     )}
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Status Timeline - Only show if not cancelled */}
-          {order.data.orderStatus !== "Cancelled" && (
-            <Card className="bg-brand/80 border-gray-600/50">
-              <CardContent className="pt-6">
-                <div className="flex justify-between items-center relative">
-                  <div className="absolute left-0 top-1/2 w-full h-1 bg-gray-700 -z-10" />
-                  {["Pending", "Processing", "Shipped", "Delivered"].map(
-                    (step, index) => (
-                      <div
-                        key={step}
-                        className="flex flex-col items-center gap-2"
-                      >
-                        <div
-                          className={`w-8 h-8 rounded-full flex items-center justify-center
-                            ${
-                              index <=
-                              [
-                                "Pending",
-                                "Processing",
-                                "Shipped",
-                                "Delivered",
-                              ].indexOf(order.data.orderStatus)
-                                ? "bg-blue-500"
-                                : "bg-gray-700"
-                            }`}
-                        >
-                          <BadgeCheck className="w-5 h-5 text-gray-900" />
-                        </div>
-                        <span className="text-sm text-gray-400">{step}</span>
-                      </div>
-                    )
-                  )}
-                </div>
-
-                {order.data.orderStatus === "Pending" && (
-                  <div className="mt-6 flex justify-end">
-                    <Button
-                      variant="destructive"
-                      onClick={() => setShowCancelDialog(true)}
-                      className="bg-red-500/20 text-red-400 hover:bg-red-500/30"
-                    >
-                      Cancel Order
-                    </Button>
-                  </div>
-                )}
               </CardContent>
             </Card>
           )}

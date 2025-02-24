@@ -60,6 +60,7 @@ export const orderApi = createApi({
         url: `/admin/orders/${id}`,
         method: "PUT",
         body: orderData,
+        credentials: "include",
       }),
       invalidatesTags: ["Order"],
     }),
