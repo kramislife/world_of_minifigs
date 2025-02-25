@@ -215,7 +215,7 @@ const ProductInfo = ({
           )}
 
           {/* Color Variants Section */}
-          {colorVariants.length > 0 && (
+          {(colorVariants?.length > 0 || product?.product_color) && (
             <motion.div
               className="flex flex-col gap-2"
               initial={{ opacity: 0 }}
@@ -223,25 +223,39 @@ const ProductInfo = ({
               transition={{ delay: 0.3 }}
             >
               <span className="text-sm font-semibold text-gray-300">
-                Color Variants
+                {colorVariants?.length > 0 ? "Color Variants" : "Color"}
               </span>
               <div className="flex flex-wrap gap-2">
-                {colorVariants.map((variant) => (
-                  <button
-                    key={variant.id}
-                    onClick={() => {
-                      handleColorChange(variant.id);
-                      scrollThumbnailIntoView(variant.thumbnailIndex);
-                    }}
-                    className={`w-6 h-6 rounded-full transition-all mt-1 ${
-                      variant.isActive ? "border-red-500 border-2" : "border border-gray-600"
-                    }`}
-                    style={{
-                      backgroundColor: variant.color.code,
-                    }}
-                    title={variant.color.name}
-                  />
-                ))}
+                {colorVariants?.length > 0
+                  ? // Show color variants if available
+                    colorVariants.map((variant) => (
+                      <button
+                        key={variant.id}
+                        onClick={() => {
+                          handleColorChange(variant.id);
+                          scrollThumbnailIntoView?.(variant.thumbnailIndex);
+                        }}
+                        className={`w-6 h-6 rounded-full transition-all mt-1 ${
+                          variant.isActive
+                            ? "border-red-500 border-2"
+                            : "border border-gray-600"
+                        }`}
+                        style={{
+                          backgroundColor: variant.color.code,
+                        }}
+                        title={variant.color.name}
+                      />
+                    ))
+                  : // Show single product color if no variants
+                    product?.product_color && (
+                      <div
+                        className="w-6 h-6 rounded-full mt-1 border-2 border-red-500"
+                        style={{
+                          backgroundColor: product.product_color.code,
+                        }}
+                        title={product.product_color.name}
+                      />
+                    )}
               </div>
             </motion.div>
           )}
