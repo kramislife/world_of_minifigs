@@ -42,12 +42,19 @@ const AddSubCollection = () => {
       return;
     }
 
+    // Validate popularityId format
+    const popularityId = formData.get("popularityId");
+    if (!popularityId || !/^\d{1,3}$/.test(popularityId)) {
+      toast.error("Popularity ID must be a number between 001-999");
+      return;
+    }
+
     try {
       await createSubCollection({
         name: formData.get("name").trim(),
         description: formData.get("description"),
         collection: formData.get("collection"),
-        popularityId: formData.get("popularityId"),
+        popularityId: popularityId.padStart(3, "0"),
         createdBy: user?._id,
       }).unwrap();
 
@@ -117,7 +124,10 @@ const AddSubCollection = () => {
                     id="popularityId"
                     name="popularityId"
                     type="number"
-                    placeholder="Enter popularity ID"
+                    min="001"
+                    max="999"
+                    placeholder="Enter popularity ID (001-999)"
+                    required
                   />
                 </div>
 
