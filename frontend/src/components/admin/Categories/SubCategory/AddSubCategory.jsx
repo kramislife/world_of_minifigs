@@ -41,11 +41,18 @@ const AddSubCategory = () => {
       return;
     }
 
+    // Validate popularityId format
+    const popularityId = formData.get("popularityId");
+    if (!popularityId || !/^\d{1,3}$/.test(popularityId)) {
+      toast.error("Popularity ID must be a number between 001-999");
+      return;
+    }
+
     try {
       await createSubCategory({
         name: formData.get("name").trim(),
         category: formData.get("category"),
-        popularityId: formData.get("popularityId"),
+        popularityId: popularityId.padStart(3, "0"),
         createdBy: user?._id,
       }).unwrap();
 
@@ -115,7 +122,10 @@ const AddSubCategory = () => {
                     id="popularityId"
                     name="popularityId"
                     type="number"
-                    placeholder="Enter popularity ID"
+                    min="001"
+                    max="999"
+                    placeholder="Enter popularity ID (001-999)"
+                    required
                   />
                 </div>
 
