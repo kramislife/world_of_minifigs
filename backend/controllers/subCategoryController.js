@@ -5,7 +5,9 @@ import { upload_single_image } from "../Utills/cloudinary.js";
 
 // ----------------------------------------------- GET ALL SUB CATEGORIES ----------------------------------
 export const getAllSubCategories = catchAsyncErrors(async (req, res, next) => {
-  const sub_categories = await SubCategory.find().populate("category");
+  const sub_categories = await SubCategory.find()
+    .populate("category")
+    .sort({ popularityId: 1 });
 
   if (!sub_categories) {
     return next(new ErrorHandler("No Categories found", 404));

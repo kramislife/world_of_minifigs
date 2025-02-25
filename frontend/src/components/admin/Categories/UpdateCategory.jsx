@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Save, FileText } from "lucide-react";
@@ -26,9 +26,16 @@ const UpdateCategory = () => {
     e.preventDefault();
     const formData = new FormData(e.target);
 
+    // Validate popularityId format
+    const popularityId = formData.get("popularityId");
+    if (!popularityId || !/^\d{1,3}$/.test(popularityId)) {
+      toast.error("Popularity ID must be a number between 001-999");
+      return;
+    }
+
     const categoryData = {
       name: formData.get("name"),
-      popularityId: formData.get("popularityId"),
+      popularityId: popularityId.padStart(3, "0"),
       updatedBy: user?._id,
     };
 
@@ -37,7 +44,6 @@ const UpdateCategory = () => {
         id: id,
         ...categoryData,
       }).unwrap();
-
       toast.success("Category updated successfully!");
       navigate("/admin/categories");
     } catch (error) {
@@ -87,9 +93,12 @@ const UpdateCategory = () => {
                     id="popularityId"
                     name="popularityId"
                     type="number"
-                    placeholder="Enter popularity ID"
+                    min="001"
+                    max="999"
+                    placeholder="Enter popularity ID (001-999)"
                     className="mt-1"
                     defaultValue={category?.popularityId}
+                    required
                   />
                 </div>
 

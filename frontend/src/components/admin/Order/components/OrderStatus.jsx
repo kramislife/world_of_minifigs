@@ -29,6 +29,7 @@ const OrderStatus = ({
           value={selectedStatus || order.orderStatus}
           onValueChange={setSelectedStatus}
           disabled={
+            isLoading ||
             order.orderStatus === "Delivered" ||
             order.orderStatus === "Cancelled" ||
             !["admin", "super_admin"].includes(user?.role)
@@ -89,7 +90,7 @@ const OrderStatus = ({
             isLoading ||
             !["admin", "super_admin"].includes(user?.role)
           }
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white transition-colors"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isLoading ? "Updating..." : "Update Status"}
         </Button>

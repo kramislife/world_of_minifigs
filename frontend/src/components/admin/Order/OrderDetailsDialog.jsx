@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   Dialog,
   DialogContent,
@@ -20,6 +20,12 @@ const OrderDetailsDialog = ({ isOpen, onClose, order }) => {
   const [updateOrder, { isLoading }] = useUpdateOrderAdminMutation();
   const { user } = useSelector((state) => state.auth);
 
+  // Memoized formatted date
+  const formattedDate = useMemo(() => {
+    if (!order?.createdAt) return "";
+    return format(new Date(order.createdAt), "PPP");
+  }, [order?.createdAt]);
+
   useEffect(() => {
     if (order) {
       setSelectedStatus(order.orderStatus);
@@ -27,16 +33,27 @@ const OrderDetailsDialog = ({ isOpen, onClose, order }) => {
   }, [order]);
 
   const handleStatusUpdate = async () => {
+    if (!order || selectedStatus === order.orderStatus) {
+      toast.info("No changes made to order status");
+      return;
+    }
+
     try {
-      await updateOrder({
+      const result = await updateOrder({
         id: order._id,
         orderData: { orderStatus: selectedStatus },
       }).unwrap();
-      toast.success("Order status updated successfully");
-      setSelectedStatus(selectedStatus);
-      onClose();
+
+      if (result.success) {
+        toast.success(`Order status updated to ${selectedStatus}`);
+        onClose();
+      } else {
+        throw new Error(result.message || "Failed to update order status");
+      }
     } catch (error) {
+      console.error("Update error:", error);
       toast.error(error.data?.message || "Failed to update order status");
+      setSelectedStatus(order.orderStatus); // Reset to original status on error
     }
   };
 
@@ -60,9 +77,7 @@ const OrderDetailsDialog = ({ isOpen, onClose, order }) => {
                 <span className="text-sm font-medium text-gray-400">
                   Order Date
                 </span>
-                <p className="text-lg font-bold text-white">
-                  {format(new Date(order.createdAt), "PPP")}
-                </p>
+                <p className="text-lg font-bold text-white">{formattedDate}</p>
               </div>
             </div>
           </DialogTitle>
@@ -85,14 +100,14 @@ const OrderDetailsDialog = ({ isOpen, onClose, order }) => {
                 order={order}
                 user={user}
                 handleStatusUpdate={handleStatusUpdate}
-              isLoading={isLoading}
-            />
-            <CustomerInfo user={order.user} email={order.email} />
-            <PaymentInfo
-              paymentInfo={order.paymentInfo}
-              shippingPrice={order.shippingPrice}
-              taxPrice={order.taxPrice}
-              totalPrice={order.totalPrice}
+                isLoading={isLoading}
+              />
+              <CustomerInfo user={order.user} email={order.email} />
+              <PaymentInfo
+                paymentInfo={order.paymentInfo}
+                shippingPrice={order.shippingPrice}
+                taxPrice={order.taxPrice}
+                totalPrice={order.totalPrice}
               />
             </div>
           </div>
