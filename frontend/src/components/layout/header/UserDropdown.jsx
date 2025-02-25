@@ -56,7 +56,7 @@ const UserDropdown = () => {
     {
       label: "My Orders",
       icon: <Package className="mr-2 h-4 w-4" />,
-      onClick: () => navigate("/my-orders?status=Pending"),
+      onClick: () => navigate("/my-orders?status=all"),
     },
     {
       label: "Profile",

@@ -8,7 +8,7 @@ import SubCollection from "../models/subCollection.model.js";
 export const getAllSubCollections = catchAsyncErrors(async (req, res, next) => {
   const subcollections = await SubCollection.find()
     .populate("collection")
-    .sort({ updatedAt: -1 });
+    .sort({ popularityId: 1 });
 
   if (!subcollections) {
     return next(

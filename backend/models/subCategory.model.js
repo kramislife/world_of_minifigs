@@ -21,6 +21,12 @@ const subCategorySchema = new mongoose.Schema(
       type: String,
       unique: true,
       required: [true, "Popularity ID is required"],
+      validate: {
+        validator: function (value) {
+          return /^[0-9]{3}$/.test(value);
+        },
+        message: "Popularity ID must be a 3-digit number (001-999)",
+      },
     },
     image: {
       public_id: {
@@ -58,23 +64,38 @@ const subCategorySchema = new mongoose.Schema(
 // Pre-save middleware to generate 'key' for SubCategory
 subCategorySchema.pre("save", async function (next) {
   if (this.name && this.category) {
-    this.name = this.name.trim().replace(/\s+/g, " "); // Replace multiple spaces with a single space
+    this.name = this.name.trim().replace(/\s+/g, " ");
     if (!this.key) {
       const formattedName = this.name.toLowerCase().replace(/\s+/g, "_");
       this.key = `${formattedName}_${this.category.toString()}`;
     }
   }
 
-  // Check for unique key constraint
-  const existingSubCategory = await mongoose
-    .model("SubCategory")
-    .findOne({ key: this.key });
+  // Format popularityId to ensure 3 digits
+  if (this.popularityId) {
+    this.popularityId = this.popularityId.toString().padStart(3, "0");
+  }
+
+  // Check for unique constraints
+  const existingSubCategory = await mongoose.model("SubCategory").findOne({
+    $or: [{ key: this.key }, { popularityId: this.popularityId }],
+  });
+
   if (existingSubCategory) {
-    return next(
-      new Error(
-        "SubCategory with similar name already exists in this category."
-      )
-    );
+    if (existingSubCategory.popularityId === this.popularityId) {
+      return next(
+        new Error(
+          `Popularity ID ${this.popularityId} is already in use. Please choose a different number.`
+        )
+      );
+    }
+    if (existingSubCategory.key === this.key) {
+      return next(
+        new Error(
+          "SubCategory with similar name already exists in this category."
+        )
+      );
+    }
   }
   next();
 });
@@ -84,20 +105,37 @@ subCategorySchema.pre("findOneAndUpdate", async function (next) {
   const update = this.getUpdate();
 
   if (update.name && update.category) {
-    update.name = update.name.trim().replace(/\s+/g, " "); // Normalize spaces
+    update.name = update.name.trim().replace(/\s+/g, " ");
     const formattedName = update.name.toLowerCase().replace(/\s+/g, "_");
     update.key = `${formattedName}_${update.category.toString()}`;
   }
 
-  const existingSubCategory = await mongoose
-    .model("SubCategory")
-    .findOne({ key: update.key });
+  if (update.popularityId) {
+    update.popularityId = update.popularityId.toString().padStart(3, "0");
+  }
+
+  const docId = this.getQuery()._id;
+
+  const existingSubCategory = await mongoose.model("SubCategory").findOne({
+    _id: { $ne: docId },
+    $or: [{ key: update.key }, { popularityId: update.popularityId }],
+  });
+
   if (existingSubCategory) {
-    return next(
-      new Error(
-        "SubCategory with similar name already exists in this category."
-      )
-    );
+    if (existingSubCategory.popularityId === update.popularityId) {
+      return next(
+        new Error(
+          `Popularity ID ${update.popularityId} is already in use. Please choose a different number.`
+        )
+      );
+    }
+    if (existingSubCategory.key === update.key) {
+      return next(
+        new Error(
+          "SubCategory with similar name already exists in this category."
+        )
+      );
+    }
   }
   next();
 });
