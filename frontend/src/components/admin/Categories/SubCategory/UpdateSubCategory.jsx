@@ -48,17 +48,19 @@ const UpdateSubCategory = () => {
       return;
     }
 
-    const updateData = {
-      name: formData.get("name").trim(),
-      category: formData.get("category"),
-      popularityId: formData.get("popularityId"),
-      updatedBy: user?._id,
-    };
+    const popularityId = formData.get("popularityId");
+    if (!popularityId || !/^\d{1,3}$/.test(popularityId)) {
+      toast.error("Popularity ID must be a number between 001-999");
+      return;
+    }
 
     try {
       await updateSubCategory({
         id: id,
-        ...updateData,
+        name: formData.get("name").trim(),
+        category: formData.get("category"),
+        popularityId: popularityId.padStart(3, "0"),
+        updatedBy: user?._id,
       }).unwrap();
 
       toast.success("Sub-category updated successfully!");
@@ -136,7 +138,9 @@ const UpdateSubCategory = () => {
                     id="popularityId"
                     name="popularityId"
                     type="number"
-                    placeholder="Enter popularity ID"
+                    min="001"
+                    max="999"
+                    placeholder="Enter popularity ID (001-999)"
                     defaultValue={subCategory.popularityId}
                   />
                 </div>

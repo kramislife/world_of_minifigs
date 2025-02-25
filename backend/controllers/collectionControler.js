@@ -7,10 +7,7 @@ import { upload_single_image } from "../Utills/cloudinary.js";
 //------------------------------------ GET ALL COLLECTIONS => GET /collections ------------------------------------
 
 export const getAllCollections = catchAsyncErrors(async (req, res, next) => {
-  const collections = await Collection.find().sort({
-    isFeatured: -1,
-    updatedAt: -1,
-  });
+  const collections = await Collection.find().sort({ popularityId: 1 });
 
   if (!collections) {
     return next(new ErrorHandler("Failed to retrieve all collections", 404));
