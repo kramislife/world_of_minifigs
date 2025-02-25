@@ -20,10 +20,18 @@ const AddCollection = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
+
+    // Validate popularityId format
+    const popularityId = formData.get("popularityId");
+    if (!popularityId || !/^\d{1,3}$/.test(popularityId)) {
+      toast.error("Popularity ID must be a number between 001-999");
+      return;
+    }
+
     const collectionData = {
       name: formData.get("name"),
       description: formData.get("description"),
-      popularityId: formData.get("popularityId"),
+      popularityId: popularityId.padStart(3, "0"), // Ensure 3-digit format
       createdBy: user?._id,
       is_active: true,
       isFeatured: formData.get("isFeatured") === "on",
@@ -79,8 +87,11 @@ const AddCollection = () => {
                     id="popularityId"
                     name="popularityId"
                     type="number"
-                    placeholder="Enter popularity ID"
+                    min="001"
+                    max="999"
+                    placeholder="Enter popularity ID (001-999)"
                     className="mt-1"
+                    required
                   />
                 </div>
 

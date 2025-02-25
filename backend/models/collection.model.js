@@ -15,6 +15,12 @@ const collectionSchema = new mongoose.Schema(
       type: String,
       unique: true,
       required: [true, "Popularity ID is required"],
+      validate: {
+        validator: function (value) {
+          return /^[0-9]{3}$/.test(value);
+        },
+        message: "Popularity ID must be a 3-digit number (001-999)",
+      },
     },
     description: {
       type: String,
@@ -61,12 +67,27 @@ collectionSchema.pre("save", async function (next) {
     }
   }
 
-  // Check for unique key constraint
-  const existingCollection = await mongoose
-    .model("Collection")
-    .findOne({ key: this.key });
+  // Format popularityId to ensure 3 digits
+  if (this.popularityId) {
+    this.popularityId = this.popularityId.toString().padStart(3, "0");
+  }
+
+  // Check for unique constraints
+  const existingCollection = await mongoose.model("Collection").findOne({
+    $or: [{ key: this.key }, { popularityId: this.popularityId }],
+  });
+
   if (existingCollection) {
-    return next(new Error("Collection with similar name already exists."));
+    if (existingCollection.popularityId === this.popularityId) {
+      return next(
+        new Error(
+          `Popularity ID ${this.popularityId} is already in use. Please choose a different number.`
+        )
+      );
+    }
+    if (existingCollection.key === this.key) {
+      return next(new Error("Collection with similar name already exists."));
+    }
   }
   next();
 });
@@ -75,26 +96,34 @@ collectionSchema.pre("save", async function (next) {
 collectionSchema.pre("findOneAndUpdate", async function (next) {
   const update = this.getUpdate();
 
-  // Only proceed with key check if name is being updated
   if (update.name) {
     update.name = update.name.trim();
-    update.newKey = update.name.toLowerCase().trim().replace(/\s+/g, "_");
-
-    // Get the current document
-    const currentDoc = await this.model.findOne(this.getQuery());
-
-    // Only check for uniqueness if the name is actually changing
-    if (currentDoc.name !== update.name) {
-      const existingCollection = await mongoose
-        .model("Collection")
-        .findOne({ key: update.newKey, _id: { $ne: currentDoc._id } });
-
-      if (existingCollection) {
-        return next(new Error("Collection with similar name already exists."));
-      }
-    }
+    update.key = update.name.toLowerCase().replace(/\s+/g, "_");
   }
 
+  if (update.popularityId) {
+    update.popularityId = update.popularityId.toString().padStart(3, "0");
+  }
+
+  const docId = this.getQuery()._id;
+
+  const existingCollection = await mongoose.model("Collection").findOne({
+    _id: { $ne: docId },
+    $or: [{ key: update.key }, { popularityId: update.popularityId }],
+  });
+
+  if (existingCollection) {
+    if (existingCollection.popularityId === update.popularityId) {
+      return next(
+        new Error(
+          `Popularity ID ${update.popularityId} is already in use. Please choose a different number.`
+        )
+      );
+    }
+    if (existingCollection.key === update.key) {
+      return next(new Error("Collection with similar name already exists."));
+    }
+  }
   next();
 });
 

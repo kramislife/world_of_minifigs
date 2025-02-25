@@ -15,6 +15,13 @@ const categorySchema = new mongoose.Schema(
       type: String,
       unique: true,
       required: [true, "Popularity ID is required"],
+      validate: {
+        validator: function (value) {
+          // Validates that the value is a 3-digit number string between 001-999
+          return /^[0-9]{3}$/.test(value);
+        },
+        message: "Popularity ID must be a 3-digit number (001-999)",
+      },
     },
     image: {
       public_id: {
@@ -46,12 +53,25 @@ categorySchema.pre("save", async function (next) {
     this.key = this.name.toLowerCase().trim().replace(/\s+/g, "_");
   }
 
+  // Format popularityId to ensure 3 digits
+  if (this.popularityId) {
+    this.popularityId = this.popularityId.toString().padStart(3, "0");
+  }
+
   // Check if key already exists
-  const existingCategory = await mongoose
-    .model("Category")
-    .findOne({ key: this.key });
+  const existingCategory = await mongoose.model("Category").findOne({
+    $or: [{ key: this.key }, { popularityId: this.popularityId }],
+  });
+
   if (existingCategory) {
-    return next(new Error("Category with similar name already exists."));
+    if (existingCategory.key === this.key) {
+      return next(new Error("Category with similar name already exists."));
+    }
+    if (existingCategory.popularityId === this.popularityId) {
+      return next(
+        new Error("Category with this popularity ID already exists.")
+      );
+    }
   }
   next();
 });
@@ -61,16 +81,33 @@ categorySchema.pre("findOneAndUpdate", async function (next) {
 
   // If the name is being updated, we need to update the key
   if (update.name) {
-    update.name = update?.name?.trim(); // Trim the name
-    update.key = update?.name?.toLowerCase().replace(/\s+/g, "_"); // Update the key
+    update.name = update?.name?.trim();
+    update.key = update?.name?.toLowerCase().replace(/\s+/g, "_");
   }
 
-  // Ensure that the key remains unique
-  const existingCategory = await mongoose
-    .model("Category")
-    .findOne({ key: update.key });
+  // Format popularityId if it's being updated
+  if (update.popularityId) {
+    update.popularityId = update.popularityId.toString().padStart(3, "0");
+  }
+
+  // Get the current document ID
+  const docId = this.getQuery()._id;
+
+  // Check for unique constraints
+  const existingCategory = await mongoose.model("Category").findOne({
+    _id: { $ne: docId },
+    $or: [{ key: update.key }, { popularityId: update.popularityId }],
+  });
+
   if (existingCategory) {
-    return next(new Error("Category with similar name already exists."));
+    if (existingCategory.key === update.key) {
+      return next(new Error("Category with similar name already exists."));
+    }
+    if (existingCategory.popularityId === update.popularityId) {
+      return next(
+        new Error("Category with this popularity ID already exists.")
+      );
+    }
   }
 
   next();

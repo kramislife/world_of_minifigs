@@ -16,6 +16,12 @@ const subCollectionSchema = new mongoose.Schema(
       type: String,
       unique: true,
       required: [true, "Popularity ID is required"],
+      validate: {
+        validator: function (value) {
+          return /^[0-9]{3}$/.test(value);
+        },
+        message: "Popularity ID must be a 3-digit number (001-999)",
+      },
     },
     description: {
       type: String,
@@ -57,19 +63,34 @@ const subCollectionSchema = new mongoose.Schema(
 // Pre-save middleware to generate 'key' for SubCollection
 subCollectionSchema.pre("save", async function (next) {
   if (this.name && this.collection) {
-    this.name = this.name.trim().replace(/\s+/g, " "); // Replace multiple spaces with a single space
+    this.name = this.name.trim().replace(/\s+/g, " ");
     if (!this.key) {
       const formattedName = this.name.toLowerCase().replace(/\s+/g, "_");
       this.key = `${formattedName}_${this.collection.toString()}`;
     }
   }
 
-  // Check for unique key constraint
-  const existingSubCollection = await mongoose
-    .model("SubCollection")
-    .findOne({ key: this.key });
+  // Format popularityId to ensure 3 digits
+  if (this.popularityId) {
+    this.popularityId = this.popularityId.toString().padStart(3, "0");
+  }
+
+  // Check for unique constraints
+  const existingSubCollection = await mongoose.model("SubCollection").findOne({
+    $or: [{ key: this.key }, { popularityId: this.popularityId }],
+  });
+
   if (existingSubCollection) {
-    return next(new Error("SubCollection with similar name already exists."));
+    if (existingSubCollection.popularityId === this.popularityId) {
+      return next(
+        new Error(
+          `Popularity ID ${this.popularityId} is already in use. Please choose a different number.`
+        )
+      );
+    }
+    if (existingSubCollection.key === this.key) {
+      return next(new Error("SubCollection with similar name already exists."));
+    }
   }
   next();
 });
@@ -79,18 +100,35 @@ subCollectionSchema.pre("findOneAndUpdate", async function (next) {
   const update = this.getUpdate();
 
   if (update.name && update.collection) {
-    update.name = update.name.trim().replace(/\s+/g, " "); // Normalize spaces
+    update.name = update.name.trim().replace(/\s+/g, " ");
     const formattedName = update.name.toLowerCase().replace(/\s+/g, "_");
     update.key = `${formattedName}_${update.collection.toString()}`;
   }
 
-  const existingSubCollection = await mongoose
-    .model("SubCollection")
-    .findOne({ key: update.key });
-  if (existingSubCollection) {
-    return next(new Error("SubCollection with similar name already exists."));
+  // Format popularityId if it's being updated
+  if (update.popularityId) {
+    update.popularityId = update.popularityId.toString().padStart(3, "0");
   }
 
+  const docId = this.getQuery()._id;
+
+  const existingSubCollection = await mongoose.model("SubCollection").findOne({
+    _id: { $ne: docId },
+    $or: [{ key: update.key }, { popularityId: update.popularityId }],
+  });
+
+  if (existingSubCollection) {
+    if (existingSubCollection.popularityId === update.popularityId) {
+      return next(
+        new Error(
+          `Popularity ID ${update.popularityId} is already in use. Please choose a different number.`
+        )
+      );
+    }
+    if (existingSubCollection.key === update.key) {
+      return next(new Error("SubCollection with similar name already exists."));
+    }
+  }
   next();
 });
 
