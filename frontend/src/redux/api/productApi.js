@@ -457,6 +457,32 @@ export const productApi = createApi({
       }),
       invalidatesTags: ["Colors"],
     }),
+
+    // --------------------------------- BANNERS ---------------------------------------
+    // Get all banners
+    getBanners: builder.query({
+      query: () => "/banners",
+      providesTags: ["Banners"],
+    }),
+
+    // Create banner
+    createBanner: builder.mutation({
+      query: (data) => ({
+        url: "/admin/banners",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Banners"],
+    }),
+
+    // Delete banner
+    deleteBanner: builder.mutation({
+      query: (id) => ({
+        url: `/admin/banners/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Banners"],
+    }),
   }),
 });
 
@@ -502,4 +528,7 @@ export const {
   useUploadCategoryImageMutation,
   useUploadSubCategoryImageMutation,
   useUploadSubCollectionImageMutation,
+  useGetBannersQuery,
+  useCreateBannerMutation,
+  useDeleteBannerMutation,
 } = productApi;

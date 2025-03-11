@@ -64,6 +64,12 @@ import {
   uploadSubCollectionImage,
   getAllSubCollections,
 } from "../controllers/subCollectionController.js";
+import {
+  getAllBanners,
+  createBanner,
+  updateBanner,
+  deleteBanner,
+} from "../controllers/bannerController.js";
 
 const router = express.Router();
 
@@ -570,6 +576,40 @@ router
     isAuthenticatedUser,
     isAuthorizedUser(userRoles.SUPER_ADMIN),
     deleteSingleUser
+  );
+
+// Banner routes
+router.route("/banners").get(getAllBanners);
+router
+  .route("/admin/banners")
+  .post(
+    isAuthenticatedUser,
+    isAuthorizedUser(
+      userRoles.SUPER_ADMIN,
+      userRoles.ADMIN,
+      userRoles.EMPLOYEE
+    ),
+    createBanner
+  );
+router
+  .route("/admin/banners/:id")
+  .put(
+    isAuthenticatedUser,
+    isAuthorizedUser(
+      userRoles.SUPER_ADMIN,
+      userRoles.ADMIN,
+      userRoles.EMPLOYEE
+    ),
+    updateBanner
+  )
+  .delete(
+    isAuthenticatedUser,
+    isAuthorizedUser(
+      userRoles.SUPER_ADMIN,
+      userRoles.ADMIN,
+      userRoles.EMPLOYEE
+    ),
+    deleteBanner
   );
 
 export default router;

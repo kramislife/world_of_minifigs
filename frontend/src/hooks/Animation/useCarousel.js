@@ -8,7 +8,7 @@ export const carouselConfig = {
     align: "start",
   },
   autoplayOptions: {
-    delay: 2000,
+    delay: 3000,
     stopOnInteraction: false,
     playOnInit: true,
   },
