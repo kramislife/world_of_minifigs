@@ -49,7 +49,7 @@ const ProfileProgress = ({ user, addresses, orders }) => {
           </div>
           <div className="relative w-16 h-16">
             <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-xl font-bold text-blue-400">
+              <span className="text-lg font-bold text-blue-400">
                 {Math.round(completionPercentage)}%
               </span>
             </div>
