@@ -54,15 +54,7 @@ const Profile = () => {
   );
 
   return (
-    <div className="p-10 max-w-8xl">
-      {/* Header Section */}
-      {/* <div className="mb-8">
-        <h1 className="text-3xl font-bold text-light tracking-tight">
-          Account Overview
-        </h1>
-        <p className="text-gray-400 mt-2">Welcome back, {user?.name}!</p>
-      </div> */}
-
+    <div className="lg:p-10 p-3 max-w-8xl">
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
         {/* Left Column - Profile & Stats */}
         <div className="space-y-5 lg:col-span-2">
