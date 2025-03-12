@@ -26,6 +26,7 @@ export const userApi = createApi({
         credentials: "include",
       }),
       transformResponse: (result) => result.user,
+      providesTags: ["User"],
       async onQueryStarted(args, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
@@ -43,6 +44,7 @@ export const userApi = createApi({
         credentials: "include",
       }),
       transformResponse: (result) => result.addresses,
+      providesTags: ["User"],
     }),
     getSingleAddress: builder.query({
       query: (id) => ({
@@ -110,6 +112,32 @@ export const userApi = createApi({
       }),
       invalidatesTags: ["User"],
     }),
+    updateProfilePicture: builder.mutation({
+      query: (imageData) => ({
+        url: "/me/profile/updateAvatar",
+        method: "PUT",
+        body: imageData,
+        credentials: "include",
+      }),
+      invalidatesTags: ["User"],
+      async onQueryStarted(args, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          dispatch(setUser(data.user));
+        } catch (error) {
+          // Handle error if needed
+        }
+      },
+    }),
+    updateProfile: builder.mutation({
+      query: (userData) => ({
+        url: "/me/profile/updateProfile",
+        method: "PUT",
+        body: userData,
+        credentials: "include",
+      }),
+      invalidatesTags: ["User"],
+    }),
   }),
 });
 
@@ -124,4 +152,6 @@ export const {
   useDeleteUserMutation,
   useGetSingleUserQuery,
   useUpdateUserMutation,
+  useUpdateProfilePictureMutation,
+  useUpdateProfileMutation,
 } = userApi;

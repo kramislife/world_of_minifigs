@@ -14,8 +14,6 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 const UserDropdown = () => {
-  //
-
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
   const [logout, { data, isError, error, isSuccess, isLoading }] =
@@ -73,8 +71,18 @@ const UserDropdown = () => {
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger className="focus:outline-none">
-        <div className="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center text-white hover:bg-red-600 transition-colors">
-          {user?.name?.charAt(0).toUpperCase()}
+        <div className="w-8 h-8 rounded-full  overflow-hidden flex items-center justify-center">
+          {user?.profile_picture?.url ? (
+            <img
+              src={user.profile_picture.url}
+              alt={user.name}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-red-500 flex items-center justify-center text-white hover:bg-red-600 transition-colors">
+              {user?.name?.charAt(0).toUpperCase()}
+            </div>
+          )}
         </div>
       </DropdownMenuTrigger>
 
@@ -87,9 +95,24 @@ const UserDropdown = () => {
       >
         {/* User Name and Email */}
         <DropdownMenuLabel>
-          <div className="flex flex-col space-y-2">
-            <p className="text-sm font-medium">{user?.name}</p>
-            <p className="text-xs text-gray-400">{user?.email}</p>
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
+              {user?.profile_picture?.url ? (
+                <img
+                  src={user.profile_picture.url}
+                  alt={user.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-red-500 flex items-center justify-center text-white">
+                  {user?.name?.charAt(0).toUpperCase()}
+                </div>
+              )}
+            </div>
+            <div className="flex flex-col">
+              <p className="text-sm font-medium">{user?.name}</p>
+              <p className="text-xs text-gray-400">{user?.email}</p>
+            </div>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator className="bg-gray-600" />

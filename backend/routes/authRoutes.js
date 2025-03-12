@@ -9,6 +9,7 @@ import {
   updateCurrentUserPassword,
   updateCurrentUserProfile,
   verifyUser,
+  updateProfilePicture,
 } from "../controllers/authController.js";
 import { isAuthenticatedUser } from "../middlewares/auth.middleware.js";
 
@@ -27,5 +28,8 @@ router
 router
   .route("/me/profile/updateProfile")
   .put(isAuthenticatedUser, updateCurrentUserProfile);
+router
+  .route("/me/profile/updateAvatar")
+  .put(isAuthenticatedUser, updateProfilePicture);
 
 export default router;

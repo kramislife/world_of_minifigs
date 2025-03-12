@@ -11,6 +11,10 @@ import Address from "../models/userAddress.model.js";
 import sendEmail from "../Utills/sendEmail.js";
 import { getResetPasswordTemplate } from "../Utills/Emails/ResetPasswordTemplate.js";
 import { getVerificationEmailTemplate } from "../Utills/Emails/VerificationEmailTemplate.js";
+import {
+  delete_user_avatar_file,
+  upload_single_image,
+} from "../Utills/cloudinary.js";
 
 // --------------------------------------- REGISTER USER --------------------------------------- //
 export const registerUser = catchAsyncErrors(async (req, res, next) => {
@@ -380,75 +384,43 @@ export const updateCurrentUserPassword = catchAsyncErrors(
 // --------------------------------------------------------------------- 2.  UPDATE CURRENT USER DATA ------------------------------------------------------------------------------
 export const updateCurrentUserProfile = catchAsyncErrors(
   async (req, res, next) => {
-    const user_id = req?.user?.user_id;
+    const user_id = req.user.user_id;
+    const { contact_number, name } = req.body;
 
-    if (!user_id) {
-      return next(new ErrorHandler(" User not found", 404));
-    }
+    const updateFields = {};
 
-    const { name, username, contact_number } = req.body;
-
-    if (!name && !username && !phoneNumber) {
-      return next(
-        new ErrorHandler("Please provide at least one field to update", 400)
-      );
-    }
-
-    let updateData = {};
-
-    if (name) {
-      if (typeof name !== "string" || name.trim() === "") {
-        return next(
-          new ErrorHandler("Name must be a string and not empty", 400)
-        );
-      }
-      updateData.name = name.trim();
-    }
-
-    if (username) {
-      if (typeof username !== "string" || username.trim().length < 3) {
-        return next(
-          new ErrorHandler(
-            "Username must be a string and at least 3 characters long",
-            400
-          )
-        );
-      }
-      updateData.username = username.trim();
-    }
-
+    // Validate phone number if provided
     if (contact_number) {
-      const phoneRegx = /^\+?[1-9]\d{1,14}$/;
-
-      if (!phoneRegx.test(contact_number)) {
-        return next(new ErrorHandler("Invalid phone number", 400));
+      const phoneRegex = /^\+?[1-9]\d{1,14}$/;
+      if (!phoneRegex.test(contact_number)) {
+        return next(new ErrorHandler("Invalid phone number format", 400));
       }
-
-      updateData.contact_number = contact_number;
+      updateFields.contact_number = contact_number;
     }
 
-    const updatedUser = await User.findByIdAndUpdate(user_id, updateData, {
+    // Validate name if provided
+    if (name) {
+      if (name.trim().length < 3) {
+        return next(
+          new ErrorHandler("Name must be at least 3 characters long", 400)
+        );
+      }
+      updateFields.name = name.trim();
+    }
+
+    const user = await User.findByIdAndUpdate(user_id, updateFields, {
       new: true,
       runValidators: true,
     });
 
-    if (!updatedUser) {
-      return next(
-        new ErrorHandler(
-          `Unable to update user informaiton, kindly check your data`,
-          404
-        )
-      );
+    if (!user) {
+      return next(new ErrorHandler("User not found", 404));
     }
 
     res.status(200).json({
       success: true,
-      message: "User information updated successfully",
-      user: {
-        name: updatedUser.name,
-        username: updatedUser.username,
-        contact_number: updatedUser.contact_number,
-      },
+      message: "Profile updated successfully",
+      user,
     });
   }
 );
@@ -695,5 +667,37 @@ export const deleteAddress = catchAsyncErrors(async (req, res, next) => {
   res.status(200).json({
     success: true,
     message: "Address deleted successfully",
+  });
+});
+
+export const updateProfilePicture = catchAsyncErrors(async (req, res, next) => {
+  const user = await User.findById(req.user.user_id);
+
+  if (!user) {
+    return next(new ErrorHandler("User not found", 404));
+  }
+
+  // Delete old profile picture if it exists
+  if (user.profile_picture?.public_id) {
+    await delete_user_avatar_file(user.profile_picture.public_id);
+  }
+
+  // Upload new profile picture
+  const result = await upload_single_image(
+    req.body.avatar,
+    "world_of_minifigs/avatars"
+  );
+
+  user.profile_picture = {
+    public_id: result.public_id,
+    url: result.url,
+  };
+
+  await user.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Profile picture updated successfully",
+    user,
   });
 });
