@@ -16,7 +16,7 @@ import { toast } from "react-toastify";
 const UserDropdown = () => {
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
-  const [logout, { data, isError, error, isSuccess, isLoading }] =
+  const [logout, { data, isError, error, isSuccess }] =
     useLazyLogoutQuery();
 
   useEffect(() => {
@@ -25,12 +25,14 @@ const UserDropdown = () => {
     }
 
     if (isSuccess) {
-      toast.success(data?.message);
-      setTimeout(() => {
-        navigate(0);
-      }, 2000);
+      toast.success(data?.message, {
+        autoClose: 1000,
+        onOpen: () => {
+          navigate(0);
+        },
+      });
     }
-  }, [isError, error, isLoading, isSuccess, data]);
+  }, [isError, error, isSuccess, data, navigate]);
 
   const handleLogout = () => {
     logout();

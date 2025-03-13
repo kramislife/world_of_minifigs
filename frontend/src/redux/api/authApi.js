@@ -5,6 +5,8 @@ export const authApi = createApi({
   reducerPath: "authApi",
   baseQuery: fetchBaseQuery({ baseUrl: "/api/v1" }),
   endpoints: (builder) => ({
+
+    // --------------------- Register A New User --------------------------------- //
     register: builder.mutation({
       query(body) {
         return {
@@ -15,6 +17,7 @@ export const authApi = createApi({
       },
     }),
 
+    // --------------------- Login A User --------------------------------- //
     login: builder.mutation({
       query: (body) => ({
         url: "/login",
@@ -30,6 +33,8 @@ export const authApi = createApi({
         }
       },
     }),
+
+    // --------------------- Logout A User --------------------------------- //
     logout: builder.query({
       query: () => {
         return {
@@ -38,6 +43,8 @@ export const authApi = createApi({
         };
       },
     }),
+
+    // --------------------- Verify Email --------------------------------- //
     verifyEmail: builder.mutation({
       query: (token) => ({
         url: `/verify_user/${token}`,
@@ -49,6 +56,8 @@ export const authApi = createApi({
         message: response.message
       }),
     }),
+
+    // --------------------- Forgot Password --------------------------------- //
     forgotPassword: builder.mutation({
       query: (body) => ({
         url: "/password/forgot",
@@ -56,6 +65,8 @@ export const authApi = createApi({
         body,
       }),
     }),
+
+    // --------------------- Reset Password --------------------------------- //
     resetPassword: builder.mutation({
       query: ({ token, ...body }) => ({
         url: `/password/reset/${token}`,
