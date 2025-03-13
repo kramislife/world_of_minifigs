@@ -28,14 +28,6 @@ const ResetPassword = () => {
       return;
     }
 
-    // Then validate password complexity
-    if (!validatePassword(password)) {
-      toast.error(
-        "Password must be at least 6 characters and contain a letter, a number, and a special character"
-      );
-      return;
-    }
-
     try {
       const result = await resetPassword({
         token,
@@ -46,15 +38,7 @@ const ResetPassword = () => {
       navigate("/login");
     } catch (err) {
       const errorMessage = err?.data?.message || "An error occurred";
-      
-      // Check if error is password-related
-      if (errorMessage.toLowerCase().includes('password')) {
-        // Password validation errors show in toast
-        toast.error(errorMessage);
-      } else {
-        // Token or other errors show in UI
-        setError(errorMessage);
-      }
+      setError(errorMessage);
     }
   };
 
@@ -69,7 +53,10 @@ const ResetPassword = () => {
           <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/5 to-transparent pointer-events-none" />
 
           <div className="space-y-6 relative">
-            <motion.div {...loginAnimations.headerVariants} className="space-y-3">
+            <motion.div
+              {...loginAnimations.headerVariants}
+              className="space-y-3"
+            >
               <h1 className="text-3xl font-bold text-white tracking-tight">
                 Reset Password
               </h1>
@@ -115,7 +102,7 @@ const ResetPassword = () => {
                   type="submit"
                   disabled={isLoading || !!error}
                   className={`w-full bg-gradient-r border border-brand hover:bg-brand-gradient text-white h-14 rounded-xl text-md shadow-lg transition-all duration-300 relative overflow-hidden group ${
-                    error ? 'opacity-50 cursor-not-allowed' : ''
+                    error ? "opacity-50 cursor-not-allowed" : ""
                   }`}
                 >
                   <span className="relative z-10">

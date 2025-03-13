@@ -212,6 +212,67 @@ export const logoutUser = catchAsyncErrors(async (req, res, next) => {
   });
 });
 
+// -------------------------------- GET CURRENT USER PROFILE ---------------------------------//
+
+export const getCurrentUserProfile = catchAsyncErrors(
+  async (req, res, next) => {
+    const user_id = req?.user?.user_id;
+
+    const user = await User.findById(user_id);
+
+    if (user) {
+      res.status(200).json({
+        success: true,
+        user,
+      });
+    }
+  }
+);
+
+// -------------------------------------- UPDATE CURRENT USER DATA ------------------------------------------------- //
+export const updateCurrentUserProfile = catchAsyncErrors(
+  async (req, res, next) => {
+    const user_id = req.user.user_id;
+    const { contact_number, name } = req.body;
+
+    const updateFields = {};
+
+    // Validate phone number if provided
+    if (contact_number) {
+      const phoneRegex = /^\+?[1-9]\d{1,14}$/;
+      if (!phoneRegex.test(contact_number)) {
+        return next(new ErrorHandler("Invalid phone number format", 400));
+      }
+      updateFields.contact_number = contact_number;
+    }
+
+    // Validate name if provided
+    if (name) {
+      if (name.trim().length < 3) {
+        return next(
+          new ErrorHandler("Name must be at least 3 characters long", 400)
+        );
+      }
+      updateFields.name = name.trim();
+    }
+
+    const user = await User.findByIdAndUpdate(user_id, updateFields, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!user) {
+      return next(new ErrorHandler("User not found", 404));
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      user,
+    });
+  }
+);
+
 // -------------------------------------------------- FORGOT PASSWORD --------------------------------------------------
 export const forgotPassword = catchAsyncErrors(async (req, res, next) => {
   const { email } = req.body;
@@ -254,7 +315,7 @@ export const forgotPassword = catchAsyncErrors(async (req, res, next) => {
   }
 });
 
-// -------------------------------------------------- RESET PASSWORD --------------------------------------------------
+// -------------------------------------- RESET PASSWORD -----------------------------------//
 export const resetPassword = catchAsyncErrors(async (req, res, next) => {
   const resetPasswordToken = req.params.token;
 
@@ -302,7 +363,7 @@ export const resetPassword = catchAsyncErrors(async (req, res, next) => {
       email: user.email,
       subject: `Password Reset Successful | ${process.env.SMTP_FROM_NAME}`,
       message: `
-        <p>Hello ${user.name},</p>
+        <p>Hello ${user.username},</p>
         <p>Your password has been successfully reset. If this was not you, please contact support immediately at <a href="mailto:${process.env.SMTP_FROM_EMAIL}">${process.env.SMTP_FROM_EMAIL}</a></p>
       `,
     });
@@ -316,63 +377,54 @@ export const resetPassword = catchAsyncErrors(async (req, res, next) => {
   });
 });
 
-// -------------------------------------------------------------------- GET CURRENT USER PROFILE ----------------------------------------------------------------------------------
-
-export const getCurrentUserProfile = catchAsyncErrors(
-  async (req, res, next) => {
-    const user_id = req?.user?.user_id;
-
-    const user = await User.findById(user_id);
-
-    if (user) {
-      res.status(200).json({
-        success: true,
-        user,
-      });
-    }
-  }
-);
-
-/* -------------------------------------------------------------------- UPDATE CURRENT USER PROFILE -------------------------------------------------------------------------------- */
-
-// --------------------------------------------------------------------- 1.  UPDATE CURRENT USER PASSWORD ------------------------------------------------------------------------------
+// -------------------------- UPDATE CURRENT USER PASSWORD -----------------------------//
 
 export const updateCurrentUserPassword = catchAsyncErrors(
   async (req, res, next) => {
     const { oldPassword, newPassword, confirmPassword } = req.body;
     const user_id = req?.user?.user_id;
 
+    // 1. Check if all required fields are provided
     if (!oldPassword || !newPassword || !confirmPassword) {
       return next(new ErrorHandler("Please fill in all fields", 400));
     }
+
+    // 2. Check if new password and confirm password match
     if (newPassword !== confirmPassword) {
       return next(new ErrorHandler("Passwords do not match", 400));
     }
+
+    // 3. Get the user with password field
     const user = await User.findById(user_id).select("+password");
-    const isMatch = await user.comparePassword(newPassword);
 
-    /*
-    console.log("User : ", user);
-    console.log("isMatch : ", isMatch);
-    console.log(
-      "OldPassword, newPassword, confirmPassword : ",
-      oldPassword,
-      newPassword,
-      confirmPassword
-    );
-    */
+    if (!user) {
+      return next(new ErrorHandler("User not found", 404));
+    }
 
-    if (isMatch) {
+    // 4. Verify the old password is correct
+    const isOldPasswordCorrect = await user.comparePassword(oldPassword);
+
+    if (!isOldPasswordCorrect) {
+      return next(
+        new ErrorHandler("Invalid Credentials. Please try again", 400)
+      );
+    }
+
+    // 5. Check that new password is different from old password
+    const isNewPasswordSameAsOld = await user.comparePassword(newPassword);
+
+    if (isNewPasswordSameAsOld) {
       return next(
         new ErrorHandler(
-          "Old password cannot be the same as the new password",
+          "New password cannot be the same as the current password",
           400
         )
       );
     }
 
+    // 6. Update the password
     user.password = newPassword;
-    user.save();
+    await user.save();
 
     res.status(200).json({
       success: true,
@@ -381,51 +433,7 @@ export const updateCurrentUserPassword = catchAsyncErrors(
   }
 );
 
-// --------------------------------------------------------------------- 2.  UPDATE CURRENT USER DATA ------------------------------------------------------------------------------
-export const updateCurrentUserProfile = catchAsyncErrors(
-  async (req, res, next) => {
-    const user_id = req.user.user_id;
-    const { contact_number, name } = req.body;
-
-    const updateFields = {};
-
-    // Validate phone number if provided
-    if (contact_number) {
-      const phoneRegex = /^\+?[1-9]\d{1,14}$/;
-      if (!phoneRegex.test(contact_number)) {
-        return next(new ErrorHandler("Invalid phone number format", 400));
-      }
-      updateFields.contact_number = contact_number;
-    }
-
-    // Validate name if provided
-    if (name) {
-      if (name.trim().length < 3) {
-        return next(
-          new ErrorHandler("Name must be at least 3 characters long", 400)
-        );
-      }
-      updateFields.name = name.trim();
-    }
-
-    const user = await User.findByIdAndUpdate(user_id, updateFields, {
-      new: true,
-      runValidators: true,
-    });
-
-    if (!user) {
-      return next(new ErrorHandler("User not found", 404));
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "Profile updated successfully",
-      user,
-    });
-  }
-);
-
-// ---------------------------------------------------------------------------- CREATE USER ADDRESS ---------------------------------------------------------------------------------------------------------------
+// ------------------------------------ CREATE USER ADDRESS ------------------------------------------------- //
 
 export const createAddress = catchAsyncErrors(async (req, res, next) => {
   const user_id = req.user.user_id;

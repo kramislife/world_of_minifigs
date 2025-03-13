@@ -38,6 +38,8 @@ export const userApi = createApi({
         }
       },
     }),
+
+    // ------------------------------- Get User Addresses ----------------------------------- //
     getUserAddresses: builder.query({
       query: () => ({
         url: "/me/addresses",
@@ -46,6 +48,8 @@ export const userApi = createApi({
       transformResponse: (result) => result.addresses,
       providesTags: ["User"],
     }),
+
+    // ------------------------------- Get Single Address ----------------------------------- //
     getSingleAddress: builder.query({
       query: (id) => ({
         url: `/me/addresses/${id}`,
@@ -53,6 +57,8 @@ export const userApi = createApi({
       }),
       transformResponse: (result) => result.address,
     }),
+
+    // ------------------------------- Create Address ----------------------------------- //
     createAddress: builder.mutation({
       query: (addressData) => ({
         url: "/me/createAddress",
@@ -62,6 +68,8 @@ export const userApi = createApi({
       }),
       invalidatesTags: ["User"],
     }),
+
+    // ------------------------------- Update Address ----------------------------------- //
     updateAddress: builder.mutation({
       query: ({ id, addressData }) => ({
         url: `/me/addresses/${id}`,
@@ -71,6 +79,8 @@ export const userApi = createApi({
       }),
       invalidatesTags: ["User"],
     }),
+
+    // ------------------------------- Delete Address ----------------------------------- //
     deleteAddress: builder.mutation({
       query: (id) => ({
         url: `/me/addresses/${id}`,
@@ -79,6 +89,8 @@ export const userApi = createApi({
       }),
       invalidatesTags: ["User"],
     }),
+
+    // ------------------------------- Get All Users ----------------------------------- //
     getAllUsers: builder.query({
       query: () => ({
         url: "/admin/users",
@@ -87,6 +99,8 @@ export const userApi = createApi({
       transformResponse: (result) => result,
       providesTags: ["User"],
     }),
+
+    // ------------------------------- Delete User ----------------------------------- //
     deleteUser: builder.mutation({
       query: (id) => ({
         url: `/admin/users/${id}`,
@@ -95,6 +109,8 @@ export const userApi = createApi({
       }),
       invalidatesTags: ["User"],
     }),
+
+    // ------------------------------- Get Single User ----------------------------------- //
     getSingleUser: builder.query({
       query: (id) => ({
         url: `/admin/users/${id}`,
@@ -103,6 +119,8 @@ export const userApi = createApi({
       transformResponse: (result) => result,
       providesTags: ["User"],
     }),
+
+    // ------------------------------- Update User ----------------------------------- //
     updateUser: builder.mutation({
       query: ({ id, ...userData }) => ({
         url: `/admin/users/${id}`,
@@ -112,6 +130,8 @@ export const userApi = createApi({
       }),
       invalidatesTags: ["User"],
     }),
+
+    // ----------------------------- Update Profile Picture ----------------------------------- //
     updateProfilePicture: builder.mutation({
       query: (imageData) => ({
         url: "/me/profile/updateAvatar",
@@ -129,6 +149,8 @@ export const userApi = createApi({
         }
       },
     }),
+
+    // ----------------------------- Update Profile ----------------------------------- //
     updateProfile: builder.mutation({
       query: (userData) => ({
         url: "/me/profile/updateProfile",
@@ -137,6 +159,16 @@ export const userApi = createApi({
         credentials: "include",
       }),
       invalidatesTags: ["User"],
+    }),
+
+    // ----------------------------- Update Password ----------------------------------- //
+    updatePassword: builder.mutation({
+      query: (passwordData) => ({
+        url: "/me/profile/updatePassword",
+        method: "PUT",
+        body: passwordData,
+        credentials: "include",
+      }),
     }),
   }),
 });
@@ -154,4 +186,5 @@ export const {
   useUpdateUserMutation,
   useUpdateProfilePictureMutation,
   useUpdateProfileMutation,
+  useUpdatePasswordMutation,
 } = userApi;
