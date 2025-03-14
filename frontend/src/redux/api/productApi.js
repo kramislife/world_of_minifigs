@@ -483,6 +483,12 @@ export const productApi = createApi({
       }),
       invalidatesTags: ["Banners"],
     }),
+
+    // Get Dashboard Stats
+    getDashboardStats: builder.query({
+      query: () => `/admin/dashboard/stats`,
+      providesTags: ["Orders", "Products", "Users"],
+    }),
   }),
 });
 
@@ -531,4 +537,5 @@ export const {
   useGetBannersQuery,
   useCreateBannerMutation,
   useDeleteBannerMutation,
+  useGetDashboardStatsQuery,
 } = productApi;

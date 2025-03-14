@@ -179,3 +179,6 @@ userSchema.methods.generateResetPasswordToken = function () {
 
 const User = mongoose.model("User", userSchema);
 export default User;
+
+userSchema.index({ role: 1, createdAt: 1 });
+userSchema.index({ role: 1, _id: 1 });
