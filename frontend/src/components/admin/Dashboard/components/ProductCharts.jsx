@@ -38,8 +38,8 @@ const ProductCharts = () => {
     labels: stats?.categoryStats?.map((cat) => cat.name) || [],
     datasets: [
       {
-        label: "Sales by Category",
-        data: stats?.categoryStats?.map((cat) => cat.totalSales) || [],
+        label: "Number of Orders",
+        data: stats?.categoryStats?.map((cat) => cat.orderCount) || [],
         backgroundColor: [
           "rgba(239, 68, 68, 0.6)", // red
           "rgba(16, 185, 129, 0.6)", // green
@@ -61,8 +61,8 @@ const ProductCharts = () => {
     labels: stats?.collectionStats?.map((col) => col.name) || [],
     datasets: [
       {
-        label: "Sales by Collection",
-        data: stats?.collectionStats?.map((col) => col.totalSales) || [],
+        label: "Number of Orders",
+        data: stats?.collectionStats?.map((col) => col.orderCount) || [],
         backgroundColor: [
           "rgba(99, 102, 241, 0.6)", // indigo
           "rgba(236, 72, 153, 0.6)", // pink
@@ -82,36 +82,34 @@ const ProductCharts = () => {
 
   const chartOptions = {
     responsive: true,
-    maintainAspectRatio: true,
+    plugins: {
+      legend: {
+        display: true,
+        position: "top",
+        labels: {
+          color: "#fff",
+        },
+      },
+      title: {
+        display: false,
+      },
+    },
     scales: {
       y: {
         beginAtZero: true,
-        grid: { color: "rgba(255, 255, 255, 0.1)" },
         ticks: {
-          color: "rgba(255, 255, 255, 0.7)",
-          callback: (value) => `$${value.toLocaleString()}`,
+          color: "#fff",
+        },
+        grid: {
+          color: "rgba(255, 255, 255, 0.1)",
         },
       },
       x: {
-        grid: { color: "rgba(255, 255, 255, 0.1)" },
         ticks: {
-          color: "rgba(255, 255, 255, 0.7)",
-          maxRotation: 45,
-          minRotation: 45,
+          color: "#fff",
         },
-      },
-    },
-    plugins: {
-      legend: {
-        position: "top",
-        labels: { color: "rgba(255, 255, 255, 0.7)" },
-      },
-      tooltip: {
-        callbacks: {
-          label: (context) => {
-            const value = context.parsed.y;
-            return `$${value.toLocaleString()}`;
-          },
+        grid: {
+          color: "rgba(255, 255, 255, 0.1)",
         },
       },
     },
@@ -172,7 +170,7 @@ const ProductCharts = () => {
         <Card className="bg-darkBrand border-none p-4 hover:bg-darkBrand/90 transition-colors">
           <CardHeader className="pb-2">
             <CardTitle className="text-light text-lg font-semibold">
-              Top 10 Categories by Sales
+              Top 5 Categories by Order Count
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-4">
@@ -183,7 +181,7 @@ const ProductCharts = () => {
         <Card className="bg-darkBrand border-none p-4 hover:bg-darkBrand/90 transition-colors">
           <CardHeader className="pb-2">
             <CardTitle className="text-light text-lg font-semibold">
-              Top 10 Collections by Sales
+              Top 5 Collections by Order Count
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-4">
