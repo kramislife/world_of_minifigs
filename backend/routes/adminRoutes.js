@@ -70,6 +70,7 @@ import {
   updateBanner,
   deleteBanner,
 } from "../controllers/bannerController.js";
+import { getDashboardStats } from "../controllers/dashboardController.js";
 
 const router = express.Router();
 
@@ -610,6 +611,19 @@ router
       userRoles.EMPLOYEE
     ),
     deleteBanner
+  );
+
+// Dashboard Stats Route
+router
+  .route("/admin/dashboard/stats")
+  .get(
+    isAuthenticatedUser,
+    isAuthorizedUser(
+      userRoles.SUPER_ADMIN,
+      userRoles.ADMIN,
+      userRoles.EMPLOYEE
+    ),
+    getDashboardStats
   );
 
 export default router;

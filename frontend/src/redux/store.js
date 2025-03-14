@@ -4,6 +4,8 @@ import { authApi } from "./api/authApi";
 import { userApi } from "./api/userApi";
 import { checkoutApi } from "./api/checkoutApi";
 import { orderApi } from "./api/orderApi";
+import { reviewApi } from "./api/reviewApi";
+import { dashboardApi } from "./api/dashboardApi";
 
 import userReducer from "./features/userSlice";
 import cartReducer from "./features/cartSlice";
@@ -19,6 +21,8 @@ export const store = configureStore({
     [userApi.reducerPath]: userApi.reducer,
     [checkoutApi.reducerPath]: checkoutApi.reducer,
     [orderApi.reducerPath]: orderApi.reducer,
+    [reviewApi.reducerPath]: reviewApi.reducer,
+    [dashboardApi.reducerPath]: dashboardApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat([
@@ -27,5 +31,9 @@ export const store = configureStore({
       userApi.middleware,
       checkoutApi.middleware,
       orderApi.middleware,
+      reviewApi.middleware,
+      dashboardApi.middleware,
     ]),
 });
+
+export default store;
