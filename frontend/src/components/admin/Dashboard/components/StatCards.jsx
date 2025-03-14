@@ -34,54 +34,55 @@ const StatCards = () => {
   const cards = [
     {
       title: "Total Sales",
-      value: `$${stats?.totalSales.toFixed(2)}`,
+      value: `$${stats?.stats?.totalSales.toFixed(2)}`,
       icon: <DollarSign className="h-8 w-8 text-green-400" />,
-      change: stats?.salesGrowth,
+      change: stats?.stats?.monthOverMonthGrowth,
       changeText: "vs last month",
-      changeColor: stats?.salesGrowth >= 0 ? "text-green-400" : "text-red-400",
+      changeColor:
+        stats?.stats?.thisMonth >= stats?.stats?.lastMonth
+          ? "text-green-400"
+          : "text-red-400",
     },
     {
       title: "Total Orders",
-      value: stats?.totalOrders.toString(),
+      value: stats?.stats?.totalValidOrders.toString(),
       icon: <ShoppingCart className="h-8 w-8 text-blue-400" />,
-      change: stats?.ordersGrowth,
-      changeText: "vs last month",
-      changeColor: stats?.ordersGrowth >= 0 ? "text-green-400" : "text-red-400",
+      change: stats?.stats?.deliveredRate,
+      changeText: "delivered",
+      changeColor: "text-green-400",
     },
     {
       title: "Total Products",
-      value: stats?.totalProducts.toString(),
+      value: stats?.stats?.totalProducts.toString(),
       icon: <Package className="h-8 w-8 text-purple-400" />,
-      change: stats?.productsGrowth,
-      changeText: "vs last month",
-      changeColor:
-        stats?.productsGrowth >= 0 ? "text-green-400" : "text-red-400",
+      change: stats?.stats?.lowStockPercentage,
+      changeText: "low in stock",
+      changeColor: "text-yellow-400",
     },
     {
       title: "Total Customers",
-      value: stats?.totalUsers.toString(),
+      value: stats?.stats?.customerStats?.totalCustomers.toString(),
       icon: <Users className="h-8 w-8 text-yellow-400" />,
-      change: stats?.usersGrowth,
-      changeText: "vs last month",
-      changeColor: stats?.usersGrowth >= 0 ? "text-green-400" : "text-red-400",
+      change: stats?.stats?.activeCustomerPercentage,
+      changeText: "active users",
+      changeColor: "text-green-400",
     },
     {
       title: "Refunds Issued",
-      value: stats?.totalRefunds.toString(),
+      value: stats?.stats?.totalRefunds.toString(),
       icon: <TrendingUp className="h-8 w-8 text-red-400" />,
-      change: stats?.refundsGrowth,
-      changeText: "vs last month",
-      changeColor:
-        stats?.refundsGrowth >= 0 ? "text-red-400" : "text-green-400",
+      change: stats?.stats?.refundRate,
+      changeText: "refund rate",
+      changeColor: "text-red-400",
     },
     {
       title: "Popular Payment",
-      value: formatPaymentMethod(stats?.popularPayment?.method || "N/A"),
+      value: formatPaymentMethod(stats?.stats?.popularPayment?.method || "N/A"),
       icon: <CreditCard className="h-8 w-8 text-indigo-400" />,
-      change: stats?.popularPayment?.percentage || 0,
+      change: stats?.stats?.popularPayment?.percentage || 0,
       changeText: "usage rate",
       changeColor: "text-blue-400",
-      tooltip: stats?.popularPayment?.breakdown
+      tooltip: stats?.stats?.popularPayment?.breakdown
         ?.map(
           (payment) =>
             `${formatPaymentMethod(payment.method)}: ${payment.percentage}%`

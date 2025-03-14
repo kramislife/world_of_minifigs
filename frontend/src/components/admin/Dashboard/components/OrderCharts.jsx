@@ -17,18 +17,21 @@ const OrderCharts = () => {
     return <div>Loading...</div>;
   }
 
+  // Filter out "To Review" status
+  const filteredOrderStatus = orderStatus.filter(status => status.value !== "To Review");
+
   const orderStatusData = {
-    labels: orderStatus.map((status) => status.label),
+    labels: filteredOrderStatus.map((status) => status.label),
     datasets: [
       {
         label: "Order Count",
-        data: orderStatus.map(
+        data: filteredOrderStatus.map(
           (status) => stats?.orderStatusCount?.[status.value] || 0
         ),
-        backgroundColor: orderStatus.map((status) =>
+        backgroundColor: filteredOrderStatus.map((status) =>
           status.bgColor.replace("/20", "/60")
         ),
-        borderColor: orderStatus.map((status) =>
+        borderColor: filteredOrderStatus.map((status) =>
           status.color.replace("text-", "").replace("-400", "")
         ),
         borderWidth: 1,

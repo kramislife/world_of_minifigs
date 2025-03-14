@@ -6,11 +6,39 @@ import User from "../models/user.model.js";
 export const getDashboardStats = catchAsyncErrors(async (req, res, next) => {
   // Get current date and last month's date
   const currentDate = new Date();
-  const lastMonth = new Date(
+  const firstDayOfCurrentMonth = new Date(
+    currentDate.getFullYear(),
+    currentDate.getMonth(),
+    1
+  );
+  const firstDayOfLastMonth = new Date(
     currentDate.getFullYear(),
     currentDate.getMonth() - 1,
     1
   );
+  const firstDayOfNextMonth = new Date(
+    currentDate.getFullYear(),
+    currentDate.getMonth() + 1,
+    1
+  );
+
+  // Get current month and last month orders
+  const [currentMonthOrders, lastMonthOrders] = await Promise.all([
+    Order.countDocuments({
+      orderStatus: { $ne: "Cancelled" },
+      createdAt: {
+        $gte: firstDayOfCurrentMonth,
+        $lt: firstDayOfNextMonth,
+      },
+    }),
+    Order.countDocuments({
+      orderStatus: { $ne: "Cancelled" },
+      createdAt: {
+        $gte: firstDayOfLastMonth,
+        $lt: firstDayOfCurrentMonth,
+      },
+    }),
+  ]);
 
   // Get total sales and orders
   const [totalSales, totalOrders] = await Promise.all([
@@ -18,7 +46,7 @@ export const getDashboardStats = catchAsyncErrors(async (req, res, next) => {
       { $match: { orderStatus: { $ne: "Cancelled" } } },
       { $group: { _id: null, total: { $sum: "$totalPrice" } } },
     ]),
-    Order.countDocuments({ orderStatus: { $ne: "Cancelled" } }),
+    Order.countDocuments(),
   ]);
 
   // Get total products
@@ -80,14 +108,14 @@ export const getDashboardStats = catchAsyncErrors(async (req, res, next) => {
       {
         $match: {
           orderStatus: { $ne: "Cancelled" },
-          createdAt: { $gte: lastMonth, $lt: currentDate },
+          createdAt: { $gte: firstDayOfLastMonth, $lt: firstDayOfCurrentMonth },
         },
       },
       { $group: { _id: null, total: { $sum: "$totalPrice" } } },
     ]),
     Order.countDocuments({
       orderStatus: { $ne: "Cancelled" },
-      createdAt: { $gte: lastMonth, $lt: currentDate },
+      createdAt: { $gte: firstDayOfLastMonth, $lt: firstDayOfCurrentMonth },
     }),
   ]);
 
@@ -207,12 +235,8 @@ export const getDashboardStats = catchAsyncErrors(async (req, res, next) => {
       $match: {
         orderStatus: { $ne: "Cancelled" },
         createdAt: {
-          $gte: new Date(currentDate.getFullYear(), currentDate.getMonth(), 1),
-          $lt: new Date(
-            currentDate.getFullYear(),
-            currentDate.getMonth() + 1,
-            1
-          ),
+          $gte: firstDayOfCurrentMonth,
+          $lt: firstDayOfNextMonth,
         },
       },
     },
@@ -229,12 +253,8 @@ export const getDashboardStats = catchAsyncErrors(async (req, res, next) => {
       $match: {
         orderStatus: { $ne: "Cancelled" },
         createdAt: {
-          $gte: new Date(
-            currentDate.getFullYear(),
-            currentDate.getMonth() - 1,
-            1
-          ),
-          $lt: new Date(currentDate.getFullYear(), currentDate.getMonth(), 1),
+          $gte: firstDayOfLastMonth,
+          $lt: firstDayOfCurrentMonth,
         },
       },
     },
@@ -255,6 +275,11 @@ export const getDashboardStats = catchAsyncErrors(async (req, res, next) => {
 
   // Get top selling products with both sales and quantity data
   const topProducts = await Order.aggregate([
+    {
+      $match: {
+        orderStatus: { $ne: "Cancelled" }, // Exclude cancelled orders
+      },
+    },
     { $unwind: "$orderItems" },
     {
       $lookup: {
@@ -305,9 +330,16 @@ export const getDashboardStats = catchAsyncErrors(async (req, res, next) => {
     },
   ]);
 
-  // Get sales by category with proper lookup and population
+  // Get categories by order count
   const categoryStats = await Order.aggregate([
+    {
+      $match: {
+        orderStatus: { $ne: "Cancelled" },
+      },
+    },
+    // Unwind order items
     { $unwind: "$orderItems" },
+    // Lookup products
     {
       $lookup: {
         from: "products",
@@ -317,6 +349,9 @@ export const getDashboardStats = catchAsyncErrors(async (req, res, next) => {
       },
     },
     { $unwind: "$product" },
+    // Unwind product categories array
+    { $unwind: "$product.product_category" },
+    // Lookup category details
     {
       $lookup: {
         from: "categories",
@@ -326,30 +361,40 @@ export const getDashboardStats = catchAsyncErrors(async (req, res, next) => {
       },
     },
     { $unwind: "$category" },
+    // First group to get unique order-category combinations
     {
       $group: {
-        _id: "$category._id",
+        _id: {
+          orderId: "$_id",
+          categoryId: "$category._id",
+        },
         name: { $first: "$category.name" },
-        totalSales: {
-          $sum: {
-            $multiply: ["$orderItems.discountedPrice", "$orderItems.quantity"],
-          },
-        },
-        totalOrders: { $sum: 1 },
-        averageOrderValue: {
-          $avg: {
-            $multiply: ["$orderItems.discountedPrice", "$orderItems.quantity"],
-          },
-        },
+        count: { $sum: 1 },
       },
     },
-    { $sort: { totalSales: -1 } },
+    // Then group by category to get total unique orders
+    {
+      $group: {
+        _id: "$_id.categoryId",
+        name: { $first: "$name" },
+        orderCount: { $sum: 1 },
+      },
+    },
+    // Sort and limit
+    { $sort: { orderCount: -1 } },
     { $limit: 5 },
   ]);
 
-  // Get sales by collection with proper lookup and population
+  // Get collections by order count
   const collectionStats = await Order.aggregate([
+    {
+      $match: {
+        orderStatus: { $ne: "Cancelled" },
+      },
+    },
+    // Unwind order items
     { $unwind: "$orderItems" },
+    // Lookup products
     {
       $lookup: {
         from: "products",
@@ -359,6 +404,9 @@ export const getDashboardStats = catchAsyncErrors(async (req, res, next) => {
       },
     },
     { $unwind: "$product" },
+    // Unwind product collections array
+    { $unwind: "$product.product_collection" },
+    // Lookup collection details
     {
       $lookup: {
         from: "collections",
@@ -368,24 +416,27 @@ export const getDashboardStats = catchAsyncErrors(async (req, res, next) => {
       },
     },
     { $unwind: "$collection" },
+    // First group to get unique order-collection combinations
     {
       $group: {
-        _id: "$collection._id",
+        _id: {
+          orderId: "$_id",
+          collectionId: "$collection._id",
+        },
         name: { $first: "$collection.name" },
-        totalSales: {
-          $sum: {
-            $multiply: ["$orderItems.discountedPrice", "$orderItems.quantity"],
-          },
-        },
-        totalOrders: { $sum: 1 },
-        averageOrderValue: {
-          $avg: {
-            $multiply: ["$orderItems.discountedPrice", "$orderItems.quantity"],
-          },
-        },
+        count: { $sum: 1 },
       },
     },
-    { $sort: { totalSales: -1 } },
+    // Then group by collection to get total unique orders
+    {
+      $group: {
+        _id: "$_id.collectionId",
+        name: { $first: "$name" },
+        orderCount: { $sum: 1 },
+      },
+    },
+    // Sort and limit
+    { $sort: { orderCount: -1 } },
     { $limit: 5 },
   ]);
 
@@ -447,30 +498,6 @@ export const getDashboardStats = catchAsyncErrors(async (req, res, next) => {
             },
           },
         ],
-        // Count delivered orders that need review
-        toReviewCount: [
-          {
-            $match: {
-              orderStatus: "Delivered",
-              isReviewed: false,
-            },
-          },
-          {
-            $count: "count",
-          },
-        ],
-        // Count delivered orders that are reviewed
-        reviewedCount: [
-          {
-            $match: {
-              orderStatus: "Delivered",
-              isReviewed: true,
-            },
-          },
-          {
-            $count: "count",
-          },
-        ],
       },
     },
     {
@@ -484,8 +511,6 @@ export const getDashboardStats = catchAsyncErrors(async (req, res, next) => {
             },
           },
         },
-        toReviewCount: { $arrayElemAt: ["$toReviewCount.count", 0] },
-        reviewedCount: { $arrayElemAt: ["$reviewedCount.count", 0] },
       },
     },
     {
@@ -493,13 +518,7 @@ export const getDashboardStats = catchAsyncErrors(async (req, res, next) => {
         Pending: { $ifNull: ["$counts.Pending", 0] },
         Processing: { $ifNull: ["$counts.Processing", 0] },
         Shipped: { $ifNull: ["$counts.Shipped", 0] },
-        Delivered: {
-          $subtract: [
-            { $ifNull: ["$counts.Delivered", 0] },
-            { $ifNull: ["$toReviewCount", 0] },
-          ],
-        },
-        "To Review": { $ifNull: ["$toReviewCount", 0] },
+        Delivered: { $ifNull: ["$counts.Delivered", 0] },
         Cancelled: { $ifNull: ["$counts.Cancelled", 0] },
         "On Hold": { $ifNull: ["$counts.On Hold", 0] },
         _id: 0,
@@ -514,9 +533,9 @@ export const getDashboardStats = catchAsyncErrors(async (req, res, next) => {
     const startDate = new Date();
     startDate.setDate(endDate.getDate() - 6); // Go back 6 days to get 7 days total
 
-    // Set times to start and end of day
-    startDate.setHours(0, 0, 0, 0);
-    endDate.setHours(23, 59, 59, 999);
+    // Set times to start and end of day in UTC
+    startDate.setUTCHours(0, 0, 0, 0);
+    endDate.setUTCHours(23, 59, 59, 999);
 
     const dailyOrders = await Order.aggregate([
       {
@@ -530,7 +549,11 @@ export const getDashboardStats = catchAsyncErrors(async (req, res, next) => {
       {
         $group: {
           _id: {
-            $dateToString: { format: "%Y-%m-%d", date: "$createdAt" },
+            $dateToString: {
+              format: "%Y-%m-%d",
+              date: "$createdAt",
+              timezone: "UTC",
+            },
           },
           count: { $sum: 1 },
         },
@@ -547,20 +570,22 @@ export const getDashboardStats = catchAsyncErrors(async (req, res, next) => {
       date.setDate(startDate.getDate() + i);
       const dateString = date.toISOString().split("T")[0];
 
+      const orderCount =
+        dailyOrders.find((order) => order._id === dateString)?.count || 0;
+
       filledDailyOrders.push({
         date: date.toLocaleDateString("en-US", {
           month: "short",
           day: "numeric",
         }),
-        count:
-          dailyOrders.find((order) => order._id === dateString)?.count || 0,
+        count: orderCount,
       });
     }
 
     return filledDailyOrders;
   };
 
-  // Get customer type statistics
+  // Get customer statistics
   const customerStats = await User.aggregate([
     {
       $match: { role: "customer" }, // Only consider customers
@@ -574,20 +599,11 @@ export const getDashboardStats = catchAsyncErrors(async (req, res, next) => {
       },
     },
     {
-      $project: {
-        hasOrders: { $gt: [{ $size: "$orders" }, 0] }, // Has at least one order
-        createdAt: 1,
-        // New users are those created in last 30 days AND have no orders
-        isNew: {
-          $and: [
-            {
-              $gte: [
-                "$createdAt",
-                new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
-              ],
-            },
-            { $eq: [{ $size: "$orders" }, 0] },
-          ],
+      $addFields: {
+        lastPurchaseDate: { $max: "$orders.createdAt" },
+        hasOrders: { $size: "$orders" },
+        thirtyDaysAgo: {
+          $subtract: [new Date(), 30 * 24 * 60 * 60 * 1000], // 30 days in milliseconds
         },
       },
     },
@@ -595,14 +611,56 @@ export const getDashboardStats = catchAsyncErrors(async (req, res, next) => {
       $group: {
         _id: null,
         totalCustomers: { $sum: 1 },
-        activeCustomers: { $sum: { $cond: ["$hasOrders", 1, 0] } },
-        newCustomers: { $sum: { $cond: ["$isNew", 1, 0] } },
-        // Inactive are those who are not new and have no orders
+        // Active: Has at least one purchase in the last 30 days
+        activeCustomers: {
+          $sum: {
+            $cond: [
+              {
+                $and: [
+                  { $gt: ["$hasOrders", 0] }, // Has orders
+                  { $gte: ["$lastPurchaseDate", "$thirtyDaysAgo"] }, // Last purchase within 30 days
+                ],
+              },
+              1,
+              0,
+            ],
+          },
+        },
+        // New: Registered within last 30 days and no purchases
+        newCustomers: {
+          $sum: {
+            $cond: [
+              {
+                $and: [
+                  { $eq: ["$hasOrders", 0] }, // No orders
+                  { $gte: ["$createdAt", "$thirtyDaysAgo"] }, // Registered within 30 days
+                ],
+              },
+              1,
+              0,
+            ],
+          },
+        },
+        // Inactive: Either no purchases ever and registered over 30 days ago,
+        // or has purchases but last purchase was over 30 days ago
         inactiveCustomers: {
           $sum: {
             $cond: [
               {
-                $and: [{ $not: "$hasOrders" }, { $not: "$isNew" }],
+                $or: [
+                  {
+                    $and: [
+                      { $eq: ["$hasOrders", 0] }, // No orders
+                      { $lt: ["$createdAt", "$thirtyDaysAgo"] }, // Registered over 30 days ago
+                    ],
+                  },
+                  {
+                    $and: [
+                      { $gt: ["$hasOrders", 0] }, // Has orders
+                      { $lt: ["$lastPurchaseDate", "$thirtyDaysAgo"] }, // Last purchase over 30 days ago
+                    ],
+                  },
+                ],
               },
               1,
               0,
@@ -691,6 +749,130 @@ export const getDashboardStats = catchAsyncErrors(async (req, res, next) => {
     avgLifetimeValue: 0,
   };
 
+  // Get top categories by order count
+  const topCategories = await Order.aggregate([
+    {
+      $match: {
+        orderStatus: { $ne: "Cancelled" }, // Exclude cancelled orders
+      },
+    },
+    { $unwind: "$orderItems" },
+    {
+      $lookup: {
+        from: "products",
+        localField: "orderItems.product",
+        foreignField: "_id",
+        as: "product",
+      },
+    },
+    { $unwind: "$product" },
+    { $unwind: "$product.product_category" },
+    {
+      $lookup: {
+        from: "categories",
+        localField: "product.product_category",
+        foreignField: "_id",
+        as: "category",
+      },
+    },
+    { $unwind: "$category" },
+    {
+      $group: {
+        _id: "$category._id",
+        name: { $first: "$category.name" },
+        orderCount: { $sum: 1 }, // Count number of orders instead of sales
+      },
+    },
+    { $sort: { orderCount: -1 } }, // Sort by order count instead of sales
+    { $limit: 5 },
+  ]);
+
+  // Get top collections by order count
+  const topCollections = await Order.aggregate([
+    {
+      $match: {
+        orderStatus: { $ne: "Cancelled" }, // Exclude cancelled orders
+      },
+    },
+    { $unwind: "$orderItems" },
+    {
+      $lookup: {
+        from: "products",
+        localField: "orderItems.product",
+        foreignField: "_id",
+        as: "product",
+      },
+    },
+    { $unwind: "$product" },
+    { $unwind: "$product.product_collection" },
+    {
+      $lookup: {
+        from: "collections",
+        localField: "product.product_collection",
+        foreignField: "_id",
+        as: "collection",
+      },
+    },
+    { $unwind: "$collection" },
+    {
+      $group: {
+        _id: "$collection._id",
+        name: { $first: "$collection.name" },
+        orderCount: { $sum: 1 }, // Count number of orders instead of sales
+      },
+    },
+    { $sort: { orderCount: -1 } }, // Sort by order count instead of sales
+    { $limit: 5 },
+  ]);
+
+  // Calculate month-over-month growth rates
+  const calculateGrowth = (current, previous) => {
+    if (!previous) return 0;
+    return ((current - previous) / previous * 100).toFixed(1);
+  };
+
+  // Calculate total valid orders (excluding cancelled)
+  const totalValidOrders = totalOrders - (orderStatusCount[0]?.Cancelled || 0);
+
+  // Calculate percentage of delivered orders from valid orders
+  const deliveredRate = (
+    ((orderStatusCount[0]?.Delivered || 0) / (totalValidOrders || 1)) *
+    100
+  ).toFixed(1);
+
+  // Calculate percentage of low stock products
+  const lowStockPercentage = (
+    (lowStockProducts.length / (totalProducts || 1)) *
+    100
+  ).toFixed(1);
+
+  // Calculate percentage of active customers
+  const activeCustomerPercentage = (
+    ((customerStats[0]?.activeCustomers || 0) /
+      (customerStats[0]?.totalCustomers || 1)) *
+    100
+  ).toFixed(1);
+
+  // Calculate refund rate
+  const refundRate = (
+    (totalRefunds / (totalOrders || 1)) *
+    100
+  ).toFixed(1);
+
+  // Format payment method helper
+  const formatPaymentMethod = (method) => {
+    return method === "stripe"
+      ? "Stripe"
+      : method === "paypal"
+      ? "PayPal"
+      : method;
+  };
+
+  // Get last 2 months of sales data
+  const last2Months = filledMonthlySales.slice(-2);
+  const thisMonth = last2Months[1]?.total || 0;
+  const lastMonth = last2Months[0]?.total || 0;
+
   res.status(200).json({
     success: true,
     totalSales: totalSales[0]?.total || 0,
@@ -699,6 +881,8 @@ export const getDashboardStats = catchAsyncErrors(async (req, res, next) => {
     totalUsers,
     totalRefunds,
     popularPayment,
+    currentMonthOrders,
+    lastMonthOrders,
     salesGrowth: calculateGrowth(
       totalSales[0]?.total || 0,
       lastMonthStats[0]?.[0]?.total || 0
@@ -709,16 +893,8 @@ export const getDashboardStats = catchAsyncErrors(async (req, res, next) => {
     lastMonthSales: lastMonthSales[0]?.total || 0,
     recentOrders,
     topProducts,
-    categoryStats: categoryStats.map((cat) => ({
-      ...cat,
-      totalSales: parseFloat(cat.totalSales.toFixed(2)),
-      averageOrderValue: parseFloat(cat.averageOrderValue.toFixed(2)),
-    })),
-    collectionStats: collectionStats.map((col) => ({
-      ...col,
-      totalSales: parseFloat(col.totalSales.toFixed(2)),
-      averageOrderValue: parseFloat(col.averageOrderValue.toFixed(2)),
-    })),
+    categoryStats,
+    collectionStats,
     productPerformance,
     lowStockProducts,
     orderStatusCount: orderStatusCount[0],
@@ -733,10 +909,28 @@ export const getDashboardStats = catchAsyncErrors(async (req, res, next) => {
       ...purchaseData,
       repeatRate: Number(purchaseData.repeatRate.toFixed(1)),
     },
+    topCategories,
+    topCollections,
+    stats: {
+      totalSales: totalSales[0]?.total || 0,
+      totalValidOrders,
+      totalProducts,
+      customerStats: customerStats[0] || {
+        totalCustomers: 0,
+        activeCustomers: 0,
+      },
+      totalRefunds,
+      popularPayment,
+      monthlySales: filledMonthlySales,
+      lowStockProducts,
+      orderStatusCount: orderStatusCount[0],
+      deliveredRate,
+      lowStockPercentage,
+      activeCustomerPercentage,
+      refundRate,
+      thisMonth,
+      lastMonth,
+      monthOverMonthGrowth: calculateGrowth(thisMonth, lastMonth),
+    },
   });
 });
-
-const calculateGrowth = (current, previous) => {
-  if (!previous) return 0;
-  return (((current - previous) / previous) * 100).toFixed(1);
-};
