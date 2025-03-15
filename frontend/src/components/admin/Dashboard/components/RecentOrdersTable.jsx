@@ -1,11 +1,32 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useGetDashboardStatsQuery } from "@/redux/api/dashboardApi";
 import TableLayout from "@/components/admin/shared/table/TableLayout";
 import { format } from "date-fns";
+import { Badge } from "@/components/ui/badge";
 
-const RecentOrdersTable = () => {
-  const { data: stats, isLoading } = useGetDashboardStatsQuery();
+const RecentOrdersTable = ({ recentOrders }) => {
+  if (!recentOrders) return null;
+
+  const getStatusVariant = (status) => {
+    switch (status) {
+      case "Delivered":
+        return "success";
+      case "Pending":
+        return "warning";
+      case "Processing":
+        return "info";
+      case "Shipped":
+        return "primary";
+      case "Cancelled":
+        return "destructive";
+      case "On Hold":
+        return "muted";
+      case "To Review":
+        return "accent";
+      default:
+        return "secondary";
+    }
+  };
 
   const columns = [
     {
@@ -55,31 +76,15 @@ const RecentOrdersTable = () => {
     {
       header: "Status",
       accessorKey: "status",
-      cell: ({ row }) => (
-        <span
-          className={`inline-flex rounded-full px-3 py-1 text-xs font-medium 
-          ${
-            row.original.status === "Delivered"
-              ? "bg-green-300 text-black"
-              : row.original.status === "Cancelled"
-              ? "bg-red-300 text-black"
-              : row.original.status === "Shipped"
-              ? "bg-blue-300 text-black"
-              : "bg-yellow-300 text-black"
-          }`}
-        >
-          {row.original.status}
-        </span>
-      ),
+      cell: ({ row }) => {
+        const variant = getStatusVariant(row.original.status);
+        return <Badge variant={variant}>{row.original.status}</Badge>;
+      },
     },
   ];
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
   const tableData =
-    stats?.recentOrders?.map((order) => ({
+    recentOrders?.map((order) => ({
       orderId: order._id,
       customerName: order.user?.name || "Unknown User",
       customerEmail: order.user?.email || "N/A",
