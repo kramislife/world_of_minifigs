@@ -15,6 +15,7 @@ import {
   delete_user_avatar_file,
   upload_single_image,
 } from "../Utills/cloudinary.js";
+import { ContactFormTemplate } from "../Utills/Emails/ContactFormTemplate.js";
 
 // --------------------------------------- REGISTER USER --------------------------------------- //
 export const registerUser = catchAsyncErrors(async (req, res, next) => {
@@ -708,4 +709,47 @@ export const updateProfilePicture = catchAsyncErrors(async (req, res, next) => {
     message: "Profile picture updated successfully",
     user,
   });
+});
+
+// ------------------------------------ CONTACT US ------------------------------------
+export const contactUs = catchAsyncErrors(async (req, res, next) => {
+  const { name, email, message } = req.body;
+
+  if (!name || !email || !message) {
+    return next(new ErrorHandler("Please fill in all fields", 400));
+  }
+
+  // Validate email format
+  if (!/\S+@\S+\.\S+/.test(email)) {
+    return next(new ErrorHandler("Please enter a valid email address", 400));
+  }
+
+  try {
+    // Send email to admin
+    await sendEmail({
+      email: process.env.SMTP_USER,
+      subject: `Contact Form Submission`,
+      message: ContactFormTemplate({ name, email, message }),
+    });
+
+    // Send confirmation email to user
+    await sendEmail({
+      email: email,
+      subject: "Thank you for Contacting World of Minifigs",
+      message: `
+          <p>Hello ${name},</p>
+          <p>We've received your message and will get back to you as soon as possible.</p>
+          <p>Best regards,<br>World of Minifigs Team</p>      
+      `,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Your message has been sent successfully!",
+    });
+  } catch (error) {
+    return next(
+      new ErrorHandler("Failed to send message. Please try again later.", 500)
+    );
+  }
 });
