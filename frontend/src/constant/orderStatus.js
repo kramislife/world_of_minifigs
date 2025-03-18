@@ -5,6 +5,7 @@ import {
   AlertCircle,
   PauseCircle,
   RotateCcw,
+  Star,
 } from "lucide-react";
 
 export const orderStatus = [
@@ -42,6 +43,15 @@ export const orderStatus = [
     color: "text-green-400",
     bgColor: "bg-green-500/20",
     label: "Delivered",
+    allowedTransitions: ["Returned"],
+  },
+  {
+    id: "To Review",
+    value: "To Review",
+    icon: Star,
+    color: "text-yellow-400",
+    bgColor: "bg-yellow-500/20",
+    label: "To Review",
     allowedTransitions: ["Returned"],
   },
   {

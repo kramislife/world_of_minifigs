@@ -3,108 +3,101 @@ import Order from "../models/order.model.js";
 import Product from "../models/product.model.js";
 import ProductReview from "../models/review.model.js";
 import ErrorHandler from "../Utills/customErrorHandler.js";
+import User from "../models/user.model.js";
+import {
+  upload_product_images,
+  delete_user_avatar_file,
+} from "../Utills/cloudinary.js";
 
 export const createNewReview = catchAsyncErrors(async (req, res, next) => {
-  // CHECK FOR REVIEW EXISTANCE
+  try {
+    const { order: orderId, products } = req.body;
 
-  const { rating, comment } = req.body;
-  if (!rating && !comment) {
-    return next(new ErrorHandler("Please provide a rating or a comment", 400));
-  }
+    if (!orderId || !products || !products.length) {
+      return next(new ErrorHandler("Please provide review data", 400));
+    }
 
-  //CHECK FOR PRODUCT ID
-  const productId = req.params.productId;
+    // Get user details including verification status
+    const user = await User.findById(req.user.user_id);
+    if (!user) {
+      return next(new ErrorHandler("User not found", 404));
+    }
 
-  if (!productId) {
-    return next(new ErrorHandler("Please provide a product id", 400));
-  }
+    // Process images for each product review
+    const processedProducts = await Promise.all(
+      products.map(async (product) => {
+        let images = [];
+        if (product.images && product.images.length > 0) {
+          if (product.images.length > 3) {
+            return next(
+              new ErrorHandler("Maximum 3 images allowed per review", 400)
+            );
+          }
 
-  //CHECK IF USER IS LOGGED IN
-  if (!req.user) {
-    return next(
-      new ErrorHandler("You must be logged in to review a product", 401)
+          // Upload images to cloudinary
+          images = await Promise.all(
+            product.images.map((image) =>
+              upload_product_images(image, "world_of_minifigs/reviews")
+            )
+          );
+        }
+
+        return {
+          ...product,
+          images,
+        };
+      })
     );
+
+    // Create the review
+    const review = await ProductReview.create({
+      user: req.user.user_id,
+      order: orderId,
+      products: processedProducts,
+      isVerified: user.is_verified, // Set isVerified based on user's verification status
+    });
+
+    // Mark the order as reviewed
+    await Order.findByIdAndUpdate(orderId, { isReviewed: true });
+
+    // Update product ratings
+    for (const product of processedProducts) {
+      await Product.findByIdAndUpdate(product.product, {
+        $push: { reviews: review._id },
+      });
+    }
+
+    res.status(201).json({
+      success: true,
+      message: "Review submitted successfully",
+      review,
+    });
+  } catch (error) {
+    console.error("Error creating review:", error);
+    return next(new ErrorHandler(error.message, 500));
   }
-
-  // CHECK IF REVIEW EXIST
-  const existingReview = await ProductReview.findOne({
-    product: productId,
-    user: req.user.user_id,
-  });
-
-  if (existingReview) {
-    console.log("REVIEW => ", existingReview);
-    return next(
-      new ErrorHandler(
-        "You have already reviewed this product. Please update your existing review instead.",
-        400
-      )
-    );
-  }
-
-  //FIND ORDER WITH THE PROVIDED USER ID AND PRODUCT ID TO CHECK IF THE USER PURCHASED THE ORDER
-  const [order] = await Order.find({
-    user: req.user.user_id,
-    "orderItems.product": productId,
-    orderStatus: "Delivered",
-  });
-
-  if (!order) {
-    return next(
-      new ErrorHandler(
-        "You can only review a product after it has been delivered.",
-        403
-      )
-    );
-  }
-
-  const newReview = new ProductReview({
-    product: productId,
-    user: req.user.user_id,
-    rating,
-    reviewText: comment,
-  });
-
-  await newReview.save();
-
-  await Product.findByIdAndUpdate(productId, {
-    $push: { reviews: newReview._id },
-  });
-
-  res.status(200).json({
-    success: true,
-    newReview,
-  });
 });
 
 //------------------------------- GET ALL REVIEWS --------------------------------------------
 export const getReviewsSingleProduct = catchAsyncErrors(
   async (req, res, next) => {
-    console.log("In getReviewsSingleProduct");
+    const reviews = await ProductReview.find({
+      "products.product": req.params.productId,
+    })
+      .populate("user", "name email is_verified avatar")
+      .populate({
+        path: "products.replies.user",
+        select: "name is_verified avatar",
+      })
+      .sort({ createdAt: -1 });
 
-    const productId = req.params.productId;
-    console.log("GET REVIEWS", productId);
-
-    const { page = 1, limit = 10 } = req.query;
-
-    const skip = (page - 1) * limit;
-
-    const reviews = await ProductReview.find({ product: productId })
-      .select("reviewText user isEditted")
-      .populate("user", "name email")
-      .skip(skip)
-      .limit(limit);
-
-    const totalReviews = await ProductReview.countDocuments({
-      product: productId,
-    });
+    if (!reviews) {
+      return next(new ErrorHandler("No reviews found", 404));
+    }
 
     res.status(200).json({
       success: true,
-      message: `${totalReviews} Reviews fetched successfully`,
       reviews,
-      totalReviews,
-      countPage: page,
     });
   }
 );
@@ -167,5 +160,198 @@ export const updateProductReview = catchAsyncErrors(async (req, res, next) => {
     success: true,
     message: "Review updated successfully.",
     data: review,
+  });
+});
+
+// Get review by order ID
+export const getReviewByOrderId = catchAsyncErrors(async (req, res, next) => {
+  const review = await ProductReview.findOne({
+    order: req.params.orderId,
+    user: req.user.user_id,
+  });
+
+  if (!review) {
+    return next(new ErrorHandler("Review not found", 404));
+  }
+
+  res.status(200).json({
+    success: true,
+    review,
+  });
+});
+
+// Update review
+export const updateReview = catchAsyncErrors(async (req, res, next) => {
+  const review = await ProductReview.findOne({
+    _id: req.params.id,
+    user: req.user.user_id,
+  });
+
+  if (!review) {
+    return next(new ErrorHandler("Review not found", 404));
+  }
+
+  const { products } = req.body;
+
+  for (const updatedProduct of products) {
+    const productReview = review.products.find(
+      (p) => p.product.toString() === updatedProduct.product
+    );
+
+    if (productReview) {
+      // Preserve existing votes
+      const existingHelpfulVotes = productReview.helpfulVotes || [];
+      const existingUnhelpfulVotes = productReview.unhelpfulVotes || [];
+
+      // Update the product review
+      productReview.rating = updatedProduct.rating;
+      productReview.editedReviewText = updatedProduct.reviewText;
+      productReview.isEdited = true;
+      productReview.editedAt = Date.now();
+
+      // Preserve the votes
+      productReview.helpfulVotes = existingHelpfulVotes;
+      productReview.unhelpfulVotes = existingUnhelpfulVotes;
+
+      // Handle images if needed
+      if (updatedProduct.images && updatedProduct.images.length > 0) {
+        // ... handle image updates ...
+      }
+    }
+  }
+
+  await review.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Review updated successfully",
+    review,
+  });
+});
+
+// Vote on a review
+export const voteReview = catchAsyncErrors(async (req, res, next) => {
+  const { reviewId, productId, voteType } = req.body;
+
+  const review = await ProductReview.findById(reviewId);
+  if (!review) {
+    return next(new ErrorHandler("Review not found", 404));
+  }
+
+  // Check if user is trying to vote on their own review
+  if (review.user.toString() === req.user.user_id.toString()) {
+    return next(new ErrorHandler("You cannot vote on your own review", 403));
+  }
+
+  const user = await User.findById(req.user.user_id);
+  if (!user) {
+    return next(new ErrorHandler("User not found", 404));
+  }
+
+  if (!user.is_verified) {
+    return next(
+      new ErrorHandler("Only verified users can vote on reviews", 403)
+    );
+  }
+
+  const productReview = review.products.find(
+    (p) => p.product.toString() === productId
+  );
+
+  if (!productReview) {
+    return next(new ErrorHandler("Product review not found", 404));
+  }
+
+  const userId = req.user.user_id;
+
+  // Remove user from both arrays first
+  productReview.helpfulVotes = productReview.helpfulVotes.filter(
+    (id) => id.toString() !== userId.toString()
+  );
+  productReview.unhelpfulVotes = productReview.unhelpfulVotes.filter(
+    (id) => id.toString() !== userId.toString()
+  );
+
+  // Add vote to appropriate array
+  if (voteType === "helpful") {
+    productReview.helpfulVotes.push(userId);
+  } else if (voteType === "unhelpful") {
+    productReview.unhelpfulVotes.push(userId);
+  }
+
+  await review.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Vote recorded successfully",
+    helpfulCount: productReview.helpfulVotes.length,
+    unhelpfulCount: productReview.unhelpfulVotes.length,
+  });
+});
+
+// Add reply to review
+export const addReplyToReview = catchAsyncErrors(async (req, res, next) => {
+  const { reviewId, productId, text } = req.body;
+
+  const user = await User.findById(req.user.user_id);
+
+  if (!user) {
+    return next(new ErrorHandler("User not found", 404));
+  }
+
+  if (!user.is_verified) {
+    return next(
+      new ErrorHandler("Only verified users can reply to reviews", 403)
+    );
+  }
+
+  const review = await ProductReview.findById(reviewId);
+  if (!review) {
+    return next(new ErrorHandler("Review not found", 404));
+  }
+
+  const productReview = review.products.find(
+    (p) => p.product.toString() === productId
+  );
+
+  if (!productReview) {
+    return next(new ErrorHandler("Product review not found", 404));
+  }
+
+  productReview.replies.push({
+    user: req.user.user_id,
+    text,
+  });
+
+  await review.save();
+
+  // Fetch the updated review with populated user data
+  const populatedReview = await ProductReview.findById(reviewId)
+    .populate("user", "name email is_verified avatar")
+    .populate({
+      path: "products.replies.user",
+      select: "name is_verified avatar",
+    });
+
+  const updatedProductReview = populatedReview.products.find(
+    (p) => p.product.toString() === productId
+  );
+
+  res.status(200).json({
+    success: true,
+    message: "Reply added successfully",
+    replies: updatedProductReview.replies,
+  });
+});
+
+// Get all reviews (Admin)
+export const getAllReviews = catchAsyncErrors(async (req, res, next) => {
+  const reviews = await ProductReview.find()
+    .populate("user", "name email")
+    .sort({ createdAt: -1 });
+
+  res.status(200).json({
+    success: true,
+    reviews,
   });
 });
