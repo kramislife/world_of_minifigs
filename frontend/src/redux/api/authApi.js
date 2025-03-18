@@ -5,7 +5,6 @@ export const authApi = createApi({
   reducerPath: "authApi",
   baseQuery: fetchBaseQuery({ baseUrl: "/api/v1" }),
   endpoints: (builder) => ({
-
     // --------------------- Register A New User --------------------------------- //
     register: builder.mutation({
       query(body) {
@@ -49,11 +48,11 @@ export const authApi = createApi({
       query: (token) => ({
         url: `/verify_user/${token}`,
         method: "GET",
-        credentials: 'include',
+        credentials: "include",
       }),
       transformResponse: (response) => ({
         success: response.status === "success",
-        message: response.message
+        message: response.message,
       }),
     }),
 
@@ -74,6 +73,15 @@ export const authApi = createApi({
         body,
       }),
     }),
+
+    // --------------------- Contact Form --------------------------------- //
+    contact: builder.mutation({
+      query: (formData) => ({
+        url: "/contact",
+        method: "POST",
+        body: formData,
+      }),
+    }),
   }),
 });
 
@@ -84,4 +92,5 @@ export const {
   useVerifyEmailMutation,
   useForgotPasswordMutation,
   useResetPasswordMutation,
+  useContactMutation,
 } = authApi;
