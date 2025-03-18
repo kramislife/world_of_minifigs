@@ -505,7 +505,6 @@ export const getDashboardStats = catchAsyncErrors(async (req, res, next) => {
   // Get low stock products
   const lowStockProducts = await Product.find({ stock: { $lte: 5 } })
     .select("product_name stock")
-    .limit(5)
     .sort({ stock: 1 })
     .then((products) =>
       products.map((p) => ({

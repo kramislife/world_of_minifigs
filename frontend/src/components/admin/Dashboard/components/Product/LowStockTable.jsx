@@ -46,7 +46,7 @@ const LowStockTable = ({ lowStockProducts }) => {
           <TableLayout
             data={lowStockProducts}
             columns={columns}
-            pageSize={5}
+            pageSize={lowStockProducts.length}
             setPageSize={() => {}}
             globalFilter=""
             setGlobalFilter={() => {}}
