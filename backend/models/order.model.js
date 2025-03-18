@@ -165,6 +165,10 @@ const orderSchema = new mongoose.Schema(
     updatedAt: {
       type: Date,
     },
+    isReviewed: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );
