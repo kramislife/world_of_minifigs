@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { setIsCartOpen } from "@/redux/features/userSlice";
-import logo from "@/assets/logo.png";
+import logo from "@/assets/worldofminifigs.png";
 
 import SearchSheet from "./SearchSheet";
 import CartButton from "./CartButton";
