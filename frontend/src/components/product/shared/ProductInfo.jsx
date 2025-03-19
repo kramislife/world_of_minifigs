@@ -6,7 +6,6 @@ import StarRating from "./StarRating";
 import ProductStatus from "./ProductStatus";
 import ProductActions from "./ProductActions";
 import { useNavigate } from "react-router-dom";
-import { useGetProductReviewsQuery } from "@/redux/api/reviewApi";
 
 const ProductInfo = ({
   product,
@@ -16,24 +15,6 @@ const ProductInfo = ({
   scrollThumbnailIntoView,
 }) => {
   const navigate = useNavigate();
-  const { data: reviewData } = useGetProductReviewsQuery(product?._id);
-
-  // Calculate average rating and review count
-  const calculateRatingStats = () => {
-    if (!reviewData?.reviews?.length) return { avgRating: 0, reviewCount: 0 };
-
-    const reviews = reviewData.reviews.flatMap((review) =>
-      review.products.filter((prod) => prod.product === product._id)
-    );
-
-    const totalRating = reviews.reduce((sum, prod) => sum + prod.rating, 0);
-    return {
-      avgRating: reviews.length ? totalRating / reviews.length : 0,
-      reviewCount: reviews.length,
-    };
-  };
-
-  const { avgRating, reviewCount } = calculateRatingStats();
 
   const handleColorChange = (productId) => {
     navigate(`/products/${productId}`);
@@ -44,7 +25,7 @@ const ProductInfo = ({
       <motion.div
         variants={itemVariants}
         className="flex flex-col h-full"
-        key={product?._id}
+        key={product?._id} // Add key for proper animation
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         exit={{ opacity: 0, x: -20 }}
@@ -83,17 +64,19 @@ const ProductInfo = ({
             </motion.div>
 
             {/* Ratings Section */}
-            <motion.div
-              className="flex items-center gap-2"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.2 }}
-            >
-              <StarRating rating={avgRating} />
-              <span className="text-gray-400 text-sm">
-                ({reviewCount} {reviewCount === 1 ? "review" : "reviews"})
-              </span>
-            </motion.div>
+            {product?.ratings > 0 && (
+              <motion.div
+                className="flex items-center gap-2"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.2 }}
+              >
+                <StarRating rating={product.ratings} />
+                <span className="text-gray-400 text-sm">
+                  ({product.ratings})
+                </span>
+              </motion.div>
+            )}
 
             {/* Price Section */}
             <motion.div

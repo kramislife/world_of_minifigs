@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { setIsCartOpen } from "@/redux/features/userSlice";
-import logo from "@/assets/worldofminifigs.png";
+import logo from "@/assets/logo.png";
 
 import SearchSheet from "./SearchSheet";
 import CartButton from "./CartButton";
@@ -33,53 +33,49 @@ const Header = () => {
   const isItemAdded = totalItems > prevCartCount;
 
   return (
-    <nav className="bg-brand-gradient fixed w-full top-0 z-50">
-      <div className="max-w-[1920px] mx-auto">
-        <div className="flex items-center justify-between h-[85px] px-4 sm:px-6">
-          <div className="flex items-center flex-shrink-0">
-            {/* Logo */}
-            <NavLink to="/">
-              <img className="h-16 w-auto scale-110" src={logo} alt="logo" />
-            </NavLink>
-          </div>
+    <nav className="bg-brand-gradient fixed w-full top-0 z-50 py-3">
+      <div className="mx-auto flex items-center justify-between px-6">
+        <div className="flex items-center flex-shrink-0">
+          {/* Logo */}
+          <NavLink to="/">
+            <img className="h-16 w-auto scale-110" src={logo} alt="logo" />
+          </NavLink>
+        </div>
 
-          {/* Desktop Navigation - adjust spacing */}
-          <div className="flex-grow flex justify-center">
-            <DesktopNavbar />
-          </div>
+        {/* Desktop Navigation */}
+        <DesktopNavbar />
 
-          {/* Search and Cart */}
-          <div className="flex items-center space-x-6">
-            <div className="z-[100]">
-              <SearchSheet
-                searchQuery={searchQuery}
-                setSearchQuery={setSearchQuery}
-              />
-            </div>
-            <CartButton
-              itemCount={totalItems}
-              showAnimation={isItemAdded}
-              onClick={() => dispatch(setIsCartOpen(true))}
+        {/* Search and Cart */}
+        <div className="flex items-center space-x-6">
+          <div className="z-[100]">
+            <SearchSheet
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
             />
+          </div>
+          <CartButton
+            itemCount={totalItems}
+            showAnimation={isItemAdded}
+            onClick={() => dispatch(setIsCartOpen(true))}
+          />
 
-            {/* User Dropdown */}
-            <div className="relative hidden md:block z-[100]">
-              {user ? (
-                <UserDropdown />
-              ) : (
-                <button
-                  onClick={() => navigate("/login")}
-                  className="text-white hover:text-gray-200"
-                >
-                  <User size={24} />
-                </button>
-              )}
-            </div>
+          {/* User Dropdown */}
+          <div className="relative hidden md:block z-[100]">
+            {user ? (
+              <UserDropdown />
+            ) : (
+              <button
+                onClick={() => navigate("/login")}
+                className="text-white hover:text-gray-200"
+              >
+                <User size={24} />
+              </button>
+            )}
+          </div>
 
-            {/* Mobile Menu */}
-            <div className="z-[100]">
-              <MobileMenu user={user} />
-            </div>
+          {/* Mobile Menu */}
+          <div className="z-[100]">
+            <MobileMenu user={user} />
           </div>
         </div>
       </div>

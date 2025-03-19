@@ -52,7 +52,7 @@ const ProductImageGallery = ({
         {/* Thumbnail section with fixed height */}
         <div className="w-full md:w-[150px] relative">
           <div className="w-full h-full overflow-y-auto no-scrollbar">
-            <div className="flex flex-row md:flex-col gap-2 md:max-h-[630px]">
+            <div className="flex flex-row md:flex-col gap-2 md:max-h-[600px]">
               <ProductThumbnailPlaceholder />
             </div>
           </div>
@@ -116,7 +116,7 @@ const ProductImageGallery = ({
           className="w-full h-full overflow-y-auto no-scrollbar"
           ref={thumbnailContainerRef}
         >
-          <div className="flex flex-row md:flex-col gap-2 md:max-h-[630px]">
+          <div className="flex flex-row md:flex-col gap-2 md:max-h-[600px]">
             {displayItems.map((item, index) => (
               <button
                 key={index}

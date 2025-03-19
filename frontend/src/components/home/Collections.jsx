@@ -4,12 +4,12 @@ import { motion, useInView } from "framer-motion";
 import CollectionGrid from "@/pages/Collections/CollectionGrid";
 import { CategoryFallback } from "@/components/product/shared/FallbackStates";
 import { collectionsAnimations } from "@/hooks/Animation/animationConfig";
-import { useCollections } from "@/hooks/Product/useCollections";
+import { useCollections } from '@/hooks/Product/useCollections';
 
 const Collections = () => {
   const navigate = useNavigate();
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, amount: "some" });
+  const isInView = useInView(ref, { once: true, amount: 0.2 });
 
   // Custom hook to get all collections
   const { collections, handleCollectionClick } = useCollections(false);

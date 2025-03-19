@@ -116,9 +116,27 @@ export const ReviewTabs = ({ ordersByStatus, onOrderClick }) => {
           open={showReviewDetails}
           onOpenChange={setShowReviewDetails}
           review={reviewData?.review}
-          order={ordersByStatus["To Review"]?.history.find(
-            (o) => o._id === selectedOrderId
-          )}
+          onEditClick={() => {
+            // Find the order in history
+            const order = ordersByStatus["To Review"]?.history.find(
+              (o) => o._id === selectedOrderId
+            );
+
+            // Close this dialog - the OrderCard component will handle showing the edit dialog
+            setShowReviewDetails(false);
+
+            // Find and click the edit button on the order card
+            // This is handled by the OrderCard component when clicking its edit button
+            const orderCard = document.querySelector(
+              `[data-order-id="${selectedOrderId}"]`
+            );
+            if (orderCard) {
+              const editButton = orderCard.querySelector(
+                "button[data-edit-button]"
+              );
+              if (editButton) editButton.click();
+            }
+          }}
         />
       )}
     </>

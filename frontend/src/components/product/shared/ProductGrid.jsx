@@ -9,7 +9,7 @@ import { useInView } from "framer-motion";
 const ProductGrid = ({ title, products, baseUrl, animations }) => {
   const navigate = useNavigate();
   const ref = React.useRef(null);
-  const isInView = useInView(ref, { once: true, amount: "some" });
+  const isInView = useInView(ref, { once: true, amount: 0.2 });
 
   // Function to handle the "View All" button click
   const handleViewAll = () => {
@@ -28,7 +28,7 @@ const ProductGrid = ({ title, products, baseUrl, animations }) => {
   }
 
   return (
-    <section ref={ref} className="p-4 flex flex-col">
+    <section ref={ref} className="p-4 lg:min-h-[90vh] flex flex-col">
       <motion.h2
         variants={animations.titleVariants}
         initial="hidden"

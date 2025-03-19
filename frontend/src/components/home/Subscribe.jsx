@@ -33,9 +33,9 @@ const Subscribe = () => {
 
   return (
     <div ref={ref} className="w-full py-16">
-      <div className="max-w-[1920px] mx-auto px-4 sm:px-6">
+      <div className="px-4">
         <motion.div
-          className="relative rounded-lg p-8 md:p-12 h-[400px] sm:h-[500px] md:h-[600px] overflow-hidden"
+          className="relative rounded-lg p-8 md:p-12 h-[70vh] lg:h-[90vh] overflow-hidden"
           variants={subscribeAnimations.containerVariants}
           initial="hidden"
           animate={isInView ? "visible" : "hidden"}
@@ -50,7 +50,7 @@ const Subscribe = () => {
           />
 
           <motion.div
-            className="relative z-10 h-full flex flex-col items-center justify-center"
+            className="relative top-44 z-10 text-center"
             variants={subscribeAnimations.containerVariants}
           >
             <motion.h2
@@ -61,7 +61,7 @@ const Subscribe = () => {
             </motion.h2>
 
             <motion.p
-              className="text-gray-300 mb-8 max-w-2xl mx-auto text-sm sm:text-base text-center"
+              className="text-gray-300 mb-8 max-w-2xl mx-auto text-sm sm:text-base"
               variants={subscribeAnimations.itemVariants}
             >
               Unlock exclusive deals and never miss out! Subscribe now and save
@@ -70,7 +70,7 @@ const Subscribe = () => {
             </motion.p>
 
             <motion.div
-              className="relative w-full max-w-md mx-auto"
+              className="relative max-w-md mx-auto"
               variants={subscribeAnimations.itemVariants}
             >
               <Input

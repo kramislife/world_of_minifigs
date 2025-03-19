@@ -2,40 +2,18 @@ import React from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import StarRating from "@/components/product/shared/StarRating";
 import { PlaceholderImage } from "@/components/product/shared/FallbackStates";
-import { useGetProductReviewsQuery } from "@/redux/api/reviewApi";
 
 const ProductCard = ({ product }) => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const category = searchParams.get("category");
 
-  // Fetch reviews for this product
-  const { data: reviewData } = useGetProductReviewsQuery(product?._id);
-
-  // Calculate average rating and review count
-  const calculateRatingStats = () => {
-    if (!reviewData?.reviews?.length) return { avgRating: 0, reviewCount: 0 };
-
-    const reviews = reviewData.reviews.flatMap((review) =>
-      review.products.filter((prod) => prod.product === product._id)
-    );
-
-    const totalRating = reviews.reduce((sum, prod) => sum + prod.rating, 0);
-    return {
-      avgRating: reviews.length ? totalRating / reviews.length : 0,
-      reviewCount: reviews.length,
-    };
-  };
-
-  const { avgRating, reviewCount } = calculateRatingStats();
-
   // Check if the product has images otherwise show the placeholder image
-  const hasImages =
-    product?.product_images && product.product_images.length > 0;
+  const hasImages = product?.product_images && product.product_images.length > 0;
 
   // Function to handle the "View Details" button click
   const handleViewDetails = () => {
-    const path = category
+    const path = category 
       ? `/products/${category}/${product?._id}`
       : `/products/${product?._id}`;
     navigate(path);
@@ -56,12 +34,12 @@ const ProductCard = ({ product }) => {
       )}
 
       {/* Product Image */}
-      <div className="relative overflow-hidden">
+      <div className="relative overflow-hidden aspect-square">
         {hasImages ? (
           <img
             src={product.product_images[0].url}
             alt={product.product_name || "Product Image"}
-            className="w-full h-full object-cover aspect-square transition-transform duration-500 group-hover:scale-110"
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           />
         ) : (
           <PlaceholderImage />
@@ -105,8 +83,10 @@ const ProductCard = ({ product }) => {
           {/* Ratings */}
           <div className="flex justify-between items-center pt-2">
             <div className="flex items-center gap-2">
-              <StarRating rating={avgRating} />
-              <span className="text-sm text-slate-300/70">({reviewCount})</span>
+              <StarRating rating={product?.ratings || 0} />
+              <span className="text-sm text-slate-300/70">
+                ({product?.reviews?.length || 0})
+              </span>
             </div>
           </div>
         </div>

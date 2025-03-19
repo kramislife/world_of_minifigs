@@ -1,12 +1,8 @@
-import { useMemo } from "react";
-import { useSearchParams } from "react-router-dom";
-import { sortProducts } from "@/hooks/Product/productSort";
+import { useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { sortProducts } from '@/hooks/Product/productSort';
 
-export const useProductPagination = (
-  products,
-  currentSort,
-  itemsPerPage = 12
-) => {
+export const useProductPagination = (products, currentSort, itemsPerPage = 9) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const currentPage = Number(searchParams.get("page")) || 1;
 
