@@ -2,18 +2,49 @@ import React from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import StarRating from "@/components/product/shared/StarRating";
 import { PlaceholderImage } from "@/components/product/shared/FallbackStates";
+import { useGetProductReviewsQuery } from "@/redux/api/reviewApi";
 
 const ProductCard = ({ product }) => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const category = searchParams.get("category");
 
+  // Get reviews for this product
+  const { data: reviewsData } = useGetProductReviewsQuery(product?._id, {
+    skip: !product?._id,
+  });
+
+  // Calculate review stats
+  const { averageRating, totalReviews } = React.useMemo(() => {
+    if (!reviewsData?.reviews?.length)
+      return { averageRating: 0, totalReviews: 0 };
+
+    let totalRating = 0;
+    let validReviewCount = 0;
+
+    reviewsData.reviews.forEach((review) => {
+      review.products.forEach((prod) => {
+        if (prod.product.toString() === product._id.toString()) {
+          totalRating += prod.rating;
+          validReviewCount++;
+        }
+      });
+    });
+
+    return {
+      averageRating:
+        validReviewCount > 0 ? (totalRating / validReviewCount).toFixed(1) : 0,
+      totalReviews: validReviewCount,
+    };
+  }, [reviewsData, product?._id]);
+
   // Check if the product has images otherwise show the placeholder image
-  const hasImages = product?.product_images && product.product_images.length > 0;
+  const hasImages =
+    product?.product_images && product.product_images.length > 0;
 
   // Function to handle the "View Details" button click
   const handleViewDetails = () => {
-    const path = category 
+    const path = category
       ? `/products/${category}/${product?._id}`
       : `/products/${product?._id}`;
     navigate(path);
@@ -83,9 +114,9 @@ const ProductCard = ({ product }) => {
           {/* Ratings */}
           <div className="flex justify-between items-center pt-2">
             <div className="flex items-center gap-2">
-              <StarRating rating={product?.ratings || 0} />
+              <StarRating rating={Number(averageRating)} />
               <span className="text-sm text-slate-300/70">
-                ({product?.reviews?.length || 0})
+                ({totalReviews})
               </span>
             </div>
           </div>

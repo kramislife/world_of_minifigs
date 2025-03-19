@@ -5,6 +5,7 @@ import ProductRating from "@/components/product/shared/ProductRating";
 import ProductSpecification from "@/components/product/shared/ProductSpecification";
 import Metadata from "@/components/layout/Metadata/Metadata";
 import { useGetProductDetailsQuery } from "@/redux/api/productApi";
+import { useGetProductReviewsQuery } from "@/redux/api/reviewApi";
 import { toast } from "react-toastify";
 import LoadingSpinner from "@/components/layout/spinner/LoadingSpinner";
 import { productViewAnimations } from "@/hooks/Animation/animationConfig";
@@ -12,6 +13,36 @@ import { productViewAnimations } from "@/hooks/Animation/animationConfig";
 const ProductView = () => {
   const { id } = useParams();
   const { data, isLoading, isError, error } = useGetProductDetailsQuery(id);
+
+  // Fetch product reviews
+  const { data: reviewsData } = useGetProductReviewsQuery(id, {
+    skip: !id,
+  });
+
+  // Calculate review stats
+  const reviewStats = useMemo(() => {
+    if (!reviewsData?.reviews?.length)
+      return { averageRating: 0, totalReviews: 0 };
+
+    let totalRating = 0;
+    let validReviewCount = 0;
+
+    reviewsData.reviews.forEach((review) => {
+      review.products.forEach((prod) => {
+        if (prod.product.toString() === id) {
+          totalRating += prod.rating;
+          validReviewCount++;
+        }
+      });
+    });
+
+    return {
+      averageRating:
+        validReviewCount > 0 ? (totalRating / validReviewCount).toFixed(1) : 0,
+      totalReviews: validReviewCount,
+    };
+  }, [reviewsData, id]);
+
   const displayProducts = useMemo(() => {
     if (!data?.product) return [];
 
@@ -51,13 +82,14 @@ const ProductView = () => {
             }
             containerVariants={productViewAnimations.containerVariants}
             itemVariants={productViewAnimations.itemVariants}
+            reviewStats={reviewStats}
           />
 
           {/* Product Specification */}
           <ProductSpecification product={data?.product} />
 
           {/* Product Rating */}
-          <ProductRating product={data?.product} />
+          <ProductRating product={data?.product} reviewStats={reviewStats} />
         </div>
       )}
     </>

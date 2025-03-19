@@ -116,7 +116,7 @@ const ProductImageGallery = ({
           className="w-full h-full overflow-y-auto no-scrollbar"
           ref={thumbnailContainerRef}
         >
-          <div className="flex flex-row md:flex-col gap-2 md:max-h-[600px]">
+          <div className="flex flex-row md:flex-col gap-2 md:max-h-[630px]">
             {displayItems.map((item, index) => (
               <button
                 key={index}

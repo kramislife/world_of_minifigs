@@ -11,6 +11,7 @@ const ProductDetails = ({
   similarProducts,
   containerVariants,
   itemVariants,
+  reviewStats,
 }) => {
   const thumbnailContainerRef = useRef(null);
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -54,6 +55,7 @@ const ProductDetails = ({
             onAddToCart={() => setIsCartOpen(true)}
             colorVariants={colorVariants}
             scrollThumbnailIntoView={scrollThumbnailIntoView}
+            reviewStats={reviewStats}
           />
         </div>
       </motion.div>

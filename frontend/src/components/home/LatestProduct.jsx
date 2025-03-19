@@ -19,7 +19,7 @@ const LatestProduct = () => {
     <ProductGrid
       title="Latest Products"
       products={products}
-      baseUrl={`/product_category=${categoryId}`}
+      baseUrl={`product_category=${categoryId}`}
       animations={latestProductAnimations}
     />
   );

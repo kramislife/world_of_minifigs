@@ -48,6 +48,8 @@ import UpdateUser from "@/components/admin/Users/UpdateUser";
 import EmailVerification from "@/components/auth/Register/EmailVerification";
 import ForgotPassword from "@/components/auth/Password/ForgotPassword";
 import ResetPassword from "@/components/auth/Password/ResetPassword";
+import PrivacyPolicy from "@/components/layout/footer/components/PrivacyPolicy";
+import TermsOfUse from "@/components/layout/footer/components/TermsOfUse";
 
 const UserRoutes = (
   <>
@@ -66,6 +68,8 @@ const UserRoutes = (
     <Route path="verify_user/:token" element={<EmailVerification />} />
     <Route path="password/forgot" element={<ForgotPassword />} />
     <Route path="password/reset/:token" element={<ResetPassword />} />
+    <Route path="privacy-policy" element={<PrivacyPolicy />} />
+    <Route path="terms-of-use" element={<TermsOfUse />} />
 
     {/* Protected User Routes */}
     <Route element={<ProtectedRoutes />}>
