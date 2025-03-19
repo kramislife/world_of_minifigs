@@ -43,6 +43,12 @@ import {
   updateAddress,
 } from "../controllers/authController.js";
 import { getAllColors } from "../controllers/colorController.js";
+import {
+  getSearchHistory,
+  addToSearchHistory,
+  clearSearchHistory,
+  deleteSearchTerm,
+} from "../controllers/searchHistoryController.js";
 
 const router = express.Router();
 
@@ -65,19 +71,18 @@ router.route("/collections").get(getAllCollections);
 router.route("/collections/:id").get(getCollectionById);
 
 // ---------------------------------- SUB-CATEGORIES ---------------------------------------------
-// GET ALL SUB-CATEGORIES 
+// GET ALL SUB-CATEGORIES
 router.route("/subcategories").get(getAllSubCategories);
 
-// GET SUB-CATEGORY BY ID 
+// GET SUB-CATEGORY BY ID
 router.route("/subcategories/:id").get(getSubCategoryById);
 
 // ---------------------------------- SUB-COLLECTIONS ---------------------------------------------
-// GET ALL SUB-COLLECTIONS 
+// GET ALL SUB-COLLECTIONS
 router.route("/subcollections").get(getAllSubCollections);
 
-// GET SUB-COLLECTION BY ID 
+// GET SUB-COLLECTION BY ID
 router.route("/subcollections/:id").get(getSubCollectionById);
-
 
 // ---------------------------------- SKILL --------------------------------------------------
 // GET ALL SKILLS
@@ -125,8 +130,18 @@ router.route("/me/addresses/:id").get(isAuthenticatedUser, getSingleAddress);
 router.route("/me/addresses/:id").delete(isAuthenticatedUser, deleteAddress);
 
 // ---------------------------------- COLORS --------------------------------------------------
-// GET ALL COLORS 
+// GET ALL COLORS
 router.route("/colors").get(getAllColors);
 
-  
+// ---------------------------------- SEARCH HISTORY --------------------------------------------------
+router
+  .route("/search/history")
+  .get(isAuthenticatedUser, getSearchHistory)
+  .post(isAuthenticatedUser, addToSearchHistory)
+  .delete(isAuthenticatedUser, clearSearchHistory);
+
+router
+  .route("/search/history/term")
+  .delete(isAuthenticatedUser, deleteSearchTerm);
+
 export default router;
