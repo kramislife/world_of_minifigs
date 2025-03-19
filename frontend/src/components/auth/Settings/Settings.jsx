@@ -1,133 +1,133 @@
-import React, { useState } from 'react';
-import { toast } from 'react-hot-toast';
-import { Card, CardContent } from "@/components/ui/card";
-import { Lock, KeyRound, Eye, EyeOff } from 'lucide-react';
+import React, { useState } from "react";
+import { useUpdatePasswordMutation } from "@/redux/api/userApi";
+import { toast } from "react-toastify";
+import { Key, Save } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 
 const Settings = () => {
-  const [passwords, setPasswords] = useState({
-    oldPassword: '',
-    newPassword: '',
-    confirmPassword: ''
+  const [passwordData, setPasswordData] = useState({
+    oldPassword: "",
+    newPassword: "",
+    confirmPassword: "",
   });
-  
-  const [showPasswords, setShowPasswords] = useState({
-    old: false,
-    new: false,
-    confirm: false
-  });
+
+  const [updatePassword, { isLoading }] = useUpdatePasswordMutation();
 
   const handleChange = (e) => {
-    setPasswords({ ...passwords, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setPasswordData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Add your password update logic here
-    toast.success('Password updated successfully');
-  };
 
-  const togglePasswordVisibility = (field) => {
-    setShowPasswords(prev => ({
-      ...prev,
-      [field]: !prev[field]
-    }));
+    try {
+      const result = await updatePassword(passwordData).unwrap();
+      toast.success(result?.message || "Password updated successfully");
+
+      // Reset form
+      setPasswordData({
+        oldPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+    } catch (err) {
+      toast.error(err?.data?.message || "Failed to update password");
+    }
   };
 
   return (
-    <div className="container mx-auto py-6 px-4">
-      <div className="mb-8 space-y-2">
-        <h1 className="text-3xl font-bold text-light tracking-tight">
-          Security Settings
-        </h1>
-        <p className="text-gray-200/70 text-md">
-          Manage your account security preferences
-        </p>
-      </div>
+    <div className="container mx-auto max-w-4xl py-8 px-4">
+      <h1 className="text-3xl font-bold mb-6 text-light">Account Settings</h1>
 
-      <Card className="bg-darkBrand border-none max-w-2xl mx-auto">
-        <CardContent className="p-10">
-          <div className="flex items-center gap-2 mb-6">
-            <Lock className="w-5 h-5 text-blue-500" />
-            <h2 className="text-xl font-semibold text-light">Change Password</h2>
-          </div>
+      <div className="max-w-2xl mx-auto">
+        <Card className="bg-darkBrand border-none">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Key className="h-5 w-5 text-blue-500" />
+              <CardTitle className="text-light">Change Password</CardTitle>
+            </div>
+            <CardDescription className="text-gray-400">
+              Update your password to keep your account secure. Your new
+              password must be at least 6 characters and include at least one
+              letter, one number, and one special character.
+            </CardDescription>
+          </CardHeader>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Current Password */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-200">Current Password</label>
-              <div className="relative">
-                <input
-                  type={showPasswords.old ? "text" : "password"}
+          <Separator className="bg-gray-800" />
+
+          <form onSubmit={handleSubmit}>
+            <CardContent className="pt-6 space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="oldPassword" className="text-gray-300">
+                  Current Password
+                </Label>
+                <Input
+                  id="oldPassword"
                   name="oldPassword"
-                  value={passwords.oldPassword}
+                  type="password"
+                  value={passwordData.oldPassword}
                   onChange={handleChange}
-                  className="w-full px-4 py-2.5 bg-gray-800/50 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-light"
-                  required
+                  className="bg-brand/60 border-gray-700 text-light"
+                  placeholder="Enter your current password"
                 />
-                <button
-                  type="button"
-                  onClick={() => togglePasswordVisibility('old')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-300"
-                >
-                  {showPasswords.old ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
               </div>
-            </div>
 
-            {/* New Password */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-200">New Password</label>
-              <div className="relative">
-                <input
-                  type={showPasswords.new ? "text" : "password"}
+              <div className="space-y-2">
+                <Label htmlFor="newPassword" className="text-gray-300">
+                  New Password
+                </Label>
+                <Input
+                  id="newPassword"
                   name="newPassword"
-                  value={passwords.newPassword}
+                  type="password"
+                  value={passwordData.newPassword}
                   onChange={handleChange}
-                  className="w-full px-4 py-2.5 bg-gray-800/50 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-light"
-                  required
+                  className="bg-brand/60 border-gray-700 text-light"
+                  placeholder="Enter your new password"
                 />
-                <button
-                  type="button"
-                  onClick={() => togglePasswordVisibility('new')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-300"
-                >
-                  {showPasswords.new ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
               </div>
-            </div>
 
-            {/* Confirm Password */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-200">Confirm New Password</label>
-              <div className="relative">
-                <input
-                  type={showPasswords.confirm ? "text" : "password"}
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword" className="text-gray-300">
+                  Confirm New Password
+                </Label>
+                <Input
+                  id="confirmPassword"
                   name="confirmPassword"
-                  value={passwords.confirmPassword}
+                  type="password"
+                  value={passwordData.confirmPassword}
                   onChange={handleChange}
-                  className="w-full px-4 py-2.5 bg-gray-800/50 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-light"
-                  required
+                  className="bg-brand/60 border-gray-700 text-light"
+                  placeholder="Confirm your new password"
                 />
-                <button
-                  type="button"
-                  onClick={() => togglePasswordVisibility('confirm')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-300"
-                >
-                  {showPasswords.confirm ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
               </div>
-            </div>
+            </CardContent>
 
-            <button
-              type="submit"
-              className="w-full bg-blue-600 text-white py-2.5 px-4 rounded-lg hover:bg-blue-700 transition duration-200 flex items-center justify-center gap-2"
-            >
-              <KeyRound size={18} />
-              Update Password
-            </button>
+            <CardFooter className="flex justify-end pt-2 pb-6">
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2"
+              >
+                {isLoading ? "Updating..." : "Update Password"}
+                <Save className="h-4 w-4" />
+              </Button>
+            </CardFooter>
           </form>
-        </CardContent>
-      </Card>
+        </Card>
+      </div>
     </div>
   );
 };
