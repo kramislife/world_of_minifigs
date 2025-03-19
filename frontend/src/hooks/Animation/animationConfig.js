@@ -5,8 +5,8 @@ const baseProductGridAnimations = {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.2,
-        delayChildren: 0.3,
+        staggerChildren: 0.1,
+        delayChildren: 0.1,
       },
     },
   },
@@ -14,7 +14,7 @@ const baseProductGridAnimations = {
   cardVariants: {
     hidden: {
       opacity: 0,
-      y: 20,
+      y: 10,
     },
     visible: {
       opacity: 1,
@@ -22,29 +22,29 @@ const baseProductGridAnimations = {
       transition: {
         type: "spring",
         stiffness: 100,
-        damping: 15,
+        damping: 12,
       },
     },
   },
 
   titleVariants: {
-    hidden: { opacity: 0, y: -20 },
+    hidden: { opacity: 0, y: -10 },
     visible: {
       opacity: 1,
       y: 0,
       transition: {
-        duration: 0.6,
+        duration: 0.4,
         ease: [0.22, 1, 0.36, 1],
       },
     },
   },
 
   buttonVariants: {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { opacity: 0, y: 10 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.5, delay: 0.2 },
+      transition: { duration: 0.3, delay: 0.1 },
     },
   },
 };

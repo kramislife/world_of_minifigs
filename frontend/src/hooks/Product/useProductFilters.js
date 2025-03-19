@@ -53,13 +53,13 @@ export const useProductFilters = (filterData = {}) => {
       { label: "$501-$1000", value: "501-1000" },
       { label: "$1000+", value: "1000+" },
     ],
-    rating: [
-      { label: "5 Stars", value: "5", stars: 5 },
-      { label: "4 to 4.9 Stars", value: "4", stars: 4 },
-      { label: "3 to 3.9 Stars", value: "3", stars: 3 },
-      { label: "2 to 2.9 Stars", value: "2", stars: 2 },
-      { label: "1 to 1.9 Stars", value: "1", stars: 1 },
-    ],
+    // rating: [
+    //   { label: "5 Stars", value: "5", stars: 5 },
+    //   { label: "4 to 4.9 Stars", value: "4", stars: 4 },
+    //   { label: "3 to 3.9 Stars", value: "3", stars: 3 },
+    //   { label: "2 to 2.9 Stars", value: "2", stars: 2 },
+    //   { label: "1 to 1.9 Stars", value: "1", stars: 1 },
+    // ],
     product_category:
       categoriesData?.categories
         ?.map((category) => ({

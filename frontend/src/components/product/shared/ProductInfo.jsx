@@ -13,6 +13,7 @@ const ProductInfo = ({
   onAddToCart,
   colorVariants,
   scrollThumbnailIntoView,
+  reviewStats = { averageRating: 0, totalReviews: 0 }, // Default value
 }) => {
   const navigate = useNavigate();
 
@@ -61,22 +62,16 @@ const ProductInfo = ({
                   )}
                 </div>
               )}
-            </motion.div>
 
-            {/* Ratings Section */}
-            {product?.ratings > 0 && (
-              <motion.div
-                className="flex items-center gap-2"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.2 }}
-              >
-                <StarRating rating={product.ratings} />
+              {/* Reviews Display */}
+              <div className="flex items-center gap-2 mt-1">
+                <StarRating rating={Number(reviewStats.averageRating)} />
                 <span className="text-gray-400 text-sm">
-                  ({product.ratings})
+                  ({reviewStats.totalReviews}{" "}
+                  {reviewStats.totalReviews === 1 ? "review" : "reviews"})
                 </span>
-              </motion.div>
-            )}
+              </div>
+            </motion.div>
 
             {/* Price Section */}
             <motion.div
