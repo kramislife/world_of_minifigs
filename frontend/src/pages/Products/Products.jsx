@@ -41,7 +41,7 @@ const Products = () => {
   } = useProductFilters(filterData);
 
   // Handle pagination and sorting
-  const { currentPage, paginatedProducts, totalPages } = useProductPagination(
+  const { currentPage, paginatedProducts, totalPages, sortedProducts } = useProductPagination(
     productData?.allProducts,
     currentSort
   );
@@ -113,8 +113,8 @@ const Products = () => {
             </SheetContent>
           </Sheet>
           <ProductSort
-            totalProducts={productData?.filteredProductCount || 0}
-            currentProducts={productData?.products?.length || 0}
+            totalProducts={sortedProducts?.length || 0}
+            currentProducts={paginatedProducts?.length || 0}
             currentSort={currentSort}
             onSortChange={handleSortChange}
             hideProductCount={true}
@@ -145,8 +145,8 @@ const Products = () => {
           <div className="col-span-1 lg:col-span-3">
             <div className="hidden lg:block">
               <ProductSort
-                totalProducts={productData?.filteredProductCount || 0}
-                currentProducts={productData?.products?.length || 0}
+                totalProducts={sortedProducts?.length || 0}
+                currentProducts={paginatedProducts?.length || 0}
                 currentSort={currentSort}
                 onSortChange={handleSortChange}
               />

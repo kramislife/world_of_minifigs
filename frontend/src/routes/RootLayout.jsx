@@ -23,18 +23,22 @@ const RootLayout = () => {
       <ScrollToTop />
       {showSidebar ? (
         // Admin Layout with Sidebar
-        <div className="flex flex-1 pt-[90px]">
+        <div className="flex flex-1 pt-[90px] max-w-[1920px] mx-auto w-full">
           <div className="sticky top-[85px] h-screen">
             <Sidebar />
           </div>
           <main className="flex-1 p-5 overflow-y-auto scrollbar-none">
-            <Outlet />
+            <div className="max-w-7xl mx-auto">
+              <Outlet />
+            </div>
           </main>
         </div>
       ) : (
         // Regular Layout
         <main className="flex-grow pt-[85px]">
-          <Outlet />
+          <div className="max-w-[1920px] mx-auto w-full">
+            <Outlet />
+          </div>
         </main>
       )}
       <Footer />

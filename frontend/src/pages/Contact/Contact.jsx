@@ -1,153 +1,171 @@
+import { useState } from "react";
 import contactImage from "@/assets/contact2.png";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { MapPin, Phone, Mail, Send } from "lucide-react";
+import { MapPin, Mail, Send } from "lucide-react";
 import { motion } from "framer-motion";
 import Metadata from "@/components/layout/Metadata/Metadata";
+import { toast } from "react-toastify";
+import { useContactMutation } from "@/redux/api/authApi";
 
 const Contact = () => {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    message: "",
+  });
+
+  const [contact, { isLoading }] = useContactMutation();
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const response = await contact(formData).unwrap();
+      toast.success(response.message);
+      setFormData({ name: "", email: "", message: "" });
+    } catch (error) {
+      toast.error(error.data?.message || "Something went wrong!");
+    }
+  };
+
   return (
     <>
       <Metadata title="Contact Us" />
-      <div className="min-h-screen flex items-center justify-center bg-brand-gradient p-4">
-        <div className="w-full max-w-7xl flex gap-12 items-center">
-          {/* Left side - Image */}
+      <div className="min-h-screen flex items-center justify-center p-4 sm:p-8 md:p-12">
+        <div className="w-full max-w-7xl flex flex-col lg:flex-row gap-8 lg:gap-16 items-center">
+          {/* Left side - Contact Form */}
           <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="flex-1 hidden lg:block"
+            className="flex-1 w-full order-2 lg:order-1"
           >
-            <img
-              src={contactImage}
-              alt="Contact"
-              className="w-full h-full object-contain drop-shadow-2xl filter saturate-110"
-            />
-          </motion.div>
-
-          {/* Right side - Contact Form */}
-          <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5 }}
-            className="flex-1 p-8 rounded-3xl backdrop-blur-lg shadow-2xl bg-gradient-to-br from-brand-start/40 to-brand-end/40 border border-white/20 relative overflow-hidden"
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/5 to-transparent pointer-events-none" />
-
-            <div className="space-y-8 py-6 px-2 relative">
+            <div className="space-y-8">
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
                 className="space-y-3"
               >
-                <h2 className="text-4xl font-bold text-white tracking-tight">
-                  Get in Touch
+                <h2 className="text-3xl md:text-4xl font-bold text-light tracking-tight">
+                  Contact Us
                 </h2>
-                <p className="text-light/90 text-md tracking-wide font-light">
+                <p className="text-light text-lg">
                   We'd love to hear from you. Send us a message!
                 </p>
               </motion.div>
 
-              <form className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-5">
                 <motion.div
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  <Input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    placeholder="Full Name"
+                    className="bg-white border-gray-300 text-gray-800 placeholder:text-gray-400 h-12 rounded-lg focus:ring-2 focus:ring-brand/40 focus:border-brand/40 transition-all duration-300"
+                    required
+                  />
+                </motion.div>
+
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.4 }}
                 >
                   <Input
-                    type="text"
-                    placeholder="Full Name"
-                    className="bg-darkBrand/50 border-white/20 text-white placeholder:text-gray-400 h-14 rounded-xl focus:ring-2 focus:ring-light/40 focus:border-light/40 transition-all duration-300 text-lg hover:bg-darkBrand/70"
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    placeholder="Email Address"
+                    className="bg-white border-gray-300 text-gray-800 placeholder:text-gray-400 h-12 rounded-lg focus:ring-2 focus:ring-brand/40 focus:border-brand/40 transition-all duration-300"
+                    required
                   />
                 </motion.div>
 
                 <motion.div
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.5 }}
                 >
-                  <Input
-                    type="email"
-                    placeholder="Email Address"
-                    className="bg-darkBrand/50 border-white/20 text-white placeholder:text-gray-400 h-14 rounded-xl focus:ring-2 focus:ring-light/40 focus:border-light/40 transition-all duration-300 text-lg hover:bg-darkBrand/70"
+                  <Textarea
+                    name="message"
+                    value={formData.message}
+                    onChange={handleChange}
+                    placeholder="Your Message"
+                    className="bg-white border-gray-300 text-gray-800 placeholder:text-gray-400 min-h-[120px] rounded-lg focus:ring-2 focus:ring-brand/40 focus:border-brand/40 transition-all duration-300 resize-none"
+                    required
                   />
                 </motion.div>
 
                 <motion.div
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.6 }}
                 >
-                  <Textarea
-                    placeholder="Your Message"
-                    className="bg-darkBrand/50 border-white/20 text-white placeholder:text-gray-400 min-h-[150px] rounded-xl focus:ring-2 focus:ring-light/40 focus:border-light/40 transition-all duration-300 text-lg resize-none hover:bg-darkBrand/70"
-                  />
-                </motion.div>
-
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.7 }}
-                >
                   <Button
                     type="submit"
-                    className="w-full bg-gradient-r border border-brand hover:bg-brand-gradient text-white h-14 rounded-xl text-md shadow-lg transition-all duration-300 relative overflow-hidden group"
+                    disabled={isLoading}
+                    className="w-full bg-brand hover:bg-brand/90 text-white h-12 rounded-lg text-md font-medium shadow-sm transition-all duration-300"
                   >
-                    <span className="relative z-10 flex items-center justify-center gap-2">
-                      Send Message
-                      <Send className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
+                    <span className="flex items-center justify-center gap-2">
+                      {isLoading ? "Sending..." : "Send Message"}
+                      <Send className="w-4 h-4" />
                     </span>
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   </Button>
                 </motion.div>
               </form>
 
               {/* Contact Information */}
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.8 }}
-                className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8 pt-8 border-t border-white/10"
+                transition={{ delay: 0.7 }}
+                className="space-y-4 mt-8"
               >
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  className="flex flex-col items-center space-y-2 p-4 rounded-xl bg-darkBrand/30 hover:bg-darkBrand/50 transition-colors duration-300 cursor-pointer group"
-                >
-                  <div className="p-3 rounded-full bg-brand/20 group-hover:bg-brand/30 transition-colors duration-300">
-                    <MapPin className="w-6 h-6 text-light group-hover:text-white transition-colors duration-300" />
-                  </div>
-                  <span className="text-light/90 text-sm text-center">
-                    123 Business Street, New York, NY 10001
-                  </span>
-                </motion.div>
-
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  className="flex flex-col items-center space-y-2 p-4 rounded-xl bg-darkBrand/30 hover:bg-darkBrand/50 transition-colors duration-300 cursor-pointer group"
-                >
-                  <div className="p-3 rounded-full bg-brand/20 group-hover:bg-brand/30 transition-colors duration-300">
-                    <Phone className="w-6 h-6 text-light group-hover:text-white transition-colors duration-300" />
-                  </div>
-                  <span className="text-light/90 text-sm text-center">
-                    +1 (555) 123-4567
-                  </span>
-                </motion.div>
-
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  className="flex flex-col items-center space-y-2 p-4 rounded-xl bg-darkBrand/30 hover:bg-darkBrand/50 transition-colors duration-300 cursor-pointer group"
-                >
-                  <div className="p-3 rounded-full bg-brand/20 group-hover:bg-brand/30 transition-colors duration-300">
-                    <Mail className="w-6 h-6 text-light group-hover:text-white transition-colors duration-300" />
-                  </div>
-                  <span className="text-light/90 text-sm text-center">
-                    contact@yourcompany.com
-                  </span>
-                </motion.div>
+                <div className="flex items-center gap-3">
+                  <MapPin className="w-5 h-5 text-brand" />
+                  <p className="text-light">123 Main Street, City, Country</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Mail className="w-5 h-5 text-brand" />
+                  <a
+                    href="mailto:support@worldofminifigs.com"
+                    className="text-light hover:text-brand transition-colors duration-300"
+                  >
+                    support@worldofminifigs.com
+                  </a>
+                </div>
               </motion.div>
             </div>
+          </motion.div>
+
+          {/* Right side - Image */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+            className="flex-1 w-full order-1 lg:order-2"
+          >
+            <img
+              src={contactImage}
+              alt="Contact Us"
+              className="w-full h-auto object-cover rounded-lg shadow-lg"
+            />
           </motion.div>
         </div>
       </div>
