@@ -8,28 +8,24 @@ import Subscribe from "@/components/home/Subscribe";
 import Metadata from "@/components/layout/Metadata/Metadata";
 
 const Home = () => {
+  const sections = [
+    { Component: Banner, gradient: "bg-brand-gradient" },
+    { Component: BestSelling, gradient: "bg-brand-gradient" },
+    { Component: LatestProduct, gradient: "bg-brand-gradient-r" },
+    { Component: FeaturedProduct, gradient: "bg-brand-gradient" },
+    { Component: Collections, gradient: "bg-brand-gradient-r" },
+    { Component: Subscribe, gradient: "bg-brand-gradient" },
+  ];
+
   return (
     <>
       <Metadata title="Homepage" />
       <div>
-        <div className="lg:min-h-[90vh] bg-brand-gradient">
-          <Banner />
-        </div>
-        <div className="lg:min-h-[90vh] bg-brand-gradient">
-          <BestSelling />
-        </div>
-        <div className="lg:min-h-[90vh] bg-brand-gradient-r">
-          <LatestProduct />
-        </div>
-        <div className="lg:min-h-[90vh] bg-brand-gradient">
-          <FeaturedProduct />
-        </div>
-        <div className="lg:min-h-[90vh] bg-brand-gradient-r">
-          <Collections />
-        </div>
-        <div className="lg:min-h-[90vh] bg-brand-gradient">
-          <Subscribe />
-        </div>
+        {sections.map(({ Component, gradient }, index) => (
+          <div key={index} className={gradient}>
+            <Component />
+          </div>
+        ))}
       </div>
     </>
   );

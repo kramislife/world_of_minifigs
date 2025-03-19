@@ -69,21 +69,23 @@ const Banner = () => {
     }
   };
 
-  // Fallback component when no banners are available
+  // Modify the EmptyBannerFallback component
   const EmptyBannerFallback = () => (
-    <div className="w-full h-[50vh] lg:h-[90vh] sm:h-[60vh] md:h-[70vh] bg-darkBrand/50 flex flex-col items-center justify-center text-gray-500">
-      <ImageIcon className="w-16 h-16 mb-4" />
-      <h3 className="text-xl font-semibold mb-2">No Banners Available</h3>
-      {isAdmin && (
-        <p className="text-sm">
-          Click the upload button to add your first banner
-        </p>
-      )}
+    <div className="max-w-[1920px] mx-auto px-4 sm:px-6">
+      <div className="w-full h-[400px] sm:h-[500px] md:h-[600px] bg-darkBrand/50 flex flex-col items-center justify-center text-gray-500">
+        <ImageIcon className="w-16 h-16 mb-4" />
+        <h3 className="text-xl font-semibold mb-2">No Banners Available</h3>
+        {isAdmin && (
+          <p className="text-sm">
+            Click the upload button to add your first banner
+          </p>
+        )}
+      </div>
     </div>
   );
 
-  if (isLoading) return <LoadingSpinner />;
-  if (error) return <div>Error loading banners</div>;
+  // if (isLoading) return <LoadingSpinner />;
+  // if (error) return <div>Error loading banners</div>;
 
   const hasBanners = bannerData?.banners?.length > 0;
 
@@ -92,65 +94,67 @@ const Banner = () => {
       {!hasBanners && !isAdmin ? (
         <EmptyBannerFallback />
       ) : (
-        <Carousel
-          plugins={[plugin.current]}
-          setApi={setApi}
-          opts={options}
-          className="w-full relative"
-        >
-          <CarouselContent>
-            {isAdmin && (
-              <CarouselItem className="basis-full">
-                <label className="flex flex-col items-center justify-center w-full h-[50vh] lg:h-[90vh] sm:h-[60vh] md:h-[70vh] rounded-lg cursor-pointer bg-darkBrand/60">
-                  <div className="flex flex-col items-center justify-center pt-5 pb-6 text-gray-400">
-                    <Upload className="w-12 h-12 mb-4" />
-                    <p className="mb-2 text-sm ">
-                      <span className="font-semibold">
-                        {hasBanners
-                          ? "Click to upload Banner"
-                          : "Add your first banner"}
-                      </span>
-                    </p>
-                  </div>
-                  <input
-                    type="file"
-                    className="hidden"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    disabled={isUploading}
-                  />
-                </label>
-              </CarouselItem>
-            )}
+        <div className="max-w-[1920px] mx-auto">
+          <Carousel
+            plugins={[plugin.current]}
+            setApi={setApi}
+            opts={options}
+            className="w-full relative"
+          >
+            <CarouselContent>
+              {isAdmin && (
+                <CarouselItem className="basis-full">
+                  <label className="flex flex-col items-center justify-center w-full h-[400px] sm:h-[500px] md:h-[600px] cursor-pointer bg-darkBrand/60">
+                    <div className="flex flex-col items-center justify-center pt-5 pb-6 text-gray-400">
+                      <Upload className="w-12 h-12 mb-4" />
+                      <p className="mb-2 text-sm ">
+                        <span className="font-semibold">
+                          {hasBanners
+                            ? "Click to upload Banner"
+                            : "Add your first banner"}
+                        </span>
+                      </p>
+                    </div>
+                    <input
+                      type="file"
+                      className="hidden"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      disabled={isUploading}
+                    />
+                  </label>
+                </CarouselItem>
+              )}
 
-            {bannerData?.banners?.map((banner, index) => (
-              <CarouselItem key={banner._id} className="basis-full relative">
-                <img
-                  src={banner.image.url}
-                  alt={`Banner ${index + 1}`}
-                  className="w-full h-[50vh] lg:h-[90vh] sm:h-[60vh] md:h-[70vh] object-cover"
-                />
-                {isAdmin && (
-                  <div className="absolute top-4 right-4 flex gap-2">
-                    <Button
-                      variant="secondary"
-                      size="icon"
-                      onClick={() => handleDeleteClick(banner)}
-                    >
-                      <Trash2 className="h-4 w-4 text-red-500" />
-                    </Button>
-                  </div>
-                )}
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-          {(hasBanners || isAdmin) && (
-            <>
-              <CarouselPrevious className="left-4 text-black" />
-              <CarouselNext className="right-4 text-black" />
-            </>
-          )}
-        </Carousel>
+              {bannerData?.banners?.map((banner, index) => (
+                <CarouselItem key={banner._id} className="basis-full relative">
+                  <img
+                    src={banner.image.url}
+                    alt={`Banner ${index + 1}`}
+                    className="w-full h-[400px] sm:h-[500px] md:h-[800px] object-cover"
+                  />
+                  {isAdmin && (
+                    <div className="absolute top-4 right-4 flex gap-2">
+                      <Button
+                        variant="secondary"
+                        size="icon"
+                        onClick={() => handleDeleteClick(banner)}
+                      >
+                        <Trash2 className="h-4 w-4 text-red-500" />
+                      </Button>
+                    </div>
+                  )}
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            {(hasBanners || isAdmin) && (
+              <>
+                <CarouselPrevious className="left-4 text-black" />
+                <CarouselNext className="right-4 text-black" />
+              </>
+            )}
+          </Carousel>
+        </div>
       )}
 
       <DeleteDialog

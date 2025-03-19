@@ -9,7 +9,7 @@ const CustomPagination = ({ currentPage, totalPages, onPageChange }) => {
 
   const renderPaginationItems = () => {
     const items = [];
-    const maxVisiblePages = 10;
+    const maxVisiblePages = 5;
 
     // Always show first page
     items.push(

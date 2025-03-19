@@ -3,7 +3,7 @@ import { navItems } from "@/constant/navigation";
 
 const DesktopNav = () => {
   return (
-    <ul className="hidden md:flex items-center space-x-12 text-md">
+    <ul className="hidden md:flex items-center justify-center space-x-8 lg:space-x-12 text-md">
       {navItems.map((item) => (
         <li key={item.id}>
           <NavLink
