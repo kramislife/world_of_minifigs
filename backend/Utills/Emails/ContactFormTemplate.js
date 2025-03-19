@@ -39,7 +39,6 @@ export const ContactFormTemplate = (formData) => {
                 font-weight: normal;
             }
             .content {
-                padding: 30px;
                 background: white;
             }
             .message-section {
