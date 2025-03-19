@@ -11,6 +11,11 @@ import Address from "../models/userAddress.model.js";
 import sendEmail from "../Utills/sendEmail.js";
 import { getResetPasswordTemplate } from "../Utills/Emails/ResetPasswordTemplate.js";
 import { getVerificationEmailTemplate } from "../Utills/Emails/VerificationEmailTemplate.js";
+import {
+  delete_user_avatar_file,
+  upload_single_image,
+} from "../Utills/cloudinary.js";
+import { ContactFormTemplate } from "../Utills/Emails/ContactFormTemplate.js";
 
 // --------------------------------------- REGISTER USER --------------------------------------- //
 export const registerUser = catchAsyncErrors(async (req, res, next) => {
@@ -208,6 +213,67 @@ export const logoutUser = catchAsyncErrors(async (req, res, next) => {
   });
 });
 
+// -------------------------------- GET CURRENT USER PROFILE ---------------------------------//
+
+export const getCurrentUserProfile = catchAsyncErrors(
+  async (req, res, next) => {
+    const user_id = req?.user?.user_id;
+
+    const user = await User.findById(user_id);
+
+    if (user) {
+      res.status(200).json({
+        success: true,
+        user,
+      });
+    }
+  }
+);
+
+// -------------------------------------- UPDATE CURRENT USER DATA ------------------------------------------------- //
+export const updateCurrentUserProfile = catchAsyncErrors(
+  async (req, res, next) => {
+    const user_id = req.user.user_id;
+    const { contact_number, name } = req.body;
+
+    const updateFields = {};
+
+    // Validate phone number if provided
+    if (contact_number) {
+      const phoneRegex = /^\+?[1-9]\d{1,14}$/;
+      if (!phoneRegex.test(contact_number)) {
+        return next(new ErrorHandler("Invalid phone number format", 400));
+      }
+      updateFields.contact_number = contact_number;
+    }
+
+    // Validate name if provided
+    if (name) {
+      if (name.trim().length < 3) {
+        return next(
+          new ErrorHandler("Name must be at least 3 characters long", 400)
+        );
+      }
+      updateFields.name = name.trim();
+    }
+
+    const user = await User.findByIdAndUpdate(user_id, updateFields, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!user) {
+      return next(new ErrorHandler("User not found", 404));
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      user,
+    });
+  }
+);
+
 // -------------------------------------------------- FORGOT PASSWORD --------------------------------------------------
 export const forgotPassword = catchAsyncErrors(async (req, res, next) => {
   const { email } = req.body;
@@ -250,7 +316,7 @@ export const forgotPassword = catchAsyncErrors(async (req, res, next) => {
   }
 });
 
-// -------------------------------------------------- RESET PASSWORD --------------------------------------------------
+// -------------------------------------- RESET PASSWORD -----------------------------------//
 export const resetPassword = catchAsyncErrors(async (req, res, next) => {
   const resetPasswordToken = req.params.token;
 
@@ -298,7 +364,7 @@ export const resetPassword = catchAsyncErrors(async (req, res, next) => {
       email: user.email,
       subject: `Password Reset Successful | ${process.env.SMTP_FROM_NAME}`,
       message: `
-        <p>Hello ${user.name},</p>
+        <p>Hello ${user.username},</p>
         <p>Your password has been successfully reset. If this was not you, please contact support immediately at <a href="mailto:${process.env.SMTP_FROM_EMAIL}">${process.env.SMTP_FROM_EMAIL}</a></p>
       `,
     });
@@ -312,63 +378,54 @@ export const resetPassword = catchAsyncErrors(async (req, res, next) => {
   });
 });
 
-// -------------------------------------------------------------------- GET CURRENT USER PROFILE ----------------------------------------------------------------------------------
-
-export const getCurrentUserProfile = catchAsyncErrors(
-  async (req, res, next) => {
-    const user_id = req?.user?.user_id;
-
-    const user = await User.findById(user_id);
-
-    if (user) {
-      res.status(200).json({
-        success: true,
-        user,
-      });
-    }
-  }
-);
-
-/* -------------------------------------------------------------------- UPDATE CURRENT USER PROFILE -------------------------------------------------------------------------------- */
-
-// --------------------------------------------------------------------- 1.  UPDATE CURRENT USER PASSWORD ------------------------------------------------------------------------------
+// -------------------------- UPDATE CURRENT USER PASSWORD -----------------------------//
 
 export const updateCurrentUserPassword = catchAsyncErrors(
   async (req, res, next) => {
     const { oldPassword, newPassword, confirmPassword } = req.body;
     const user_id = req?.user?.user_id;
 
+    // 1. Check if all required fields are provided
     if (!oldPassword || !newPassword || !confirmPassword) {
       return next(new ErrorHandler("Please fill in all fields", 400));
     }
+
+    // 2. Check if new password and confirm password match
     if (newPassword !== confirmPassword) {
       return next(new ErrorHandler("Passwords do not match", 400));
     }
+
+    // 3. Get the user with password field
     const user = await User.findById(user_id).select("+password");
-    const isMatch = await user.comparePassword(newPassword);
 
-    /*
-    console.log("User : ", user);
-    console.log("isMatch : ", isMatch);
-    console.log(
-      "OldPassword, newPassword, confirmPassword : ",
-      oldPassword,
-      newPassword,
-      confirmPassword
-    );
-    */
+    if (!user) {
+      return next(new ErrorHandler("User not found", 404));
+    }
 
-    if (isMatch) {
+    // 4. Verify the old password is correct
+    const isOldPasswordCorrect = await user.comparePassword(oldPassword);
+
+    if (!isOldPasswordCorrect) {
+      return next(
+        new ErrorHandler("Invalid Credentials. Please try again", 400)
+      );
+    }
+
+    // 5. Check that new password is different from old password
+    const isNewPasswordSameAsOld = await user.comparePassword(newPassword);
+
+    if (isNewPasswordSameAsOld) {
       return next(
         new ErrorHandler(
-          "Old password cannot be the same as the new password",
+          "New password cannot be the same as the current password",
           400
         )
       );
     }
 
+    // 6. Update the password
     user.password = newPassword;
-    user.save();
+    await user.save();
 
     res.status(200).json({
       success: true,
@@ -377,83 +434,7 @@ export const updateCurrentUserPassword = catchAsyncErrors(
   }
 );
 
-// --------------------------------------------------------------------- 2.  UPDATE CURRENT USER DATA ------------------------------------------------------------------------------
-export const updateCurrentUserProfile = catchAsyncErrors(
-  async (req, res, next) => {
-    const user_id = req?.user?.user_id;
-
-    if (!user_id) {
-      return next(new ErrorHandler(" User not found", 404));
-    }
-
-    const { name, username, contact_number } = req.body;
-
-    if (!name && !username && !phoneNumber) {
-      return next(
-        new ErrorHandler("Please provide at least one field to update", 400)
-      );
-    }
-
-    let updateData = {};
-
-    if (name) {
-      if (typeof name !== "string" || name.trim() === "") {
-        return next(
-          new ErrorHandler("Name must be a string and not empty", 400)
-        );
-      }
-      updateData.name = name.trim();
-    }
-
-    if (username) {
-      if (typeof username !== "string" || username.trim().length < 3) {
-        return next(
-          new ErrorHandler(
-            "Username must be a string and at least 3 characters long",
-            400
-          )
-        );
-      }
-      updateData.username = username.trim();
-    }
-
-    if (contact_number) {
-      const phoneRegx = /^\+?[1-9]\d{1,14}$/;
-
-      if (!phoneRegx.test(contact_number)) {
-        return next(new ErrorHandler("Invalid phone number", 400));
-      }
-
-      updateData.contact_number = contact_number;
-    }
-
-    const updatedUser = await User.findByIdAndUpdate(user_id, updateData, {
-      new: true,
-      runValidators: true,
-    });
-
-    if (!updatedUser) {
-      return next(
-        new ErrorHandler(
-          `Unable to update user informaiton, kindly check your data`,
-          404
-        )
-      );
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "User information updated successfully",
-      user: {
-        name: updatedUser.name,
-        username: updatedUser.username,
-        contact_number: updatedUser.contact_number,
-      },
-    });
-  }
-);
-
-// ---------------------------------------------------------------------------- CREATE USER ADDRESS ---------------------------------------------------------------------------------------------------------------
+// ------------------------------------ CREATE USER ADDRESS ------------------------------------------------- //
 
 export const createAddress = catchAsyncErrors(async (req, res, next) => {
   const user_id = req.user.user_id;
@@ -696,4 +677,79 @@ export const deleteAddress = catchAsyncErrors(async (req, res, next) => {
     success: true,
     message: "Address deleted successfully",
   });
+});
+
+export const updateProfilePicture = catchAsyncErrors(async (req, res, next) => {
+  const user = await User.findById(req.user.user_id);
+
+  if (!user) {
+    return next(new ErrorHandler("User not found", 404));
+  }
+
+  // Delete old profile picture if it exists
+  if (user.profile_picture?.public_id) {
+    await delete_user_avatar_file(user.profile_picture.public_id);
+  }
+
+  // Upload new profile picture
+  const result = await upload_single_image(
+    req.body.avatar,
+    "world_of_minifigs/avatars"
+  );
+
+  user.profile_picture = {
+    public_id: result.public_id,
+    url: result.url,
+  };
+
+  await user.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Profile picture updated successfully",
+    user,
+  });
+});
+
+// ------------------------------------ CONTACT US ------------------------------------
+export const contactUs = catchAsyncErrors(async (req, res, next) => {
+  const { name, email, message } = req.body;
+
+  if (!name || !email || !message) {
+    return next(new ErrorHandler("Please fill in all fields", 400));
+  }
+
+  // Validate email format
+  if (!/\S+@\S+\.\S+/.test(email)) {
+    return next(new ErrorHandler("Please enter a valid email address", 400));
+  }
+
+  try {
+    // Send email to admin
+    await sendEmail({
+      email: process.env.SMTP_USER,
+      subject: `Contact Form Submission`,
+      message: ContactFormTemplate({ name, email, message }),
+    });
+
+    // Send confirmation email to user
+    await sendEmail({
+      email: email,
+      subject: "Thank you for Contacting World of Minifigs",
+      message: `
+          <p>Hello ${name},</p>
+          <p>We've received your message and will get back to you as soon as possible.</p>
+          <p>Best regards,<br>World of Minifigs Team</p>      
+      `,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Your message has been sent successfully!",
+    });
+  } catch (error) {
+    return next(
+      new ErrorHandler("Failed to send message. Please try again later.", 500)
+    );
+  }
 });

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { setIsCartOpen } from "@/redux/features/userSlice";
 import logo from "@/assets/logo.png";
 
 import SearchSheet from "./SearchSheet";
@@ -13,11 +14,12 @@ import CartSheet from "./CartSheet";
 
 const Header = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [searchQuery, setSearchQuery] = useState("");
   const { user } = useSelector((state) => state.auth);
   const { cartItems = [] } = useSelector((state) => state.cart);
   const [prevCartCount, setPrevCartCount] = useState(0);
-  const [isCartOpen, setIsCartOpen] = useState(false);
+  const { isCartOpen } = useSelector((state) => state.auth);
 
   // Calculate total unique items instead of total quantity
   const totalItems = cartItems.length;
@@ -54,7 +56,7 @@ const Header = () => {
           <CartButton
             itemCount={totalItems}
             showAnimation={isItemAdded}
-            onClick={() => setIsCartOpen(true)}
+            onClick={() => dispatch(setIsCartOpen(true))}
           />
 
           {/* User Dropdown */}
@@ -78,8 +80,11 @@ const Header = () => {
         </div>
       </div>
 
-      {/* Cart Sheet*/}
-      <CartSheet isOpen={isCartOpen} setIsOpen={setIsCartOpen} />
+      {/* Cart Sheet */}
+      <CartSheet
+        isOpen={isCartOpen}
+        setIsOpen={(value) => dispatch(setIsCartOpen(value))}
+      />
     </nav>
   );
 };

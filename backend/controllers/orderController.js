@@ -177,6 +177,33 @@ export const createOrder = catchAsyncErrors(async (req, res, next) => {
       req.body.email
     );
 
+    // Send notification to admin
+    await sendEmail({
+      email: process.env.SMTP_USER,
+      subject: `New Order #${populatedOrder._id}`,
+      message: OrderConfirmationTemplate(
+        "Admin", // customerName
+        populatedOrder._id, // orderId
+        populatedOrder.orderStatus, // orderStatus
+        {
+          ...populatedOrder.toObject(),
+          orderItems: formattedOrderItems,
+          shippingAddress: {
+            address: `${populatedOrder.shippingAddress?.address_line1 || ""} ${
+              populatedOrder.shippingAddress?.address_line2 || ""
+            }, ${populatedOrder.shippingAddress?.city || ""}, ${
+              populatedOrder.shippingAddress?.country || ""
+            }, ${populatedOrder.shippingAddress?.postal_code || ""}`,
+            phoneNo: populatedOrder.shippingAddress?.contact_number || "N/A",
+          },
+          user: populatedOrder.user,
+          paymentInfo: populatedOrder.paymentInfo,
+          totalPrice: populatedOrder.totalPrice,
+          isAdminNotification: true, // Add this flag to customize message
+        }
+      ),
+    });
+
     res.status(201).json({ success: true, order });
   } catch (error) {
     return next(new ErrorHandler(error.message, 400));

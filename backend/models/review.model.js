@@ -1,87 +1,136 @@
 import mongoose from "mongoose";
 
-// Product Review Schema
-const productReviewSchema = new mongoose.Schema(
+const replySchema = new mongoose.Schema(
   {
-    product: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Product",
-      required: true,
-    },
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
-    rating: {
-      type: Number,
-      required: true,
-      min: 1,
-      max: 5,
-    },
-    reviewText: {
+    text: {
       type: String,
       required: true,
-      maxlength: 1000,
+      trim: true,
     },
-    media: [
+  },
+  {
+    timestamps: true,
+    _id: false, // Prevent generating unnecessary _id for replies
+  }
+);
+
+const imageSchema = new mongoose.Schema(
+  {
+    public_id: String,
+    url: String,
+  },
+  {
+    _id: false, // Prevent generating unnecessary _id for images
+  }
+);
+
+// Product Review Schema
+const productReviewSchema = new mongoose.Schema(
+  {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    order: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Order",
+      required: true,
+    },
+    products: [
       {
-        type: String,
+        _id: false,
+        product: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Product",
+          required: true,
+        },
+        productName: String,
+        rating: {
+          type: Number,
+          required: true,
+          min: 1,
+          max: 5,
+        },
+        reviewText: {
+          type: String,
+          required: true,
+        },
+        images: [imageSchema],
+        helpfulVotes: [
+          {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+          },
+        ],
+        unhelpfulVotes: [
+          {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+          },
+        ],
+        replies: [replySchema],
+        isEdited: {
+          type: Boolean,
+          default: false,
+        },
+        editedAt: Date,
+        editedReviewText: String,
+        lastModifiedAt: {
+          type: Date,
+          default: Date.now,
+        },
       },
     ],
     isVerified: {
       type: Boolean,
-      default: false, // Set to true if the user has purchased the product
+      default: false,
     },
     isFlagged: {
       type: Boolean,
-      default: false, // Flagged for admin review
+      default: false,
     },
     reportedCount: {
       type: Number,
-      default: 0, // Number of times flagged by users
+      default: 0,
     },
-    helpfulVotes: {
-      type: Number,
-      default: 0, // Helpful votes for the review
-    },
-    unhelpfulVotes: {
-      type: Number,
-      default: 0, // Unhelpful votes for the review
-    },
-    lastModifiedAt: {
-      type: Date,
-      default: Date.now, // Time when the review was last edited
-    },
-    editedReviewText: {
-      type: String,
-      maxlength: 1000, // Store the new review text after it's edited
-    },
-    isEditted: {
-      type: Boolean,
-      default: false, // Track if the review is editted
-    },
-    replies: [
-      {
-        user: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "User", // The user who replied
-          required: true,
-        },
-        replyText: {
-          type: String,
-          required: true,
-          maxlength: 1000, // Limit the reply text length
-        },
-        createdAt: {
-          type: Date,
-          default: Date.now, // Timestamp when the reply was created
-        },
-      },
-    ],
   },
-  { timestamps: true } // Automatically adds createdAt and updatedAt timestamps
+  {
+    timestamps: true,
+    toJSON: { getters: true },
+    toObject: { getters: true },
+  }
 );
+
+// Remove _id from products array elements
+productReviewSchema.set("toJSON", {
+  transform: function (doc, ret) {
+    if (ret.products) {
+      ret.products = ret.products.map((product) => {
+        const { _id, ...productWithoutId } = product;
+        return productWithoutId;
+      });
+    }
+    return ret;
+  },
+});
+
+// Explicitly drop any existing indexes
+const dropIndexes = async () => {
+  try {
+    const ProductReview = mongoose.model("ProductReview", productReviewSchema);
+    await ProductReview.collection.dropIndexes();
+  } catch (error) {
+    console.log("No indexes to drop or collection doesn't exist yet");
+  }
+};
+
+dropIndexes();
 
 // Static function: Get all reviews for a product with pagination
 productReviewSchema.statics.getReviewsForProduct = async function (
@@ -90,23 +139,37 @@ productReviewSchema.statics.getReviewsForProduct = async function (
   limit = 10
 ) {
   const skip = (page - 1) * limit;
-  return await this.find({ product: productId })
+  return await this.find({ "products.product": productId })
     .skip(skip)
     .limit(limit)
     .populate("user", "name email")
+    .populate("order")
     .sort({ createdAt: -1 });
 };
 
-// Instance function: Edit the review (Allow editing only once)
-productReviewSchema.methods.editReview = async function (newReviewText) {
-  if (this.editCount >= 1) {
+// Instance function: Edit a product review
+productReviewSchema.methods.editProductReview = async function (
+  productId,
+  newReviewText
+) {
+  const productReview = this.products.find(
+    (p) => p.product.toString() === productId
+  );
+
+  if (!productReview) {
+    throw new Error("Product review not found");
+  }
+
+  if (productReview.isEdited) {
     throw new Error("You can only edit your review once.");
   }
 
-  this.reviewText = newReviewText;
-  this.editedReviewText = newReviewText;
-  this.editCount += 1;
-  this.lastModifiedAt = Date.now();
+  productReview.reviewText = newReviewText;
+  productReview.editedReviewText = newReviewText;
+  productReview.isEdited = true;
+  productReview.editedAt = Date.now();
+  productReview.lastModifiedAt = Date.now();
+
   await this.save();
 };
 
@@ -117,25 +180,37 @@ productReviewSchema.methods.flagReview = async function () {
   await this.save();
 };
 
-// Instance function: Vote as helpful
-productReviewSchema.methods.voteHelpful = async function () {
-  this.helpfulVotes += 1;
-  await this.save();
+// Instance function: Vote as helpful for a specific product review
+productReviewSchema.methods.voteHelpful = async function (productId) {
+  const productReview = this.products.find(
+    (p) => p.product.toString() === productId
+  );
+  if (productReview) {
+    productReview.helpfulVotes.push(this.user);
+    await this.save();
+  }
 };
 
-// Instance function: Vote as unhelpful
-productReviewSchema.methods.voteUnhelpful = async function () {
-  this.unhelpfulVotes += 1;
-  await this.save();
+// Instance function: Vote as unhelpful for a specific product review
+productReviewSchema.methods.voteUnhelpful = async function (productId) {
+  const productReview = this.products.find(
+    (p) => p.product.toString() === productId
+  );
+  if (productReview) {
+    productReview.unhelpfulVotes.push(this.user);
+    await this.save();
+  }
 };
 
 // Instance function: Add a reply to the review
 productReviewSchema.methods.addReply = async function (userId, replyText) {
   const reply = {
     user: userId,
-    replyText: replyText,
+    text: replyText,
   };
-  this.replies.push(reply);
+  this.products
+    .find((p) => p.product.toString() === userId)
+    .replies.push(reply);
   await this.save();
 };
 
@@ -155,20 +230,22 @@ productReviewSchema.pre("save", function (next) {
   next();
 });
 
-// Instance hook: Prevent users from submitting multiple reviews for the same product
+// Add a pre-save hook to update isVerified
 productReviewSchema.pre("save", async function (next) {
-  const existingReview = await this.constructor.findOne({
-    product: this.product,
-    user: this.user,
-  });
-
-  if (existingReview && existingReview.isEditted === true) {
-    return next(new Error("You can only submit one review per product."));
+  if (this.isNew || this.isModified("user")) {
+    try {
+      const user = await mongoose.model("User").findById(this.user);
+      if (user) {
+        this.isVerified = user.is_verified;
+      }
+    } catch (error) {
+      console.error("Error updating review verification status:", error);
+    }
   }
   next();
 });
 
-// Create ProductReview model
+// Create the model without any unique indexes
 const ProductReview = mongoose.model("ProductReview", productReviewSchema);
 
 export default ProductReview;

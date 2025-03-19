@@ -15,7 +15,20 @@ export const OrderConfirmationTemplate = (
     hour12: true,
   });
 
-  const customMessage = `We received your order <strong>#${orderId}</strong> on ${orderDate} and you've paid for this via <strong>${orderDetails.paymentInfo.method}</strong>. We're getting your order ready and will let you know once it's on the way. We wish you enjoy shopping with us and hope to see you again real soon!`;
+  let customMessage;
+  let headerMessage;
+
+  if (orderDetails.isAdminNotification) {
+    customMessage = `A new order <strong>#${orderId}</strong> has been placed on ${orderDate}. Customer <strong>${
+      orderDetails.user?.username || "Guest User"
+    }</strong> has paid via <strong>${
+      orderDetails.paymentInfo.method
+    }</strong>. Please review the order details below and process it accordingly.`;
+    headerMessage = "New Order Notification!";
+  } else {
+    customMessage = `We received your order <strong>#${orderId}</strong> on ${orderDate} and you've paid for this via <strong>${orderDetails.paymentInfo.method}</strong>. We're getting your order ready and will let you know once it's on the way. We wish you enjoy shopping with us and hope to see you again real soon!`;
+    headerMessage = "Thanks for shopping with us!";
+  }
 
   return OrderBaseTemplate(
     customerName,
@@ -23,6 +36,6 @@ export const OrderConfirmationTemplate = (
     orderStatus,
     orderDetails,
     customMessage,
-    "Thanks for shopping with us!"
+    headerMessage
   );
 };
