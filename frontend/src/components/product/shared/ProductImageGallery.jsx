@@ -57,9 +57,13 @@ const ProductImageGallery = ({
             </div>
           </div>
         </div>
-        <div className="flex-1 relative bg-blue-950 rounded-lg overflow-hidden aspect-square">
-          <DiscountBadge />
-          <ProductImagePlaceholder />
+        <div className="flex-1 relative bg-blue-950 rounded-lg overflow-hidden">
+          <div className="w-full pt-[100%] relative">
+            <DiscountBadge />
+            <div className="absolute inset-0">
+              <ProductImagePlaceholder />
+            </div>
+          </div>
         </div>
       </motion.div>
     );
@@ -111,44 +115,46 @@ const ProductImageGallery = ({
       className="relative flex flex-col-reverse md:flex-row gap-4 h-fit"
     >
       {/* Thumbnails with max-height */}
-      <div className="w-full md:w-[150px] relative">
+      <div className="w-full md:w-[110px] relative">
         <div
           className="w-full h-full overflow-y-auto no-scrollbar"
           ref={thumbnailContainerRef}
         >
-          <div className="flex flex-row md:flex-col gap-2 md:max-h-[630px]">
+          <div className="flex flex-row md:flex-col gap-2 md:max-h-[600px]">
             {displayItems.map((item, index) => (
               <button
                 key={index}
                 onClick={() => handleThumbnailClick(index)}
-                className="group relative min-w-[130px] max-w-[130px] md:min-w-0 md:max-w-full aspect-square"
+                className="group relative min-w-[130px] max-w-[130px] md:min-w-0 md:max-w-full"
               >
-                <div
-                  className={`w-full h-full rounded-lg overflow-hidden border-2 transition-all ${
-                    currentImageIndex === index
-                      ? "border-red-600 border-4"
-                      : "border border-slate-700"
-                  }`}
-                >
-                  {similarProducts ? (
-                    item.product_images?.[0]?.url ? (
+                <div className="pt-[100%] relative">
+                  <div
+                    className={`absolute inset-0 rounded-lg overflow-hidden border-2 transition-all ${
+                      currentImageIndex === index
+                        ? "border-red-600 border-4"
+                        : "border border-slate-700"
+                    }`}
+                  >
+                    {similarProducts ? (
+                      item.product_images?.[0]?.url ? (
+                        <img
+                          src={item.product_images[0].url}
+                          alt={`${item.product_name}`}
+                          className="w-full h-full object-contain md:object-cover"
+                        />
+                      ) : (
+                        <ProductImagePlaceholder />
+                      )
+                    ) : item.url ? (
                       <img
-                        src={item.product_images[0].url}
-                        alt={`${item.product_name}`}
-                        className="w-full h-full object-fill transition-transform duration-300"
+                        src={item.url}
+                        alt={`${currentProduct.product_name} view ${index + 1}`}
+                        className="w-full h-full object-contain md:object-cover"
                       />
                     ) : (
                       <ProductImagePlaceholder />
-                    )
-                  ) : item.url ? (
-                    <img
-                      src={item.url}
-                      alt={`${currentProduct.product_name} view ${index + 1}`}
-                      className="w-full h-full object-fill transition-transform duration-300"
-                    />
-                  ) : (
-                    <ProductImagePlaceholder />
-                  )}
+                    )}
+                  </div>
                 </div>
               </button>
             ))}
@@ -157,62 +163,66 @@ const ProductImageGallery = ({
       </div>
 
       {/* Main Image Display */}
-      <div className="flex-1 relative bg-blue-950 rounded-lg overflow-hidden aspect-square">
-        <DiscountBadge />
+      <div className="flex-1 relative rounded-lg overflow-hidden">
+        <div className="w-full pt-[100%] relative">
+          <DiscountBadge />
 
-        <AnimatePresence mode="wait">
-          {similarProducts ? (
-            displayItems[currentImageIndex]?.product_images?.[0]?.url ? (
-              <motion.img
-                key={currentImageIndex}
-                src={displayItems[currentImageIndex].product_images[0].url}
-                alt={displayItems[currentImageIndex]?.product_name}
-                className="w-full h-full object-fill"
-                initial={{ opacity: 0, x: 100 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -100 }}
-                transition={{ duration: 0.3 }}
-              />
-            ) : (
-              <ProductImagePlaceholder />
-            )
-          ) : displayItems[currentImageIndex]?.url ? (
-            <motion.img
-              key={currentImageIndex}
-              src={displayItems[currentImageIndex].url}
-              alt={currentProduct?.product_name}
-              className="w-full h-full object-fill"
-              initial={{ opacity: 0, x: 100 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -100 }}
-              transition={{ duration: 0.3 }}
-            />
-          ) : (
-            <ProductImagePlaceholder />
+          <div className="absolute inset-0">
+            <AnimatePresence mode="wait">
+              {similarProducts ? (
+                displayItems[currentImageIndex]?.product_images?.[0]?.url ? (
+                  <motion.img
+                    key={currentImageIndex}
+                    src={displayItems[currentImageIndex].product_images[0].url}
+                    alt={displayItems[currentImageIndex]?.product_name}
+                    className="w-full h-full object-contain"
+                    initial={{ opacity: 0, x: 100 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -100 }}
+                    transition={{ duration: 0.3 }}
+                  />
+                ) : (
+                  <ProductImagePlaceholder />
+                )
+              ) : displayItems[currentImageIndex]?.url ? (
+                <motion.img
+                  key={currentImageIndex}
+                  src={displayItems[currentImageIndex].url}
+                  alt={currentProduct?.product_name}
+                  className="w-full h-full object-contain"
+                  initial={{ opacity: 0, x: 100 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -100 }}
+                  transition={{ duration: 0.3 }}
+                />
+              ) : (
+                <ProductImagePlaceholder />
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* Navigation Buttons */}
+          {displayItems.length > 1 && (
+            <>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 z-10"
+                onClick={handlePrevImage}
+              >
+                <ChevronLeft className="w-6 h-6 text-white" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 z-10"
+                onClick={handleNextImage}
+              >
+                <ChevronRight className="w-6 h-6 text-white" />
+              </Button>
+            </>
           )}
-        </AnimatePresence>
-
-        {/* Navigation Buttons */}
-        {displayItems.length > 1 && (
-          <>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70"
-              onClick={handlePrevImage}
-            >
-              <ChevronLeft className="w-6 h-6 text-white" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70"
-              onClick={handleNextImage}
-            >
-              <ChevronRight className="w-6 h-6 text-white" />
-            </Button>
-          </>
-        )}
+        </div>
       </div>
     </motion.div>
   );

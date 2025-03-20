@@ -14,29 +14,11 @@ const ProductCard = ({ product }) => {
     skip: !product?._id,
   });
 
-  // Calculate review stats
-  const { averageRating, totalReviews } = React.useMemo(() => {
-    if (!reviewsData?.reviews?.length)
-      return { averageRating: 0, totalReviews: 0 };
-
-    let totalRating = 0;
-    let validReviewCount = 0;
-
-    reviewsData.reviews.forEach((review) => {
-      review.products.forEach((prod) => {
-        if (prod.product.toString() === product._id.toString()) {
-          totalRating += prod.rating;
-          validReviewCount++;
-        }
-      });
-    });
-
-    return {
-      averageRating:
-        validReviewCount > 0 ? (totalRating / validReviewCount).toFixed(1) : 0,
-      totalReviews: validReviewCount,
-    };
-  }, [reviewsData, product?._id]);
+  // Get review stats 
+  const reviewStats = reviewsData?.stats || {
+    averageRating: 0,
+    totalReviews: 0,
+  };
 
   // Check if the product has images otherwise show the placeholder image
   const hasImages =
@@ -114,9 +96,9 @@ const ProductCard = ({ product }) => {
           {/* Ratings */}
           <div className="flex justify-between items-center pt-2">
             <div className="flex items-center gap-2">
-              <StarRating rating={Number(averageRating)} />
+              <StarRating rating={Number(reviewStats.averageRating)} />
               <span className="text-sm text-slate-300/70">
-                ({totalReviews})
+                ({reviewStats.totalReviews})
               </span>
             </div>
           </div>

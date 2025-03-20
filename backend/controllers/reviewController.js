@@ -81,8 +81,11 @@ export const createNewReview = catchAsyncErrors(async (req, res, next) => {
 //------------------------------- GET ALL REVIEWS --------------------------------------------
 export const getReviewsSingleProduct = catchAsyncErrors(
   async (req, res, next) => {
+    const productId = req.params.productId;
+
+    // Get all reviews for this product
     const reviews = await ProductReview.find({
-      "products.product": req.params.productId,
+      "products.product": productId,
     })
       .populate("user", "name email is_verified avatar")
       .populate({
@@ -95,9 +98,41 @@ export const getReviewsSingleProduct = catchAsyncErrors(
       return next(new ErrorHandler("No reviews found", 404));
     }
 
+    // Calculate review statistics for star
+    let totalRating = 0;
+    let validReviewCount = 0;
+
+    reviews.forEach((review) => {
+      review.products.forEach((prod) => {
+        if (prod.product.toString() === productId) {
+          totalRating += prod.rating;
+          validReviewCount++;
+        }
+      });
+    });
+
+    // Calculate rating distribution
+    const distribution = Array(5).fill(0);
+    reviews.forEach((review) => {
+      review.products.forEach((prod) => {
+        if (prod.product.toString() === productId) {
+          distribution[5 - prod.rating]++;
+        }
+      });
+    });
+
+    // Create stats object
+    const stats = {
+      averageRating:
+        validReviewCount > 0 ? (totalRating / validReviewCount).toFixed(1) : 0,
+      totalReviews: validReviewCount,
+      distribution: distribution,
+    };
+
     res.status(200).json({
       success: true,
       reviews,
+      stats,
     });
   }
 );

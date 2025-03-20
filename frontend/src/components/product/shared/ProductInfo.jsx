@@ -42,34 +42,39 @@ const ProductInfo = ({
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
             >
-              <h1 className="text-3xl font-bold text-white">
+              <h1 className="text-2xl md:text-3xl font-bold text-white">
                 {product?.product_name || "Unnamed Product"}
               </h1>
-              {(product?.itemID || product?.partID) && (
-                <div className="flex items-center gap-2">
-                  {product?.itemID && (
-                    <span className="text-sm text-gray-400">
-                      Item ID: {product.itemID}
-                    </span>
-                  )}
-                  {product?.itemID && product?.partID && (
-                    <span className="text-gray-400">•</span>
-                  )}
-                  {product?.partID && (
-                    <span className="text-sm text-gray-400">
-                      Part ID: {product.partID}
-                    </span>
-                  )}
-                </div>
-              )}
 
-              {/* Reviews Display */}
-              <div className="flex items-center gap-2 mt-1">
-                <StarRating rating={Number(reviewStats.averageRating)} />
-                <span className="text-gray-400 text-sm">
-                  ({reviewStats.totalReviews}{" "}
-                  {reviewStats.totalReviews === 1 ? "review" : "reviews"})
-                </span>
+              {/* Reviews and ID information in a single line */}
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-2 mt-1">
+                <div className="flex items-center gap-1 min-w-fit">
+                  <StarRating rating={Number(reviewStats.averageRating)} />
+                  <span className="text-gray-400 text-sm whitespace-nowrap">
+                    ({reviewStats.totalReviews}{" "}
+                    {reviewStats.totalReviews === 1 ? "review" : "reviews"})
+                  </span>
+                </div>
+
+                {(product?.itemID || product?.partID) && (
+                  <>
+                    <span className="text-gray-400 hidden sm:inline">|</span>
+                    <div className="flex flex-wrap items-center gap-x-2">
+                      {product?.itemID && (
+                        <span className="text-sm text-gray-400 whitespace-nowrap">
+                          Item ID: {product.itemID}
+                        </span>
+                      )}
+
+                      <span className="text-gray-400">•</span>
+                      {product?.partID && (
+                        <span className="text-sm text-gray-400 whitespace-nowrap">
+                          Part ID: {product.partID}
+                        </span>
+                      )}
+                    </div>
+                  </>
+                )}
               </div>
             </motion.div>
 
@@ -108,7 +113,7 @@ const ProductInfo = ({
           )}
 
           {/* Product Classification Section */}
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-2">
             <span className="text-sm font-semibold text-gray-300">
               Features & Classifications
             </span>
@@ -188,7 +193,7 @@ const ProductInfo = ({
 
           {/* Includes Section */}
           {product?.product_includes && (
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2">
               <span className="text-sm font-semibold text-gray-300 ">
                 Bundle Details
               </span>
@@ -230,7 +235,7 @@ const ProductInfo = ({
                           handleColorChange(variant.id);
                           scrollThumbnailIntoView?.(variant.thumbnailIndex);
                         }}
-                        className={`w-6 h-6 rounded-full transition-all mt-1 ${
+                        className={`w-8 h-8 rounded-full transition-all mt-1 ${
                           variant.isActive
                             ? "border-red-500 border-2"
                             : "border border-gray-600"
@@ -256,7 +261,7 @@ const ProductInfo = ({
           )}
 
           {/* Product Description Section */}
-          <div className="space-y-1">
+          <div className="space-y-1 font-light">
             {[
               product?.product_description_1,
               product?.product_description_2,
