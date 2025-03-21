@@ -8,17 +8,17 @@ import { subscribeAnimations } from "@/hooks/Animation/animationConfig";
 
 const features = [
   {
-    icon: <Truck className="w-8 h-8 text-white" />,
+    icon: <Truck className="w-8 h-8 text-foreground/70" />,
     title: "FREE AND FAST DELIVERY",
     description: "Free delivery for all orders over $140",
   },
   {
-    icon: <Headphones className="w-8 h-8 text-white" />,
+    icon: <Headphones className="w-8 h-8 text-foreground/70" />,
     title: "24/7 CUSTOMER SERVICE",
     description: "Friendly 24/7 customer support",
   },
   {
-    icon: <ShieldCheck className="w-8 h-8 text-white" />,
+    icon: <ShieldCheck className="w-8 h-8 text-foreground/70" />,
     title: "MONEY BACK GUARANTEE",
     description: "We return money within 30 days",
   },
@@ -78,7 +78,7 @@ const Subscribe = () => {
                 placeholder="Enter your email"
                 className="bg-gray-800/60 border-gray-700 text-gray-200 placeholder:text-gray-400 pr-28"
               />
-              <Button className="absolute right-0 top-0 h-full bg-red-600 hover:bg-red-700 text-white whitespace-nowrap rounded-l-none">
+              <Button className="absolute right-0 top-0 h-full bg-accent hover:bg-accent/90 text-foreground whitespace-nowrap rounded-l-none">
                 Subscribe
               </Button>
             </motion.div>
@@ -100,7 +100,7 @@ const Subscribe = () => {
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
             >
               <motion.div
-                className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center mx-auto mb-4"
+                className="w-16 h-16 bg-accent rounded-full flex items-center justify-center mx-auto mb-4"
                 whileHover={{ scale: 1.1 }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
               >

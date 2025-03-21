@@ -121,7 +121,7 @@ const Footer = () => {
   };
 
   return (
-    <footer className="bg-gradient-to-b from-brand-start to-darkBrand">
+    <footer className="bg-brand-start">
       <div className="max-w-[1920px] mx-auto px-4 sm:px-6">
         <div className="pt-16">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-x-8 gap-y-12">
@@ -129,7 +129,7 @@ const Footer = () => {
               <div key={link.id} className="space-y-6">
                 <h3 className="text-xl font-bold tracking-wide text-gray-200 relative inline-block">
                   {link.title}
-                  <span className="absolute -bottom-2 left-0 w-12 h-0.5 bg-red-600"></span>
+                  <span className="absolute -bottom-2 left-0 w-12 h-0.5 bg-accent"></span>
                 </h3>
                 <ul className="space-y-4 text-gray-400">
                   {link.links.map((item, index) => (
@@ -151,7 +151,7 @@ const Footer = () => {
             <div className="flex flex-col space-y-6 mt-8 lg:mt-0">
               <h3 className="text-xl font-bold tracking-wide text-gray-200 relative inline-block">
                 World of Minifigs
-                <span className="absolute -bottom-2 left-0 w-12 h-0.5 bg-red-600"></span>
+                <span className="absolute -bottom-2 left-0 w-12 h-0.5 bg-accent"></span>
               </h3>
               <div className="flex flex-col space-y-6">
                 <p className="text-gray-400 text-sm leading-relaxed">
@@ -165,7 +165,7 @@ const Footer = () => {
                     placeholder="Enter your email"
                     className="bg-gray-800/50 border-gray-700 text-gray-300 placeholder:text-gray-500 focus:ring-2 focus:ring-red-500 focus:border-transparent pr-24"
                   />
-                  <Button className="absolute right-0 top-0 h-full bg-red-600 hover:bg-red-700 text-white transition-all duration-200 rounded-l-none">
+                  <Button className="absolute right-0 top-0 h-full bg-accent hover:bg-accent/90 text-foreground transition-all duration-200 rounded-l-none">
                     Subscribe
                   </Button>
                 </div>
@@ -193,7 +193,7 @@ const Footer = () => {
           </div>
         </div>
 
-        <Separator className="bg-gray-700/50 mt-8" />
+        <Separator className="bg-gray-600/50 mt-8" />
 
         <div className="text-center text-sm text-gray-400 py-5">
           <p className="hover:text-gray-400 transition-colors">

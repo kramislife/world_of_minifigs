@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import StarRating from "@/components/product/shared/StarRating";
 import { PlaceholderImage } from "@/components/product/shared/FallbackStates";
 import { useGetProductReviewsQuery } from "@/redux/api/reviewApi";
+import { Button } from "../ui/button";
 
 const ProductCard = ({ product }) => {
   const navigate = useNavigate();
@@ -14,7 +15,7 @@ const ProductCard = ({ product }) => {
     skip: !product?._id,
   });
 
-  // Get review stats 
+  // Get review stats
   const reviewStats = reviewsData?.stats || {
     averageRating: 0,
     totalReviews: 0,
@@ -35,12 +36,12 @@ const ProductCard = ({ product }) => {
   return (
     <div
       onClick={handleViewDetails}
-      className="bg-brand-gradient/80 text-slate-100 border border-slate-700 rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-100 group relative cursor-pointer"
+      className="bg-[#4f5e73] text-slate-100 border border-[#32475f] rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-100 group relative cursor-pointer"
     >
       {/* Discount Badge */}
       {product?.discount > 0 && (
         <div className="absolute top-4 right-4 z-10">
-          <div className="bg-gradient-to-r from-red-700 to-red-500 px-3 py-1.5 rounded-full text-sm font-medium shadow-lg">
+          <div className="bg-accent px-3 py-1.5 rounded-full text-[#32475f] text-sm font-medium shadow-lg">
             {product.discount}% OFF
           </div>
         </div>
@@ -59,12 +60,13 @@ const ProductCard = ({ product }) => {
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-        <button
+        <Button
           onClick={(e) => e.stopPropagation()}
-          className="absolute bottom-4 left-1/2 transform -translate-x-1/2 translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-6 py-2.5 rounded-full font-medium shadow-lg transition-all duration-300 ease-out pointer-events-none"
+          variant="accent"
+          className="absolute bottom-4 left-1/2 transform -translate-x-1/2 translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 text-foreground px-6 py-2.5 rounded-full font-medium shadow-lg transition-all duration-300 ease-out pointer-events-none"
         >
           View Details
-        </button>
+        </Button>
       </div>
 
       {/* Product Name */}
@@ -79,7 +81,7 @@ const ProductCard = ({ product }) => {
           <div className="flex items-baseline justify-between">
             {product?.price ? (
               <>
-                <p className="text-2xl font-bold bg-gradient-to-r from-red-400 to-red-600 bg-clip-text text-transparent">
+                <p className="text-2xl font-bold text-accent">
                   ${(product?.discounted_price || 0).toFixed(2)}
                 </p>
                 {product?.discount > 0 && (
