@@ -9,20 +9,20 @@ import Metadata from "@/components/layout/Metadata/Metadata";
 
 const Home = () => {
   const sections = [
-    { Component: Banner, gradient: "bg-brand-gradient" },
-    { Component: BestSelling, gradient: "bg-brand-gradient" },
-    { Component: LatestProduct, gradient: "bg-brand-gradient-r" },
-    { Component: FeaturedProduct, gradient: "bg-brand-gradient" },
-    { Component: Collections, gradient: "bg-brand-gradient-r" },
-    { Component: Subscribe, gradient: "bg-brand-gradient" },
+    { Component: Banner },
+    { Component: BestSelling, className: "bg-brand-end" },
+    { Component: LatestProduct, className: "bg-brand-start" },
+    { Component: FeaturedProduct, className: "bg-brand-end" },
+    { Component: Collections, className: "bg-brand-start" },
+    { Component: Subscribe, className: "bg-brand-end" },
   ];
 
   return (
     <>
       <Metadata title="Homepage" />
-      <div>
-        {sections.map(({ Component, gradient }, index) => (
-          <div key={index} className={gradient}>
+      <div className="bg-brand-gradient">
+        {sections.map(({ Component, className }, index) => (
+          <div key={index} className={className}>
             <Component />
           </div>
         ))}

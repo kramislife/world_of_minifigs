@@ -19,29 +19,11 @@ const ProductView = () => {
     skip: !id,
   });
 
-  // Calculate review stats
-  const reviewStats = useMemo(() => {
-    if (!reviewsData?.reviews?.length)
-      return { averageRating: 0, totalReviews: 0 };
-
-    let totalRating = 0;
-    let validReviewCount = 0;
-
-    reviewsData.reviews.forEach((review) => {
-      review.products.forEach((prod) => {
-        if (prod.product.toString() === id) {
-          totalRating += prod.rating;
-          validReviewCount++;
-        }
-      });
-    });
-
-    return {
-      averageRating:
-        validReviewCount > 0 ? (totalRating / validReviewCount).toFixed(1) : 0,
-      totalReviews: validReviewCount,
-    };
-  }, [reviewsData, id]);
+  // Get review stats 
+  const reviewStats = reviewsData?.stats || {
+    averageRating: 0,
+    totalReviews: 0,
+  };
 
   const displayProducts = useMemo(() => {
     if (!data?.product) return [];

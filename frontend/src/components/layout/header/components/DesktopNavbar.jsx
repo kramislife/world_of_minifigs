@@ -10,8 +10,8 @@ const DesktopNav = () => {
             to={item.path}
             className={({ isActive }) =>
               isActive
-                ? "text-red-500 font-medium underline underline-offset-8"
-                : "text-light hover:text-gray-300 transition-colors duration-200"
+                ? "text-accent font-medium decoration-2 underline underline-offset-8"
+                : "text-white hover:text-accent-secondary transition-colors duration-200"
             }
           >
             {item.label}

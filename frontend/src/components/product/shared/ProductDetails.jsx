@@ -34,29 +34,33 @@ const ProductDetails = ({
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="mx-auto px-4 py-10"
+        className="p-5"
       >
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <ProductImageGallery
-            currentProduct={currentProduct}
-            displayItems={displayItems}
-            currentImageIndex={currentImageIndex}
-            setCurrentImageIndex={setCurrentImageIndex}
-            thumbnailContainerRef={thumbnailContainerRef}
-            nextImage={nextImage}
-            prevImage={prevImage}
-            similarProducts={similarProducts}
-            itemVariants={itemVariants}
-          />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="w-full">
+            <ProductImageGallery
+              currentProduct={currentProduct}
+              displayItems={displayItems}
+              currentImageIndex={currentImageIndex}
+              setCurrentImageIndex={setCurrentImageIndex}
+              thumbnailContainerRef={thumbnailContainerRef}
+              nextImage={nextImage}
+              prevImage={prevImage}
+              similarProducts={similarProducts}
+              itemVariants={itemVariants}
+            />
+          </div>
 
-          <ProductInfo
-            product={currentProduct}
-            itemVariants={itemVariants}
-            onAddToCart={() => setIsCartOpen(true)}
-            colorVariants={colorVariants}
-            scrollThumbnailIntoView={scrollThumbnailIntoView}
-            reviewStats={reviewStats}
-          />
+          <div className="w-full">
+            <ProductInfo
+              product={currentProduct}
+              itemVariants={itemVariants}
+              onAddToCart={() => setIsCartOpen(true)}
+              colorVariants={colorVariants}
+              scrollThumbnailIntoView={scrollThumbnailIntoView}
+              reviewStats={reviewStats}
+            />
+          </div>
         </div>
       </motion.div>
 

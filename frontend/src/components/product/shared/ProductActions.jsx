@@ -65,9 +65,9 @@ const ProductActions = ({ product, onAddToCart }) => {
   };
 
   return (
-    <div className="mt-5 flex gap-4">
+    <div className="mt-5 flex flex-col sm:flex-row gap-2">
       <Button
-        className="flex-1 bg-red-600 hover:bg-red-700 hover:scale-105 transition-all duration-300 relative text-md"
+        className="w-full bg-red-600 hover:bg-red-700 hover:scale-105 transition-all duration-300 relative text-md py-5"
         disabled={!product?.stock || product?.stock <= 0}
         onClick={handleAddToCart}
       >
@@ -75,7 +75,7 @@ const ProductActions = ({ product, onAddToCart }) => {
       </Button>
       <Button
         variant="outline"
-        className="flex-1 bg-brand hover:bg-darkBrand hover:text-white hover:scale-105 transition-all duration-300 border-slate-700 text-md"
+        className="w-full bg-brand hover:bg-darkBrand hover:text-white hover:scale-105 transition-all duration-300 border-slate-700 text-md py-5"
         disabled={!product?.stock || product?.stock <= 0}
         onClick={handleBuyNow}
       >

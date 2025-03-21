@@ -119,7 +119,7 @@ const Banner = () => {
                   <img
                     src={banner.image.url}
                     alt={`Banner ${index + 1}`}
-                    className="w-full h-[400px] sm:h-[500px] md:h-[800px] object-cover"
+                    className="w-full object-cover"
                   />
                   {isAdmin && (
                     <div className="absolute top-4 right-4 flex gap-2">

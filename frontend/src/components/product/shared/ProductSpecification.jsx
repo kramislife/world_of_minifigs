@@ -63,9 +63,9 @@ const ProductSpecification = ({ product }) => {
   ].filter((spec) => spec.items.length > 0);
 
   return (
-    <div className="bg-gradient-to-b from-brand-start to-brand-end py-20 px-4">
+    <div className="bg-gradient-to-b from-brand-start to-brand-end py-10">
       <div className="max-w-8xl mx-auto">
-        <h2 className="text-3xl font-semibold mb-8 flex items-center gap-4">
+        <h2 className="text-3xl font-semibold mb-8 flex items-center gap-4 px-4">
           <div className="w-1 h-8 bg-red-500 rounded" />
           <span>Specifications</span>
         </h2>

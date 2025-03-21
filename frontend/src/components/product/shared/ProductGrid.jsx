@@ -4,6 +4,7 @@ import ProductCard from "@/components/product/ProductCard";
 import { CategoryFallback } from "@/components/product/shared/FallbackStates";
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
+import { Button } from "@/components/ui/button";
 
 // Component that displays four columns of products in Best Selling and Latest Products in Home Page
 const ProductGrid = ({ title, products, baseUrl, animations }) => {
@@ -44,12 +45,9 @@ const ProductGrid = ({ title, products, baseUrl, animations }) => {
         animate={isInView ? "visible" : "hidden"}
         className="flex items-center justify-center pb-10"
       >
-        <button
-          onClick={handleViewAll}
-          className="py-2 px-6 rounded-md text-white font-semibold bg-red-600 hover:bg-red-700 transition-colors"
-        >
+        <Button onClick={handleViewAll} variant="accent">
           View All
-        </button>
+        </Button>
       </motion.div>
 
       <motion.div

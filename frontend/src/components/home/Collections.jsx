@@ -5,6 +5,7 @@ import CollectionGrid from "@/pages/Collections/CollectionGrid";
 import { CategoryFallback } from "@/components/product/shared/FallbackStates";
 import { collectionsAnimations } from "@/hooks/Animation/animationConfig";
 import { useCollections } from "@/hooks/Product/useCollections";
+import { Button } from "../ui/button";
 
 const Collections = () => {
   const navigate = useNavigate();
@@ -36,12 +37,12 @@ const Collections = () => {
             animate={isInView ? "visible" : "hidden"}
             className="flex items-center justify-center pb-10"
           >
-            <button
-              className="py-2 px-6 rounded-md text-white font-semibold bg-red-600 hover:bg-red-700"
+            <Button
+              variant="accent"
               onClick={() => navigate("/collections")}
             >
               View All Collections
-            </button>
+            </Button>
           </motion.div>
 
           <CollectionGrid
