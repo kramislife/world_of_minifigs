@@ -1,19 +1,11 @@
 import React from "react";
-import ProductGrid from "@/components/product/shared/ProductGrid";
+import ProductGrid from "./components/ProductGrid";
 import { useCategoryProducts } from "@/hooks/Product/useCategoryProducts";
-import LoadingSpinner from "@/components/layout/spinner/LoadingSpinner";
 import { latestProductAnimations } from "@/hooks/Animation/animationConfig";
 
 const LatestProduct = () => {
-  const { products, isLoading, categoryId } = useCategoryProducts("latest");
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[90vh]">
-        <LoadingSpinner />
-      </div>
-    );
-  }
+  const { products, isLoading, isError, categoryId } =
+    useCategoryProducts("latest");
 
   return (
     <ProductGrid
@@ -21,6 +13,8 @@ const LatestProduct = () => {
       products={products}
       baseUrl={`product_category=${categoryId}`}
       animations={latestProductAnimations}
+      isLoading={isLoading}
+      isError={isError}
     />
   );
 };
