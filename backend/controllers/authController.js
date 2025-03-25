@@ -713,7 +713,7 @@ export const updateProfilePicture = catchAsyncErrors(async (req, res, next) => {
 
 // ------------------------------------ CONTACT US ------------------------------------
 export const contactUs = catchAsyncErrors(async (req, res, next) => {
-  const { name, email, message } = req.body;
+  const { name, email, message, subject } = req.body;
 
   if (!name || !email || !message) {
     return next(new ErrorHandler("Please fill in all fields", 400));
@@ -725,11 +725,11 @@ export const contactUs = catchAsyncErrors(async (req, res, next) => {
   }
 
   try {
-    // Send email to admin
+    // Send email to admin with custom subject if provided
     await sendEmail({
       email: process.env.SMTP_USER,
-      subject: `Contact Form Submission`,
-      message: ContactFormTemplate({ name, email, message }),
+      subject: subject ? subject : `Contact Form Submission`,
+      message: ContactFormTemplate({ name, email, message, subject }),
     });
 
     // Send confirmation email to user
