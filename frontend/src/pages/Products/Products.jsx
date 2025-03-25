@@ -12,12 +12,12 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import LoadingSpinner from "@/components/layout/spinner/LoadingSpinner";
 import CustomPagination from "@/components/product/shared/CustomPagination";
 import useScrollToTop from "@/hooks/Common/useScrollToTop";
 import { useProductQueries } from "@/hooks/Product/useProductQueries";
 import { useProductFilters } from "@/hooks/Product/useProductFilters";
 import { useProductPagination } from "@/hooks/Product/useProductPagination";
+import ProductsSkeleton from "@/components/layout/skeleton/Products/ProductsSkeleton";
 
 const Products = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -41,10 +41,8 @@ const Products = () => {
   } = useProductFilters(filterData);
 
   // Handle pagination and sorting
-  const { currentPage, paginatedProducts, totalPages, sortedProducts } = useProductPagination(
-    productData?.allProducts,
-    currentSort
-  );
+  const { currentPage, paginatedProducts, totalPages, sortedProducts } =
+    useProductPagination(productData?.allProducts, currentSort);
 
   // Handle page change
   const handlePageChange = (page) => {
@@ -71,11 +69,7 @@ const Products = () => {
 
   // Loading state
   if (isProductLoading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <LoadingSpinner className="animate-spin" />
-      </div>
-    );
+    return <ProductsSkeleton />;
   }
 
   return (
