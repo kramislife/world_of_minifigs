@@ -62,7 +62,7 @@ const footerLinks = [
         action: "location",
       },
       {
-        label: "brickextremeofficial@yahoo.com",
+        label: "brickextremeofficial@gmail.com",
         action: "email",
       },
     ],
@@ -113,7 +113,7 @@ const Footer = () => {
   };
 
   return (
-    <footer className="bg-brand-start">
+    <footer className="bg-brand-start border-t border-gray-600/50">
       <div className="max-w-[1920px] mx-auto px-4 sm:px-6">
         <div className="pt-16">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-x-8 gap-y-12">

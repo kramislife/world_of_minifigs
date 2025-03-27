@@ -1,180 +1,282 @@
-import React, { useState } from 'react';
-import { ChevronDown, ChevronUp, Info, CheckCircle, Shield, Truck, RotateCcw } from 'lucide-react';
+import React from "react";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 const TermsOfUse = () => {
-  const [expandedSection, setExpandedSection] = useState('acceptance');
-  
-  const toggleSection = (section) => {
-    setExpandedSection(expandedSection === section ? null : section);
-  };
-  
-  const termsLastUpdated = "March 3, 2025";
-  
+  const termsLastUpdated = "March 28, 2025";
+
   const sections = [
     {
-      id: 'acceptance',
-      title: 'Acceptance of Terms',
-      icon: <CheckCircle className="w-5 h-5 text-blue-500" />,
-      content: 'By using our website, you acknowledge that you have read, understood, and agree to be bound by these Terms of Use. If you do not agree with any part of these terms, you must not use our website.'
+      id: "acceptance",
+      title: "1. Acceptance of Terms",
+      content:
+        "Your use of this website constitutes your acceptance of these Terms. We reserve the right to modify these Terms at any time. Any changes will be posted on this page, and your continued use of the website after such changes have been posted will constitute your acceptance of the revised Terms.",
     },
     {
-      id: 'products',
-      title: 'Products and Services',
-      icon: <Info className="w-5 h-5 text-blue-500" />,
+      id: "product",
+      title: "2. Product Information and Authenticity",
       content: (
-        <>
-          <p className="mb-2">Brick Extreme offers ready-to-build MOCs (My Own Creations) and customized LEGO build sets. All products are sourced from genuine, new LEGO elements.</p>
-          <p className="mb-2"><span className="font-medium">Product Descriptions:</span> We strive to provide accurate product descriptions and images. However, we do not warrant that product descriptions or other content are accurate, complete, reliable, current, or error-free.</p>
-          <p className="mb-2"><span className="font-medium">Availability:</span> Product availability is subject to change without notice.</p>
-          <p className="mb-2"><span className="font-medium">Pricing:</span> Prices are subject to change without notice. We are not responsible for typographical errors regarding price or any other matter.</p>
-          <p><span className="font-medium">LEGO Trademark:</span> Brick Extreme is an independent seller of LEGO products. We are not affiliated with, endorsed, or sponsored by the LEGO Group. LEGO® is a trademark of the LEGO Group of companies, which does not sponsor, authorize, or endorse this site.</p>
-        </>
-      )
-    },
-    {
-      id: 'orders',
-      title: 'Orders and Payment',
-      icon: <Shield className="w-5 h-5 text-blue-500" />,
-      content: (
-        <>
-          <p className="mb-2"><span className="font-medium">Order Acceptance:</span> Your order constitutes an offer to purchase our products. We reserve the right to accept or decline your order for any reason.</p>
-          <p className="mb-2"><span className="font-medium">Payment:</span> Payment must be made through our secure payment processors. You agree to provide accurate and complete payment information.</p>
-          <p><span className="font-medium">Order Confirmation:</span> You will receive an order confirmation email upon successful placement of your order.</p>
-        </>
-      )
-    },
-    {
-      id: 'shipping',
-      title: 'Shipping and Delivery',
-      icon: <Truck className="w-5 h-5 text-blue-500" />,
-      content: (
-        <>
-          <p className="mb-2"><span className="font-medium">Shipping:</span> We will ship your order to the address provided during checkout.</p>
-          <p className="mb-2"><span className="font-medium">Delivery:</span> Delivery times may vary depending on your location and shipping method. We are not responsible for delays caused by shipping carriers.</p>
-          <p><span className="font-medium">Risk of Loss:</span> The risk of loss and title for items purchased pass to you upon our delivery to the shipping carrier.</p>
-        </>
-      )
-    },
-    {
-      id: 'returns',
-      title: 'Returns and Refunds',
-      icon: <RotateCcw className="w-5 h-5 text-blue-500" />,
-      content: (
-        <>
-          <p className="mb-2"><span className="font-medium">Return Policy:</span> Please refer to our separate Return Policy for details on returns and refunds.</p>
-          <p><span className="font-medium">Damaged or Defective Products:</span> If you receive a damaged or defective product, please contact us immediately.</p>
-        </>
-      )
-    },
-    {
-      id: 'conduct',
-      title: 'User Conduct',
-      content: (
-        <>
-          <p className="mb-2">You agree to use our website and services lawfully and responsibly. You must not:</p>
-          <ul className="list-disc pl-5 mb-2">
-            <li>Use our website for any illegal or unauthorized purpose.</li>
-            <li>Transmit any viruses or other harmful code.</li>
-            <li>Attempt to gain unauthorized access to our systems.</li>
-            <li>Engage in any conduct that disrupts or interferes with our website or services.</li>
+        <div className="space-y-3">
+          <p className="font-semibold mb-2">
+            We provide the following guarantees regarding our products:
+          </p>
+          <ul className="list-disc pl-5 space-y-2">
+            <li className="text-sm">
+              <span className="font-medium">Authentic LEGO Parts:</span> We
+              guarantee that all LEGO parts, minifigure pieces, heads, torsos,
+              and other products sold on this website are authentic LEGO
+              products.
+            </li>
+            <li className="text-sm">
+              <span className="font-medium">Product Descriptions:</span> We make
+              every effort to provide accurate descriptions and images of our
+              products. However, we do not warrant that the descriptions,
+              images, or other content on this website are accurate, complete,
+              reliable, current, or error-free.
+            </li>
+            <li className="text-sm">
+              <span className="font-medium">Availability:</span> Product
+              availability is subject to change without notice.
+            </li>
           </ul>
-        </>
-      )
+        </div>
+      ),
     },
     {
-      id: 'ip',
-      title: 'Intellectual Property',
+      id: "orders",
+      title: "3. Orders and Payment",
       content: (
-        <>
-          <p className="mb-2"><span className="font-medium">Content:</span> All content on our website, including text, images, and logos, is our property or the property of our licensors and is protected by intellectual property laws.</p>
-          <p><span className="font-medium">MOC Designs:</span> MOC designs sold by Brick Extreme are either designed by Brick Extreme or used with permission from the original designer. Copying or redistributing these designs without permission is prohibited.</p>
-        </>
-      )
+        <ul className="list-disc pl-5 space-y-2">
+          <li className="text-sm">
+            <span className="font-medium">Order Acceptance:</span> Your order
+            constitutes an offer to purchase our products. We reserve the right
+            to accept or reject any order for any reason.
+          </li>
+          <li className="text-sm">
+            <span className="font-medium">Payment:</span> Payment must be made
+            in full at the time of purchase. We accept [List accepted payment
+            methods, e.g., credit cards, PayPal].
+          </li>
+          <li className="text-sm">
+            <span className="font-medium">Pricing:</span> Prices are subject to
+            change without notice. We are not responsible for typographical
+            errors regarding pricing or product information.
+          </li>
+          <li className="text-sm">
+            <span className="font-medium">Sales Tax:</span> Applicable sales tax
+            will be added to your order based on your shipping address and the
+            prevailing laws of Utah. .
+          </li>
+        </ul>
+      ),
     },
     {
-      id: 'disclaimer',
-      title: 'Disclaimer of Warranties',
-      content: 'Our website and products are provided "as is" and "as available" without any warranties, express or implied. We do not warrant that our website will be uninterrupted or error-free.'
+      id: "shipping",
+      title: "4. Shipping and Delivery",
+      content: (
+        <ul className="list-disc pl-5 space-y-2">
+          <li className="text-sm">
+            <span className="font-medium">Shipping:</span> We will ship your
+            order to the address provided during checkout. Shipping times may
+            vary.
+          </li>
+          <li className="text-sm">
+            <span className="font-medium">Risk of Loss:</span> The risk of loss
+            and title for all items purchased from us pass to you upon our
+            delivery to the carrier.
+          </li>
+          <li className="text-sm">
+            <span className="font-medium">International Shipping:</span> If we
+            offer international shipping, you are responsible for any customs
+            duties, taxes, and fees.
+          </li>
+        </ul>
+      ),
     },
     {
-      id: 'liability',
-      title: 'Limitation of Liability',
-      content: 'In no event shall Brick Extreme be liable for any direct, indirect, incidental, special, or consequential damages arising out of or in connection with your use of our website or products.'
+      id: "returns",
+      title: "5. Returns and Refunds",
+      content: (
+        <ul className="list-disc pl-5 space-y-2">
+          <li className="text-sm">
+            <span className="font-medium">Return Policy:</span> Returns are
+            accepted within 30 days of receipt for unopened items. Customers are
+            responsible for return shipping.
+          </li>
+          <li className="text-sm">
+            <span className="font-medium">Refunds:</span> Refunds will be issued
+            to the original payment method.
+          </li>
+          <li className="text-sm">
+            <span className="font-medium">Damaged or Defective Items:</span> If
+            you receive a damaged or defective item, please contact us
+            immediately.
+          </li>
+        </ul>
+      ),
     },
     {
-      id: 'indemnification',
-      title: 'Indemnification',
-      content: 'You agree to indemnify and hold Brick Extreme harmless from any claims, damages, or expenses arising out of your use of our website or products.'
+      id: "ip",
+      title: "6. Intellectual Property",
+      content: (
+        <ul className="list-disc pl-5 space-y-2">
+          <li className="text-sm">
+            <span className="font-medium">Copyright:</span> All content on this
+            website, including text, images, logos, and designs, is the property
+            of World of Minifigs or its licensors and is protected by copyright
+            laws.
+          </li>
+          <li className="text-sm">
+            <span className="font-medium">Trademarks:</span> "World of Minifigs"
+            and our logo are trademarks of World of Minifigs/Brick Extreme. You
+            may not use our trademarks without our prior written consent.
+          </li>
+          <li className="text-sm">
+            <span className="font-medium">LEGO Trademarks:</span> LEGO, the LEGO
+            logo, the Minifigure, and the Brick and Knob configurations are
+            trademarks of the LEGO Group of Companies, which does not sponsor,
+            authorize, or endorse this site.
+          </li>
+        </ul>
+      ),
     },
     {
-      id: 'governing',
-      title: 'Governing Law',
-      content: 'These Terms of Use shall be governed by and construed following the laws of the United States, without regard to its conflict of law principles.'
+      id: "liability",
+      title: "7. Limitation of Liability",
+      content: (
+        <div className="space-y-3">
+          <p className="text-sm">
+            To the fullest extent permitted by law, World of Minifigs shall not
+            be liable for any direct, indirect, incidental, consequential, or
+            punitive damages arising from your use of this website or the
+            purchase of our products.
+          </p>
+          <p className="text-sm">
+            In no event shall our total liability to you for all damages,
+            losses, or causes of action exceed the amount paid by you for the
+            products in question.
+          </p>
+        </div>
+      ),
     },
     {
-      id: 'changes',
-      title: 'Changes to Terms of Use',
-      content: 'We may update these Terms of Use from time to time. We will notify you of any changes by posting the new Terms of Use on our website. Your continued use of our website after the changes are posted constitutes your acceptance of the updated terms.'
+      id: "governing",
+      title: "8. Governing Law and Jurisdiction",
+      content: (
+        <div className="space-y-3">
+          <p className="text-sm">
+            These Terms shall be governed by and construed following the laws of
+            the State of Utah, without regard to its conflict of law principles.
+          </p>
+          <p className="text-sm">
+            Any dispute arising out of or relating to these Terms shall be
+            subject to the exclusive jurisdiction of the state and federal
+            courts located in Lehi, Utah.
+          </p>
+        </div>
+      ),
     },
     {
-      id: 'contact',
-      title: 'Contact Us',
-      content: 'If you have any questions or concerns about these Terms of Use, please contact us via email at brickextremeofficial@yahoo.com'
-    }
+      id: "conduct",
+      title: "9. User Conduct",
+      content: (
+        <ul className="list-disc pl-5 space-y-2">
+          <li className="text-sm">
+            You agree not to use this website for any unlawful purpose.
+          </li>
+          <li className="text-sm">
+            You agree not to upload or transmit any harmful or malicious code.
+          </li>
+          <li className="text-sm">
+            You agree not to interfere with the operation of this website.
+          </li>
+        </ul>
+      ),
+    },
+    {
+      id: "contact",
+      title: "10. Contact Information",
+      content: (
+        <div className="space-y-3">
+          <p className="text-sm">
+            If you have any questions about these Terms, please contact us at:
+          </p>
+          <div className="text-sm ml-5">
+            <p>World of Minifigs/ Brick Extreme LLC</p>
+            <p>Lehi, Utah, 84043</p>
+            <p>build.wom@gmail.com</p>
+            <p>brickextremeofficial@gmail.com</p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      id: "severability",
+      title: "11. Severability",
+      content: (
+        <p className="text-sm">
+          If any provision of these Terms is held to be invalid or
+          unenforceable, the remaining provisions shall continue to be valid and
+          enforceable.
+        </p>
+      ),
+    },
+    {
+      id: "entire",
+      title: "12. Entire Agreement",
+      content: (
+        <p className="text-sm">
+          These Terms constitute the entire agreement between you and World of
+          Minifigs concerning the use of this website and the purchase of our
+          products.
+        </p>
+      ),
+    },
   ];
 
   return (
-    <div className="bg-gradient-to-b from-blue-50 to-white min-h-screen">
-      <div className="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-blue-800 mb-3">Terms of Use</h1>
-          <p className="text-lg text-gray-600">Last Updated: {termsLastUpdated}</p>
-          <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-yellow-800">
-            <p className="text-sm">Welcome to Brick Extreme! By accessing and using our website (www.brickextreme.com) and purchasing our products, you agree to comply with and be bound by the following Terms of Use. Please read these terms carefully.</p>
-          </div>
-        </div>
+    <div className="bg-brand-start p-5 max-w-8xl">
+      {/* Header */}
+      <div className="bg-white p-6 rounded-t-lg">
+        <h1 className="text-2xl font-bold text-brand-start mb-3">
+          Terms of Use
+        </h1>
+        <p className="text-brand-start text-sm leading-6">
+          Welcome to the World of Minifigs! By accessing and using our website
+          (www.worldofminifigs.com) and purchasing products from us, you agree
+          to be bound by these Terms of Use ("Terms"). If you do not agree with
+          any part of these Terms, you must not use our website.
+        </p>
+      </div>
 
-        {/* Terms Sections */}
-        <div className="space-y-4">
-          {sections.map((section) => (
-            <div key={section.id} className="border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow">
-              <button
-                className="w-full flex items-center justify-between p-4 text-left"
-                onClick={() => toggleSection(section.id)}
-              >
-                <div className="flex items-center">
-                  {section.icon && <span className="mr-3">{section.icon}</span>}
-                  <h3 className="text-lg font-medium text-gray-900">{section.title}</h3>
-                </div>
-                {expandedSection === section.id ? 
-                  <ChevronUp className="h-5 w-5 text-gray-500" /> : 
-                  <ChevronDown className="h-5 w-5 text-gray-500" />
-                }
-              </button>
-              {expandedSection === section.id && (
-                <div className="p-4 pt-0 border-t border-gray-200 text-gray-700">
-                  {section.content}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-
-        {/* Footer */}
-        <div className="mt-12 text-center">
-          <p className="text-sm text-gray-500">
-            By continuing to use our website, you acknowledge and agree to these Terms of Use.
-          </p>
-          <div className="mt-6 flex justify-center space-x-4">
-            <button className="px-6 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors font-medium">
-              Accept Terms
-            </button>
-            <button className="px-6 py-2 border border-gray-300 text-gray-700 rounded-full hover:bg-gray-50 transition-colors font-medium">
-              Print Terms
-            </button>
-          </div>
-        </div>
+      {/* Terms Sections using Shadcn Accordion */}
+      <Accordion
+        type="single"
+        collapsible
+        className="w-full border border-gray-200 bg-white"
+      >
+        {sections.map((section) => (
+          <AccordionItem
+            key={section.id}
+            value={section.id}
+            className="border-b border-gray-200 last:border-b-0"
+          >
+            <AccordionTrigger className="px-4 py-3 text-brand-start font-medium hover:no-underline hover:text-yellow-300 hover:bg-brand-start">
+              {section.title}
+            </AccordionTrigger>
+            <AccordionContent className="px-4 py-4 text-brand-start leading-6">
+              {section.content}
+            </AccordionContent>
+          </AccordionItem>
+        ))}
+      </Accordion>
+      {/* Footer */}
+      <div className="py-4 text-right text-sm text-yellow-300">
+        Last Updated: {termsLastUpdated}
       </div>
     </div>
   );
