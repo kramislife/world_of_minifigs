@@ -1,7 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 
-const HeroSection = () => {
+const AboutHeroSection = () => {
   return (
     <section className="relative bg-brand-gradient overflow-hidden py-20 md:py-36">
       <div className="absolute inset-0 opacity-10">
@@ -48,4 +48,4 @@ const HeroSection = () => {
   );
 };
 
-export default HeroSection;
+export default AboutHeroSection;

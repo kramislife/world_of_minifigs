@@ -1,6 +1,6 @@
 import React from "react";
 import Metadata from "@/components/layout/metadata/Metadata";
-import HeroSection from "@/pages/About/components/HeroSection";
+import AboutHeroSection from "@/pages/About/components/AboutHeroSection";
 import StatSection from "@/pages/About/components/StatSection";
 import StorySection from "@/pages/About/components/StorySection";
 import HowToOrderSection from "@/pages/About/components/HowToOrderSection";
@@ -12,7 +12,7 @@ const About = () => {
   return (
     <>
       <Metadata title="About Us - World of Minifigs" />
-      <HeroSection />
+      <AboutHeroSection />
       <StatSection />
       <StorySection />
       <HowToOrderSection />
