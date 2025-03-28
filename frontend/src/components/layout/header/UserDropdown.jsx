@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,14 +11,14 @@ import { useLazyLogoutQuery } from "@/redux/api/authApi";
 import { User, LogOut, Settings, LayoutDashboard, Package } from "lucide-react";
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 
 const UserDropdown = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useSelector((state) => state.auth);
-  const [logout, { data, isError, error, isSuccess }] =
-    useLazyLogoutQuery();
+  const [logout, { data, isError, error, isSuccess }] = useLazyLogoutQuery();
 
   useEffect(() => {
     if (isError) {
@@ -43,6 +44,11 @@ const UserDropdown = () => {
     user.role
   );
 
+  // Check if a menu item is active based on current path
+  const isActive = (path) => {
+    return location.pathname.startsWith(path);
+  };
+
   const menuItems = [
     ...(isAdminOrEmployee
       ? [
@@ -50,6 +56,7 @@ const UserDropdown = () => {
             label: "Dashboard",
             icon: <LayoutDashboard className="mr-2 h-4 w-4" />,
             onClick: () => navigate("/admin"),
+            path: "/admin",
           },
         ]
       : []),
@@ -57,23 +64,26 @@ const UserDropdown = () => {
       label: "My Orders",
       icon: <Package className="mr-2 h-4 w-4" />,
       onClick: () => navigate("/my-orders?status=all"),
+      path: "/my-orders",
     },
     {
       label: "Profile",
       icon: <User className="mr-2 h-4 w-4" />,
       onClick: () => navigate("/profile"),
+      path: "/profile",
     },
     {
       label: "Settings",
       icon: <Settings className="mr-2 h-4 w-4" />,
       onClick: () => navigate("/settings"),
+      path: "/settings",
     },
   ];
 
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger className="focus:outline-none">
-        <div className="w-8 h-8 rounded-full  overflow-hidden flex items-center justify-center">
+        <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center">
           {user?.profile_picture?.url ? (
             <img
               src={user.profile_picture.url}
@@ -81,22 +91,27 @@ const UserDropdown = () => {
               className="w-full h-full object-cover"
             />
           ) : (
-            <div className="w-full h-full bg-red-500 flex items-center justify-center text-white hover:bg-red-600 transition-colors">
+            <Button variant="accent">
               {user?.name?.charAt(0).toUpperCase()}
-            </div>
+            </Button>
           )}
         </div>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent
-        className="w-60 mt-2 mr-3 bg-darkBrand border-gray-800 text-white z-[1001]"
+        className="text-white w-60 mt-2 mr-3 bg-darkBrand border border-gray-800 z-[1001] shadow-lg"
         sideOffset={5}
         align="end"
         forceMount
-        style={{ position: "relative", zIndex: 1001 }}
+        style={{
+          position: "relative",
+          zIndex: 1001,
+          backgroundColor: "var(--color-dark-brand)",
+          backdropFilter: "blur(8px)",
+        }}
       >
         {/* User Name and Email */}
-        <DropdownMenuLabel>
+        <DropdownMenuLabel className="bg-opacity-100">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
               {user?.profile_picture?.url ? (
@@ -106,25 +121,29 @@ const UserDropdown = () => {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <div className="w-full h-full bg-red-500 flex items-center justify-center text-white">
+                <Button variant="accent">
                   {user?.name?.charAt(0).toUpperCase()}
-                </div>
+                </Button>
               )}
             </div>
             <div className="flex flex-col">
               <p className="text-sm font-medium">{user?.name}</p>
-              <p className="text-xs text-gray-400">{user?.email}</p>
+              <p className="text-xs text-gray-300">{user?.email}</p>
             </div>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator className="bg-gray-600" />
 
         {/* Menu Items */}
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 bg-opacity-100">
           {menuItems.map((item, index) => (
             <DropdownMenuItem
               key={index}
-              className="cursor-pointer transition-colors"
+              className={`cursor-pointer transition-colors ${
+                isActive(item.path)
+                  ? "bg-accent text-black"
+                  : "hover:text-black"
+              }`}
               onClick={item.onClick}
             >
               {item.icon}
@@ -136,7 +155,7 @@ const UserDropdown = () => {
 
         {/* Logout */}
         <DropdownMenuItem
-          className="cursor-pointer text-red-500 focus:text-red-500 transition-colors"
+          className="cursor-pointer text-red-500 focus:text-red-500 hover:bg-gray-700 transition-colors"
           onClick={handleLogout}
         >
           <LogOut className="mr-2 h-4 w-4 " />

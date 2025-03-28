@@ -9,7 +9,7 @@ const CustomPagination = ({ currentPage, totalPages, onPageChange }) => {
 
   const renderPaginationItems = () => {
     const items = [];
-    const maxVisiblePages = 4;
+    const maxVisiblePages = 5;
 
     // Always show first page
     items.push(
@@ -17,9 +17,11 @@ const CustomPagination = ({ currentPage, totalPages, onPageChange }) => {
         key={1}
         onClick={() => onPageChange(1)}
         className={`h-9 w-9 rounded-md text-sm transition-colors 
-          ${currentPage === 1 
-            ? "bg-red-600 text-white" 
-            : "hover:bg-red-600/80 text-gray-400"}`}
+          ${
+            currentPage === 1
+              ? "bg-accent text-black"
+              : "hover:bg-accent/80 hover:text-black text-gray-300"
+          }`}
       >
         1
       </button>
@@ -28,7 +30,7 @@ const CustomPagination = ({ currentPage, totalPages, onPageChange }) => {
     // Calculate range of visible pages
     let startPage = Math.max(2, currentPage - Math.floor(maxVisiblePages / 2));
     let endPage = Math.min(totalPages - 1, startPage + maxVisiblePages - 3);
-    
+
     // Adjust start if we're near the end
     if (endPage - startPage < maxVisiblePages - 3) {
       startPage = Math.max(2, endPage - (maxVisiblePages - 3));
@@ -52,10 +54,12 @@ const CustomPagination = ({ currentPage, totalPages, onPageChange }) => {
         <button
           key={i}
           onClick={() => onPageChange(i)}
-          className={`h-9 w-9 rounded-md text-sm transition-colors 
-            ${currentPage === i 
-              ? "bg-red-600 text-white" 
-              : "hover:bg-red-600/80 text-gray-400"}`}
+          className={`h-9 w-9 rounded-md text-sm transition-colors
+            ${
+              currentPage === i
+                ? "bg-accent text-black"
+                : "hover:bg-accent/80 hover:text-black text-gray-300"
+            }`}
         >
           {i}
         </button>
@@ -81,9 +85,11 @@ const CustomPagination = ({ currentPage, totalPages, onPageChange }) => {
           key={totalPages}
           onClick={() => onPageChange(totalPages)}
           className={`h-9 w-9 rounded-md text-sm transition-colors 
-            ${currentPage === totalPages 
-              ? "bg-red-600 text-white" 
-              : "hover:bg-red-600/80 text-gray-400"}`}
+            ${
+              currentPage === totalPages
+                ? "bg-accent text-black"
+                : "hover:bg-accent/80 hover:text-black text-gray-300"
+            }`}
         >
           {totalPages}
         </button>
@@ -101,27 +107,29 @@ const CustomPagination = ({ currentPage, totalPages, onPageChange }) => {
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
           className={`flex items-center gap-1 rounded-md px-3 py-2 text-sm transition-colors
-            ${currentPage === 1 
-              ? "pointer-events-none" 
-              : "text-gray-400 hover:bg-red-600/80 hover:text-white"}`}
+            ${
+              currentPage === 1
+                ? "pointer-events-none text-gray-600"
+                : "text-gray-300 hover:bg-accent/80 hover:text-black"
+            }`}
         >
           <ChevronLeft className="h-4 w-4" />
           <span>Previous</span>
         </button>
 
         {/* Page Numbers */}
-        <div className="flex items-center gap-1">
-          {renderPaginationItems()}
-        </div>
+        <div className="flex items-center gap-1">{renderPaginationItems()}</div>
 
         {/* Next Button */}
         <button
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
           className={`flex items-center gap-1 rounded-md px-3 py-2 text-sm transition-colors
-            ${currentPage === totalPages 
-              ? "pointer-events-none" 
-              : "text-gray-400 hover:bg-red-600/80 hover:text-white"}`}
+            ${
+              currentPage === totalPages
+                ? "pointer-events-none text-gray-600"
+                : "text-gray-300 hover:bg-accent/80 hover:text-black"
+            }`}
         >
           <span>Next</span>
           <ChevronRight className="h-4 w-4" />

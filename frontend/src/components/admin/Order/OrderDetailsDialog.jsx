@@ -19,6 +19,12 @@ const OrderDetailsDialog = ({ isOpen, onClose, order }) => {
   const [selectedStatus, setSelectedStatus] = useState("");
   const [updateOrder, { isLoading }] = useUpdateOrderAdminMutation();
   const { user } = useSelector((state) => state.auth);
+  const [shippingInfo, setShippingInfo] = useState({
+    courier: "",
+    trackingNumber: "",
+    trackingLink: "",
+    additionalInfo: "",
+  });
 
   // Memoized formatted date
   const formattedDate = useMemo(() => {
@@ -32,8 +38,21 @@ const OrderDetailsDialog = ({ isOpen, onClose, order }) => {
     }
   }, [order]);
 
+  const handleShippingInfoChange = (e) => {
+    setShippingInfo({
+      ...shippingInfo,
+      [e.target.id]: e.target.value,
+    });
+  };
+
   const handleStatusUpdate = async () => {
-    if (!order || selectedStatus === order.orderStatus) {
+    // Only include shipping info if status is being changed to "Shipped"
+    const updateData = {
+      orderStatus: selectedStatus,
+      ...(selectedStatus === "Shipped" && { shippingInfo }),
+    };
+
+    if (!order || updateData.orderStatus === order.orderStatus) {
       toast.info("No changes made to order status");
       return;
     }
@@ -41,11 +60,11 @@ const OrderDetailsDialog = ({ isOpen, onClose, order }) => {
     try {
       const result = await updateOrder({
         id: order._id,
-        orderData: { orderStatus: selectedStatus },
+        orderData: updateData,
       }).unwrap();
 
       if (result.success) {
-        toast.success(`Order status updated to ${selectedStatus}`);
+        toast.success(`Order status updated to ${updateData.orderStatus}`);
         onClose();
       } else {
         throw new Error(result.message || "Failed to update order status");
@@ -53,7 +72,7 @@ const OrderDetailsDialog = ({ isOpen, onClose, order }) => {
     } catch (error) {
       console.error("Update error:", error);
       toast.error(error.data?.message || "Failed to update order status");
-      setSelectedStatus(order.orderStatus); // Reset to original status on error
+      setSelectedStatus(order.orderStatus);
     }
   };
 
@@ -89,6 +108,8 @@ const OrderDetailsDialog = ({ isOpen, onClose, order }) => {
             <ShippingDetails
               shippingAddress={order.shippingAddress}
               orderNotes={order.orderNotes}
+              shippingInfo={order.shippingInfo}
+              orderStatus={order.orderStatus}
             />
           </div>
 
@@ -101,6 +122,8 @@ const OrderDetailsDialog = ({ isOpen, onClose, order }) => {
                 user={user}
                 handleStatusUpdate={handleStatusUpdate}
                 isLoading={isLoading}
+                shippingInfo={shippingInfo}
+                handleShippingInfoChange={handleShippingInfoChange}
               />
               <CustomerInfo user={order.user} email={order.email} />
               <PaymentInfo

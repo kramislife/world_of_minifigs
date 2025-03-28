@@ -6,7 +6,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Checkbox } from "@/components/ui/checkbox";
-import { AlertCircle, ChevronRight, ChevronLeft } from "lucide-react";
+import { ChevronRight, ChevronLeft } from "lucide-react";
 import { useProductFilters } from "@/hooks/Product/useProductFilters";
 
 const FilterAccordion = ({
@@ -51,7 +51,7 @@ const FilterAccordion = ({
           <div className="px-2 pb-4 pt-2 border-b border-gray-700">
             <button
               onClick={handleBackClick}
-              className="flex items-center text-white hover:text-red-400"
+              className="flex items-center hover:text-accent"
             >
               <ChevronLeft className="h-5 w-5 mr-1" />
               <span className="text-md font-semibold">
@@ -63,7 +63,7 @@ const FilterAccordion = ({
             </button>
           </div>
 
-          <div className="bg-darkBrand p-2">
+          <div className="bg-brand-start p-2">
             {subItems.map((subItem) => {
               const filterKey =
                 key === "product_category"
@@ -90,7 +90,7 @@ const FilterAccordion = ({
                   className={`flex items-center justify-between p-4 group cursor-pointer ${
                     count === 0
                       ? "opacity-50 pointer-events-none"
-                      : "hover:bg-brand/50 rounded-md"
+                      : "hover:bg-brand-end/50 rounded-md"
                   }`}
                 >
                   <div className="flex items-center space-x-2">
@@ -103,9 +103,9 @@ const FilterAccordion = ({
                         handleFilterClick(filterKey, subItem._id)
                       }
                       disabled={count === 0}
-                      className="border-gray-600 data-[state=checked]:bg-red-600 data-[state=checked]:border-red-600"
+                      className="border-gray-600 data-[state=checked]:bg-accent data-[state=checked]:border-accent"
                     />
-                    <span className="text-sm text-gray-300 group-hover:text-red-400">
+                    <span className="text-sm text-gray-300 group-hover:text-accent">
                       {subItem.name}
                     </span>
                   </div>
@@ -120,7 +120,7 @@ const FilterAccordion = ({
 
     // Render normal category content
     return (
-      <AccordionContent className="p-3 bg-darkBrand">
+      <AccordionContent className="p-3 bg-brand-end/50">
         {category.length > 0 ? (
           category.map((option) => {
             const hasSubItems =
@@ -193,7 +193,7 @@ const FilterAccordion = ({
                           key !== "product_collection")) &&
                       itemCount === 0
                         ? "opacity-50 pointer-events-none"
-                        : "hover:bg-brand"
+                        : "hover:bg-brand-start"
                     }`}
                 >
                   <div className="flex-1">
@@ -211,7 +211,7 @@ const FilterAccordion = ({
                               key !== "product_collection")) &&
                           itemCount === 0
                         }
-                        className="border-gray-600 data-[state=checked]:bg-red-600 data-[state=checked]:border-red-600"
+                        className="border-gray-700 data-[state=checked]:bg-accent data-[state=checked]:border-accent"
                       />
                       {key === "product_color" ? (
                         <div className="flex items-center space-x-2">
@@ -219,12 +219,12 @@ const FilterAccordion = ({
                             className="w-4 h-4 rounded-full border border-gray-600"
                             style={{ backgroundColor: option.code }}
                           />
-                          <span className="text-sm text-gray-300 group-hover:text-red-400 py-2">
+                          <span className="text-sm text-gray-300 group-hover:text-accent py-2">
                             {option.label}
                           </span>
                         </div>
                       ) : (
-                        <span className="text-sm text-gray-300 group-hover:text-red-400 py-2">
+                        <span className="text-sm text-gray-300 group-hover:text-accent py-2">
                           {option.label}
                         </span>
                       )}
@@ -245,7 +245,7 @@ const FilterAccordion = ({
                         key === "product_collection") && (
                         <button
                           onClick={() => handleCategoryClick(key, option.value)}
-                          className="p-1 hover:bg-red-600 rounded-full text-gray-400 hover:text-white"
+                          className="p-1 hover:bg-accent rounded-full text-gray-400 hover:text-black"
                         >
                           <ChevronRight className="h-4 w-4" />
                         </button>
@@ -278,11 +278,11 @@ const FilterAccordion = ({
           <AccordionItem
             key={key}
             value={key}
-            className="border border-gray-700 rounded-md my-2 bg-brand"
+            className="border border-gray-700 rounded-md my-2 bg-brand-card"
           >
             <AccordionTrigger className="px-4 py-3 transition-colors group hover:no-underline rounded-md">
               <div className="flex items-center justify-between w-full">
-                <span className="font-semibold text-white group-hover:text-red-400">
+                <span className="font-semibold text-white group-hover:text-accent">
                   {getDisplayName(key)}
                 </span>
               </div>

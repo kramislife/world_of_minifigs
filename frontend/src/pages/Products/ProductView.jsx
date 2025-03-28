@@ -19,27 +19,24 @@ const ProductView = () => {
     skip: !id,
   });
 
-  // Get review stats 
+  // Get review stats
   const reviewStats = reviewsData?.stats || {
     averageRating: 0,
     totalReviews: 0,
   };
 
-  const displayProducts = useMemo(() => {
-    if (!data?.product) return [];
+  // Combine current product with similar products for display
+  const similarProducts = useMemo(() => {
+    if (!data?.product || !data?.similarProducts?.length) return null;
 
-    const mainProduct = data.product;
+    // Make sure current product is included in similar products list
+    const allProducts = [data.product, ...data.similarProducts].filter(
+      (item, index, self) => index === self.findIndex((t) => t._id === item._id)
+    );
 
-    // If there are similar products, return main product + similar products
-    if (data.similarProducts?.length > 0) {
-      return [mainProduct, ...data.similarProducts].filter(Boolean);
-    }
-
-    // If product has multiple images but no similar products, return just the main product
-    return [mainProduct];
-  }, [data]);
-
-  // console.log("DISPLAY PRODUCTS", displayProducts);
+    // Only return if we have more than one product (meaning we have similar products)
+    return allProducts.length > 1 ? allProducts : null;
+  }, [data?.product, data?.similarProducts]);
 
   useEffect(() => {
     if (isError) {
@@ -59,9 +56,7 @@ const ProductView = () => {
           {/* Product Details */}
           <ProductDetails
             product={data?.product}
-            similarProducts={
-              data?.similarProducts?.length > 0 ? displayProducts : null
-            }
+            similarProducts={similarProducts}
             containerVariants={productViewAnimations.containerVariants}
             itemVariants={productViewAnimations.itemVariants}
             reviewStats={reviewStats}

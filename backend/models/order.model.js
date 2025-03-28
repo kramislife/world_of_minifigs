@@ -124,9 +124,19 @@ const orderSchema = new mongoose.Schema(
     shippingInfo: {
       courier: {
         type: String,
+        trim: true,
       },
       trackingNumber: {
         type: String,
+        trim: true,
+      },
+      trackingLink: {
+        type: String,
+        trim: true,
+      },
+      additionalInfo: {
+        type: String,
+        trim: true,
       },
       shippedAt: {
         type: Date,

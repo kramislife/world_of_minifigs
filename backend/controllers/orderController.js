@@ -64,57 +64,96 @@ const validateOrderData = (data, next) => {
 };
 
 // --------------- SEND ORDER EMAIL -----------------------------
-const sendOrderEmail = async (type, order, email) => {
-  let template;
+const sendOrderEmail = catchAsyncErrors(async (type, order, recipientEmail) => {
+  let emailTemplate;
   let subject;
 
-  switch (order.orderStatus) {
+  const customerName = order.user?.username || recipientEmail.split("@")[0];
+  const orderId = order._id;
+  const orderStatus = order.orderStatus;
+
+  // Determine which template to use based on order status
+  switch (orderStatus) {
     case "Pending":
-      template = OrderConfirmationTemplate;
-      subject = `Order Confirmation #${order._id}`;
+      emailTemplate = OrderConfirmationTemplate(
+        customerName,
+        orderId,
+        orderStatus,
+        order
+      );
+      subject = "Order Confirmation";
       break;
     case "Processing":
-      template = OrderProcessingTemplate;
-      subject = `Your Order #${order._id} is Being Processed`;
+      emailTemplate = OrderProcessingTemplate(
+        customerName,
+        orderId,
+        orderStatus,
+        order
+      );
+      subject = "Your Order is Being Processed";
       break;
     case "Shipped":
-      template = OrderShippedTemplate;
-      subject = `Your Order #${order._id} Has Been Shipped`;
+      // Make sure to pass the complete order object including shipping info
+      emailTemplate = OrderShippedTemplate(
+        customerName,
+        orderId,
+        orderStatus,
+        order
+      );
+      subject = "Your Order Has Been Shipped";
       break;
     case "Delivered":
-      template = OrderDeliveredTemplate;
-      subject = `Your Order #${order._id} Has Been Delivered`;
+      emailTemplate = OrderDeliveredTemplate(
+        customerName,
+        orderId,
+        orderStatus,
+        order
+      );
+      subject = "Your Order Has Been Delivered";
       break;
     case "Cancelled":
-      template = OrderCancelledTemplate;
-      subject = `Your Order #${order._id} Has Been Cancelled`;
+      emailTemplate = OrderCancelledTemplate(
+        customerName,
+        orderId,
+        orderStatus,
+        order
+      );
+      subject = "Your Order Has Been Cancelled";
       break;
     case "Pre-Order":
-      template = OrderPreOrderTemplate;
-      subject = `Pre-Order Confirmation #${order._id}`;
+      emailTemplate = OrderPreOrderTemplate(
+        customerName,
+        orderId,
+        orderStatus,
+        order
+      );
+      subject = "Your Pre-Order Confirmation";
       break;
     case "On Hold":
-      template = OrderOnHoldTemplate;
-      subject = `Your Order #${order._id} Is On Hold`;
+      emailTemplate = OrderOnHoldTemplate(
+        customerName,
+        orderId,
+        orderStatus,
+        order
+      );
+      subject = "Your Order is On Hold";
       break;
     default:
-      template = OrderConfirmationTemplate;
-      subject = `Order Status Update - #${order._id}`;
+      emailTemplate = OrderConfirmationTemplate(
+        customerName,
+        orderId,
+        orderStatus,
+        order
+      );
+      subject = "Order Update";
   }
 
-  const emailConfig = {
-    email,
+  await sendEmail({
+    email: recipientEmail,
     subject,
-    message: template(
-      order.user?.username || "Valued Customer",
-      order._id,
-      order.orderStatus,
-      order
-    ),
-  };
-
-  await sendEmail(emailConfig);
-};
+    message: emailTemplate,
+  });
+});
 
 // --------------- CREATE A NEW ORDER -----------------------------
 
@@ -380,6 +419,29 @@ export const updateOrderForAdmin = catchAsyncErrors(async (req, res, next) => {
           400
         )
       );
+    }
+
+    // Validate shipping information when status is being updated to "Shipped"
+    if (req.body.orderStatus === "Shipped") {
+      const { courier, trackingNumber, trackingLink } =
+        req.body.shippingInfo || {};
+
+      if (!courier || !trackingNumber || !trackingLink) {
+        return next(
+          new ErrorHandler(
+            "Courier, tracking number, and tracking link are required for shipped orders",
+            400
+          )
+        );
+      }
+
+      order.shippingInfo = {
+        courier,
+        trackingNumber,
+        trackingLink,
+        additionalInfo: req.body.shippingInfo?.additionalInfo || "",
+        shippedAt: Date.now(),
+      };
     }
 
     order.orderStatus = req.body.orderStatus;

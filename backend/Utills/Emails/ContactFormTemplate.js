@@ -81,7 +81,7 @@ export const ContactFormTemplate = (formData) => {
     <body>
         <div class="container">
             <div class="header">
-                <h1>Contact Form Submission</h1>
+                <h1>${formData.subject || "Contact Form Submission"}</h1>
             </div>
             <div class="content">
                 <div class="message-section">
@@ -93,6 +93,16 @@ export const ContactFormTemplate = (formData) => {
                         <span class="info-label">Email:</span>
                         <span>${formData.email}</span>
                     </div>
+                    ${
+                      formData.subject
+                        ? `
+                    <div class="info-row">
+                        <span class="info-label">Subject:</span>
+                        <span>${formData.subject}</span>
+                    </div>
+                    `
+                        : ""
+                    }
                     <div class="info-row">
                         <span class="info-label">Message:</span>
                         <div class="message-box">${formData.message}</div>
@@ -103,6 +113,9 @@ export const ContactFormTemplate = (formData) => {
                 </div>
                 <div class="footer">
                     This message was sent from the contact form on World of Minifigs website.
+                    <p style="margin-top: 10px">
+                    &copy; ${new Date().getFullYear()} World of Minifigs. All rights reserved.
+                    </p>
                 </div>
             </div>
         </div>

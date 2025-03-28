@@ -6,12 +6,14 @@ export default {
     extend: {
       colors: {
         brand: {
-          DEFAULT: "#32475f", // Used as the main background color
-          start: "#32475f", // Used as the start color for the gradient
-          end: "#4f5e73", // Used for cards, header, and secondary backgrounds
+          start: "#32475f", 
+          end: "#446080", 
+          card: "#31445b",
         },
-        darkBrand: "#32475f",
-        light: "#9fa3ac",
+        accent: {
+          DEFAULT: "#FFDF00", 
+          secondary: "#EFB90A", 
+        },
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: {
@@ -33,10 +35,6 @@ export default {
         muted: {
           DEFAULT: "hsl(var(--muted))",
           foreground: "hsl(var(--muted-foreground))",
-        },
-        accent: {
-          DEFAULT: "#FFDF00", // Primary accent color for buttons and highlights
-          secondary: "#EFB90A", // Secondary accent color for visual accents
         },
         destructive: {
           DEFAULT: "hsl(var(--destructive))",

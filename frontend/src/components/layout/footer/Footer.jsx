@@ -1,6 +1,5 @@
 import React from "react";
 import { Facebook, Instagram } from "lucide-react";
-import { FaTiktok } from "react-icons/fa";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
@@ -63,7 +62,7 @@ const footerLinks = [
         action: "location",
       },
       {
-        label: "brickextremeofficial@yahoo.com",
+        label: "brickextremeofficial@gmail.com",
         action: "email",
       },
     ],
@@ -75,22 +74,15 @@ const socialLinks = [
     id: 1,
     icon: Facebook,
     color: "hover:text-blue-500",
-    href: "https://www.facebook.com/profile.php?id=61568066965988#",
+    href: "https://www.facebook.com/profile.php?id=61552234252330",
     label: "Facebook",
   },
   {
     id: 2,
     icon: Instagram,
     color: "hover:text-pink-500",
-    href: "https://www.instagram.com/brickextreme.hq",
+    href: "https://www.instagram.com/theworldofminifigs/",
     label: "Instagram",
-  },
-  {
-    id: 3,
-    icon: FaTiktok,
-    color: "hover:text-pink-500",
-    href: "https://www.tiktok.com/@brickextreme.hq",
-    label: "TikTok",
   },
 ];
 
@@ -121,7 +113,7 @@ const Footer = () => {
   };
 
   return (
-    <footer className="bg-brand-start">
+    <footer className="bg-brand-start border-t border-gray-600/50">
       <div className="max-w-[1920px] mx-auto px-4 sm:px-6">
         <div className="pt-16">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-x-8 gap-y-12">
@@ -131,11 +123,11 @@ const Footer = () => {
                   {link.title}
                   <span className="absolute -bottom-2 left-0 w-12 h-0.5 bg-accent"></span>
                 </h3>
-                <ul className="space-y-4 text-gray-400">
+                <ul className="space-y-4 text-gray-300">
                   {link.links.map((item, index) => (
                     <li
                       key={typeof item === "string" ? item : item.label}
-                      className="hover:text-red-500 cursor-pointer transition-all duration-200 flex items-center group"
+                      className="hover:text-accent cursor-pointer transition-all duration-200 flex items-center group"
                       onClick={() => handleLinkClick(item)}
                     >
                       <div className="w-4 h-4 mr-2 opacity-0 -ml-6 group-hover:-ml-5 group-hover:opacity-100 transition-all duration-200 text-red-500" />
@@ -154,7 +146,7 @@ const Footer = () => {
                 <span className="absolute -bottom-2 left-0 w-12 h-0.5 bg-accent"></span>
               </h3>
               <div className="flex flex-col space-y-6">
-                <p className="text-gray-400 text-sm leading-relaxed">
+                <p className="text-gray-300 text-sm leading-relaxed">
                   Join World of Minifigs to get updates on new releases,
                   exclusive promotions, and be the first to know about our
                   latest collections.
@@ -182,7 +174,7 @@ const Footer = () => {
                         className={`w-10 h-10 rounded-full bg-gray-800/50 flex items-center justify-center group transition-all duration-200 hover:bg-gray-700/50 hover:scale-110`}
                       >
                         <Icon
-                          className={`w-5 h-5 text-gray-400 ${social.color} transition-colors duration-200`}
+                          className={`w-5 h-5 text-gray-300 ${social.color} transition-colors duration-200`}
                         />
                       </a>
                     );
@@ -195,10 +187,8 @@ const Footer = () => {
 
         <Separator className="bg-gray-600/50 mt-8" />
 
-        <div className="text-center text-sm text-gray-400 py-5">
-          <p className="hover:text-gray-400 transition-colors">
+        <div className="text-center text-sm text-gray-300 py-5">
             © Copyright World of Minifigs 2025. All rights reserved
-          </p>
         </div>
       </div>
     </footer>

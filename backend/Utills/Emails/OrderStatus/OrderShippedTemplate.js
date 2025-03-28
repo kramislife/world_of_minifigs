@@ -6,11 +6,9 @@ export const OrderShippedTemplate = (
   orderStatus,
   orderDetails
 ) => {
-  const trackingInfo = orderDetails.shippingInfo?.trackingNumber
-    ? `Your tracking number is: <strong>${orderDetails.shippingInfo.trackingNumber}</strong>`
-    : "";
-
-  const customMessage = `Great news! Your order <strong>#${orderId}</strong> has been shipped and is on its way to you. ${trackingInfo}`;
+  const customMessage = `
+    <p>Great news! Your order <strong>#${orderId}</strong> has been shipped and is on its way to you.</p>
+    `;
 
   return OrderBaseTemplate(
     customerName,

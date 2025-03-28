@@ -86,6 +86,8 @@ const Order = () => {
               <CustomerShipping
                 shippingAddress={orderDetails.shippingAddress}
                 orderNotes={orderDetails.orderNotes}
+                shippingInfo={orderDetails.shippingInfo}
+                orderStatus={orderDetails.orderStatus}
               />
             </div>
 

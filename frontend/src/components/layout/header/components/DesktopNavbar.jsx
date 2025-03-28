@@ -11,7 +11,7 @@ const DesktopNav = () => {
             className={({ isActive }) =>
               isActive
                 ? "text-accent font-medium decoration-2 underline underline-offset-8"
-                : "text-white hover:text-accent-secondary transition-colors duration-200"
+                : "text-white hover:text-accent transition-colors duration-200"
             }
           >
             {item.label}

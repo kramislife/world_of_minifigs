@@ -1,8 +1,22 @@
 import React from "react";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
-import { Truck, StickyNote, CheckCheck } from "lucide-react";
+import {
+  Truck,
+  StickyNote,
+  CheckCheck,
+  Package,
+  ExternalLink,
+  Calendar,
+  Info,
+} from "lucide-react";
+import { format } from "date-fns";
 
-const CustomerShipping = ({ shippingAddress, orderNotes }) => {
+const CustomerShipping = ({
+  shippingAddress,
+  orderNotes,
+  shippingInfo,
+  orderStatus,
+}) => {
   return (
     <Card className="bg-brand/80 border-gray-600/50">
       <CardHeader>
@@ -53,6 +67,72 @@ const CustomerShipping = ({ shippingAddress, orderNotes }) => {
             </div>
           </div>
         </div>
+
+        {/* Shipping Tracking Information - only shown when available */}
+        {shippingInfo &&
+          (orderStatus === "Shipped" || orderStatus === "Delivered") && (
+            <div className="mt-5 border-t border-white/10 pt-5">
+              <div className="flex items-center gap-2 mb-4">
+                <Package className="w-5 h-5 text-blue-400" />
+                <h4 className="text-md font-medium text-white">
+                  Tracking Information
+                </h4>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-gray-400">Courier Service</p>
+                  <p className="font-medium mt-1 text-white">
+                    {shippingInfo.courier}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-sm text-gray-400">Tracking Number</p>
+                  <p className="font-medium mt-1 text-white">
+                    {shippingInfo.trackingNumber}
+                  </p>
+                </div>
+
+                <div className="md:col-span-2">
+                  <p className="text-sm text-gray-400">Track Package</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <a
+                      href={shippingInfo.trackingLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-400 hover:text-blue-300 underline flex items-center gap-1"
+                    >
+                      {shippingInfo.trackingLink}
+                    </a>
+                  </div>
+                </div>
+
+                {shippingInfo.shippedAt && (
+                  <div>
+                    <p className="text-sm text-gray-400 flex items-center gap-1">
+                      <Calendar className="w-3 h-3" /> Shipped On
+                    </p>
+                    <p className="font-medium mt-1 text-white">
+                      {format(new Date(shippingInfo.shippedAt), "PPP")}
+                    </p>
+                  </div>
+                )}
+
+                {shippingInfo.additionalInfo && (
+                  <div className="md:col-span-2">
+                    <p className="text-sm text-gray-400 flex items-center gap-1">
+                      <Info className="w-3 h-3" /> Additional Information
+                    </p>
+                    <p className="font-medium mt-1 text-white">
+                      {shippingInfo.additionalInfo}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
         {orderNotes && (
           <div className="mt-5 border-t border-white/10 pt-5">
             <div>

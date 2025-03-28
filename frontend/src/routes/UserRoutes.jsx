@@ -12,7 +12,7 @@ import ViewProducts from "@/components/admin/Products/ViewProducts";
 import ViewOrder from "@/components/admin/Order/ViewOrder";
 import ViewUsers from "@/components/admin/Users/ViewUsers";
 import ViewReviews from "@/components/admin/Reviews/ViewReviews";
-import CollectionsPage from "@/pages/Collections/CollectionsPage";
+import CollectionsPage from "@/components/home/components/CollectionsPage";
 import Profile from "@/components/auth/Profile/Profile";
 import Settings from "@/components/auth/Settings/Settings";
 import UpdateProduct from "@/components/admin/Products/UpdateProduct";
@@ -42,7 +42,7 @@ import UpdateSubCollection from "@/components/admin/Collections/SubCollections/U
 import Checkout from "@/pages/Checkout/Checkout";
 import Order from "@/pages/Order/Order";
 import MyOrders from "@/pages/Order/MyOrders";
-import SubCollectionsPage from "@/pages/Collections/SubCollectionsPage";
+import SubCollectionsPage from "@/components/home/components/SubCollectionsPage";
 // import AddUser from "@/components/admin/Users/AddUser";
 import UpdateUser from "@/components/admin/Users/UpdateUser";
 import EmailVerification from "@/components/auth/Register/EmailVerification";

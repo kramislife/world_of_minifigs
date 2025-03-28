@@ -32,23 +32,23 @@ const ProductSort = ({
       } ${className}`}
     >
       {!hideProductCount && (
-        <div className="text-md text-gray-400">
-          Showing <span className="text-white">{currentProducts}</span> of{" "}
-          <span className="text-white">{totalProducts}</span> products
+        <div className="text-md">
+          Showing <span className="text-accent">{currentProducts}</span> of{" "}
+          <span>{totalProducts}</span> products
         </div>
       )}
       <div className={`flex items-center ${!minimal && "gap-2"}`}>
         {!minimal && <span className="text-sm">Sort by:</span>}
         <Select value={currentSort} onValueChange={onSortChange}>
-          <SelectTrigger className="w-[220px] bg-darkBrand border-gray-700 text-gray-300">
+          <SelectTrigger className="w-[220px] bg-brand-start border-none">
             <SelectValue placeholder="Select sorting" />
           </SelectTrigger>
-          <SelectContent className="bg-darkBrand border-gray-700">
+          <SelectContent className="bg-brand-start border-none">
             {sortOptions.map((option) => (
               <SelectItem
                 key={option.value}
                 value={option.value}
-                className="text-gray-300 hover:text-white cursor-pointer"
+                className="hover:text-black cursor-pointer text-white"
               >
                 {option.label}
               </SelectItem>

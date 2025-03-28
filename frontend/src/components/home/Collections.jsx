@@ -1,64 +1,25 @@
-import React, { useRef } from "react";
-import { useNavigate } from "react-router-dom";
-import { motion, useInView } from "framer-motion";
-import CollectionGrid from "@/pages/Collections/CollectionGrid";
-import { CategoryFallback } from "@/components/product/shared/FallbackStates";
-import { collectionsAnimations } from "@/hooks/Animation/animationConfig";
+import React from "react";
+import CollectionGrid from "@/components/home/components/CollectionGrid";
 import { useCollections } from "@/hooks/Product/useCollections";
-import { Button } from "../ui/button";
 
 const Collections = () => {
-  const navigate = useNavigate();
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, amount: "some" });
-
-  // Custom hook to get all collections
-  const { collections, handleCollectionClick } = useCollections(false);
-
-  // Limit to 6 collections for homepage display
+  const { collections, handleCollectionClick, isLoading } =
+    useCollections(false);
   const limitedCollections = collections.slice(0, 9);
 
   return (
-    <section ref={ref} className="p-4">
-      {limitedCollections.length > 0 ? (
-        <>
-          <motion.h2
-            variants={collectionsAnimations.titleVariants}
-            initial="hidden"
-            animate={isInView ? "visible" : "hidden"}
-            className="text-3xl text-gray-300 font-extrabold mb-4 text-center pt-6 header-text"
-          >
-            Browse by Collections
-          </motion.h2>
-
-          <motion.div
-            variants={collectionsAnimations.buttonVariants}
-            initial="hidden"
-            animate={isInView ? "visible" : "hidden"}
-            className="flex items-center justify-center pb-10"
-          >
-            <Button
-              variant="accent"
-              onClick={() => navigate("/collections")}
-            >
-              View All Collections
-            </Button>
-          </motion.div>
-
-          <CollectionGrid
-            collections={limitedCollections}
-            onCollectionClick={handleCollectionClick}
-            isInView={isInView}
-            animations={collectionsAnimations}
-          />
-        </>
-      ) : (
-        <CategoryFallback
-          title="No Collections Available"
-          message="We're currently updating our collections. Please check back later for exciting new products."
-        />
-      )}
-    </section>
+    <div className="p-4">
+      <h2 className="text-3xl font-extrabold mb-4 text-center pt-6">
+        Browse by Collections
+      </h2>
+      <CollectionGrid
+        collections={limitedCollections}
+        onCollectionClick={handleCollectionClick}
+        isInView={true}
+        showViewAll={true}
+        isLoading={isLoading}
+      />
+    </div>
   );
 };
 

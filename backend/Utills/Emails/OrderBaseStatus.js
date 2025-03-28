@@ -6,9 +6,77 @@ export const OrderBaseTemplate = (
   customMessage,
   customTitle
 ) => {
-  const appName = process.env.SMTP_FROM_NAME || "BrickDroids";
+  const appName = process.env.SMTP_FROM_NAME || "World of Minifigs";
   const supportEmail = process.env.SMTP_FROM_EMAIL;
   const formattedItems = orderDetails.orderItems || [];
+
+  // Extract shipping information
+  const shippingInfo = orderDetails.shippingInfo || {};
+
+  // Create tracking information section that only shows for shipped or delivered orders
+  const trackingSection =
+    (orderStatus === "Shipped" || orderStatus === "Delivered") &&
+    shippingInfo.trackingNumber
+      ? `
+    <div class="card" style="background-color: #f8f9fa; border-radius: 12px; padding: 20px 14px; margin: 10px 0; width: 100%; border-left: 4px solid #4a90e2;">
+      <div class="section-header">
+        <table>
+          <tr>
+            <td style="width: 24px;">
+              <img src="https://res.cloudinary.com/dhpccjumk/image/upload/v1742874893/gz06nekeonycawenqkn0.png" alt="" />
+            </td>
+            <td>
+              <h2 style="font-size: 18px; font-weight: 700; margin: 0; color: #1a237e; vertical-align: middle; padding-left: 10px;">Shipping Information</h2>
+            </td>
+          </tr>
+        </table>
+      </div>
+      
+      <p style="margin: 8px 0; font-size: 14px;">
+        <strong>Courier:</strong> ${shippingInfo.courier || "N/A"}
+      </p>
+      
+      <p style="margin: 8px 0; font-size: 14px;">
+        <strong>Tracking Number:</strong> ${shippingInfo.trackingNumber}
+      </p>
+      
+      ${
+        shippingInfo.trackingLink
+          ? `
+        <p style="margin: 15px 0;">
+          <a href="${shippingInfo.trackingLink}" 
+             style="display: inline-block; padding: 10px 15px; background-color: #4a90e2; color: white; text-decoration: none; border-radius: 4px; font-weight: bold;">
+            Track Your Package
+          </a>
+        </p>
+      `
+          : ""
+      }
+      
+      ${
+        shippingInfo.shippedAt
+          ? `
+        <p style="margin: 8px 0; font-size: 14px;">
+          <strong>Shipped On:</strong> ${new Date(
+            shippingInfo.shippedAt
+          ).toLocaleDateString()}
+        </p>
+      `
+          : ""
+      }
+      
+      ${
+        shippingInfo.additionalInfo
+          ? `
+        <p style="margin: 8px 0; font-size: 14px;">
+          <strong>Additional Information:</strong> ${shippingInfo.additionalInfo}
+        </p>
+      `
+          : ""
+      }
+    </div>
+  `
+      : "";
 
   return `
 <!DOCTYPE html>
@@ -160,6 +228,7 @@ export const OrderBaseTemplate = (
         padding: 10px 14px;
         margin: 20px 0;
         width: 100%;
+        border-left: 4px solid #1a237e;
       }
 
       .summary-table {
@@ -203,7 +272,7 @@ export const OrderBaseTemplate = (
       }
     </style>
   </head>
-  <body>
+  <body></body>
     <div class="container">
       <div class="header">
         <h1>${customTitle}</h1>
@@ -214,7 +283,10 @@ export const OrderBaseTemplate = (
           ${customMessage}
         </div>
 
-        <div class="card delivery-details">
+           <!-- Shipping tracking information section -->
+        ${trackingSection}
+
+        <div class="card delivery-details" style="border-left: 4px solid #4CAF50;">
           <div class="section-header">
             <table>
               <tr>
@@ -242,7 +314,7 @@ export const OrderBaseTemplate = (
           </p>
         </div>
 
-        <div class="card">
+        <div class="card" style="border-left: 4px solid #FF9800;">
           <div class="section-header">
             <table>
               <tr>
@@ -272,12 +344,12 @@ export const OrderBaseTemplate = (
               <td class="details-cell" valign="top" style="padding-left: 10px;">
                 <span class="item-name">${item.name}</span>
                 <span class="item-price">
-                  $${(item.discountedPrice).toFixed(2)} 
+                  $${item.discountedPrice.toFixed(2)} 
                   ${
                     item.hasDiscount
-                      ? `<span style="text-decoration: line-through; color: #999; margin-left: 5px; font-size: 12px;">$${(
-                          item.price
-                        ).toFixed(2)}</span>`
+                      ? `<span style="text-decoration: line-through; color: #999; margin-left: 5px; font-size: 12px;">$${item.price.toFixed(
+                          2
+                        )}</span>`
                       : ""
                   }
                 </span>

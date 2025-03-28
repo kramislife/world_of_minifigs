@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import FilterAccordion from "@/components/product/FilterAccordion";
 import ProductSection from "@/components/product/ProductSection";
@@ -12,12 +12,12 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import LoadingSpinner from "@/components/layout/spinner/LoadingSpinner";
 import CustomPagination from "@/components/product/shared/CustomPagination";
 import useScrollToTop from "@/hooks/Common/useScrollToTop";
 import { useProductQueries } from "@/hooks/Product/useProductQueries";
 import { useProductFilters } from "@/hooks/Product/useProductFilters";
 import { useProductPagination } from "@/hooks/Product/useProductPagination";
+import ProductsSkeleton from "@/components/layout/skeleton/Products/ProductsSkeleton";
 
 const Products = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -26,8 +26,13 @@ const Products = () => {
   const navigate = useNavigate();
 
   // Fetch all product data
-  const { productData, isProductLoading, productError, filterData } =
-    useProductQueries(searchParams);
+  const {
+    productData,
+    isProductLoading,
+    productError,
+    filterData,
+    groupedProducts,
+  } = useProductQueries(searchParams);
 
   // Handle filters
   const {
@@ -40,11 +45,9 @@ const Products = () => {
     handleFilterChange,
   } = useProductFilters(filterData);
 
-  // Handle pagination and sorting
-  const { currentPage, paginatedProducts, totalPages, sortedProducts } = useProductPagination(
-    productData?.allProducts,
-    currentSort
-  );
+  // Handle pagination and sorting with grouped products
+  const { currentPage, paginatedProducts, totalPages, sortedProducts } =
+    useProductPagination(groupedProducts, currentSort);
 
   // Handle page change
   const handlePageChange = (page) => {
@@ -71,17 +74,13 @@ const Products = () => {
 
   // Loading state
   if (isProductLoading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <LoadingSpinner className="animate-spin" />
-      </div>
-    );
+    return <ProductsSkeleton />;
   }
 
   return (
     <>
       <Metadata title="Products" />
-      <div className="mx-auto px-4 py-8">
+      <div className="mx-auto px-4 py-8 bg-brand-end/50">
         {/* Mobile Filter and Sort */}
         <div className="lg:hidden mb-4 flex items-center justify-between">
           <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
@@ -96,7 +95,7 @@ const Products = () => {
               className="w-[350px] bg-darkBrand border-gray-800"
             >
               <SheetHeader>
-                <SheetTitle className="text-white text-left">
+                <SheetTitle className=" text-left">
                   Filters
                 </SheetTitle>
               </SheetHeader>
@@ -124,10 +123,10 @@ const Products = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 py-2">
           {/* Desktop Filter */}
-          <div className="hidden lg:block col-span-1 border border-gray-600 rounded-xl shadow-lg p-4 sticky top-24 h-[85vh]">
+          <div className="hidden lg:block col-span-1 border border-brand-end rounded-md p-4 sticky top-24 h-[85vh]">
             <div className="flex items-center mb-4 space-x-2">
-              <Filter className="h-6 w-6 text-white" />
-              <h2 className="text-xl font-bold text-white">Filters</h2>
+              <Filter className="h-6 w-6" />
+              <h2 className="text-xl font-bold">Filters</h2>
             </div>
             <div className="max-h-[75vh] overflow-y-auto pr-2">
               <FilterAccordion
