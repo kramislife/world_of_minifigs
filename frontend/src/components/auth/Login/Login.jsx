@@ -110,7 +110,7 @@ const Login = () => {
                   <input
                     type="text"
                     placeholder="Email Address or Username"
-                    className="bg-darkBrand/50 border-white/20 text-white placeholder:text-gray-400 h-14 w-full rounded-xl focus:ring-2 focus:ring-light/40 focus:border-light/40 transition-all duration-300 text-md px-3"
+                    className="bg-darkBrand/50 border-white/20 text-black placeholder:text-gray-400 h-14 w-full rounded-xl focus:ring-2 focus:ring-light/40 focus:border-light/40 transition-all duration-300 text-md px-3"
                     required
                     onChange={(e) => setEmail_username(e.target.value)}
                   />
@@ -124,7 +124,7 @@ const Login = () => {
                   <input
                     type="password"
                     placeholder="Password"
-                    className="bg-darkBrand/50 border-white/20 text-white placeholder:text-gray-400 h-14 rounded-xl focus:ring-2 focus:ring-light/40 focus:border-light/40 transition-all duration-300 text-md w-full px-3"
+                    className="bg-darkBrand/50 border-white/20 text-black placeholder:text-gray-400 h-14 rounded-xl focus:ring-2 focus:ring-light/40 focus:border-light/40 transition-all duration-300 text-md w-full px-3"
                     required
                     onChange={(e) => setPassword(e.target.value)}
                   />
@@ -136,7 +136,7 @@ const Login = () => {
                 >
                   <Link
                     to="/password/forgot"
-                    className="text-sm hover:text-blue transition-colors duration-300 font-md underline tracking-widest text-red-500 hover:text-white"
+                    className="text-sm hover:text-blue transition-colors duration-300 font-md  tracking-widest text-accent no-underline "
                   >
                     Forgot Password?
                   </Link>
@@ -161,7 +161,7 @@ const Login = () => {
                 Don't have an account?
                 <Link
                   to="/register"
-                  className="text-blue hover:text-white transition-colors duration-300 font-md underline text-red-500 tracking-wider px-2"
+                  className="text-blue hover:text-white transition-colors duration-300 font-md underline text-accent tracking-wider px-2"
                 >
                   Register Now
                 </Link>

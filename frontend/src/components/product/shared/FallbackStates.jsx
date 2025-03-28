@@ -3,14 +3,8 @@ import { ImageIcon, Clock, PackageX } from "lucide-react";
 
 // Placeholder image for product card
 export const PlaceholderImage = () => (
-  <div className="w-full h-full aspect-square bg-brand/70 flex flex-col items-center justify-center gap-4 group-hover:scale-110 transition-transform duration-500">
+  <div className="w-full h-full aspect-square bg-brand-gradient flex flex-col items-center justify-center gap-4 group-hover:scale-110 transition-transform duration-500 border-b border-gray-600/50">
     <ImageIcon className="w-12 h-12 text-gray-400" />
-    <div className="flex items-center gap-2 px-4 py-2 bg-slate-800/50 rounded-full">
-      <Clock className="w-4 h-4 text-slate-400" />
-      <span className="text-sm font-medium text-slate-400">
-        Image Coming Soon
-      </span>
-    </div>
   </div>
 );
 
@@ -24,7 +18,7 @@ export const ProductImagePlaceholder = () => (
 // Placeholder image for product thumbnail in product details page
 export const ProductThumbnailPlaceholder = () => (
   <div className="w-full flex md:flex-col gap-2">
-    {[...Array(4)].map((_, index) => (
+    {[...Array(6)].map((_, index) => (
       <div
         key={index}
         className="min-w-[130px] md:min-w-0 aspect-square rounded-lg bg-brand-gradient border border-slate-700 flex items-center justify-center"

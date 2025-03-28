@@ -85,7 +85,7 @@ const Banner = () => {
               </CarouselItem>
             ))}
           </CarouselContent>
-          {(hasBanners || isAdmin) && (
+          {(hasBanners || isAdmin) && bannerData?.banners?.length + (isAdmin ? 1 : 0) > 1 && (
             <>
               <CarouselPrevious className="left-4 text-black" />
               <CarouselNext className="right-4 text-black" />

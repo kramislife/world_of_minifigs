@@ -33,7 +33,7 @@ const Header = () => {
   const isItemAdded = totalItems > prevCartCount;
 
   return (
-    <nav className="bg-brand-start fixed w-full top-0 z-50 shadow-md shadow-brand-start border-b border-brand-end">
+    <nav className="bg-brand-start fixed w-full top-0 z-50 border-b border-brand-end">
       <div className="max-w-[1920px] mx-auto">
         <div className="flex items-center justify-between h-[85px] px-4 sm:px-6">
           <div className="flex items-center flex-shrink-0">
@@ -67,7 +67,7 @@ const Header = () => {
               ) : (
                 <button
                   onClick={() => navigate("/login")}
-                  className="text-white hover:text-gray-200"
+                  className=" hover:text-gray-200"
                 >
                   <User size={24} />
                 </button>

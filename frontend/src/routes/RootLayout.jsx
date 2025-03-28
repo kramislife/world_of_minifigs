@@ -18,7 +18,7 @@ const RootLayout = () => {
   const showSidebar = isAdminOrEmployee && isAdminRoute;
 
   return (
-    <div className="flex flex-col min-h-screen bg-brand-gradient text-light">
+    <div className="flex flex-col min-h-screen bg-brand-start text-white">
       <Header />
       <ScrollToTop />
       {showSidebar ? (

@@ -14,19 +14,17 @@ const ProductsSkeleton = () => {
         <div className="hidden lg:block col-span-1">
           <div className="border border-gray-600 rounded-xl shadow-lg p-4 sticky top-24 max-h-[calc(100vh-120px)] overflow-y-auto scrollbar-none">
             <div className="flex items-center mb-4 space-x-2">
-              <Skeleton className="h-6 w-6" /> {/* Filter icon */}
               <Skeleton className="h-6 w-24" /> {/* "Filters" text */}
             </div>
             <div className="space-y-4">
               {/* Filter categories */}
-              {[...Array(6)].map((_, i) => (
+              {[...Array(12)].map((_, i) => (
                 <div key={i} className="space-y-3">
                   <Skeleton className="h-8 w-full" /> {/* Category header */}
                   <div className="space-y-2">
-                    {[...Array(4)].map((_, j) => (
+                    {[...Array(3)].map((_, j) => (
                       <div key={j} className="flex items-center gap-2">
-                        <Skeleton className="h-4 w-4" /> {/* Checkbox */}
-                        <Skeleton className="h-4 w-32" /> {/* Option text */}
+                        <Skeleton className="h-5 w-32" /> {/* Option text */}
                       </div>
                     ))}
                   </div>
@@ -48,13 +46,13 @@ const ProductsSkeleton = () => {
 
           {/* Products Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {[...Array(6)].map((_, i) => (
+            {[...Array(12)].map((_, i) => (
               <div
                 key={i}
                 className="bg-brand-end rounded-2xl overflow-hidden shadow-xl h-full"
               >
                 {/* Product Image */}
-                <Skeleton className="w-full aspect-square" />
+                <Skeleton className="w-full aspect-square rounded-none" />
 
                 {/* Product Info */}
                 <div className="p-5 flex flex-col gap-5">

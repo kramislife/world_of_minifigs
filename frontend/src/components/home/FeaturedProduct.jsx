@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React from "react";
 import { motion } from "framer-motion";
 import { featuredProductAnimations } from "@/hooks/Animation/animationConfig";
 import {
@@ -49,7 +49,7 @@ const FeaturedProducts = () => {
         initial="visible"
         animate="visible"
         variants={featuredProductAnimations.titleVariants}
-        className="text-3xl text-gray-300 font-extrabold text-center header-text py-6"
+        className="text-3xl font-extrabold text-center header-text py-6"
       >
         Featured Collections
       </motion.h2>
@@ -79,18 +79,16 @@ const FeaturedProducts = () => {
                 />
               ) : (
                 // Show placeholder image if collection image is not available
-                <PlaceholderImage className="w-full h-full" />
+                <PlaceholderImage />
               )}
               <motion.div
                 initial={{ opacity: 0 }}
                 whileHover={{ opacity: 1 }}
                 transition={{ duration: 0.3 }}
-                className="absolute inset-0 bg-darkBrand/50 flex items-center justify-center opacity-0 group-hover:opacity-100"
+                className="absolute inset-0 bg-brand-start/50 flex items-center justify-center opacity-0 group-hover:opacity-100"
               >
                 <div className="text-center">
-                  <h3 className="text-2xl font-bold text-white mb-4">
-                    {collection.name}
-                  </h3>
+                  <h3 className="text-2xl font-bold mb-4">{collection.name}</h3>
                   <Button variant="accent">
                     {subCollectionsData?.subcollections?.some(
                       (sub) => sub?.collection?._id === collection._id

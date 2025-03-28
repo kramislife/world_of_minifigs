@@ -1,5 +1,5 @@
 import React from "react";
-import { Card, CardFooter } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import {
   PlaceholderImage,
   CategoryFallback,
@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { collectionsAnimations } from "@/hooks/Animation/animationConfig";
 import CollectionGridSkeleton from "@/components/layout/skeleton/Home/CollectionGridSkeleton";
-import { ImageIcon } from "lucide-react";
 
 // A grid layout to view the collections in three column card layout
 const CollectionGrid = ({
@@ -82,11 +81,8 @@ const CollectionGrid = ({
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
                 ) : (
-                  <div className="w-full h-full bg-[#4f5e73] flex flex-col items-center justify-center">
-                    <ImageIcon className="w-12 h-12 text-gray-400 mb-2" />
-                    <span className="text-sm font-medium text-gray-400">
-                      {collection.name}
-                    </span>
+                  <div className="w-full h-full bg-brand-start flex flex-col items-center justify-center">
+                    <PlaceholderImage />
                   </div>
                 )}
 
@@ -95,7 +91,7 @@ const CollectionGrid = ({
 
                 {/* Title overlay */}
                 <div className="absolute inset-x-0 bottom-0 p-4">
-                  <h3 className="text-lg font-semibold text-white text-center">
+                  <h3 className="text-lg font-semibold text-center text-white">
                     {collection.name}
                   </h3>
                 </div>

@@ -50,7 +50,7 @@ const ProductImageGallery = ({
         className="relative flex flex-col-reverse md:flex-row gap-4 h-fit"
       >
         {/* Thumbnail section with fixed height */}
-        <div className="w-full md:w-[150px] relative">
+        <div className="w-full md:w-[110px] relative">
           <div className="w-full h-full overflow-y-auto no-scrollbar">
             <div className="flex flex-row md:flex-col gap-2 md:max-h-[600px]">
               <ProductThumbnailPlaceholder />

@@ -8,17 +8,17 @@ import { subscribeAnimations } from "@/hooks/Animation/animationConfig";
 
 const features = [
   {
-    icon: <Truck className="w-8 h-8 text-foreground/70" />,
+    icon: <Truck className="w-8 h-8 text-black" />,
     title: "FREE AND FAST DELIVERY",
     description: "Free delivery for all orders over $140",
   },
   {
-    icon: <Headphones className="w-8 h-8 text-foreground/70" />,
+    icon: <Headphones className="w-8 h-8 text-black" />,
     title: "24/7 CUSTOMER SERVICE",
     description: "Friendly 24/7 customer support",
   },
   {
-    icon: <ShieldCheck className="w-8 h-8 text-foreground/70" />,
+    icon: <ShieldCheck className="w-8 h-8 text-black" />,
     title: "MONEY BACK GUARANTEE",
     description: "We return money within 30 days",
   },
@@ -54,7 +54,7 @@ const Subscribe = () => {
             variants={subscribeAnimations.containerVariants}
           >
             <motion.h2
-              className="text-3xl sm:text-4xl text-gray-200 font-bold mb-4"
+              className="text-3xl sm:text-4xl font-bold mb-4"
               variants={subscribeAnimations.itemVariants}
             >
               Subscribe and Save
@@ -107,7 +107,7 @@ const Subscribe = () => {
                 {feature.icon}
               </motion.div>
               <motion.h3
-                className="text-gray-200 text-xl font-bold mb-2"
+                className="text-xl font-bold mb-2"
                 variants={subscribeAnimations.itemVariants}
               >
                 {feature.title}

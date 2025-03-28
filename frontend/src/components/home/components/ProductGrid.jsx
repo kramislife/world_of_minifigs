@@ -52,7 +52,7 @@ const ProductGrid = ({
         variants={animations.titleVariants}
         initial="visible"
         animate="visible"
-        className="text-3xl text-gray-300 font-extrabold mb-4 text-center pt-6"
+        className="text-3xl font-extrabold mb-4 text-center pt-6"
       >
         {title}
       </motion.h2>

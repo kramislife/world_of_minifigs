@@ -9,7 +9,7 @@ const Collections = () => {
 
   return (
     <div className="p-4">
-      <h2 className="text-3xl text-gray-300 font-extrabold mb-4 text-center pt-6">
+      <h2 className="text-3xl font-extrabold mb-4 text-center pt-6">
         Browse by Collections
       </h2>
       <CollectionGrid

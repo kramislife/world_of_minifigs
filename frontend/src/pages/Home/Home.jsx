@@ -11,9 +11,9 @@ const Home = () => {
   const sections = [
     { Component: Banner },
     { Component: BestSelling, className: "bg-brand-end" },
-    { Component: LatestProduct, className: "bg-brand-start" },
+    { Component: LatestProduct, className: "bg-brand-end/70" },
     { Component: FeaturedProduct, className: "bg-brand-end" },
-    { Component: Collections, className: "bg-brand-start" },
+    { Component: Collections, className: "bg-brand-end/70" },
     { Component: Subscribe, className: "bg-brand-end" },
   ];
 

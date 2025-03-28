@@ -65,17 +65,16 @@ const ProductActions = ({ product, onAddToCart }) => {
   };
 
   return (
-    <div className="mt-5 flex flex-col sm:flex-row gap-2">
+    <div className="mt-5 flex flex-col sm:flex-row gap-5">
       <Button
-        className="w-full bg-red-600 hover:bg-red-700 hover:scale-105 transition-all duration-300 relative text-md py-5"
+        variant="cart"
         disabled={!product?.stock || product?.stock <= 0}
         onClick={handleAddToCart}
       >
         {product?.stock <= 0 ? "Out of Stock" : "Add to Cart"}
       </Button>
       <Button
-        variant="outline"
-        className="w-full bg-brand hover:bg-darkBrand hover:text-white hover:scale-105 transition-all duration-300 border-slate-700 text-md py-5"
+        variant="buyNow"
         disabled={!product?.stock || product?.stock <= 0}
         onClick={handleBuyNow}
       >
