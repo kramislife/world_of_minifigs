@@ -13,9 +13,10 @@ export const useProductImages = (
     setCurrentProduct(product);
   }, [product]);
 
-  // Sort and filter similar products based on partID and organize by color
+  // Determine what items to display (similar products or product images)
   const displayItems = useMemo(() => {
-    if (similarProducts) {
+    // If we have similar products, use them
+    if (similarProducts?.length > 0) {
       // Filter products with the same partID
       const filteredProducts = similarProducts.filter(
         (item) => item.partID === product.partID
@@ -28,25 +29,29 @@ export const useProductImages = (
       );
 
       // Sort products to match thumbnail order
-      // This ensures color variants match the thumbnail sequence
       return allProducts.sort((a, b) => {
         const idA = parseInt(a.itemID || a._id);
         const idB = parseInt(b.itemID || b._id);
         return idA - idB;
       });
     }
+
+    // If no similar products, just return the product's images
     return product?.product_images?.length > 0
       ? product.product_images
-      : [{ url: product?.product_images?.[0]?.url }];
+      : [{ url: product?.product_images?.[0]?.url || "" }];
   }, [similarProducts, product]);
 
   // Find current index when product changes
   useEffect(() => {
-    if (similarProducts && product) {
+    if (similarProducts?.length > 0 && product) {
       const index = displayItems.findIndex((item) => item._id === product._id);
       if (index !== -1) {
         setCurrentImageIndex(index);
       }
+    } else {
+      // Reset to first image when viewing a product with no similar variants
+      setCurrentImageIndex(0);
     }
   }, [product, similarProducts, displayItems]);
 
@@ -61,6 +66,9 @@ export const useProductImages = (
 
   // Get color variants in the same order as thumbnails
   const colorVariants = useMemo(() => {
+    // Only show color variants for similar products
+    if (!similarProducts?.length) return [];
+
     return displayItems
       .filter((item) => item.product_color) // Only items with colors
       .map((item) => ({
@@ -78,7 +86,7 @@ export const useProductImages = (
           // Remove duplicates while maintaining thumbnail order
           i === self.findIndex((t) => t.color._id === v.color._id)
       );
-  }, [displayItems, currentProduct]);
+  }, [displayItems, currentProduct, similarProducts]);
 
   const scrollThumbnailIntoView = (index) => {
     if (!thumbnailContainerRef?.current) return;

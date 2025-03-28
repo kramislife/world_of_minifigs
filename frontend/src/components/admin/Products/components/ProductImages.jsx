@@ -20,9 +20,14 @@ const ProductImages = () => {
   const [uploadedImages, setUploadedImages] = useState([]);
 
   const { data } = useGetProductDetailsQuery(params?.id);
-  const [uploadProductImages, { isLoading, error, isError, isSuccess }] =
-    useUploadProductImagesMutation();
-  const [deleteProductImage] = useDeleteProductImageMutation();
+  const [
+    uploadProductImages,
+    { isLoading, error, isError, isSuccess, data: uploadData },
+  ] = useUploadProductImagesMutation();
+  const [
+    deleteProductImage,
+    { isSuccess: isDeleteSuccess, error: deleteError, data: deleteData },
+  ] = useDeleteProductImageMutation();
 
   useEffect(() => {
     if (data?.product) {
@@ -30,11 +35,21 @@ const ProductImages = () => {
     }
     if (isError) toast.error(error?.data?.message);
     if (isSuccess) {
-      toast.success("Images uploaded successfully");
+      toast.success(uploadData?.message || "Images uploaded successfully");
       setImagesPreview([]);
       navigate("/admin/products");
     }
-  }, [data, isError, isSuccess, error]);
+  }, [data, isError, isSuccess, error, uploadData]);
+
+  useEffect(() => {
+    if (isDeleteSuccess) {
+      toast.success(deleteData?.message || "Image deleted successfully");
+      setUploadedImages(deleteData?.product?.product_images || []);
+    }
+    if (deleteError) {
+      toast.error(deleteError?.data?.message || "Failed to delete image");
+    }
+  }, [isDeleteSuccess, deleteError, deleteData]);
 
   const handleProductImageUpload = (e) => {
     const uploadedFiles = Array.from(e.target.files);
@@ -65,7 +80,7 @@ const ProductImages = () => {
     setImages((prev) => prev.filter((img) => img !== image));
     setImagesPreview((prev) => prev.filter((img) => img !== image));
   };
- 
+
   const handleDelete = (imgId) => {
     deleteProductImage({ id: params?.id, body: { public_id: imgId } });
   };
