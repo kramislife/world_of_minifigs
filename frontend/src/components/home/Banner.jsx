@@ -11,7 +11,7 @@ import { BannerUpload } from "@/components/home/components/BannerUpload";
 import { BannerItem } from "@/components/home/components/BannerItem";
 import DeleteDialog from "@/components/admin/shared/DeleteDialog";
 import SkeletonBanner from "@/components/layout/skeleton/Home/SkeletonBanner";
-import { CategoryFallback } from "@/components/product/shared/FallbackStates";
+import { FallbackMessage } from "@/components/product/shared/FallbackStates";
 
 const Banner = () => {
   const { setApi, plugin, options } = useCarousel();
@@ -31,13 +31,15 @@ const Banner = () => {
     hasBanners,
   } = useBanner();
 
+  // Display Skeleton while loading
   if (isLoading) {
-      return <SkeletonBanner />;
+    return <SkeletonBanner />;
   }
 
+  // Display error message if there is an error
   if (isError)
     return (
-      <CategoryFallback
+      <FallbackMessage
         title="Error Loading Banners"
         message="There was a problem loading the banners. Please try again later."
       />
@@ -46,13 +48,13 @@ const Banner = () => {
   // Show fallback when no banners are available for non-admin users
   if (!hasBanners && !isAdmin)
     return (
-      <CategoryFallback
+      <FallbackMessage
         title="No Banners Available"
         message="We're working on some eye-catching banners—check back soon for exciting updates!"
       />
     );
 
-    // Banner Size: 1920 X 800
+  // Banner Size: 1920 X 800
 
   return (
     <>
@@ -85,12 +87,14 @@ const Banner = () => {
               </CarouselItem>
             ))}
           </CarouselContent>
-          {(hasBanners || isAdmin) && bannerData?.banners?.length + (isAdmin ? 1 : 0) > 1 && (
-            <>
-              <CarouselPrevious className="left-4 text-black" />
-              <CarouselNext className="right-4 text-black" />
-            </>
-          )}
+          {/* Show Carousel Navigation only if there are more than 1 banner */}
+          {(hasBanners || isAdmin) &&
+            bannerData?.banners?.length + (isAdmin ? 1 : 0) > 1 && (
+              <>
+                <CarouselPrevious className="left-4 text-black" />
+                <CarouselNext className="right-4 text-black" />
+              </>
+            )}
         </Carousel>
       </div>
 

@@ -1,8 +1,6 @@
 import React from "react";
-import { motion } from "framer-motion";
-import { featuredProductAnimations } from "@/hooks/Animation/animationConfig";
 import {
-  CategoryFallback,
+  FallbackMessage,
   PlaceholderImage,
 } from "@/components/product/shared/FallbackStates";
 import { useCollections } from "@/hooks/Product/useCollections";
@@ -27,7 +25,7 @@ const FeaturedProducts = () => {
 
   if (isError)
     return (
-      <CategoryFallback
+      <FallbackMessage
         title="Error Loading Featured Collections"
         message="There was a problem loading the featured collections. Please try again later."
       />
@@ -36,7 +34,7 @@ const FeaturedProducts = () => {
   // Show fallback state when no collections are available
   if (!featuredCollections?.length) {
     return (
-      <CategoryFallback
+      <FallbackMessage
         title="No Featured Collections Available"
         message="We're currently updating our featured collections. Please check back later for exciting new products."
       />
@@ -45,48 +43,30 @@ const FeaturedProducts = () => {
 
   return (
     <div className="max-w-[1920px] mx-auto pt-4">
-      <motion.h2
-        initial="visible"
-        animate="visible"
-        variants={featuredProductAnimations.titleVariants}
-        className="text-3xl font-extrabold text-center header-text py-6"
-      >
+      <h2 className="text-3xl font-extrabold text-center header-text py-6">
         Featured Collections
-      </motion.h2>
-      <motion.div
-        initial="visible"
-        animate="visible"
-        variants={featuredProductAnimations.containerVariants}
-        className="grid gap-2 pt-4"
-      >
+      </h2>
+      <div className="grid gap-2 pt-4">
         {/* Show featured collections */}
         {featuredCollections.map((collection) => (
-          <motion.div
+          <div
             key={collection._id}
-            variants={featuredProductAnimations.imageVariants}
             className="relative overflow-hidden group cursor-pointer"
             onClick={() => handleCollectionClick(collection)}
           >
             <AspectRatio ratio={16 / 6} className="w-full">
               {/* Show collection image */}
               {collection.image?.url ? (
-                <motion.img
+                <img
                   src={collection.image.url}
                   alt={collection.name}
-                  className="w-full h-full object-cover"
-                  whileHover={{ scale: 1.05 }}
-                  transition={{ duration: 0.6 }}
+                  className="w-full h-full object-cover transition-transform duration-600 hover:scale-105"
                 />
               ) : (
                 // Show placeholder image if collection image is not available
-                <PlaceholderImage />
+                <PlaceholderImage width="w-64" />
               )}
-              <motion.div
-                initial={{ opacity: 0 }}
-                whileHover={{ opacity: 1 }}
-                transition={{ duration: 0.3 }}
-                className="absolute inset-0 bg-brand-start/50 flex items-center justify-center opacity-0 group-hover:opacity-100"
-              >
+              <div className="absolute inset-0 bg-brand-start/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 <div className="text-center">
                   <h3 className="text-2xl font-bold mb-4">{collection.name}</h3>
                   <Button variant="accent">
@@ -97,11 +77,11 @@ const FeaturedProducts = () => {
                       : "View Collection"}
                   </Button>
                 </div>
-              </motion.div>
+              </div>
             </AspectRatio>
-          </motion.div>
+          </div>
         ))}
-      </motion.div>
+      </div>
     </div>
   );
 };

@@ -9,15 +9,13 @@ const Collections = () => {
 
   return (
     <div className="p-4">
-      <h2 className="text-3xl font-extrabold mb-4 text-center pt-6">
-        Browse by Collections
-      </h2>
       <CollectionGrid
         collections={limitedCollections}
         onCollectionClick={handleCollectionClick}
         isInView={true}
         showViewAll={true}
         isLoading={isLoading}
+        type="browse"
       />
     </div>
   );

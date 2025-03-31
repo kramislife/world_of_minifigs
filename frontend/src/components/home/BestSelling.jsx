@@ -1,9 +1,10 @@
 import React from "react";
 import ProductGrid from "./components/ProductGrid";
 import { useCategoryProducts } from "@/hooks/Product/useCategoryProducts";
-import { bestSellingAnimations } from "@/hooks/Animation/animationConfig";
 
 const BestSelling = () => {
+
+  // Fetch only "Best Selling" Product
   const { products, isLoading, isError, categoryId } =
     useCategoryProducts("best_seller");
 
@@ -12,7 +13,6 @@ const BestSelling = () => {
       title="Best Selling Products"
       products={products}
       baseUrl={`/product_category=${categoryId}`}
-      animations={bestSellingAnimations}
       isLoading={isLoading}
       isError={isError}
     />

@@ -1,4 +1,5 @@
 import React from "react";
+import { Card, CardContent } from "@/components/ui/card";
 import StarRating from "@/components/product/shared/StarRating";
 import { PlaceholderImage } from "@/components/product/shared/FallbackStates";
 import { Button } from "@/components/ui/button";
@@ -17,11 +18,11 @@ const ProductCard = ({ product }) => {
   } = useProductCard(product);
 
   return (
-    <div
+    <Card
       onClick={handleViewDetails}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      className="bg-brand-start rounded-2xl overflow-hidden transition-all duration-300 hover:scale-100 group relative cursor-pointer h-full flex flex-col"
+      className="bg-brand-start rounded-2xl overflow-hidden transition-all duration-300 hover:scale-100 group relative cursor-pointer h-full flex flex-col border-none  " 
     >
       {/* Discount Badge */}
       {product?.discount > 0 && (
@@ -32,8 +33,8 @@ const ProductCard = ({ product }) => {
         </div>
       )}
 
-      {/* Product Image Container  */}
-      <div className="relative w-full aspect-square overflow-hidden">
+      {/* Product Image Container */}
+      <CardContent className="p-0 relative w-full aspect-square overflow-hidden">
         {hasImages ? (
           <>
             {/* Main Image */}
@@ -62,10 +63,10 @@ const ProductCard = ({ product }) => {
         <Button onClick={(e) => e.stopPropagation()} variant="popup">
           View Details
         </Button>
-      </div>
+      </CardContent>
 
       {/* Product Info */}
-      <div className="p-5 flex flex-col gap-5 flex-grow">
+      <CardContent className="p-5 flex flex-col gap-5 flex-grow text-white">
         <h3 className="text-md font-semibold transition-colors line-clamp-1">
           {product?.product_name || "Unnamed Product"}
         </h3>
@@ -100,8 +101,8 @@ const ProductCard = ({ product }) => {
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 

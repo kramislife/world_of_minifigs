@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
-  ProductImagePlaceholder,
+  PlaceholderImage,
   ProductThumbnailPlaceholder,
 } from "./FallbackStates";
 import { useNavigate } from "react-router-dom";
@@ -61,7 +61,7 @@ const ProductImageGallery = ({
           <div className="w-full pt-[100%] relative">
             <DiscountBadge />
             <div className="absolute inset-0">
-              <ProductImagePlaceholder />
+              <PlaceholderImage width="w-64" />
             </div>
           </div>
         </div>
@@ -143,7 +143,7 @@ const ProductImageGallery = ({
                           className="w-full h-full object-contain md:object-cover"
                         />
                       ) : (
-                        <ProductImagePlaceholder />
+                        <PlaceholderImage width="w-16" />
                       )
                     ) : item.url ? (
                       <img
@@ -152,7 +152,7 @@ const ProductImageGallery = ({
                         className="w-full h-full object-contain md:object-cover"
                       />
                     ) : (
-                      <ProductImagePlaceholder />
+                      <PlaceholderImage width="w-16" />
                     )}
                   </div>
                 </div>
@@ -182,7 +182,7 @@ const ProductImageGallery = ({
                     transition={{ duration: 0.3 }}
                   />
                 ) : (
-                  <ProductImagePlaceholder />
+                  <PlaceholderImage width="w-64" />
                 )
               ) : displayItems[currentImageIndex]?.url ? (
                 <motion.img
@@ -196,7 +196,7 @@ const ProductImageGallery = ({
                   transition={{ duration: 0.3 }}
                 />
               ) : (
-                <ProductImagePlaceholder />
+                <PlaceholderImage width="w-64" />
               )}
             </AnimatePresence>
           </div>
