@@ -99,19 +99,17 @@ const UserDropdown = () => {
       </DropdownMenuTrigger>
 
       <DropdownMenuContent
-        className="text-white w-60 mt-2 mr-3 bg-darkBrand border border-gray-800 z-[1001] shadow-lg"
+        className="text-white w-60 mt-2 mr-3 bg-brand-start border border-brand-end z-[1001] shadow-lg"
         sideOffset={5}
         align="end"
         forceMount
         style={{
           position: "relative",
           zIndex: 1001,
-          backgroundColor: "var(--color-dark-brand)",
-          backdropFilter: "blur(8px)",
         }}
       >
         {/* User Name and Email */}
-        <DropdownMenuLabel className="bg-opacity-100">
+        <DropdownMenuLabel>
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
               {user?.profile_picture?.url ? (
@@ -135,7 +133,7 @@ const UserDropdown = () => {
         <DropdownMenuSeparator className="bg-gray-600" />
 
         {/* Menu Items */}
-        <div className="flex flex-col gap-2 bg-opacity-100">
+        <div className="flex flex-col gap-2">
           {menuItems.map((item, index) => (
             <DropdownMenuItem
               key={index}

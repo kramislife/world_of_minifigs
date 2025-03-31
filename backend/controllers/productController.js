@@ -2,10 +2,7 @@ import catchAsyncErrors from "../middlewares/catchAsyncErrors.js";
 import Category from "../models/category.model.js";
 import Product from "../models/product.model.js";
 import API_Filters from "../Utills/apiFilters.js";
-import {
-  delete_user_avatar_file,
-  upload_product_images,
-} from "../Utills/cloudinary.js";
+import { deleteImage, uploadImage } from "../Utills/cloudinary.js";
 import ErrorHandler from "../Utills/customErrorHandler.js";
 
 // calculate discounted price
@@ -210,7 +207,7 @@ export const deleteAllProducts = catchAsyncErrors(async (req, res, next) => {
 export const uploadProductImage = catchAsyncErrors(async (req, res, next) => {
   const urls = await Promise.all(
     req.body.images.map((image) =>
-      upload_product_images(image, "world_of_minifigs//products")
+      uploadImage(image, "world_of_minifigs/products")
     )
   );
 
@@ -247,7 +244,7 @@ export const deleteProductImage = catchAsyncErrors(async (req, res, next) => {
   }
 
   // Delete image from storage
-  const isDeleted = await delete_user_avatar_file(public_id);
+  const isDeleted = await deleteImage(public_id);
 
   if (!isDeleted) {
     return next(new ErrorHandler("Failed to delete image from storage", 500));

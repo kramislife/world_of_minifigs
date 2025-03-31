@@ -4,10 +4,7 @@ import Product from "../models/product.model.js";
 import ProductReview from "../models/review.model.js";
 import ErrorHandler from "../Utills/customErrorHandler.js";
 import User from "../models/user.model.js";
-import {
-  upload_product_images,
-  delete_user_avatar_file,
-} from "../Utills/cloudinary.js";
+import { uploadImage, deleteImage } from "../Utills/cloudinary.js";
 
 export const createNewReview = catchAsyncErrors(async (req, res, next) => {
   try {
@@ -34,10 +31,10 @@ export const createNewReview = catchAsyncErrors(async (req, res, next) => {
             );
           }
 
-          // Upload images to cloudinary
+          // Upload images to cloudinary using standardized function
           images = await Promise.all(
             product.images.map((image) =>
-              upload_product_images(image, "world_of_minifigs/reviews")
+              uploadImage(image, "world_of_minifigs/reviews")
             )
           );
         }

@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import ViewLayout from "@/components/admin/shared/ViewLayout";
 import {
@@ -9,6 +9,7 @@ import {
 import { toast } from "react-toastify";
 import { createCollectionColumns } from "@/components/admin/shared/table/columns/CollectionColumns";
 import DeleteDialog from "@/components/admin/shared/DeleteDialog";
+import { useImageUpload } from "@/hooks/ImageUpload/useImageUpload";
 
 const ViewCollection = () => {
   const { data: collectionData, isLoading, error } = useGetCollectionQuery();
@@ -20,22 +21,22 @@ const ViewCollection = () => {
   // upload collection image
   const [
     uploadCollectionImage,
-    { isLoading: isUploading, error: uploadError, isSuccess: uploadSuccess },
+    { isLoading: isUploading, error: uploadError },
   ] = useUploadCollectionImageMutation();
 
   const [globalFilter, setGlobalFilter] = useState("");
   const navigate = useNavigate();
 
-  // handle upload image
+  // Handle API errors
   useEffect(() => {
-    if (uploadError) {
-      toast.error(error?.data?.message);
+    if (error) {
+      toast.error(error?.data?.message || "Failed to fetch collections");
     }
 
-    if (uploadSuccess) {
-      navigate("/");
+    if (uploadError) {
+      toast.error(uploadError?.data?.message || "Failed to upload image");
     }
-  }, [uploadError, uploadSuccess]);
+  }, [error, uploadError]);
 
   // handle edit
   const handleEdit = (collection) => {
@@ -64,31 +65,91 @@ const ViewCollection = () => {
     }
   };
 
-  // handle image upload
-  const handleImageUpload = async (collection, file) => {
-    const reader = new FileReader();
-    reader.onload = async () => {
-      if (reader.readyState === FileReader.DONE) {
-        const imageData = reader.result;
+  // Track which collection is getting an image upload
+  const [collectionToUpload, setCollectionToUpload] = useState(null);
 
+  // Use ref for immediate access to the current collection being processed
+  const currentUploadRef = useRef(null);
+
+  // use the custom hook for image upload
+  const { handleImageUpload: processImage, isUploading: isCompressing } =
+    useImageUpload({
+      maxSizeMB: 0.8,
+      maxWidthOrHeight: 600,
+      maxFileSize: 2 * 1024 * 1024,
+      onSuccess: async (imageData) => {
         try {
-          await uploadCollectionImage({
-            id: collection._id,
+          // Access the current collection from the ref
+          const currentCollection = currentUploadRef.current;
+
+          if (!currentCollection || !currentCollection._id) {
+            console.error("No collection ID available for upload");
+            toast.error("Failed to identify collection for upload");
+            return;
+          }
+
+          console.log(
+            "Uploading image for collection:",
+            currentCollection._id,
+            currentCollection.name
+          );
+
+          const response = await uploadCollectionImage({
+            id: currentCollection._id,
             body: { image: imageData },
           }).unwrap();
 
-          toast.success("Image uploaded successfully");
+          if (response.success) {
+            toast.success(
+              response.message || "Collection image updated successfully"
+            );
+          } else {
+            toast.error(
+              response.message || "Failed to update collection image"
+            );
+          }
         } catch (error) {
+          console.error("Upload error:", error);
           toast.error(error?.data?.message || "Failed to upload image");
+        } finally {
+          // Reset the ref after upload completes
+          currentUploadRef.current = null;
         }
-      }
-    };
-    reader.readAsDataURL(file);
+      },
+    });
+
+  // Combine the loading states
+  const isImageUploading = isCompressing || isUploading;
+
+  // handle image upload with the custom hook
+  const handleImageUpload = (collection, file) => {
+    // Store the collection in the ref for immediate access
+    currentUploadRef.current = collection;
+
+    // Also update state for UI updates
+    setCollectionToUpload(collection);
+
+    const event = { target: { files: [file] } };
+    processImage(event);
   };
 
   // column component for table
-  const columns = useMemo(() =>
-    createCollectionColumns(handleEdit, handleDeleteClick, handleImageUpload)
+  const columns = useMemo(
+    () =>
+      createCollectionColumns(
+        handleEdit,
+        handleDeleteClick,
+        handleImageUpload,
+        isImageUploading,
+        collectionToUpload?._id
+      ),
+    [
+      handleEdit,
+      handleDeleteClick,
+      handleImageUpload,
+      isImageUploading,
+      collectionToUpload,
+    ]
   );
 
   const data = useMemo(() => {

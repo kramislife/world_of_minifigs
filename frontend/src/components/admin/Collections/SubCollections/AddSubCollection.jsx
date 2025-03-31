@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Save, X } from "lucide-react";
+import { Save } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -16,17 +16,49 @@ import Metadata from "@/components/layout/Metadata/Metadata";
 import {
   useCreateSubCollectionMutation,
   useGetCollectionQuery,
+  useGetSubCollectionsQuery,
 } from "@/redux/api/productApi";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
-import { Badge } from "@/components/ui/badge";
 
 const AddSubCollection = () => {
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
   const [createSubCollection, { isLoading }] = useCreateSubCollectionMutation();
   const { data: collectionData } = useGetCollectionQuery();
+  const { data: subCollectionData } = useGetSubCollectionsQuery();
+  const [selectedCollection, setSelectedCollection] = useState("");
+  const [nextPopularityId, setNextPopularityId] = useState("001");
+
+  // Calculate next popularity ID when collection changes
+  useEffect(() => {
+    if (!selectedCollection || !subCollectionData?.subcollections) return;
+
+    // Filter subcollections that belong to the selected collection
+    const relatedSubCollections = subCollectionData.subcollections.filter(
+      (subCol) => subCol.collection._id === selectedCollection
+    );
+
+    if (relatedSubCollections.length === 0) {
+      setNextPopularityId("001");
+      return;
+    }
+
+    // Find the highest popularityId
+    const highestId = relatedSubCollections.reduce((max, subCol) => {
+      const currentId = parseInt(subCol.popularityId, 10);
+      return currentId > max ? currentId : max;
+    }, 0);
+
+    // Increment and format with leading zeros
+    const nextId = (highestId + 1).toString().padStart(3, "0");
+    setNextPopularityId(nextId);
+  }, [selectedCollection, subCollectionData]);
+
+  const handleCollectionChange = (value) => {
+    setSelectedCollection(value);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -42,19 +74,12 @@ const AddSubCollection = () => {
       return;
     }
 
-    // Validate popularityId format
-    const popularityId = formData.get("popularityId");
-    if (!popularityId || !/^\d{1,3}$/.test(popularityId)) {
-      toast.error("Popularity ID must be a number between 001-999");
-      return;
-    }
-
     try {
       await createSubCollection({
         name: formData.get("name").trim(),
         description: formData.get("description"),
         collection: formData.get("collection"),
-        popularityId: popularityId.padStart(3, "0"),
+        popularityId: nextPopularityId,
         createdBy: user?._id,
       }).unwrap();
 
@@ -84,7 +109,11 @@ const AddSubCollection = () => {
                   >
                     Parent Collection
                   </Label>
-                  <Select name="collection" required>
+                  <Select
+                    name="collection"
+                    required
+                    onValueChange={handleCollectionChange}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select a collection" />
                     </SelectTrigger>
@@ -123,12 +152,16 @@ const AddSubCollection = () => {
                   <Input
                     id="popularityId"
                     name="popularityId"
-                    type="number"
-                    min="001"
-                    max="999"
-                    placeholder="Enter popularity ID (001-999)"
-                    required
+                    value={nextPopularityId}
+                    disabled
+                    className="bg-gray-100"
                   />
+                  {selectedCollection && (
+                    <p className="text-sm text-gray-500">
+                      This ID is automatically generated based on existing
+                      sub-collections.
+                    </p>
+                  )}
                 </div>
 
                 <div className="space-y-3">
@@ -149,7 +182,7 @@ const AddSubCollection = () => {
                 <div className="flex justify-end space-x-4 pt-6">
                   <Button
                     type="submit"
-                    disabled={isLoading}
+                    disabled={isLoading || !selectedCollection}
                     className="bg-gradient-to-r from-blue-600 to-purple-600"
                   >
                     {isLoading ? (

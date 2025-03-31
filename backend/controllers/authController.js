@@ -11,10 +11,7 @@ import Address from "../models/userAddress.model.js";
 import sendEmail from "../Utills/sendEmail.js";
 import { getResetPasswordTemplate } from "../Utills/Emails/ResetPasswordTemplate.js";
 import { getVerificationEmailTemplate } from "../Utills/Emails/VerificationEmailTemplate.js";
-import {
-  delete_user_avatar_file,
-  upload_single_image,
-} from "../Utills/cloudinary.js";
+import { deleteImage, uploadImage } from "../Utills/cloudinary.js";
 import { ContactFormTemplate } from "../Utills/Emails/ContactFormTemplate.js";
 
 // --------------------------------------- REGISTER USER --------------------------------------- //
@@ -688,11 +685,11 @@ export const updateProfilePicture = catchAsyncErrors(async (req, res, next) => {
 
   // Delete old profile picture if it exists
   if (user.profile_picture?.public_id) {
-    await delete_user_avatar_file(user.profile_picture.public_id);
+    await deleteImage(user.profile_picture.public_id);
   }
 
   // Upload new profile picture
-  const result = await upload_single_image(
+  const result = await uploadImage(
     req.body.avatar,
     "world_of_minifigs/avatars"
   );

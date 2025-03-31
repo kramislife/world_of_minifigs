@@ -11,7 +11,7 @@ import { useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { setIsCartOpen } from "@/redux/features/userSlice";
 import { formatDistanceToNow } from "date-fns";
-import { Package, Star, Clock } from "lucide-react";
+import { useImageUpload } from "@/hooks/ImageUpload/useImageUpload";
 
 export const useProfileData = () => {
   const dispatch = useDispatch();
@@ -26,7 +26,7 @@ export const useProfileData = () => {
   const fileInputRef = useRef(null);
   const { isCartOpen } = useSelector((state) => state.auth);
 
-  const [updateProfilePicture, { isLoading: isUploading }] =
+  const [updateProfilePicture, { isLoading: isApiUploading }] =
     useUpdateProfilePictureMutation();
 
   const [updateProfile, { isLoading: isUpdating }] = useUpdateProfileMutation();
@@ -42,34 +42,26 @@ export const useProfileData = () => {
   const [nameError, setNameError] = useState("");
   const [isNameDialogOpen, setIsNameDialogOpen] = useState(false);
 
-  const handleImageUpload = async (e) => {
-    const file = e.target.files[0];
-
-    if (!file) return;
-
-    if (!file.type.startsWith("image/")) {
-      toast.error("Please upload an image file");
-      return;
-    }
-
-    if (file.size > 2 * 1024 * 1024) {
-      toast.error("Image size should be less than 2MB");
-      return;
-    }
-
-    try {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onloadend = async () => {
-        if (reader.readyState === 2) {
-          const formData = { avatar: reader.result };
+  const { handleImageUpload: processImage, isUploading: isCompressing } =
+    useImageUpload({
+      maxSizeMB: 1,
+      maxWidthOrHeight: 800,
+      maxFileSize: 2 * 1024 * 1024,
+      onSuccess: async (imageData) => {
+        try {
+          const formData = { avatar: imageData };
           await updateProfilePicture(formData).unwrap();
           toast.success("Profile picture updated successfully");
+        } catch (err) {
+          toast.error(err?.data?.message || "Failed to update profile picture");
         }
-      };
-    } catch (err) {
-      toast.error(err?.data?.message || "Failed to update profile picture");
-    }
+      },
+    });
+
+  const isUploading = isCompressing || isApiUploading;
+
+  const handleImageUpload = (e) => {
+    processImage(e);
   };
 
   const handlePhoneUpdate = async () => {

@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { setIsCartOpen } from "@/redux/features/userSlice";
-import logo from "@/assets/worldofminifigs.png";
 
 import SearchSheet from "./SearchSheet";
 import CartButton from "./CartButton";
@@ -39,7 +38,11 @@ const Header = () => {
           <div className="flex items-center flex-shrink-0">
             {/* Logo */}
             <NavLink to="/">
-              <img className="h-12 w-auto scale-110" src={logo} alt="logo" />
+              <img
+                className="h-12 w-auto scale-110"
+                src="https://res.cloudinary.com/mark-legostore/image/upload/v1743391572/world_of_minifigs/icons/logo.png"
+                alt="logo"
+              />
             </NavLink>
           </div>
           {/* Desktop Navigation - adjust spacing */}

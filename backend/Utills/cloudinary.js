@@ -9,52 +9,16 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// CLOUDINARY UPLOAD AVATAR IMAGE FILE
-export const upload_single_image = (file, folder) => {
+// Standard image upload function that handles any image upload
+export const uploadImage = (file, folder) => {
   return new Promise((resolve, reject) => {
     cloudinary.uploader.upload(
       file,
       {
-        resource_type: "auto", // Ensures auto-detection of file type
+        resource_type: "image",
         folder: folder,
-      },
-      (error, result) => {
-        if (error) {
-          reject(error); // Reject promise if there is an error
-        } else {
-          resolve({
-            public_id: result.public_id,
-            url: result.url,
-          });
-        }
-      }
-    );
-  });
-};
-
-// CLOUDINARY FILE DELETE
-export const delete_user_avatar_file = async (file) => {
-  try {
-    const res = await cloudinary.uploader.destroy(file);
-    if (res.result === "ok") {
-      return true;
-    } else {
-      return false; // Return false if deletion failed
-    }
-  } catch (error) {
-    throw new Error(`Failed to delete the file: ${error.message}`);
-  }
-};
-
-// UPLOAD PRODUCT IMAGES
-
-export const upload_product_images = (file, folder) => {
-  return new Promise((resolve, reject) => {
-    cloudinary.uploader.upload(
-      file,
-      {
-        resource_type: "auto",
-        folder: folder,
+        quality: "auto",
+        fetch_format: "auto",
       },
       (error, result) => {
         if (error) {
@@ -68,4 +32,14 @@ export const upload_product_images = (file, folder) => {
       }
     );
   });
+};
+
+// Standard function to delete any image
+export const deleteImage = async (publicId) => {
+  try {
+    const res = await cloudinary.uploader.destroy(publicId);
+    return res.result === "ok";
+  } catch (error) {
+    throw new Error(`Failed to delete the image: ${error.message}`);
+  }
 };

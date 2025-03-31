@@ -1,10 +1,9 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import ViewLayout from "@/components/admin/shared/ViewLayout";
 import {
   useGetSubCategoriesQuery,
   useDeleteSubCategoryMutation,
-  useUploadSubCategoryImageMutation,
 } from "@/redux/api/productApi";
 import { toast } from "react-toastify";
 import { createSubCategoryColumns } from "@/components/admin/shared/table/columns/SubCategoryColumns";
@@ -18,10 +17,16 @@ const ViewSubCategories = () => {
   } = useGetSubCategoriesQuery();
   const [deleteSubCategory, { isLoading: isDeleting }] =
     useDeleteSubCategoryMutation();
-  const [uploadSubCategoryImage] = useUploadSubCategoryImageMutation();
   const [globalFilter, setGlobalFilter] = useState("");
   const [subCategoryToDelete, setSubCategoryToDelete] = useState(null);
   const navigate = useNavigate();
+
+  // Handle API errors
+  useEffect(() => {
+    if (error) {
+      toast.error(error?.data?.message || "Failed to fetch sub-categories");
+    }
+  }, [error]);
 
   const handleEdit = (subCategory) => {
     navigate(`/admin/update-subcategory/${subCategory._id}`);
@@ -31,39 +36,20 @@ const ViewSubCategories = () => {
     setSubCategoryToDelete(subCategory);
   };
 
-  const handleImageUpload = async (subCategory, file) => {
-    const reader = new FileReader();
-    reader.onload = async () => {
-      if (reader.readyState === FileReader.DONE) {
-        const imageData = reader.result;
-
-        try {
-          await uploadSubCategoryImage({
-            id: subCategory._id,
-            body: { image: imageData },
-          }).unwrap();
-
-          toast.success("Image uploaded successfully");
-        } catch (error) {
-          toast.error(error?.data?.message || "Failed to upload image");
-        }
-      }
-    };
-    reader.readAsDataURL(file);
-  };
-
   const confirmDelete = async () => {
     try {
-      await deleteSubCategory(subCategoryToDelete._id).unwrap();
-      toast.success("Sub-category deleted successfully");
+      const response = await deleteSubCategory(
+        subCategoryToDelete._id
+      ).unwrap();
+      toast.success(response.message || "Sub-category deleted successfully");
       setSubCategoryToDelete(null);
     } catch (error) {
       toast.error(error?.data?.message || "Failed to delete sub-category");
     }
   };
 
-  const columns = useMemo(
-    () => createSubCategoryColumns(handleEdit, handleDelete, handleImageUpload)
+  const columns = useMemo(() =>
+    createSubCategoryColumns(handleEdit, handleDelete)
   );
 
   const data = useMemo(() => {
@@ -76,7 +62,6 @@ const ViewSubCategories = () => {
         _id: subCategory._id,
         name: subCategory.name,
         parentCategory: subCategory.category?.name || "N/A",
-        image: subCategory.image?.url || null,
         createdBy: new Date(subCategory.createdAt).toLocaleString(),
         updatedBy: subCategory.updatedAt
           ? new Date(subCategory.updatedAt).toLocaleString()
