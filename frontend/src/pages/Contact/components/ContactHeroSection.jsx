@@ -1,5 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
+import { Quote } from "lucide-react";
 
 const ContactHeroSection = () => {
   return (
@@ -29,20 +30,39 @@ const ContactHeroSection = () => {
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.5 }}
-          className="text-4xl md:text-5xl lg:text-6xl lg:leading-tight font-bold mb-2"
+          className="text-5xl md:text-6xl lg:leading-tight font-bold mb-5"
         >
           Get in <span className="text-accent">Touch</span>
         </motion.h1>
-        <motion.p
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="mx-auto max-w-3xl text-lg md:text-lg text-gray-300 leading-relaxed"
-        >
-          World of Minifigs Team is always open to your suggestions, concerns,
-          and business ideas. Feel free to reach out and we&apos;ll surely
-          respond within 24 hours!
-        </motion.p>
+
+        <div className="relative mx-auto max-w-3xl">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 0.6, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="absolute md:-top-6 -top-4  -left-2 md:-left-12"
+          >
+            <Quote className="w-8 h-8 md:w-12 md:h-12 text-accent transform -scale-x-100" />
+          </motion.div>
+
+          <motion.p
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="mx-auto text-sm md:text-lg text-gray-300 leading-6 italic"
+          >
+            World of Minifigs Team is always open to your suggestions, concerns,
+            and business ideas. Feel free to reach out and we&apos;ll surely
+            respond within 24 hours!
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 0.6, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="absolute -bottom-6 -right-2 md:-right-8"
+          ></motion.div>
+        </div>
       </div>
     </section>
   );

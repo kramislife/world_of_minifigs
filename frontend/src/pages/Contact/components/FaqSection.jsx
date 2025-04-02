@@ -1,10 +1,13 @@
 import React from "react";
+import { motion } from "framer-motion";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { CircleCheckBig } from "lucide-react";
+import { contactAnimations } from "@/hooks/Animation/animationConfig";
 
 const FaqSection = () => {
   const faqs = [
@@ -36,31 +39,39 @@ const FaqSection = () => {
   ];
 
   return (
-    <div className="bg-white rounded-2xl p-8 shadow-lg">
+    <motion.div
+      className="bg-white border rounded-2xl p-5 md:p-8"
+      variants={contactAnimations.faqVariants}
+    >
       <h3 className="text-2xl font-bold text-gray-800 mb-6">
         Frequently Asked Questions
       </h3>
 
       <Accordion type="single" collapsible className="space-y-4">
         {faqs.map((faq, index) => (
-          <AccordionItem
+          <motion.div
             key={index}
-            value={`item-${index}`}
-            className="border border-gray-200 rounded-md overflow-hidden"
+            variants={contactAnimations.faqItemVariants}
+            custom={index}
           >
-            <AccordionTrigger
-              className="p-4 text-left font-medium data-[state=open]:bg-accent 
-              data-[state=open]:text-gray-900 hover:bg-accent hover:no-underline"
+            <AccordionItem
+              value={`item-${index}`}
+              className="border border-gray-200 rounded-md overflow-hidden text-foreground text-sm"
             >
-              {faq.question}
-            </AccordionTrigger>
-            <AccordionContent className="p-4 bg-gray-50 border-t border-gray-200">
-              <p className="text-black leading-6">{faq.answer}</p>
-            </AccordionContent>
-          </AccordionItem>
+              <AccordionTrigger className="p-4 text-left font-medium hover:text-accent hover:bg-brand-start hover:no-underline">
+                {faq.question}
+              </AccordionTrigger>
+              <AccordionContent className="p-4 bg-gray-100 border-t border-gray-200">
+                <div className="flex gap-2">
+                  <CircleCheckBig className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                  <p className="text-black leading-6">{faq.answer}</p>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </motion.div>
         ))}
       </Accordion>
-    </div>
+    </motion.div>
   );
 };
 
