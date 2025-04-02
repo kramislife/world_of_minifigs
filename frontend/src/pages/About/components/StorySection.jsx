@@ -1,5 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
+import { aboutAnimations } from "@/hooks/Animation/animationConfig";
 
 const StorySection = () => {
   return (
@@ -7,11 +8,11 @@ const StorySection = () => {
       <div className="px-6">
         <div className="flex flex-col md:flex-row gap-10 items-center">
           <motion.div
-            initial={{ x: -50, opacity: 0 }}
-            whileInView={{ x: 0, opacity: 1 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
             className="md:w-1/2"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.1 }}
+            variants={aboutAnimations.storyImageVariants}
           >
             <img
               src="https://res.cloudinary.com/mark-legostore/image/upload/v1743056478/world_of_minifigs/icons/Father-son.png"
@@ -21,11 +22,11 @@ const StorySection = () => {
           </motion.div>
 
           <motion.div
-            initial={{ x: 50, opacity: 0 }}
-            whileInView={{ x: 0, opacity: 1 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
             className="md:w-1/2"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.1 }}
+            variants={aboutAnimations.storyContentVariants}
           >
             <div className="inline-block bg-brand-start text-gray-700 px-4 py-1 rounded-full text-sm font-medium mb-6">
               <span className="text-accent">OUR STORY</span>
