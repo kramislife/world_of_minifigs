@@ -145,13 +145,12 @@ const Footer = () => {
                 World of Minifigs
                 <span className="absolute -bottom-2 left-0 w-12 h-0.5 bg-accent"></span>
               </h3>
-              <div className="flex flex-col space-y-6">
+              <div className="flex flex-col space-y-1">
                 <p className="text-gray-300 text-sm leading-relaxed">
-                  Join World of Minifigs to get updates on new releases,
-                  exclusive promotions, and be the first to know about our
-                  latest collections.
+                  Follow us on social media to stay updated on new releases,
+                  exclusive promotions, and our latest collections.
                 </p>
-                <div className="relative max-w-md">
+                {/* <div className="relative max-w-md">
                   <Input
                     type="email"
                     placeholder="Enter your email"
@@ -160,7 +159,7 @@ const Footer = () => {
                   <Button className="absolute right-0 top-0 h-full bg-accent hover:bg-accent/90 text-foreground transition-all duration-200 rounded-l-none">
                     Subscribe
                   </Button>
-                </div>
+                </div> */}
                 <div className="flex items-center space-x-4 pt-2">
                   {socialLinks.map((social) => {
                     const Icon = social.icon;
@@ -171,10 +170,10 @@ const Footer = () => {
                         target="_blank"
                         rel="noopener noreferrer"
                         aria-label={social.label}
-                        className={`w-10 h-10 rounded-full bg-gray-800/50 flex items-center justify-center group transition-all duration-200 hover:bg-gray-700/50 hover:scale-110`}
+                        className={`w-10 h-10 rounded-full bg-brand-end/50 flex items-center justify-center`}
                       >
                         <Icon
-                          className={`w-5 h-5 text-gray-300 ${social.color} transition-colors duration-200`}
+                          className={`w-5 h-5 text-gray-200 ${social.color} transition-colors duration-200`}
                         />
                       </a>
                     );
@@ -188,7 +187,7 @@ const Footer = () => {
         <Separator className="bg-gray-600/50 mt-8" />
 
         <div className="text-center text-sm text-gray-300 py-5">
-            © Copyright World of Minifigs 2025. All rights reserved
+          © Copyright World of Minifigs 2025. All rights reserved
         </div>
       </div>
     </footer>
