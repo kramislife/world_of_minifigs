@@ -7,6 +7,8 @@ import RegisterImg from "@/assets/authAssets/Register.png";
 import { registerAnimations } from "@/hooks/Animation/animationConfig";
 import { useSelector } from "react-redux";
 import Metadata from "@/components/layout/Metadata/Metadata";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -86,191 +88,203 @@ const Register = () => {
   return (
     <>
       <Metadata title="Register" />
-      <div className="min-h-screen flex items-center justify-center bg-brand-gradient px-4 py-10">
-        <div className="w-full max-w-7xl flex gap-12 items-center">
-          {/* Left side - Animation */}
+      <div className="px-3 md:px-10 py-12 md:py-7">
+        <div className=" grid grid-cols-1 md:grid-cols-2 gap-8 ">
+          {/* Left side - Image */}
           <motion.div
             {...registerAnimations.imageContainerVariants}
-            className="flex-1 hidden lg:block"
+            className="hidden md:block place-self-center"
           >
-            <motion.img
-              src={RegisterImg}
-              alt="Register illustration"
-              className="w-full h-full object-contain drop-shadow-2xl filter saturate-110"
+            <motion.div
+              className="max-w-2xl w-full"
               {...registerAnimations.imageVariants}
-            />
+            >
+              <img
+                src={RegisterImg}
+                alt="Register illustration"
+                className="w-full h-auto object-contain"
+              />
+            </motion.div>
           </motion.div>
 
           {/* Right side - Register Form */}
           <motion.div
             {...registerAnimations.formContainerVariants}
-            className="flex-1 p-8 rounded-3xl backdrop-blur-lg shadow-2xl bg-gradient-to-br from-brand-start/40 to-brand-end/40 border border-white/20 relative overflow-hidden"
+            className="w-full px-5 py-10 border border-brand-end/50 rounded-2xl"
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/5 to-transparent pointer-events-none" />
-
-            <div className="space-y-8 py-5 px-2 relative">
-              <motion.div
-                {...registerAnimations.headerVariants}
-                className="space-y-3"
-              >
-                <h1 className="text-4xl font-semibold text-white tracking-tight">
-                  Register Account
-                </h1>
+            <div>
+              <motion.div className="mb-8">
+                <motion.h1
+                  className="text-4xl font-bold"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  Create Account
+                </motion.h1>
+                <motion.p
+                  className="text-gray-400 text-sm mt-2"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.5, delay: 0.2 }}
+                >
+                  Join our community to discover amazing collections
+                </motion.p>
               </motion.div>
 
-              <form className="space-y-6" onSubmit={submitHandler}>
-                {/* Full Name Input */}
-                <motion.div
-                  {...registerAnimations.getInputVariants(0.6)}
-                  className="space-y-4"
-                >
-                  <label htmlFor="fullname" className="sr-only">
-                    Full Name
-                  </label>
-                  <input
-                    id="fullname"
-                    type="text"
-                    name="fullname"
-                    placeholder="Full Name"
-                    value={formData.fullname}
-                    onChange={handleChange}
-                    required
-                    className="bg-darkBrand/50 w-full px-3 border-white/20 text-white placeholder:text-gray-400 h-14 rounded-xl focus:ring-2 focus:ring-light/40 focus:border-light/40 transition-all duration-300 text-md"
-                    aria-label="Full Name"
-                  />
-                </motion.div>
+              <form className="space-y-5" onSubmit={submitHandler}>
+                {/* Full Name and Username Inputs in 2 columns */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Full Name Input */}
+                  <motion.div
+                    {...registerAnimations.getInputVariants(0.6)}
+                    className="space-y-2"
+                  >
+                    <label className="block text-sm font-medium">
+                      Full Name <span className="text-yellow-400">*</span>
+                    </label>
+                    <Input
+                      id="fullname"
+                      type="text"
+                      name="fullname"
+                      placeholder="Enter your full name"
+                      value={formData.fullname}
+                      onChange={handleChange}
+                      required
+                    />
+                  </motion.div>
 
-                {/* Username Input */}
-                <motion.div
-                  {...registerAnimations.getInputVariants(0.7)}
-                  className="space-y-4"
-                >
-                  <label htmlFor="username" className="sr-only">
-                    Username
-                  </label>
-                  <input
-                    id="username"
-                    type="text"
-                    name="username"
-                    placeholder="Username"
-                    value={formData.username}
-                    onChange={handleChange}
-                    required
-                    className="bg-darkBrand/50 w-full px-3 border-white/20 text-white placeholder:text-gray-400 h-14 rounded-xl focus:ring-2 focus:ring-light/40 focus:border-light/40 transition-all duration-300 text-md"
-                    aria-label="Username"
-                  />
-                </motion.div>
+                  {/* Username Input */}
+                  <motion.div
+                    {...registerAnimations.getInputVariants(0.7)}
+                    className="space-y-2"
+                  >
+                    <label className="block text-sm font-medium">
+                      Username <span className="text-yellow-400">*</span>
+                    </label>
+                    <Input
+                      id="username"
+                      type="text"
+                      name="username"
+                      placeholder="Choose a username"
+                      value={formData.username}
+                      onChange={handleChange}
+                      required
+                    />
+                  </motion.div>
+                </div>
 
-                {/* Contact Number Input */}
-                <motion.div
-                  {...registerAnimations.getInputVariants(0.8)}
-                  className="space-y-4"
-                >
-                  <label htmlFor="contact" className="sr-only">
-                    Contact Number
-                  </label>
-                  <input
-                    id="contact"
-                    type="tel"
-                    name="contact"
-                    placeholder="Contact Number"
-                    value={formData.contact}
-                    onChange={handleChange}
-                    required
-                    className="bg-darkBrand/50 border-white/20 w-full px-3 text-white placeholder:text-gray-400 h-14 rounded-xl focus:ring-2 focus:ring-light/40 focus:border-light/40 transition-all duration-300 text-md"
-                    aria-label="Contact Number"
-                  />
-                </motion.div>
+                {/* Contact Number and Email Inputs in 2 columns */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Contact Number Input */}
+                  <motion.div
+                    {...registerAnimations.getInputVariants(0.8)}
+                    className="space-y-2"
+                  >
+                    <label className="block text-sm font-medium">
+                      Contact Number <span className="text-yellow-400">*</span>
+                    </label>
+                    <Input
+                      id="contact"
+                      type="tel"
+                      name="contact"
+                      placeholder="Enter your contact number"
+                      value={formData.contact}
+                      onChange={handleChange}
+                      required
+                    />
+                  </motion.div>
 
-                {/* Email Input */}
-                <motion.div
-                  {...registerAnimations.getInputVariants(0.9)}
-                  className="space-y-4"
-                >
-                  <label htmlFor="email" className="sr-only">
-                    Email Address
-                  </label>
-                  <input
-                    id="email"
-                    type="email"
-                    name="email"
-                    placeholder="Email Address"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                    className="bg-darkBrand/50 border-white/20 w-full px-3 text-white placeholder:text-gray-400 h-14 rounded-xl focus:ring-2 focus:ring-light/40 focus:border-light/40 transition-all duration-300 text-md"
-                    aria-label="Email Address"
-                  />
-                </motion.div>
+                  {/* Email Input */}
+                  <motion.div
+                    {...registerAnimations.getInputVariants(0.9)}
+                    className="space-y-2"
+                  >
+                    <label className="block text-sm font-medium">
+                      Email Address <span className="text-yellow-400">*</span>
+                    </label>
+                    <Input
+                      id="email"
+                      type="email"
+                      name="email"
+                      placeholder="Enter your email address"
+                      value={formData.email}
+                      onChange={handleChange}
+                      required
+                    />
+                  </motion.div>
+                </div>
 
                 {/* Password Input */}
                 <motion.div
                   {...registerAnimations.getInputVariants(1.0)}
-                  className="space-y-4"
+                  className="space-y-2"
                 >
-                  <label htmlFor="password" className="sr-only">
-                    Password
+                  <label className="block text-sm font-medium">
+                    Password <span className="text-yellow-400">*</span>
                   </label>
-                  <input
+                  <Input
                     id="password"
                     type="password"
                     name="password"
-                    placeholder="Password"
+                    placeholder="Create a password"
                     value={formData.password}
                     onChange={handleChange}
-                    required
-                    className="bg-darkBrand/50 border-white/20 text-white w-full px-3 placeholder:text-gray-400 h-14 rounded-xl focus:ring-2 focus:ring-light/40 focus:border-light/40 transition-all duration-300 text-md"
-                    aria-label="Password"
+                    require
                   />
                 </motion.div>
 
                 {/* Confirm Password Input */}
                 <motion.div
                   {...registerAnimations.getInputVariants(1.1)}
-                  className="space-y-4"
+                  className="space-y-2"
                 >
-                  <label htmlFor="confirmPassword" className="sr-only">
-                    Confirm Password
+                  <label className="block text-sm font-medium">
+                    Confirm Password <span className="text-yellow-400">*</span>
                   </label>
-                  <input
+                  <Input
                     id="confirmPassword"
                     type="password"
                     name="confirmPassword"
-                    placeholder="Confirm Password"
+                    placeholder="Confirm your password"
                     value={formData.confirmPassword}
                     onChange={handleChange}
-                    required
-                    className="bg-darkBrand/50 border-white/20 text-white w-full px-3 placeholder:text-gray-400 h-14 rounded-xl focus:ring-2 focus:ring-light/40 focus:border-light/40 transition-all duration-300 text-md"
-                    aria-label="Confirm Password"
+                    require
                   />
                 </motion.div>
 
                 {/* Register Button */}
-                <motion.div {...registerAnimations.buttonVariants}>
-                  <button
+                <motion.div
+                  {...registerAnimations.buttonVariants}
+                  className="pt-2"
+                >
+                  <Button
                     type="submit"
-                    className="w-full bg-gradient-loop from-brand-start to-brand-end text-white h-14 rounded-xl text-md shadow-lg hover:scale-105 transition-transform duration-300 relative overflow-hidden group"
+                    className="w-full bg-[#3b82f6] hover:bg-[#2563eb] text-white font-medium py-3 h-12 rounded-md transition-colors"
                     disabled={isLoading}
                   >
                     <span className="relative z-10">
-                      {isLoading ? "Registering..." : "Register"}
+                      {isLoading ? "Creating Account..." : "Register Now"}
                     </span>
-                  </button>
+                  </Button>
                 </motion.div>
               </form>
 
-              {/* Login Link */}
               <motion.div
-                {...registerAnimations.loginLinkVariants}
-                className="text-light/90 text-md"
+                className="text-center text-gray-300 pt-5"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.8 }}
               >
-                Already have an account?
-                <Link
-                  to="/login"
-                  className="text-red-500 hover:text-white transition-colors duration-300 font-md underline px-2"
-                >
-                  Login Now
-                </Link>
+                <p>
+                  Already have an account?{" "}
+                  <Link
+                    to="/login"
+                    className="text-yellow-400 hover:text-yellow-300 font-medium"
+                  >
+                    Log in here
+                  </Link>
+                </p>
               </motion.div>
             </div>
           </motion.div>

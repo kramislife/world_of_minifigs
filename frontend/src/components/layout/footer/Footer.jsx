@@ -113,10 +113,10 @@ const Footer = () => {
   };
 
   return (
-    <footer className="bg-brand-start border-t border-gray-600/50">
-      <div className="max-w-[1920px] px-5">
+    <footer className="bg-brand-dark/50 border-t border-gray-600/50">
+      <div className="max-w-[1920px] mx-auto px-5 w-full">
         <div className="pt-8 md:pt-16">
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-8 pb-12">
             {footerLinks.map((link) => (
               <div key={link.id} className="space-y-5">
                 <h3 className="text-base sm:text-lg md:text-xl font-bold tracking-wide text-gray-200 relative inline-block">
@@ -174,9 +174,7 @@ const Footer = () => {
           </div>
         </div>
 
-        <Separator className="bg-gray-600 mt-8" />
-
-        <div className="text-center text-xs sm:text-sm text-gray-300 py-4 sm:py-6">
+        <div className="text-center text-xs sm:text-sm text-gray-300 py-8 border-t border-gray-600/50">
           © Copyright World of Minifigs 2025. All rights reserved
         </div>
       </div>
