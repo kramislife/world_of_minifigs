@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import React from "react";
+import { useNavigate } from "react-router-dom";
 import FilterAccordion from "@/components/product/FilterAccordion";
 import ProductSection from "@/components/product/ProductSection";
 import Metadata from "@/components/layout/Metadata/Metadata";
@@ -13,26 +13,22 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import CustomPagination from "@/components/product/shared/CustomPagination";
-import useScrollToTop from "@/hooks/Common/useScrollToTop";
 import { useProductQueries } from "@/hooks/Product/useProductQueries";
 import { useProductFilters } from "@/hooks/Product/useProductFilters";
 import { useProductPagination } from "@/hooks/Product/useProductPagination";
 import ProductsSkeleton from "@/components/layout/skeleton/Products/ProductsSkeleton";
 
 const Products = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [currentSort, setCurrentSort] = useState("date_desc");
-  const scrollToTop = useScrollToTop();
   const navigate = useNavigate();
 
-  // Fetch all product data
+  // Get products data and filtering options
   const {
     productData,
     isProductLoading,
     productError,
     filterData,
     groupedProducts,
-  } = useProductQueries(searchParams);
+  } = useProductQueries();
 
   // Handle filters
   const {
@@ -45,29 +41,24 @@ const Products = () => {
     handleFilterChange,
   } = useProductFilters(filterData);
 
-  // Handle pagination and sorting with grouped products
-  const { currentPage, paginatedProducts, totalPages, sortedProducts } =
-    useProductPagination(groupedProducts, currentSort);
-
-  // Handle page change
-  const handlePageChange = (page) => {
-    if (page < 1 || page > totalPages) return;
-    const newSearchParams = new URLSearchParams(searchParams);
-    newSearchParams.set("page", page);
-    setSearchParams(newSearchParams);
-    scrollToTop();
+  // Create a wrapper for filter change that closes the sheet
+  const handleFilterChangeAndCloseSheet = (key, value) => {
+    handleFilterChange(key, value);
+    setIsFilterOpen(false);
   };
 
-  // Handle sort change
-  const handleSortChange = (value) => {
-    setCurrentSort(value);
-    const newSearchParams = new URLSearchParams(searchParams);
-    newSearchParams.set("page", "1");
-    setSearchParams(newSearchParams);
-    scrollToTop();
-  };
+  // Handle pagination and sorting
+  const {
+    currentPage,
+    currentSort,
+    paginatedProducts,
+    totalPages,
+    sortedProducts,
+    handlePageChange,
+    handleSortChange,
+  } = useProductPagination(groupedProducts);
 
-  // Add this new handler for image navigation
+  // Product navigation handler
   const handleImageNavigation = (productId) => {
     navigate(`/product/${productId}`);
   };
@@ -85,17 +76,14 @@ const Products = () => {
         <div className="lg:hidden mb-4 flex items-center justify-between">
           <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
             <SheetTrigger asChild>
-              <button className="flex items-center gap-2 bg-transparent">
+              <button className="flex items-center gap-2 hover:text-accent">
                 <Filter className="h-5 w-5" />
                 <span>Filters</span>
               </button>
             </SheetTrigger>
-            <SheetContent
-              side="left"
-              className="w-[350px] bg-darkBrand border-gray-800"
-            >
+            <SheetContent side="left" className="w-[350px] bg-brand-start">
               <SheetHeader>
-                <SheetTitle className=" text-left">
+                <SheetTitle className=" text-left text-white">
                   Filters
                 </SheetTitle>
               </SheetHeader>
@@ -105,8 +93,9 @@ const Products = () => {
                   openCategories={openCategories}
                   onCategoriesChange={setOpenCategories}
                   selectedFilters={selectedFilters}
-                  onFilterChange={handleFilterChange}
+                  onFilterChange={handleFilterChangeAndCloseSheet}
                   products={productData?.allProducts || []}
+                  groupedProducts={sortedProducts || []}
                 />
               </div>
             </SheetContent>
@@ -136,6 +125,7 @@ const Products = () => {
                 selectedFilters={selectedFilters}
                 onFilterChange={handleFilterChange}
                 products={productData?.allProducts || []}
+                groupedProducts={sortedProducts || []}
               />
             </div>
           </div>

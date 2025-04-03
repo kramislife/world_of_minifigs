@@ -1,5 +1,42 @@
 import React from "react";
 import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
+import { Button } from "@/components/ui/button";
+
+// Page number button component
+const PageButton = ({ pageNumber, isActive, onClick }) => (
+  <Button
+    variant={isActive ? "accent" : "ghost"}
+    size="sm"
+    onClick={onClick}
+    className={isActive ? "text-black h-9 w-9" : "h-9 w-9 hover:text-black"}
+  >
+    {pageNumber}
+  </Button>
+);
+
+// Ellipsis indicator component
+const Ellipsis = ({ keyName }) => (
+  <span
+    key={keyName}
+    className="flex h-9 w-9 items-center justify-center text-gray-400"
+  >
+    <MoreHorizontal className="h-4 w-4" />
+  </span>
+);
+
+// Navigation button component (Previous/Next)
+const NavigationButton = ({ direction, onClick, children }) => (
+  <Button
+    variant="ghost"
+    size="sm"
+    onClick={onClick}
+    className="flex items-center hover:text-black"
+  >
+    {direction === "previous" && <ChevronLeft className="h-4 w-4" />}
+    {children}
+    {direction === "next" && <ChevronRight className="h-4 w-4" />}
+  </Button>
+);
 
 const CustomPagination = ({ currentPage, totalPages, onPageChange }) => {
   // Don't render pagination if there's only one page or no pages
@@ -11,88 +48,56 @@ const CustomPagination = ({ currentPage, totalPages, onPageChange }) => {
     const items = [];
     const maxVisiblePages = 5;
 
-    // Always show first page
+    // Add first page button
     items.push(
-      <button
+      <PageButton
         key={1}
+        pageNumber={1}
+        isActive={currentPage === 1}
         onClick={() => onPageChange(1)}
-        className={`h-9 w-9 rounded-md text-sm transition-colors 
-          ${
-            currentPage === 1
-              ? "bg-accent text-black"
-              : "hover:bg-accent/80 hover:text-black text-gray-300"
-          }`}
-      >
-        1
-      </button>
+      />
     );
 
-    // Calculate range of visible pages
+    // Calculate middle page range
     let startPage = Math.max(2, currentPage - Math.floor(maxVisiblePages / 2));
     let endPage = Math.min(totalPages - 1, startPage + maxVisiblePages - 3);
 
-    // Adjust start if we're near the end
+    // Adjust range if we're near the end
     if (endPage - startPage < maxVisiblePages - 3) {
       startPage = Math.max(2, endPage - (maxVisiblePages - 3));
     }
 
-    // Add ellipsis after first page if needed
+    // Add first ellipsis if needed
     if (startPage > 2) {
-      items.push(
-        <span
-          key="ellipsis1"
-          className="flex h-9 w-9 items-center justify-center text-gray-400"
-        >
-          <MoreHorizontal className="h-4 w-4" />
-        </span>
-      );
+      items.push(<Ellipsis key="ellipsis1" />);
     }
 
-    // Add middle pages
+    // Add middle page buttons
     for (let i = startPage; i <= endPage; i++) {
       items.push(
-        <button
+        <PageButton
           key={i}
+          pageNumber={i}
+          isActive={currentPage === i}
           onClick={() => onPageChange(i)}
-          className={`h-9 w-9 rounded-md text-sm transition-colors
-            ${
-              currentPage === i
-                ? "bg-accent text-black"
-                : "hover:bg-accent/80 hover:text-black text-gray-300"
-            }`}
-        >
-          {i}
-        </button>
+        />
       );
     }
 
-    // Add ellipsis before last page if needed
+    // Add second ellipsis if needed
     if (endPage < totalPages - 1) {
-      items.push(
-        <span
-          key="ellipsis2"
-          className="flex h-9 w-9 items-center justify-center text-gray-400"
-        >
-          <MoreHorizontal className="h-4 w-4" />
-        </span>
-      );
+      items.push(<Ellipsis key="ellipsis2" />);
     }
 
-    // Always show last page if there is more than one page
+    // Add last page button (if there's more than one page)
     if (totalPages > 1) {
       items.push(
-        <button
+        <PageButton
           key={totalPages}
+          pageNumber={totalPages}
+          isActive={currentPage === totalPages}
           onClick={() => onPageChange(totalPages)}
-          className={`h-9 w-9 rounded-md text-sm transition-colors 
-            ${
-              currentPage === totalPages
-                ? "bg-accent text-black"
-                : "hover:bg-accent/80 hover:text-black text-gray-300"
-            }`}
-        >
-          {totalPages}
-        </button>
+        />
       );
     }
 
@@ -100,40 +105,30 @@ const CustomPagination = ({ currentPage, totalPages, onPageChange }) => {
   };
 
   return (
-    <nav className="mx-auto lg:ml-36 flex w-full justify-center my-4 mt-8">
+    <nav className="flex w-full justify-center my-4 mt-8">
       <div className="flex flex-row items-center gap-1">
-        {/* Previous Button */}
-        <button
-          onClick={() => onPageChange(currentPage - 1)}
-          disabled={currentPage === 1}
-          className={`flex items-center gap-1 rounded-md px-3 py-2 text-sm transition-colors
-            ${
-              currentPage === 1
-                ? "pointer-events-none text-gray-600"
-                : "text-gray-300 hover:bg-accent/80 hover:text-black"
-            }`}
-        >
-          <ChevronLeft className="h-4 w-4" />
-          <span>Previous</span>
-        </button>
+        {/* Previous page button */}
+        {currentPage > 1 && (
+          <NavigationButton
+            direction="previous"
+            onClick={() => onPageChange(currentPage - 1)}
+          >
+            Previous
+          </NavigationButton>
+        )}
 
-        {/* Page Numbers */}
+        {/* Page number buttons */}
         <div className="flex items-center gap-1">{renderPaginationItems()}</div>
 
-        {/* Next Button */}
-        <button
-          onClick={() => onPageChange(currentPage + 1)}
-          disabled={currentPage === totalPages}
-          className={`flex items-center gap-1 rounded-md px-3 py-2 text-sm transition-colors
-            ${
-              currentPage === totalPages
-                ? "pointer-events-none text-gray-600"
-                : "text-gray-300 hover:bg-accent/80 hover:text-black"
-            }`}
-        >
-          <span>Next</span>
-          <ChevronRight className="h-4 w-4" />
-        </button>
+        {/* Next page button */}
+        {currentPage < totalPages && (
+          <NavigationButton
+            direction="next"
+            onClick={() => onPageChange(currentPage + 1)}
+          >
+            Next
+          </NavigationButton>
+        )}
       </div>
     </nav>
   );

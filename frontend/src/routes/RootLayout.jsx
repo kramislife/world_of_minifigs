@@ -28,9 +28,7 @@ const RootLayout = () => {
             <Sidebar />
           </div>
           <main className="flex-1 p-5 overflow-y-auto scrollbar-none">
-            <div className="max-w-7xl mx-auto">
-              <Outlet />
-            </div>
+            <Outlet />
           </main>
         </div>
       ) : (

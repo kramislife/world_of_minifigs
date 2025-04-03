@@ -59,20 +59,39 @@ const ViewProducts = () => {
     if (!productData?.allProducts) return [];
     return [...productData.allProducts]
       .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-      .map((product, index) => ({
-        id: index + 1,
-        _id: product._id,
-        name: product.product_name,
-        price: product.price,
-        category: product.product_category
-          .map((category) => category?.name)
-          .join(", ") || "N/A",
-        collection: product.product_collection
-          .map((collection) => collection.name)
-          .join(", ") || "N/A",
-        stock: product.stock,
-        createdAt: new Date(product.createdAt).toLocaleString(),
-      }));
+      .map((product, index) => {
+        // Find the color info from the product
+        let colorName = "N/A";
+        let colorCode = null;
+
+        // If product_color is an object reference (populated)
+        if (
+          product.product_color &&
+          typeof product.product_color === "object"
+        ) {
+          colorName = product.product_color.name || "N/A";
+          colorCode = product.product_color.code || null;
+        }
+        // If product_color is just a string name
+        else if (product.product_color) {
+          colorName = product.product_color;
+        }
+
+        return {
+          _id: index + 1,
+          name: product.product_name,
+          color: colorName,
+          colorCode: colorCode,
+          itemID: product.itemID,
+          price: product.price,
+          collection:
+            product.product_collection
+              .map((collection) => collection.name)
+              .join(", ") || "N/A",
+          stock: product.stock,
+          status: product.is_active,
+        };
+      });
   }, [productData]);
 
   return (

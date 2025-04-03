@@ -8,13 +8,34 @@ export const createProductColumns = (
 ) => [
   {
     header: "ID",
-    accessorKey: "id",
-    size: 80,
+    accessorKey: "_id",
   },
   {
     header: "Product Name",
     accessorKey: "name",
-    size: 200,
+    size: 220,
+  },
+  {
+    header: "Color",
+    accessorKey: "color",
+    size: 120,
+    cell: ({ row }) => (
+      <div className="flex items-center justify-center gap-2">
+        {row.original.colorCode && (
+          <div
+            className="w-5 h-5 rounded-full border border-gray-300"
+            style={{ backgroundColor: row.original.colorCode }}
+            title={row.original.color}
+          />
+        )}
+        <span>{row.original.color || "N/A"}</span>
+      </div>
+    ),
+  },
+  {
+    header: "Item ID",
+    accessorKey: "itemID",
+    size: 120,
   },
   {
     header: "Price",
@@ -22,14 +43,9 @@ export const createProductColumns = (
     size: 100,
     cell: ({ row }) => (
       <div className="text-center">
-        {row.original.price ? `$${row.original.price.toFixed(2)}` : 'N/A'}
+        {row.original.price ? `$${row.original.price.toFixed(2)}` : "N/A"}
       </div>
     ),
-  },
-  {
-    header: "Category",
-    accessorKey: "category",
-    size: 150,
   },
   {
     header: "Collection",
@@ -41,16 +57,6 @@ export const createProductColumns = (
     accessorKey: "stock",
     size: 100,
     cell: ({ row }) => <div className="text-center">{row.original.stock}</div>,
-  },
-  {
-    header: "Created At",
-    accessorKey: "createdAt",
-    size: 120,
-    cell: ({ row }) => (
-      <div className="text-center">
-        {new Date(row.original.createdAt).toLocaleDateString()}
-      </div>
-    ),
   },
   {
     header: "Status",
@@ -83,7 +89,7 @@ export const createProductColumns = (
         </button>
         <button
           onClick={() => handleDelete(row.original)}
-          className="text-red-600 hover:text-red-800 p-1 rounded-full hover:bg-red-100 transition-colors"
+          className="text-red-500 hover:text-red-600 p-1 rounded-full hover:bg-red-100 transition-colors"
           title="Delete Product"
         >
           <Trash2 size={18} />

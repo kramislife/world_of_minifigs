@@ -26,7 +26,7 @@ const UserDropdown = () => {
     }
 
     if (isSuccess) {
-      toast.success(data?.message, {
+      toast.success(data?.message || "Logout successful", {
         autoClose: 1000,
         onOpen: () => {
           navigate(0);
@@ -99,7 +99,7 @@ const UserDropdown = () => {
       </DropdownMenuTrigger>
 
       <DropdownMenuContent
-        className="text-white w-60 mt-2 mr-3 bg-brand-start border border-brand-end z-[1001] shadow-lg"
+        className="text-white w-60 m-1 bg-brand-start border border-brand-end z-[1001] shadow-lg"
         sideOffset={5}
         align="end"
         forceMount
@@ -149,7 +149,7 @@ const UserDropdown = () => {
             </DropdownMenuItem>
           ))}
         </div>
-        <DropdownMenuSeparator className="bg-gray-600" />
+        <DropdownMenuSeparator className="bg-brand-end/50" />
 
         {/* Logout */}
         <DropdownMenuItem

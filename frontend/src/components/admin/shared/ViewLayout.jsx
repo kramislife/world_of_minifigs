@@ -7,7 +7,9 @@ import ShowEntries from "@/components/admin/shared/table/ShowEntries";
 import TableLayout from "@/components/admin/shared/table/TableLayout";
 import Pagination from "@/components/admin/shared/table/Pagination";
 import Metadata from "@/components/layout/Metadata/Metadata";
-import LoadingSpinner from "@/components/layout/spinner/LoadingSpinner";
+import ViewLayoutSkeleton from "@/components/layout/skeleton/Admin/ViewLayoutSkeleton";
+import { FallbackMessage } from "@/components/product/shared/FallbackStates";
+import { Button } from "@/components/ui/button";
 
 const ViewLayout = ({
   title,
@@ -25,20 +27,34 @@ const ViewLayout = ({
   const [pageSize, setPageSize] = useState(10);
 
   if (isLoading) {
-    return <LoadingSpinner />;
+    return <ViewLayoutSkeleton title={title} />;
   }
 
   if (error) {
-    return <div>Error loading {title.toLowerCase()}</div>;
+    return (
+      <FallbackMessage
+        title={`Error Loading ${title}`}
+        message={`There was a problem loading the ${title.toLowerCase()}. Please try again later.`}
+      />
+    );
+  }
+
+  if (!data?.length) {
+    return (
+      <FallbackMessage
+        title={`No ${title} Available`}
+        message={`There are no ${title.toLowerCase()} to display. Click the "Add New ${title}" button to create one.`}
+      />
+    );
   }
 
   return (
     <>
       <Metadata title={title} />
-      <div className="container mx-auto py-6 px-2">
+      <div className="py-6 px-2">
         <div className="mb-8 flex justify-between items-center">
           <div className="space-y-2">
-            <h1 className="text-3xl font-bold text-light tracking-tight">
+            <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
               {title} Management
             </h1>
             <p className="text-gray-200/70 text-md">
@@ -46,19 +62,18 @@ const ViewLayout = ({
             </p>
           </div>
           {addNewPath && (
-            <button
-              onClick={() => navigate(addNewPath)}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white flex items-center gap-2 hover:from-blue-700 hover:to-purple-700 px-4 py-2 rounded-md"
-            >
+            <Button variant="accent" onClick={() => navigate(addNewPath)}>
               <PlusCircle className="w-5 h-5" />
-              {addNewText || `Add New ${title}`}
-            </button>
+              <span className="hidden md:inline ml-2">
+                {addNewText || `Add New ${title}`}
+              </span>
+            </Button>
           )}
         </div>
 
-        <Card className="bg-darkBrand border-none">
-          <CardContent className="p-10">
-            <div className="flex flex-col md:flex-row justify-between gap-6 mb-10">
+        <Card className="bg-brand-start border-brand-end/50">
+          <CardContent className="p-5">
+            <div className="flex flex-row justify-between gap-6 mb-10">
               <ShowEntries value={pageSize} onChange={setPageSize} />
               <SearchBar
                 value={globalFilter}

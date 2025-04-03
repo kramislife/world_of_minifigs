@@ -47,7 +47,7 @@ export const createColorColumns = (handleEdit, handleDelete) => [
         </button>
         <button
           onClick={() => handleDelete(row.original)}
-          className="text-red-600 hover:text-red-800 p-1 rounded-full hover:bg-red-100 transition-colors"
+          className="text-red-500 hover:text-red-600 p-1 rounded-full hover:bg-red-100 transition-colors"
           title="Delete Color"
         >
           <Trash2 size={18} />

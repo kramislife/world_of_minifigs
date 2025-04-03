@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   useGetProductsQuery,
   useGetCategoryQuery,
@@ -7,13 +8,22 @@ import {
   useGetDesignersQuery,
 } from "@/redux/api/productApi";
 
-export const useProductQueries = (searchParams) => {
+export const useProductQueries = () => {
+  const [searchParams] = useSearchParams();
+
+  // Create API-safe search params (remove sort parameter)
+  const apiSearchParams = useMemo(() => {
+    const params = new URLSearchParams(searchParams);
+    params.delete("sort"); // Remove sort from API request
+    return params;
+  }, [searchParams]);
+
   const {
     data: productData,
     isLoading: isProductLoading,
     isError: productError,
     error: productErrorMsg,
-  } = useGetProductsQuery(searchParams.toString());
+  } = useGetProductsQuery(apiSearchParams.toString());
 
   const {
     data: categoriesData,
