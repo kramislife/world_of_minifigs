@@ -114,24 +114,24 @@ const Footer = () => {
 
   return (
     <footer className="bg-brand-start border-t border-gray-600/50">
-      <div className="max-w-[1920px] mx-auto px-4 sm:px-6">
-        <div className="pt-16">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-x-8 gap-y-12">
+      <div className="max-w-[1920px] px-5">
+        <div className="pt-8 md:pt-16">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {footerLinks.map((link) => (
-              <div key={link.id} className="space-y-6">
-                <h3 className="text-xl font-bold tracking-wide text-gray-200 relative inline-block">
+              <div key={link.id} className="space-y-5">
+                <h3 className="text-base sm:text-lg md:text-xl font-bold tracking-wide text-gray-200 relative inline-block">
                   {link.title}
-                  <span className="absolute -bottom-2 left-0 w-12 h-0.5 bg-accent"></span>
+                  <span className="absolute -bottom-2 left-0 w-8 sm:w-12 h-0.5 bg-accent"></span>
                 </h3>
-                <ul className="space-y-4 text-gray-300">
+                <ul className="space-y-2 sm:space-y-4 text-gray-300">
                   {link.links.map((item, index) => (
                     <li
                       key={typeof item === "string" ? item : item.label}
                       className="hover:text-accent cursor-pointer transition-all duration-200 flex items-center group"
                       onClick={() => handleLinkClick(item)}
                     >
-                      <div className="w-4 h-4 mr-2 opacity-0 -ml-6 group-hover:-ml-5 group-hover:opacity-100 transition-all duration-200 text-red-500" />
-                      <span className="group-hover:translate-x-1 transition-transform duration-200">
+                      <div className="hidden sm:block w-4 h-4 mr-2 opacity-0 -ml-6 group-hover:-ml-5 group-hover:opacity-100 transition-all duration-200 text-red-500" />
+                      <span className="group-hover:translate-x-1 transition-transform duration-200 py-1 text-sm sm:text-base">
                         {typeof item === "string" ? item : item.label}
                       </span>
                     </li>
@@ -140,27 +140,17 @@ const Footer = () => {
               </div>
             ))}
 
-            <div className="flex flex-col space-y-6 mt-8 lg:mt-0">
-              <h3 className="text-xl font-bold tracking-wide text-gray-200 relative inline-block">
+            <div className="flex flex-col space-y-3 sm:space-y-5 col-span-2 sm:col-span-2 lg:col-span-1 mt-4 sm:mt-0">
+              <h3 className="text-base sm:text-lg md:text-xl font-bold tracking-wide text-gray-200 relative inline-block">
                 World of Minifigs
-                <span className="absolute -bottom-2 left-0 w-12 h-0.5 bg-accent"></span>
+                <span className="absolute -bottom-2 left-0 w-8 sm:w-12 h-0.5 bg-accent"></span>
               </h3>
-              <div className="flex flex-col space-y-1">
-                <p className="text-gray-300 text-sm leading-relaxed">
+              <div className="flex flex-col space-y-3">
+                <p className="text-gray-300 text-sm leading-6 mt-2 md:mt-0">
                   Follow us on social media to stay updated on new releases,
                   exclusive promotions, and our latest collections.
                 </p>
-                {/* <div className="relative max-w-md">
-                  <Input
-                    type="email"
-                    placeholder="Enter your email"
-                    className="bg-gray-800/50 border-gray-700 text-gray-300 placeholder:text-gray-500 focus:ring-2 focus:ring-red-500 focus:border-transparent pr-24"
-                  />
-                  <Button className="absolute right-0 top-0 h-full bg-accent hover:bg-accent/90 text-foreground transition-all duration-200 rounded-l-none">
-                    Subscribe
-                  </Button>
-                </div> */}
-                <div className="flex items-center space-x-4 pt-2">
+                <div className="flex items-center space-x-4">
                   {socialLinks.map((social) => {
                     const Icon = social.icon;
                     return (
@@ -170,10 +160,10 @@ const Footer = () => {
                         target="_blank"
                         rel="noopener noreferrer"
                         aria-label={social.label}
-                        className={`w-10 h-10 rounded-full bg-brand-end/50 flex items-center justify-center`}
+                        className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-brand-end/50 flex items-center justify-center`}
                       >
                         <Icon
-                          className={`w-5 h-5 text-gray-200 ${social.color} transition-colors duration-200`}
+                          className={`w-4 h-4 sm:w-5 sm:h-5 text-gray-200 ${social.color} transition-colors duration-200`}
                         />
                       </a>
                     );
@@ -184,9 +174,9 @@ const Footer = () => {
           </div>
         </div>
 
-        <Separator className="bg-gray-600/50 mt-8" />
+        <Separator className="bg-gray-600 mt-8" />
 
-        <div className="text-center text-sm text-gray-300 py-5">
+        <div className="text-center text-xs sm:text-sm text-gray-300 py-4 sm:py-6">
           © Copyright World of Minifigs 2025. All rights reserved
         </div>
       </div>
