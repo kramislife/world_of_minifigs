@@ -6,10 +6,10 @@ import {
 } from "@/components/ui/sheet";
 import LoadingSpinner from "@/components/layout/spinner/LoadingSpinner";
 import { ShoppingCart } from "lucide-react";
-import { useCartSheet } from "@/hooks/Product/useCartSheet";
 import CartHeader from "./components/CartHeader";
 import CartItem from "./components/CartItem";
 import CartFooter from "./components/CartFooter";
+import { useCartSheet } from "@/hooks/Product/useCartSheet";
 
 const CartSheet = ({ isOpen, setIsOpen }) => {
   const {
@@ -26,8 +26,8 @@ const CartSheet = ({ isOpen, setIsOpen }) => {
 
   const CartEmpty = () => {
     return (
-      <div className="text-center text-gray-400 py-5 text-sm">
-        <ShoppingCart size={64} className="mx-auto mb-10 opacity-20" />
+      <div className="text-center text-gray-300 py-5 text-sm">
+        <ShoppingCart size={64} className="mx-auto mb-10 opacity-50" />
         Oops! Your cart looks a bit lonely. Start shopping now.
       </div>
     );
@@ -35,7 +35,7 @@ const CartSheet = ({ isOpen, setIsOpen }) => {
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
-      <SheetContent className="w-full bg-brand-gradient p-0 z-[1000] overflow-hidden sm:max-w-xl">
+      <SheetContent className="w-full max-w-[400px] lg:max-w-[600px] bg-brand-start p-0">
         <SheetTitle className="sr-only">Shopping Cart</SheetTitle>
         <SheetDescription className="sr-only">
           View your shopping cart items, adjust quantities, and proceed to
@@ -47,14 +47,14 @@ const CartSheet = ({ isOpen, setIsOpen }) => {
 
           <div className="flex-1 overflow-y-auto">
             <div className="px-3 py-6 space-y-6">
-              <div className="bg-darkBrand/20 rounded-2xl p-5 backdrop-blur-xl border border-white/10 shadow-lg">
-                {isLoading ? (
-                  <div className="flex justify-center items-center py-20">
-                    <LoadingSpinner />
-                  </div>
-                ) : updatedCartItems.length === 0 ? (
-                  <CartEmpty />
-                ) : (
+              {isLoading ? (
+                <div className="flex justify-center items-center py-20">
+                  <LoadingSpinner />
+                </div>
+              ) : updatedCartItems.length === 0 ? (
+                <CartEmpty />
+              ) : (
+                <div className="bg-brand-dark/30 rounded-lg p-5 border border-brand-end/50">
                   <ul className="space-y-6">
                     {updatedCartItems.map((item) => (
                       <CartItem
@@ -64,8 +64,8 @@ const CartSheet = ({ isOpen, setIsOpen }) => {
                       />
                     ))}
                   </ul>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           </div>
 

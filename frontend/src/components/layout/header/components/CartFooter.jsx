@@ -9,9 +9,9 @@ const CartFooter = ({
   isAuthenticated,
   hasOutOfStockItems,
 }) => (
-  <div className="sticky bottom-0 px-6 py-5 bg-brand border-t border-white/10">
+  <div className="sticky bottom-0 p-5 bg-brand border-t border-brand-end/50">
     <div className="flex justify-between items-center mb-4">
-      <span className="text-gray-400">Total</span>
+      <span className="text-gray-200">Total</span>
       <span className="text-emerald-400 text-xl font-semibold">
         ${total.toFixed(2)}
       </span>
@@ -27,7 +27,7 @@ const CartFooter = ({
         </div>
       )}
       <Button
-        className="w-full flex items-center justify-center gap-2 transition-all duration-200 bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full flex items-center justify-center gap-2 transition-all duration-200 bg-accent text-foreground hover:bg-accent/80 hover:scale-105"
         onClick={onCheckout}
         disabled={checkoutDisabled || hasOutOfStockItems}
       >
