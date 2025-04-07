@@ -1,14 +1,14 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
 const SkeletonGrid = () => (
-  <div className="p-4">
-    <Skeleton className="h-8 w-64 mx-auto mb-4 mt-6" />
-    <Skeleton className="h-10 w-32 mx-auto mb-10" />
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 py-5">
+  <div className="p-5">
+    <Skeleton className="h-8 w-64 mx-auto my-5" />
+    <Skeleton className="h-10 w-32 mx-auto mb-2" />
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 py-5">
       {[...Array(4)].map((_, i) => (
         <div
           key={i}
-          className="bg-brand-end rounded-2xl overflow-hidden shadow-xl h-full"
+          className="bg-brand-dark/50 rounded-2xl overflow-hidden shadow-xl h-full"
         >
           {/* Product Image */}
           <Skeleton className="w-full aspect-square rounded-none" />

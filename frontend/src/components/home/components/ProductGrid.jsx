@@ -40,10 +40,10 @@ const ProductGrid = ({ title, products, baseUrl, isLoading, isError }) => {
   };
 
   return (
-    <div className="p-4 flex flex-col">
-      <h2 className="text-3xl font-extrabold mb-4 text-center pt-6">{title}</h2>
+    <div className="flex flex-col p-5">
+      <h2 className="text-3xl font-extrabold text-center py-5">{title}</h2>
 
-      <div className="flex items-center justify-center pb-10">
+      <div className="flex items-center justify-center pb-2">
         <Button onClick={handleViewAll} variant="accent">
           View All
         </Button>

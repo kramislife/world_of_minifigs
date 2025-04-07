@@ -42,11 +42,11 @@ const FeaturedProducts = () => {
   }
 
   return (
-    <div className="max-w-[1920px] mx-auto pt-4">
-      <h2 className="text-3xl font-extrabold text-center header-text py-6">
+    <div className="pt-5">
+      <h2 className="text-3xl font-extrabold text-center header-text py-5">
         Featured Collections
       </h2>
-      <div className="grid gap-2 pt-4">
+      <div className="space-y-2">
         {/* Show featured collections */}
         {featuredCollections.map((collection) => (
           <div

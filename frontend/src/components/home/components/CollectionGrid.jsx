@@ -47,21 +47,21 @@ const CollectionGrid = ({
     switch (type) {
       case "browse":
         return (
-          <h2 className="text-3xl font-extrabold mb-4 text-center pt-6">
+          <h2 className="text-3xl font-extrabold text-center py-5">
             Browse by Collections
           </h2>
         );
       case "collections":
         return (
-          <h2 className="text-3xl text-gray-300 font-extrabold mb-4 pt-6 header-text flex items-center gap-2 py-5">
-            <div className="w-1 h-8 bg-red-500 rounded mr-2" />
+          <h2 className="text-3xl text-gray-300 font-extrabold py-5 header-text flex items-center gap-2">
+            <div className="w-1 h-8 bg-accent rounded mr-2" />
             <span>Our Collections</span>
           </h2>
         );
       case "sub-collections":
         return (
-          <h2 className="text-3xl text-gray-300 font-extrabold mb-4 pt-6 header-text flex items-center gap-2 py-5">
-            <div className="w-1 h-8 bg-red-500 rounded mr-2" />
+          <h2 className="text-3xl text-gray-300 font-extrabold py-5 header-text flex items-center gap-2">
+            <div className="w-1 h-8 bg-accent rounded mr-2" />
             <span>{collectionName}</span>
           </h2>
         );
@@ -75,14 +75,14 @@ const CollectionGrid = ({
       {renderTitle()}
 
       {showViewAll && (
-        <div className="flex items-center justify-center pb-10">
+        <div className="flex items-center justify-center pb-2">
           <Button variant="accent" onClick={() => navigate("/collections")}>
             View All Collections
           </Button>
         </div>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 py-5">
         {collections.map((collection) => (
           <div
             key={collection._id}

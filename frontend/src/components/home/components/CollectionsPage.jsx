@@ -11,7 +11,7 @@ const CollectionsPage = () => {
   return (
     <>
       <Metadata title="Collections" />
-      <div className="p-4">
+      <div className="p-5">
         <CollectionGrid
           collections={collections}
           onCollectionClick={handleCollectionClick}
