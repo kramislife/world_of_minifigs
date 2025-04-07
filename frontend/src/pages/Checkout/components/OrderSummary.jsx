@@ -67,7 +67,7 @@ const CartItem = ({ item, handleQuantityUpdate, removeItem, isBuyNow }) => (
       {/* Discount Badge */}
       {item.discount > 0 && (
         <div className="absolute top-2 right-2 z-10">
-          <Badge variant="destructive" className="text-xs">
+          <Badge variant="discount" className="text-xs">
             {item.discount}% OFF
           </Badge>
         </div>

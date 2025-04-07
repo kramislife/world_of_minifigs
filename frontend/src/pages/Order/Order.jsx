@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import Metadata from "@/components/layout/Metadata/Metadata";
 import CancelOrderDialog from "./components/OrderDetails/CancelOrderDialog";
-import LoadingSpinner from "@/components/layout/spinner/LoadingSpinner";
 import OrderHeader from "./components/OrderDetails/OrderHeader";
 import OrderStatusTimeline from "./components/OrderDetails/OrderStatusTimeline";
 import OrderCancelled from "./components/OrderDetails/OrderCancelled";
@@ -11,6 +10,7 @@ import CustomerShipping from "./components/OrderDetails/CustomerShipping";
 import Customer from "./components/OrderDetails/Customer";
 import PaymentSummary from "./components/OrderDetails/PaymentSummary";
 import { useOrders } from "@/hooks/Order/useOrders";
+import OrderSkeleton from "@/components/layout/skeleton/Products/OrderSkeleton";
 
 const Order = () => {
   const [showCancelDialog, setShowCancelDialog] = useState(false);
@@ -33,17 +33,13 @@ const Order = () => {
   } = useOrders();
 
   if (isLoadingDetails) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <LoadingSpinner />
-      </div>
-    );
+    return <OrderSkeleton />;
   }
 
   if (errorDetails) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Card className="w-full max-w-md bg-red-500/10 border-red-500/20">
+      <div className="flex items-center justify-center min-h-screen p-4">
+        <Card className="w-full max-w-md bg-brand-dark/20 border-brand-end/50">
           <CardContent className="pt-6">
             <div className="text-center text-red-400">
               Error loading order: {errorDetails.message}
@@ -63,20 +59,19 @@ const Order = () => {
             order={orderDetails}
             statusConfig={statusConfig}
             StatusIcon={StatusIcon}
+            setShowCancelDialog={setShowCancelDialog}
           />
 
           {!isOrderCancelled && (
             <OrderStatusTimeline
               order={orderDetails}
               filteredOrderStatus={filteredOrderStatus}
-              setShowCancelDialog={setShowCancelDialog}
             />
           )}
 
           {isOrderCancelled && (
             <OrderCancelled
               order={orderDetails}
-              getStatusConfig={getStatusConfig}
             />
           )}
 

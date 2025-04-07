@@ -18,7 +18,7 @@ const CustomerShipping = ({
   orderStatus,
 }) => {
   return (
-    <Card className="bg-brand/80 border-gray-600/50">
+    <Card className="bg-brand-dark/20 border border-brand-end/50">
       <CardHeader>
         <div className="flex items-center gap-2">
           <Truck className="w-6 h-6 text-green-500" />

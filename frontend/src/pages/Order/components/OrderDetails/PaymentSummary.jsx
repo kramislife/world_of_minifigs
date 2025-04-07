@@ -2,9 +2,14 @@ import React from "react";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { CreditCard } from "lucide-react";
 
-const PaymentSummary = ({ paymentInfo, totalPrice, taxPrice, shippingPrice }) => {
+const PaymentSummary = ({
+  paymentInfo,
+  totalPrice,
+  taxPrice,
+  shippingPrice,
+}) => {
   return (
-    <Card className="bg-brand/80 border-gray-600/50">
+    <Card className="bg-brand-dark/20 border border-brand-end/50">
       <CardHeader>
         <div className="flex items-center gap-2">
           <CreditCard className="w-5 h-5 text-blue-400" />

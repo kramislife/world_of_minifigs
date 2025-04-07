@@ -8,6 +8,7 @@ import DeleteConfirmDialog from "@/components/admin/shared/DeleteDialog";
 import { PAYMENT_METHODS } from "@/constant/paymentMethod";
 import { useCheckout } from "@/hooks/Payment/useCheckout";
 import { useOrderSummary } from "@/hooks/Payment/useOrderSummary";
+import CheckoutSkeleton from "@/components/layout/skeleton/Products/CheckoutSkeleton";
 
 const Checkout = () => {
   const {
@@ -23,6 +24,7 @@ const Checkout = () => {
     handleAddressChange,
     orderNotes,
     setOrderNotes,
+    isLoading,
   } = useCheckout();
 
   // Add state for payment method
@@ -32,6 +34,10 @@ const Checkout = () => {
 
   // Get total from useOrderSummary hook
   const { displayItems, displayTotal } = useOrderSummary();
+
+  if (isLoading) {
+    return <CheckoutSkeleton />;
+  }
 
   const handleSubmit = async (paymentData) => {
     // This will be handled in CardSection now

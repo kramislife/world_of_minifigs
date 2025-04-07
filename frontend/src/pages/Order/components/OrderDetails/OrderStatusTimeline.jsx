@@ -1,15 +1,10 @@
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 
-const OrderStatusTimeline = ({
-  order,
-  filteredOrderStatus,
-  setShowCancelDialog,
-}) => {
+const OrderStatusTimeline = ({ order, filteredOrderStatus }) => {
   return (
-    <Card className="bg-brand/80 border-gray-600/50">
-      <CardContent className="pt-6">
+    <Card className="bg-brand-dark/20 border border-brand-end/50">
+      <CardContent className="p-4">
         <div className="flex justify-between items-center relative">
           <div className="absolute left-0 top-1/2 w-full h-1 bg-gray-700 -z-10" />
           {filteredOrderStatus.map((step, index) => {
@@ -28,7 +23,7 @@ const OrderStatusTimeline = ({
                 ${
                   isActive
                     ? `${step.bgColor} ${step.color}`
-                    : "bg-gray-700 text-gray-400"
+                    : "bg-brand-dark/50 text-gray-400"
                 }`}
                 >
                   <StepIcon className="w-5 h-5" />
@@ -44,18 +39,6 @@ const OrderStatusTimeline = ({
             );
           })}
         </div>
-
-        {order.orderStatus === "Pending" && (
-          <div className="mt-6 flex justify-end">
-            <Button
-              variant="destructive"
-              onClick={() => setShowCancelDialog(true)}
-              className="bg-red-500/20 text-red-400 hover:bg-red-500/30"
-            >
-              Cancel Order
-            </Button>
-          </div>
-        )}
       </CardContent>
     </Card>
   );
