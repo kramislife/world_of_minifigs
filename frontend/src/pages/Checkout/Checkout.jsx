@@ -43,7 +43,7 @@ const Checkout = () => {
   return (
     <>
       <Metadata title={`Checkout`} />
-      <div className="min-h-screen bg-brand-gradient py-10">
+      <div className="min-h-screen bg-brand-start py-10">
         <div className="mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
             {/* Left Column - Forms */}

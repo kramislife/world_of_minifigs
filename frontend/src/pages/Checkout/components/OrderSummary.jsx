@@ -22,7 +22,7 @@ const QuantityControl = ({ quantity, onUpdate, maxStock }) => {
   };
 
   return (
-    <div className="flex items-center gap-2 border border-white/10 rounded-lg p-1">
+    <div className="flex items-center gap-2 border border-brand-end/50 rounded-lg p-1">
       <button
         type="button"
         onClick={() => handleQuantityChange(quantity - 1)}
@@ -48,9 +48,9 @@ const QuantityControl = ({ quantity, onUpdate, maxStock }) => {
 const CartItem = ({ item, handleQuantityUpdate, removeItem, isBuyNow }) => (
   <div
     key={item.product}
-    className="flex gap-3 items-center pb-5 border-b border-white/10 last:border-0"
+    className="flex gap-3 items-center pb-5 border-b border-brand-end/50 last:border-0"
   >
-    <div className="relative w-28 h-28 bg-darkBrand rounded-lg overflow-hidden">
+    <div className="relative w-28 h-28 bg-brand-dark rounded-lg overflow-hidden">
       <img
         src={item.image}
         alt={item.name}
@@ -60,7 +60,7 @@ const CartItem = ({ item, handleQuantityUpdate, removeItem, isBuyNow }) => (
           e.target.nextElementSibling.style.display = "flex";
         }}
       />
-      <div className="hidden w-full h-full items-center justify-center absolute inset-0 bg-darkBrand">
+      <div className="hidden w-full h-full items-center justify-center absolute inset-0 bg-brand-dark">
         <ImageIcon className="w-8 h-8 text-gray-500" />
       </div>
 
@@ -80,10 +80,10 @@ const CartItem = ({ item, handleQuantityUpdate, removeItem, isBuyNow }) => (
             {item.name}
           </h3>
           {item.color && (
-            <p className="text-sm text-gray-400 mt-1"> {item.color}</p>
+            <p className="text-sm text-gray-300 mt-1"> {item.color}</p>
           )}
           {item.includes && (
-            <p className="text-sm text-gray-400 mt-1">
+            <p className="text-sm text-gray-300 mt-1">
               {item.includes.replace(/^,\s*/, "")}
             </p>
           )}
@@ -122,24 +122,24 @@ const CartItem = ({ item, handleQuantityUpdate, removeItem, isBuyNow }) => (
 );
 
 //  Used to apply a discount code or gift card
-const DiscountInput = ({ onApplyDiscount, discountCode, setDiscountCode }) => (
-  <div className="flex gap-2 pt-4">
-    <input
-      type="text"
-      value={discountCode}
-      onChange={(e) => setDiscountCode(e.target.value)}
-      placeholder="Discount code or gift card"
-      className="flex-1 bg-brand/10 border-white/10 border rounded-lg px-4 py-2 transition duration-300 focus:outline-none focus:border-blue-500 hover:border-blue-300 h-12 placeholder:text-white/80 font-extralight text-white"
-    />
-    <button
-      type="button"
-      onClick={onApplyDiscount}
-      className="px-4 py-2 bg-blue-500/30 text-white rounded-md text-sm hover:bg-blue-500/20 transition-colors"
-    >
-      Apply
-    </button>
-  </div>
-);
+// const DiscountInput = ({ onApplyDiscount, discountCode, setDiscountCode }) => (
+//   <div className="flex gap-2 pt-4">
+//     <input
+//       type="text"
+//       value={discountCode}
+//       onChange={(e) => setDiscountCode(e.target.value)}
+//       placeholder="Discount code or gift card"
+//       className="flex-1 bg-transparent border-brand-end/50 border rounded-lg px-4 py-2 transition duration-300 focus:outline-none focus:border-accent hover:border-accent/50 h-12 placeholder:text-white/50 text-white"
+//     />
+//     <button
+//       type="button"
+//       onClick={onApplyDiscount}
+//       className="px-4 py-2 bg-accent/20 text-white rounded-md text-sm hover:bg-accent/30 transition-colors h-12"
+//     >
+//       Apply
+//     </button>
+//   </div>
+// );
 
 //  Used to display the total price of the order
 const OrderTotal = ({ subtotal, discount, total }) => (
@@ -156,7 +156,7 @@ const OrderTotal = ({ subtotal, discount, total }) => (
       </div>
     )}
 
-    <div className="flex justify-between text-white font-medium pt-5 border-t border-white/10">
+    <div className="flex justify-between text-white font-medium pt-5 border-t border-brand-end/50">
       <span>Total</span>
       <div>
         <span className="text-emerald-400 text-xl">${total.toFixed(2)}</span>
@@ -181,9 +181,9 @@ const OrderSummary = ({ onOrderNotesChange, orderNotes }) => {
 
   if (!displayItems?.length) {
     return (
-      <Card className="bg-darkBrand/20 backdrop-blur-xl border-white/10">
-        <CardContent className="flex flex-col items-center justify-center py-8">
-          <ShoppingCart className="w-12 h-12 text-gray-500 mb-4" />
+      <Card className="bg-brand-dark/20 border border-brand-end/50">
+        <CardContent className="flex flex-col items-center justify-center py-12">
+          <ShoppingCart className="w-12 h-12 text-accent mb-4" />
           <p className="text-white text-center">No items to display</p>
         </CardContent>
       </Card>
@@ -191,10 +191,10 @@ const OrderSummary = ({ onOrderNotesChange, orderNotes }) => {
   }
 
   return (
-    <Card className="bg-darkBrand/20 backdrop-blur-xl border-white/10">
+    <Card className="bg-brand-dark/20 border border-brand-end/50">
       <CardHeader>
         <CardTitle className="text-white flex items-center gap-2 text-lg">
-          <ShoppingCart className="w-5 h-5 text-blue-400" />
+          <ShoppingCart className="w-5 h-5 text-accent" />
           Order Summary
         </CardTitle>
       </CardHeader>
@@ -217,16 +217,16 @@ const OrderSummary = ({ onOrderNotesChange, orderNotes }) => {
               placeholder="Add any special instructions or notes for your order..."
               value={orderNotes}
               onChange={(e) => onOrderNotesChange(e.target.value)}
-              className="bg-brand/10 border-white/10 min-h-[100px] text-white placeholder:text-white/80"
+              className="bg-transparent border-brand-end/50 min-h-[100px] text-white placeholder:text-white/50 focus-visible:ring-accent"
             />
 
-            {mode !== "buy_now" && (
+            {/* {mode !== "buy_now" && (
               <DiscountInput
                 onApplyDiscount={handleApplyDiscount}
                 discountCode={discountCode}
                 setDiscountCode={setDiscountCode}
               />
-            )}
+            )} */}
 
             <OrderTotal
               subtotal={subtotal}

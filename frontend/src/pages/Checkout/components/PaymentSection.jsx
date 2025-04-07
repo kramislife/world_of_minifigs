@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PAYMENT_METHODS } from "@/constant/paymentMethod";
 import MasterCard from "@/assets/mastercard.svg";
 import Visa from "@/assets/visa.png";
@@ -50,11 +44,11 @@ const PaymentSection = ({
 
   // Payment button styles
   const getPaymentButtonStyles = (isSelected) => `
-    w-full h-10 rounded-md transition-all duration-200 flex items-center justify-center
+    w-full h-12 rounded-md transition-all duration-200 flex items-center justify-center
     ${
       isSelected
-        ? "ring-2 ring-blue-500"
-        : "hover:border-blue-300 border border-white/10"
+        ? "border-2 border-accent"
+        : "border border-brand-end/50 hover:border-accent/50"
     }
   `;
 
@@ -65,15 +59,12 @@ const PaymentSection = ({
   };
 
   return (
-    <Card className="bg-darkBrand/20 backdrop-blur-xl border-white/10">
+    <Card className="bg-brand-dark/20 border border-brand-end/50">
       <CardHeader>
         <CardTitle className="text-white flex items-center gap-2 text-lg">
-          <CreditCard className="w-5 h-5 text-blue-400" />
+          <CreditCard className="w-5 h-5 text-accent" />
           Payment Details
         </CardTitle>
-        <CardDescription className="text-gray-400 lg:ml-7">
-          Select your preferred payment method
-        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="grid grid-cols-2 gap-3">

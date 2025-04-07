@@ -44,13 +44,13 @@ const STRIPE_APPEARANCE = {
   },
 };
 
-// Extract EmptyStateMessage component
+// Update EmptyStateMessage to match the theme
 const EmptyStateMessage = () => (
   <div className="flex flex-col items-center text-center space-y-3">
-    <div className="w-16 h-16 border border-white/10 rounded-md flex items-center justify-center">
-      <ArrowUpRight className="w-8 h-8 text-white/60" />
+    <div className="w-16 h-16 border border-brand-end/50 rounded-md flex items-center justify-center">
+      <ArrowUpRight className="w-8 h-8 text-accent" />
     </div>
-    <p className="text-red-400 text-sm leading-loose">
+    <p className="text-accent text-sm leading-loose">
       Please add items to your cart to proceed with payment
     </p>
   </div>
@@ -177,15 +177,19 @@ const StripeForm = ({
 
   return (
     <div className="space-y-4">
-      <div className="p-4 border rounded-md border-white/10">
+      <div className="p-4 border rounded-md border-brand-end/50">
         <PaymentElement onReady={handleReady} />
       </div>
-      {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
+      {error && (
+        <div className="text-red-400 text-sm mt-2 bg-red-500/10 p-3 rounded-md">
+          {error}
+        </div>
+      )}
       {isReady && (
         <Button
           onClick={handlePaymentSubmit}
           disabled={processing || !stripe || !elements}
-          className="w-full bg-blue-500 hover:bg-blue-600"
+          className="w-full h-12 bg-blue-600 hover:bg-blue-700"
           type="button"
         >
           {processing ? "Processing..." : `Pay $${total.toFixed(2)}`}

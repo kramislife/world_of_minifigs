@@ -20,11 +20,11 @@ import { toast } from "react-toastify";
 // If there are no addresses, show this EmptyAddressState component
 const EmptyAddressState = () => (
   <div className="flex flex-col items-center justify-center pt-12">
-    <HomeIcon className="w-14 h-14 mb-4 text-gray-500 animate-bounce" />
-    <h3 className="text-xl font-semibold mb-3 bg-gradient-to-r from-gray-200 to-gray-400 bg-clip-text text-transparent">
+    <HomeIcon className="w-14 h-14 mb-4 text-gray-400 animate-bounce" />
+    <h3 className="text-xl font-semibold mb-3 text-white">
       No addresses found
     </h3>
-    <p className="text-sm text-gray-500 text-center max-w-sm leading-relaxed">
+    <p className="text-sm text-gray-300 text-center max-w-lg leading-relaxed">
       Add a new address to continue with checkout and complete your purchase
     </p>
   </div>
@@ -41,7 +41,7 @@ const LoadingState = () => (
 const SectionHeader = ({ userName }) => (
   <div className="flex items-center justify-between">
     <CardTitle className="text-white flex items-center gap-2 text-lg">
-      <MapPin className="w-5 h-5 text-blue-400" />
+      <MapPin className="w-5 h-5 text-accent" />
       Shipping Address
     </CardTitle>
     <AddressForm
@@ -59,10 +59,10 @@ const AddressHeader = ({ addr, selectedAddress }) => (
       type="radio"
       checked={selectedAddress?._id === addr._id}
       onChange={() => {}}
-      className="w-4 h-4 text-blue-600 bg-transparent border-2 border-blue-600/50 
-        focus:ring-blue-600 focus:ring-offset-0 focus:ring-1 focus:ring-opacity-50 
-        checked:bg-blue-600 checked:border-blue-600 
-        accent-blue-600"
+      className="w-4 h-4 text-accent bg-transparent border-2 border-accent/50 
+        focus:ring-accent focus:ring-offset-0 focus:ring-1 focus:ring-opacity-50 
+        checked:bg-accent checked:border-accent 
+        accent-accent"
       onClick={(e) => e.stopPropagation()}
     />
     <span className="font-medium capitalize text-white">
@@ -88,8 +88,8 @@ const AddressDetails = ({ addr, formatAddress }) => (
       <span className="text-blue-400 text-sm font-medium whitespace-nowrap mt-1">
         {addr.contact_number}
       </span>
-      <span className="text-gray-500 mt-0.5">•</span>
-      <span className="text-gray-300 text-sm leading-loose">
+      <span className="text-gray-300 mt-0.5">•</span>
+      <span className="text-sm leading-loose">
         {formatAddress(addr)}
       </span>
     </div>
@@ -112,7 +112,7 @@ const AddressActions = ({ addr, handleDeleteClick, userName }) => (
         e.stopPropagation();
         handleDeleteClick(addr);
       }}
-      className="text-red-500 hover:text-red-400 transition-colors"
+      className="text-red-500 hover:scale-110 transition-all duration-200"
     >
       <Trash2 className="w-4 h-4" />
     </button>
@@ -125,11 +125,12 @@ const DefaultAddressButton = ({
   handleMakeDefault,
   isUpdatingDefault,
 }) => (
-  <div className="pt-5 space-y-3 border-t border-gray-700">
+  <div className="pt-5 space-y-3 border-t border-brand-end/50 last:border-0 last:pt-0">
     <div className="flex items-center justify-center gap-2">
       <Button
+        variant="accent"
         onClick={(e) => handleMakeDefault(selectedAddress, e)}
-        className="w-full bg-blue-500 hover:bg-blue-600 text-white h-12"
+        className="w-full h-12"
         disabled={isUpdatingDefault}
       >
         {isUpdatingDefault ? "Setting as default..." : "Set as default address"}
@@ -154,10 +155,10 @@ const AddressCard = ({
     className={`group relative rounded-lg transition-all duration-200 cursor-pointer p-4 text-white
       ${
         selectedAddress?._id === addr._id
-          ? "bg-darkBrand/20 border border-blue-500/50"
+          ? " border border-blue-500/50"
           : addr.is_default
-          ? "bg-darkBrand/20 border border-white/10"
-          : "hover:bg-darkBrand/30 border border-transparent hover:border-white/5"
+          ? " border border-brand-end/50"
+          : "hover:bg-brand-dark/20 border border-brand-end/50"
       }
     `}
   >
@@ -262,7 +263,7 @@ const ShippingSection = ({ onAddressChange, userName, onDeleteClick }) => {
   };
 
   return (
-    <Card className="bg-darkBrand/20 backdrop-blur-xl border-white/10">
+    <Card className="bg-brand-dark/20 border border-brand-end/50">
       <CardHeader>
         <SectionHeader userName={userName} />
         <CardDescription className="text-gray-400 lg:ml-7 sr-only">
