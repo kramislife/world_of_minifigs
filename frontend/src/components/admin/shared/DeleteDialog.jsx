@@ -36,16 +36,16 @@ const DeleteConfirmDialog = ({
 }) => {
   return (
     <Dialog open={isOpen} onClose={onClose}>
-      <div className="relative rounded-lg border bg-brand-gradient shadow-lg border-none">
+      <div className="relative rounded-lg border bg-brand-start shadow-lg border-none">
         {/* Content */}
         <div className="p-6">
           {/* Header */}
           <div className="space-y-3 text-gray-200">
-            <h2 className="flex gap-2 items-center font-semibold text-lg leading-none tracking-tight pb-3 border-b border-gray-700">
+            <h2 className="flex gap-2 items-center font-semibold text-lg leading-none tracking-tight pb-3 border-b border-brand-end/50">
               <AlertTriangle className="h-5 w-5 text-red-500" />
               {title || "Confirm Deletion"}
             </h2>
-            <p className="leading-loose text-sm font-light">
+            <p className="leading-loose text-sm font-light text-white">
               {description ||
                 "This action cannot be undone. Are you sure you want to delete this item?"}
             </p>
@@ -53,12 +53,7 @@ const DeleteConfirmDialog = ({
 
           {/* Footer */}
           <div className="flex gap-2 justify-end mt-6">
-            <Button
-              className="text-gray-800 hover:text-red-500"
-              variant="outline"
-              onClick={onClose}
-              disabled={isLoading}
-            >
+            <Button variant="secondary" onClick={onClose} disabled={isLoading}>
               Cancel
             </Button>
             <Button
