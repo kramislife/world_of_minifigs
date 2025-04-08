@@ -3,6 +3,7 @@ import { Quote } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { aboutAnimations } from "@/hooks/Animation/animationConfig";
+import { Badge } from "@/components/ui/badge";
 
 const TestimonialSection = () => {
   const testimonials = [
@@ -46,10 +47,10 @@ const TestimonialSection = () => {
           viewport={{ once: true, amount: 0.1 }}
           variants={aboutAnimations.orderHeaderVariants}
         >
-          <div className="inline-block bg-brand-start text-accent px-4 py-1 rounded-full text-sm font-medium mb-6">
+          <Badge className="bg-brand-start text-accent px-4 py-1 rounded-full text-sm font-medium mb-6">
             TESTIMONIALS
-          </div>
-          <h2 className="text-3xl font-bold text-gray-800 mb-4">
+          </Badge>
+          <h2 className="text-3xl font-bold text-foreground mb-4">
             Honest Reviews from Real Customers
           </h2>
           <p className="max-w-2xl mx-auto text-gray-600">
@@ -71,7 +72,7 @@ const TestimonialSection = () => {
               className={testimonial.span}
               variants={aboutAnimations.testimonialCardVariants}
             >
-              <Card className="shadow-md h-full">
+              <Card className="h-full">
                 <CardContent className="p-6 flex flex-col h-full">
                   <div className="mb-4 text-accent">
                     <Quote className="w-8 h-8" />
@@ -79,7 +80,7 @@ const TestimonialSection = () => {
                   <p className="italic text-gray-600 mb-4 flex-grow">
                     "{testimonial.quote}"
                   </p>
-                  <div className="font-semibold text-gray-800 mt-auto">
+                  <div className="font-semibold text-foreground mt-auto">
                     - {testimonial.author}
                   </div>
                 </CardContent>

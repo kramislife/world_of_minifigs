@@ -30,11 +30,11 @@ const SocialMediaSection = () => {
       className="bg-white border rounded-2xl p-5 md:p-8"
       variants={contactAnimations.socialVariants}
     >
-      <h3 className="text-2xl font-bold text-gray-800 mb-3">
+      <h3 className="text-2xl font-bold text-foreground mb-3">
         Let's be connected!
       </h3>
       <p className="text-gray-600 mb-8">
-        Follow us on our social media accounts:
+        Connect with us online
       </p>
 
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-5">
@@ -49,7 +49,7 @@ const SocialMediaSection = () => {
             custom={index}
             whileHover={{ scale: 1.05 }}
           >
-            <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+            <div className="w-10 h-10 rounded-full flex items-center justify-center">
               {social.icon}
             </div>
             <span>{social.name}</span>

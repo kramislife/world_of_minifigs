@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { aboutAnimations } from "@/hooks/Animation/animationConfig";
+import { Badge } from "@/components/ui/badge";
 
 const HowToOrderSection = () => {
   return (
@@ -17,9 +18,9 @@ const HowToOrderSection = () => {
           viewport={{ once: true, amount: 0.1 }}
           variants={aboutAnimations.orderHeaderVariants}
         >
-          <div className="inline-block bg-white/20 text-accent px-4 py-1 rounded-full text-sm font-medium mb-6">
+          <Badge className="bg-brand-dark/50 text-accent px-4 py-1 rounded-full text-sm font-medium mb-6">
             SIMPLE PROCESS
-          </div>
+          </Badge>
           <h2 className="text-3xl font-bold mb-4">How to Place an Order</h2>
           <p className="max-w-2xl mx-auto text-gray-100 leading-relaxed">
             Our streamlined ordering process makes it easy to get the LEGO
@@ -40,9 +41,9 @@ const HowToOrderSection = () => {
               key={index}
               variants={aboutAnimations.orderStepVariants}
             >
-              <Card className="bg-gray-800/30 text-white border-0 shadow-lg">
+              <Card className="bg-brand-start text-white border-none">
                 <CardContent className="p-8 text-center">
-                  <div className="w-12 h-12 bg-accent text-gray-900 rounded-full flex items-center justify-center mx-auto mb-6 font-bold">
+                  <div className="w-12 h-12 bg-accent text-foreground rounded-full flex items-center justify-center mx-auto mb-6 font-bold">
                     {step}
                   </div>
                   <CardTitle className="text-xl font-bold mb-4 text-white">
@@ -72,11 +73,11 @@ const HowToOrderSection = () => {
           variants={aboutAnimations.exploreButtonVariants}
         >
           <Link to="/products">
-            <Button className="relative bg-accent text-gray-900 overflow-hidden group">
+            <Button className="relative bg-accent text-foreground overflow-hidden group">
               <span className="absolute inset-0 bg-brand-start origin-left transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-in-out z-0"></span>
-              <span className="relative z-10 flex items-center text-gray-900 group-hover:text-white transition-colors duration-300">
+              <span className="relative z-10 flex items-center text-foreground group-hover:text-white transition-colors duration-300">
                 Shop Now
-                <ExternalLink className="ml-2 h-4 w-4 text-gray-900 group-hover:text-white transition-colors duration-300" />
+                <ExternalLink className="ml-2 h-4 w-4 text-foreground group-hover:text-white transition-colors duration-300" />
               </span>
             </Button>
           </Link>

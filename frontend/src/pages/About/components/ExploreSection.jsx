@@ -49,11 +49,11 @@ const ExploreSection = () => {
             variants={aboutAnimations.exploreButtonVariants}
           >
             <Link to="/collections">
-              <Button className="relative bg-accent text-gray-900 overflow-hidden group">
+              <Button className="relative bg-accent text-foreground overflow-hidden group">
                 <span className="absolute inset-0 bg-brand-start origin-left transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-in-out z-0"></span>
-                <span className="relative z-10 flex items-center text-gray-900 group-hover:text-white transition-colors duration-300">
+                <span className="relative z-10 flex items-center text-foreground group-hover:text-white transition-colors duration-300">
                   Explore Our Collection
-                  <Heart className="ml-2 h-4 w-4 text-gray-900 group-hover:text-white transition-colors duration-300" />
+                  <Heart className="ml-2 h-4 w-4 text-foreground group-hover:text-white transition-colors duration-300" />
                 </span>
               </Button>
             </Link>

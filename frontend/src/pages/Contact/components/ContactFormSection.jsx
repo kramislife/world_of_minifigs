@@ -51,7 +51,7 @@ const ContactFormSection = ({
       variants={contactAnimations.formVariants}
     >
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-10">
-        <h2 className="text-2xl md:text-3xl font-bold text-gray-800">
+        <h2 className="text-2xl md:text-3xl font-bold text-foreground">
           Send us a message
         </h2>
       </div>
@@ -75,6 +75,7 @@ const ContactFormSection = ({
                 onChange={handleChange}
                 placeholder={field.placeholder}
                 required={field.required}
+                className="border border-input"
               />
             </div>
           ))}
@@ -93,7 +94,7 @@ const ContactFormSection = ({
             value={formData.message}
             onChange={handleChange}
             placeholder="Enter your message"
-            className="min-h-[150px]"
+            className="min-h-[210px] border border-input"
             required
           />
         </div>
@@ -113,14 +114,14 @@ const ContactFormSection = ({
             agree to our{" "}
             <Link
               to="/privacy-policy"
-              className="text-yellow-500 hover:text-yellow-600"
+              className="text-accent"
             >
               Privacy Policy
             </Link>{" "}
             and{" "}
             <Link
               to="/terms-of-use"
-              className="text-yellow-500 hover:text-yellow-600"
+              className="text-accent"
             >
               Terms of Use.
             </Link>{" "}

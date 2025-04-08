@@ -43,7 +43,7 @@ const FaqSection = () => {
       className="bg-white border rounded-2xl p-5 md:p-8"
       variants={contactAnimations.faqVariants}
     >
-      <h3 className="text-2xl font-bold text-gray-800 mb-6">
+      <h3 className="text-2xl font-bold text-foreground mb-6">
         Frequently Asked Questions
       </h3>
 
