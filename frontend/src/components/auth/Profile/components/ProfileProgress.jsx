@@ -34,11 +34,11 @@ const ProfileProgress = ({ user, addresses, orders }) => {
   const completionPercentage = (completedTasks.length / tasks.length) * 100;
 
   return (
-    <Card className="bg-darkBrand border-none">
+    <Card className="bg-brand-dark/50 border-none">
       <CardContent className="p-6">
         <div className="flex justify-between items-start mb-6">
           <div>
-            <h3 className="text-xl font-semibold text-light">
+            <h3 className="text-xl font-semibold text-white">
               Complete Your Profile
             </h3>
             <p className="text-sm text-gray-400 mt-1">
@@ -49,7 +49,7 @@ const ProfileProgress = ({ user, addresses, orders }) => {
           </div>
           <div className="relative w-16 h-16">
             <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-lg font-bold text-blue-400">
+              <span className="text-md font-bold text-accent">
                 {Math.round(completionPercentage)}%
               </span>
             </div>
@@ -84,32 +84,32 @@ const ProfileProgress = ({ user, addresses, orders }) => {
           </div>
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-3 mt-6">
           {tasks.map((task, index) => (
             <div
               key={index}
-              className={`group flex items-center justify-between p-3 rounded-lg transition-all duration-200 ${
+              className={`group flex items-center justify-between p-4 rounded-lg transition-all duration-300 ${
                 task.completed
-                  ? "bg-green-500/10"
-                  : "bg-gray-800/30 hover:bg-brand cursor-pointer"
+                  ? "bg-brand-dark/50 border border-brand-end/50"
+                  : "bg-brand-end/30"
               }`}
             >
               <div className="flex items-start gap-3 flex-1">
                 <div
                   className={`p-1.5 rounded-full flex-shrink-0 ${
-                    task.completed ? "bg-green-500/20" : "bg-gray-700"
+                    task.completed ? "bg-accent" : "bg-brand-dark"
                   }`}
                 >
                   {task.completed ? (
-                    <BadgeCheck className="w-4 h-4 text-green-400" />
+                    <BadgeCheck className="w-4 h-4 text-foreground" />
                   ) : (
-                    <Clock className="w-4 h-4 text-gray-400" />
+                    <Clock className="w-4 h-4 text-accent" />
                   )}
                 </div>
                 <div>
                   <p
                     className={`text-sm font-medium ${
-                      task.completed ? "text-green-400" : "text-gray-200"
+                      task.completed ? "text-accent" : "text-white"
                     }`}
                   >
                     {task.task}
@@ -124,10 +124,10 @@ const ProfileProgress = ({ user, addresses, orders }) => {
         </div>
 
         {completionPercentage === 100 && (
-          <div className="mt-6 p-4 bg-green-500/10 rounded-lg border border-green-500/20">
+          <div className="mt-6 p-4 bg-brand-dark/50 rounded-lg border border-brand-end/50">
             <div className="flex items-center justify-center gap-2">
-              <BadgeCheck className="w-5 h-5 text-green-400" />
-              <p className="text-green-400 text-sm font-medium">
+              <BadgeCheck className="w-5 h-5 text-accent" />
+              <p className="text-emerald-400 text-sm font-medium">
                 Profile completed! You're all set!
               </p>
             </div>

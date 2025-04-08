@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { setIsCartOpen } from "@/redux/features/userSlice";
-
 import SearchSheet from "./SearchSheet";
 import CartButton from "./CartButton";
 import DesktopNavbar from "./components/DesktopNavbar";
@@ -32,9 +31,9 @@ const Header = () => {
   const isItemAdded = totalItems > prevCartCount;
 
   return (
-    <nav className="bg-brand-start fixed w-full top-0 z-50 border-b border-brand-end">
+    <nav className="bg-brand-start fixed w-full top-0 z-50 border-b border-brand-end/50">
       <div className="max-w-[1920px] mx-auto">
-        <div className="flex items-center justify-between h-[85px] px-4 sm:px-6">
+        <div className="flex items-center justify-between h-[85px] p-6">
           <div className="flex items-center flex-shrink-0">
             {/* Logo */}
             <NavLink to="/">
@@ -50,7 +49,7 @@ const Header = () => {
             <DesktopNavbar />
           </div>
           {/* Search and Cart */}
-          <div className="flex items-center space-x-6">
+          <div className="flex items-center space-x-5">
             <div className="z-[100]">
               <SearchSheet
                 searchQuery={searchQuery}

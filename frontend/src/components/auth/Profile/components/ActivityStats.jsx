@@ -46,25 +46,27 @@ const ActivityStats = ({ stats, setIsCartOpen }) => {
   ];
 
   return (
-    <Card className="bg-darkBrand border-none">
-      <CardContent className="p-5 space-y-2">
+    <Card className="bg-brand-dark/50 border-none">
+      <CardContent className="p-5">
         {activities.map((activity, index) => (
           <div
             key={index}
-            className={`flex justify-between items-center p-3 rounded-lg transition-colors ${
+            className={`flex justify-between items-center p-4 rounded-lg transition-all duration-300 ${
               activity.isClickable
-                ? "hover:bg-brand/20 cursor-pointer"
+                ? "hover:bg-brand-dark/50 cursor-pointer hover:border-brand-end/50"
                 : "cursor-default"
-            }`}
+            } border border-transparent`}
             onClick={activity.onClick}
           >
-            <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-full ${activity.bgColor}`}>
+            <div className="flex items-center gap-4">
+              <div className={`p-3 rounded-xl ${activity.bgColor}`}>
                 {activity.icon}
               </div>
-              <span className="text-light">{activity.label}</span>
+              <span className="text-gray-200 font-medium">
+                {activity.label}
+              </span>
             </div>
-            <span className={`text-2xl font-semibold ${activity.textColor}`}>
+            <span className={`text-2xl font-bold ${activity.textColor}`}>
               {activity.value}
             </span>
           </div>

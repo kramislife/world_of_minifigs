@@ -120,7 +120,7 @@ const MobileMenu = ({ user }) => {
       <SheetTrigger className="md:hidden text-white hover:text-gray-200">
         <Menu size={24} />
       </SheetTrigger>
-      <SheetContent className="w-[330px] bg-brand-gradient p-0 z-[1000]">
+      <SheetContent className="w-[350px] bg-brand-gradient p-0 z-[1000] bg-brand-start">
         <div className="flex flex-col h-full">
           {/* User Profile Section */}
           <div className="px-5 pt-16">
@@ -215,7 +215,7 @@ const MobileMenu = ({ user }) => {
           </nav>
 
           {/* Bottom Section */}
-          <div className="px-6 py-6 border-t border-brand-end/30 mt-auto">
+          <div className="px-6 py-2 border-t border-brand-end/30 mt-auto">
             {user ? (
               <button
                 onClick={handleLogout}
@@ -225,7 +225,7 @@ const MobileMenu = ({ user }) => {
                 <span>Logout</span>
               </button>
             ) : (
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-2 py-5">
                 <button
                   onClick={() => {
                     navigate("/register");
