@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { PlaceholderImage } from "@/components/product/shared/FallbackStates";
 
 const CartItem = ({ item, onQuantityUpdate }) => (
-  <li className="flex gap-4 items-start border-b border-brand-end/50 pb-6 last:border-0 last:pb-0">
+  <li className="flex gap-3 items-start border-b border-brand-end/50 pb-5 last:border-0 last:pb-0">
     {/* Product Image with Fallback */}
     <div className="relative w-32 h-32 rounded-lg overflow-hidden">
       {item.image ? (
@@ -14,15 +14,13 @@ const CartItem = ({ item, onQuantityUpdate }) => (
           className="w-full h-full object-cover"
         />
       ) : (
-        <PlaceholderImage width="w-16" />
+        <PlaceholderImage width="w-24" />
       )}
 
       {/* Discount Badge */}
       {item.discount > 0 && (
         <div className="absolute top-2 right-2 z-10">
-          <Badge className="text-xs bg-accent hover:bg-accent/90 text-foreground">
-            {item.discount}% OFF
-          </Badge>
+          <Badge variant="discount">{item.discount}% OFF</Badge>
         </div>
       )}
     </div>
@@ -42,20 +40,20 @@ const CartItem = ({ item, onQuantityUpdate }) => (
       </div>
 
       {/* Product Price */}
-      <div className="flex items-center justify-between mt-2">
-        <div className="flex items-center gap-2">
-          <span className="text-emerald-400 font-medium">
+      <div className="flex items-center justify-between">
+        <div className="flex flex-col md:flex-row items-center md:gap-2">
+          <span className="text-emerald-400 font-medium text-lg">
             ${(item.discounted_price || 0).toFixed(2)}
           </span>
           {item.price && item.price > item.discounted_price && (
-            <span className="text-xs text-gray-300 line-through">
+            <span className="text-sm text-gray-300 line-through">
               ${item.price.toFixed(2)}
             </span>
           )}
         </div>
 
         {/* Quantity Controls */}
-        <div className="flex items-center gap-2 border border-brand-end/50 rounded-lg p-1">
+        <div className="flex items-center gap-2 border border-brand-end/50 rounded-lg text-white p-1">
           <Button
             variant="ghost"
             size="icon"
@@ -64,7 +62,7 @@ const CartItem = ({ item, onQuantityUpdate }) => (
               onQuantityUpdate(item.product, item.quantity - 1, item.stock)
             }
           >
-            <Minus className="h-4 w-4 text-white" />
+            <Minus />
           </Button>
           <span className="w-8 text-center text-white">{item.quantity}</span>
           <Button
@@ -76,7 +74,7 @@ const CartItem = ({ item, onQuantityUpdate }) => (
             }
             disabled={item.quantity >= item.stock}
           >
-            <Plus className="h-4 w-4 text-white" />
+            <Plus />
           </Button>
         </div>
       </div>

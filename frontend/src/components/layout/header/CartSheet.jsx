@@ -5,13 +5,16 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import LoadingSpinner from "@/components/layout/spinner/LoadingSpinner";
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, ArrowRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import CartHeader from "./components/CartHeader";
 import CartItem from "./components/CartItem";
 import CartFooter from "./components/CartFooter";
 import { useCartSheet } from "@/hooks/Product/useCartSheet";
+import { Button } from "@/components/ui/button";
 
 const CartSheet = ({ isOpen, setIsOpen }) => {
+  const navigate = useNavigate();
   const {
     isLoading,
     updatedCartItems,
@@ -26,9 +29,28 @@ const CartSheet = ({ isOpen, setIsOpen }) => {
 
   const CartEmpty = () => {
     return (
-      <div className="text-center text-gray-300 py-5 text-sm">
-        <ShoppingCart size={64} className="mx-auto mb-10 opacity-50" />
-        Oops! Your cart looks a bit lonely. Start shopping now.
+      <div className="flex flex-col items-center justify-center text-center p-5">
+        <div className="bg-brand-dark/50 rounded-full p-8 mb-6">
+          <ShoppingCart size={48} className="text-gray-400" />
+        </div>
+        <h3 className="text-xl font-semibold text-white mb-2">
+          Your cart is empty
+        </h3>
+        <p className="text-gray-400 mb-6">
+          Looks like you haven't added anything to your cart yet. Explore our
+          top products and build up with awesome bricks!
+        </p>
+        <Button
+          variant="buyNow"
+          className="w-[200px]"
+          onClick={() => {
+            navigate("/products");
+            setIsOpen(false);
+          }}
+        >
+          Start Shopping
+          <ArrowRight className="h-4 w-4" />
+        </Button>
       </div>
     );
   };
@@ -46,16 +68,16 @@ const CartSheet = ({ isOpen, setIsOpen }) => {
           <CartHeader />
 
           <div className="flex-1 overflow-y-auto">
-            <div className="px-3 py-6 space-y-6">
+            <div className="md:p-5 px-3 py-5 space-y-5">
               {isLoading ? (
                 <div className="flex justify-center items-center py-20">
-                  <LoadingSpinner />
+                  <LoadingSpinner height="h-full" />
                 </div>
               ) : updatedCartItems.length === 0 ? (
                 <CartEmpty />
               ) : (
-                <div className="bg-brand-dark/30 rounded-lg p-5 border border-brand-end/50">
-                  <ul className="space-y-6">
+                <div>
+                  <ul className="space-y-5">
                     {updatedCartItems.map((item) => (
                       <CartItem
                         key={item.product}
