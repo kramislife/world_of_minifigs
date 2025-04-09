@@ -139,7 +139,7 @@ const Login = () => {
                     transition={{ duration: 0.4, delay: 0.6 }}
                   >
                     <Link
-                      to="/password/forgot"
+                      to="/password/forgot-password"
                       className="text-sm text-yellow-400 hover:text-yellow-300"
                     >
                       Forgot your password?

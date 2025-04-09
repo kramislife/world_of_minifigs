@@ -291,7 +291,7 @@ export const forgotPassword = catchAsyncErrors(async (req, res, next) => {
   await user.save();
 
   // Create reset password URL
-  const resetUrl = `${process.env.FRONTEND_URL}/password/reset/${reset_password_token}`;
+  const resetUrl = `${process.env.FRONTEND_URL}/password/reset-password/${reset_password_token}`;
 
   try {
     await sendEmail({

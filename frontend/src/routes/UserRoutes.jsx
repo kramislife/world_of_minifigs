@@ -66,8 +66,8 @@ const UserRoutes = (
     <Route path="login" element={<Login />} />
     <Route path="register" element={<Register />} />
     <Route path="verify_user/:token" element={<EmailVerification />} />
-    <Route path="password/forgot" element={<ForgotPassword />} />
-    <Route path="password/reset/:token" element={<ResetPassword />} />
+    <Route path="password/forgot-password" element={<ForgotPassword />} />
+    <Route path="password/reset-password/:token" element={<ResetPassword />} />
     <Route path="privacy-policy" element={<PrivacyPolicy />} />
     <Route path="terms-of-use" element={<TermsOfUse />} />
 
