@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import {
   Menu,
   User,
@@ -16,7 +16,7 @@ import {
   Sheet,
   SheetContent,
   SheetTrigger,
-  SheetClose,
+  SheetTitle,
 } from "@/components/ui/sheet";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { navItems } from "@/constant/navigation";
@@ -51,7 +51,7 @@ const MobileMenu = ({ user }) => {
         },
         onClose: () => {
           navigate(0);
-        }
+        },
       });
     }
   }, [isError, error, isSuccess, data, navigate, setIsOpen]);
@@ -120,12 +120,14 @@ const MobileMenu = ({ user }) => {
       <SheetTrigger className="md:hidden text-white hover:text-gray-200">
         <Menu size={24} />
       </SheetTrigger>
-      <SheetContent className="w-[350px] bg-brand-gradient p-0 z-[1000] bg-brand-start">
+      <SheetContent className="w-[400px] bg-brand-gradient p-0 z-[1000] bg-brand-start">
+        <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
+
         <div className="flex flex-col h-full">
           {/* User Profile Section */}
           <div className="px-5 pt-16">
             {user ? (
-              <div className="flex items-center gap-3 mb-8 p-4 bg-brand-end/20 rounded-xl border border-white/10">
+              <div className="flex items-center gap-3 mb-8 p-4 bg-brand-end/20 rounded-xl border border-brand-end/50">
                 <div className="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center">
                   {user?.profile_picture?.url ? (
                     <img
@@ -143,7 +145,7 @@ const MobileMenu = ({ user }) => {
                   <p className="text-white font-medium line-clamp-1">
                     {user.name}
                   </p>
-                  <p className="text-sm text-gray-300 line-clamp-1">
+                  <p className="text-sm text-gray-400 line-clamp-1">
                     {user.email}
                   </p>
                 </div>
@@ -180,8 +182,8 @@ const MobileMenu = ({ user }) => {
                     className={({ isActive }) =>
                       `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
                         isActive
-                          ? "bg-accent text-black font-medium"
-                          : "text-white hover:bg-white/5"
+                          ? "bg-accent text-foreground font-medium"
+                          : "text-white hover:bg-brand-dark/50 hover:text-accent"
                       }`
                     }
                   >
@@ -194,15 +196,15 @@ const MobileMenu = ({ user }) => {
               {/* User-specific menu items */}
               {user && userMenuItems.length > 0 && (
                 <>
-                  <div className="my-3 border-t border-brand-end/30"></div>
+                  <div className="my-3 border-t border-brand-end/50"></div>
                   {userMenuItems.map((item, index) => (
                     <button
                       key={`user-item-${index}`}
                       onClick={item.onClick}
                       className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 w-full ${
                         isActive(item.path)
-                          ? "bg-accent text-black font-medium"
-                          : "text-white hover:bg-white/5"
+                          ? "bg-accent text-foreground font-medium"
+                          : "text-white hover:bg-brand-dark/50 hover:text-accent"
                       }`}
                     >
                       {item.icon}
@@ -215,7 +217,7 @@ const MobileMenu = ({ user }) => {
           </nav>
 
           {/* Bottom Section */}
-          <div className="px-6 py-2 border-t border-brand-end/30 mt-auto">
+          <div className="px-6 py-2 border-t border-brand-end/50 mt-auto">
             {user ? (
               <button
                 onClick={handleLogout}

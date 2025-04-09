@@ -49,27 +49,29 @@ const Header = () => {
             <DesktopNavbar />
           </div>
           {/* Search and Cart */}
-          <div className="flex items-center space-x-5">
-            <div className="z-[100]">
+          <div className="flex items-center md:space-x-2">
+            <div className="flex items-center justify-center w-8">
               <SearchSheet
                 searchQuery={searchQuery}
                 setSearchQuery={setSearchQuery}
               />
             </div>
-            <CartButton
-              itemCount={totalItems}
-              showAnimation={isItemAdded}
-              onClick={() => dispatch(setIsCartOpen(true))}
-            />
+            <div className="flex items-center justify-center h-10 w-10">
+              <CartButton
+                itemCount={totalItems}
+                showAnimation={isItemAdded}
+                onClick={() => dispatch(setIsCartOpen(true))}
+              />
+            </div>
 
             {/* User Dropdown */}
-            <div className="relative hidden md:block z-[100]">
+            <div className="hidden md:flex items-center justify-center h-10 w-10 ">
               {user ? (
                 <UserDropdown />
               ) : (
                 <button
                   onClick={() => navigate("/login")}
-                  className=" hover:text-gray-200"
+                  className="hover:text-gray-200 flex items-center justify-center"
                 >
                   <User size={24} />
                 </button>
@@ -77,7 +79,7 @@ const Header = () => {
             </div>
 
             {/* Mobile Menu */}
-            <div className="z-[100]">
+            <div className="flex items-center justify-center md:hidden  h-10 w-10">
               <MobileMenu user={user} />
             </div>
           </div>
