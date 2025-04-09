@@ -58,7 +58,7 @@ export const registerUser = catchAsyncErrors(async (req, res, next) => {
   res.status(201).json({
     status: "success",
     message:
-      "User registered successfully. Please visit your email to verify your account",
+      "You have successfully registered. A verification email has been sent to your inbox. If you don’t receive it within a few minutes, please check your Spam folder ",
     new_user,
   });
 });

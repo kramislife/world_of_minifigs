@@ -1,3 +1,4 @@
+import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
@@ -9,6 +10,7 @@ import { useSelector } from "react-redux";
 import Metadata from "@/components/layout/Metadata/Metadata";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -85,11 +87,98 @@ const Register = () => {
     register(signUpData);
   };
 
+  const formFields = [
+    // First row
+    [
+      {
+        id: "fullname",
+        label: "Full Name",
+        type: "text",
+        placeholder: "Enter your full name",
+        delay: 0.6,
+      },
+      {
+        id: "username",
+        label: "Username",
+        type: "text",
+        placeholder: "Choose a username",
+        delay: 0.7,
+      },
+    ],
+    // Second row
+    [
+      {
+        id: "contact",
+        label: "Contact Number",
+        type: "tel",
+        placeholder: "Enter your contact number",
+        delay: 0.8,
+      },
+      {
+        id: "email",
+        label: "Email Address",
+        type: "email",
+        placeholder: "Enter your email address",
+        delay: 0.9,
+      },
+    ],
+    // Single fields
+    [
+      {
+        id: "password",
+        label: "Password",
+        type: "password",
+        placeholder: "Create a password",
+        delay: 1.0,
+        fullWidth: true,
+      },
+      {
+        id: "confirmPassword",
+        label: "Confirm Password",
+        type: "password",
+        placeholder: "Confirm your password",
+        delay: 1.1,
+        fullWidth: true,
+      },
+    ],
+  ];
+
+  const renderFormFields = (fields, isRow = true) => {
+    return (
+      <div
+        className={`grid grid-cols-1 ${
+          isRow ? "md:grid-cols-2 gap-4" : "gap-5"
+        }`}
+      >
+        {fields.map((field) => (
+          <motion.div
+            key={field.id}
+            {...registerAnimations.getInputVariants(field.delay)}
+            className={`space-y-2 ${field.fullWidth ? "md:col-span-2" : ""}`}
+          >
+            <Label>
+              {field.label} <span className="text-yellow-400">*</span>
+            </Label>
+            <Input
+              id={field.id}
+              type={field.type}
+              name={field.id}
+              placeholder={field.placeholder}
+              value={formData[field.id]}
+              onChange={handleChange}
+              required
+            />
+          </motion.div>
+        ))}
+      </div>
+    );
+  };
+
   return (
     <>
       <Metadata title="Register" />
       <div className="px-3 md:px-10 py-12 md:py-7">
-        <div className=" grid grid-cols-1 md:grid-cols-2 gap-8 ">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Left side - Image */}
           <motion.div
             {...registerAnimations.imageContainerVariants}
@@ -133,125 +222,11 @@ const Register = () => {
               </motion.div>
 
               <form className="space-y-5" onSubmit={submitHandler}>
-                {/* Full Name and Username Inputs in 2 columns */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Full Name Input */}
-                  <motion.div
-                    {...registerAnimations.getInputVariants(0.6)}
-                    className="space-y-2"
-                  >
-                    <label className="block text-sm font-medium">
-                      Full Name <span className="text-yellow-400">*</span>
-                    </label>
-                    <Input
-                      id="fullname"
-                      type="text"
-                      name="fullname"
-                      placeholder="Enter your full name"
-                      value={formData.fullname}
-                      onChange={handleChange}
-                      required
-                    />
-                  </motion.div>
-
-                  {/* Username Input */}
-                  <motion.div
-                    {...registerAnimations.getInputVariants(0.7)}
-                    className="space-y-2"
-                  >
-                    <label className="block text-sm font-medium">
-                      Username <span className="text-yellow-400">*</span>
-                    </label>
-                    <Input
-                      id="username"
-                      type="text"
-                      name="username"
-                      placeholder="Choose a username"
-                      value={formData.username}
-                      onChange={handleChange}
-                      required
-                    />
-                  </motion.div>
-                </div>
-
-                {/* Contact Number and Email Inputs in 2 columns */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Contact Number Input */}
-                  <motion.div
-                    {...registerAnimations.getInputVariants(0.8)}
-                    className="space-y-2"
-                  >
-                    <label className="block text-sm font-medium">
-                      Contact Number <span className="text-yellow-400">*</span>
-                    </label>
-                    <Input
-                      id="contact"
-                      type="tel"
-                      name="contact"
-                      placeholder="Enter your contact number"
-                      value={formData.contact}
-                      onChange={handleChange}
-                      required
-                    />
-                  </motion.div>
-
-                  {/* Email Input */}
-                  <motion.div
-                    {...registerAnimations.getInputVariants(0.9)}
-                    className="space-y-2"
-                  >
-                    <label className="block text-sm font-medium">
-                      Email Address <span className="text-yellow-400">*</span>
-                    </label>
-                    <Input
-                      id="email"
-                      type="email"
-                      name="email"
-                      placeholder="Enter your email address"
-                      value={formData.email}
-                      onChange={handleChange}
-                      required
-                    />
-                  </motion.div>
-                </div>
-
-                {/* Password Input */}
-                <motion.div
-                  {...registerAnimations.getInputVariants(1.0)}
-                  className="space-y-2"
-                >
-                  <label className="block text-sm font-medium">
-                    Password <span className="text-yellow-400">*</span>
-                  </label>
-                  <Input
-                    id="password"
-                    type="password"
-                    name="password"
-                    placeholder="Create a password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    require
-                  />
-                </motion.div>
-
-                {/* Confirm Password Input */}
-                <motion.div
-                  {...registerAnimations.getInputVariants(1.1)}
-                  className="space-y-2"
-                >
-                  <label className="block text-sm font-medium">
-                    Confirm Password <span className="text-yellow-400">*</span>
-                  </label>
-                  <Input
-                    id="confirmPassword"
-                    type="password"
-                    name="confirmPassword"
-                    placeholder="Confirm your password"
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    require
-                  />
-                </motion.div>
+                {formFields.map((row, index) => (
+                  <div key={index}>
+                    {renderFormFields(row, index < 2)}
+                  </div>
+                ))}
 
                 {/* Register Button */}
                 <motion.div
@@ -260,7 +235,8 @@ const Register = () => {
                 >
                   <Button
                     type="submit"
-                    className="w-full bg-[#3b82f6] hover:bg-[#2563eb] text-white font-medium py-3 h-12 rounded-md transition-colors"
+                    variant="submit"
+                    size="lg"
                     disabled={isLoading}
                   >
                     <span className="relative z-10">

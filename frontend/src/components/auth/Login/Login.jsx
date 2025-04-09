@@ -9,6 +9,7 @@ import { useSelector } from "react-redux";
 import Metadata from "@/components/layout/Metadata/Metadata";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 
 const Login = () => {
   const [email_username, setEmail_username] = useState("");
@@ -102,9 +103,9 @@ const Login = () => {
                   transition={loginAnimations.emailInputTransition}
                   className="space-y-2"
                 >
-                  <label className="block text-sm font-medium">
+                  <Label>
                     Email or Username <span className="text-yellow-400">*</span>
-                  </label>
+                  </Label>
                   <Input
                     type="text"
                     placeholder="Enter your email or username"
@@ -119,9 +120,9 @@ const Login = () => {
                   className="space-y-2"
                 >
                   <div className="flex justify-between items-center">
-                    <label className="block text-sm font-medium">
+                    <Label>
                       Password <span className="text-yellow-400">*</span>
-                    </label>
+                    </Label>
                   </div>
                   <Input
                     type="password"
@@ -152,7 +153,8 @@ const Login = () => {
                 >
                   <Button
                     type="submit"
-                    className="w-full bg-[#3b82f6] hover:bg-[#2563eb] text-white font-medium py- h-12 rounded-md transition-colors"
+                    variant="submit"
+                    size="lg"
                     disabled={isLoading}
                   >
                     <span className="relative z-10">
