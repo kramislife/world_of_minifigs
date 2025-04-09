@@ -5,8 +5,7 @@ const OrderStatusTimeline = ({ order, filteredOrderStatus }) => {
   return (
     <Card className="bg-brand-dark/20 border border-brand-end/50">
       <CardContent className="p-4">
-        <div className="flex justify-between items-center relative">
-          <div className="absolute left-0 top-1/2 w-full h-1 bg-gray-700 -z-10" />
+        <div className="flex justify-between items-center">
           {filteredOrderStatus.map((step, index) => {
             const statusValues = filteredOrderStatus.map((s) => s.value);
             const isActive =
@@ -22,7 +21,7 @@ const OrderStatusTimeline = ({ order, filteredOrderStatus }) => {
                   className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors duration-200
                 ${
                   isActive
-                    ? `${step.bgColor} ${step.color}`
+                    ? `bg-brand-dark/50 ${step.color}`
                     : "bg-brand-dark/50 text-gray-400"
                 }`}
                 >

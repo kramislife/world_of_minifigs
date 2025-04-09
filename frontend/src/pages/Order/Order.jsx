@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
 import Metadata from "@/components/layout/Metadata/Metadata";
 import CancelOrderDialog from "./components/OrderDetails/CancelOrderDialog";
 import OrderHeader from "./components/OrderDetails/OrderHeader";
@@ -9,8 +8,9 @@ import CustomerItems from "./components/OrderDetails/CustomerItems";
 import CustomerShipping from "./components/OrderDetails/CustomerShipping";
 import Customer from "./components/OrderDetails/Customer";
 import PaymentSummary from "./components/OrderDetails/PaymentSummary";
-import { useOrders } from "@/hooks/Order/useOrders";
 import OrderSkeleton from "@/components/layout/skeleton/Products/OrderSkeleton";
+import { FallbackMessage } from "@/components/product/shared/FallbackStates";
+import { useOrders } from "@/hooks/Order/useOrders";
 
 const Order = () => {
   const [showCancelDialog, setShowCancelDialog] = useState(false);
@@ -38,23 +38,27 @@ const Order = () => {
 
   if (errorDetails) {
     return (
-      <div className="flex items-center justify-center min-h-screen p-4">
-        <Card className="w-full max-w-md bg-brand-dark/20 border-brand-end/50">
-          <CardContent className="pt-6">
-            <div className="text-center text-red-400">
-              Error loading order: {errorDetails.message}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <FallbackMessage
+        title="Error Loading Order"
+        message="There was a problem loading the order details. Please try again later."
+      />
+    );
+  }
+
+  if (!orderDetails || Object.keys(orderDetails).length === 0) {
+    return (
+      <FallbackMessage
+        title="Order Not Found"
+        message="We couldn't find the order you're looking for. Please check your order ID and try again."
+      />
     );
   }
 
   return (
     <>
       <Metadata title={`Order #${orderDetails._id}`} />
-      <div className="px-4 py-8">
-        <div className="space-y-6">
+      <div className="px-5 py-8">
+        <div className="space-y-5">
           <OrderHeader
             order={orderDetails}
             statusConfig={statusConfig}
@@ -69,14 +73,10 @@ const Order = () => {
             />
           )}
 
-          {isOrderCancelled && (
-            <OrderCancelled
-              order={orderDetails}
-            />
-          )}
+          {isOrderCancelled && <OrderCancelled order={orderDetails} />}
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+            <div className="lg:col-span-2 space-y-3">
               <CustomerItems orderItems={orderDetails.orderItems} />
               <CustomerShipping
                 shippingAddress={orderDetails.shippingAddress}
@@ -86,7 +86,7 @@ const Order = () => {
               />
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-3 lg:sticky lg:top-24 h-fit">
               <Customer user={orderDetails.user} />
               <PaymentSummary
                 paymentInfo={orderDetails.paymentInfo}

@@ -5,7 +5,6 @@ import {
   StickyNote,
   CheckCheck,
   Package,
-  ExternalLink,
   Calendar,
   Info,
 } from "lucide-react";
@@ -26,7 +25,7 @@ const CustomerShipping = ({
         </div>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
           <div className="space-y-5">
             <div>
               <p className="text-sm text-gray-400">Contact Number</p>
@@ -71,15 +70,15 @@ const CustomerShipping = ({
         {/* Shipping Tracking Information - only shown when available */}
         {shippingInfo &&
           (orderStatus === "Shipped" || orderStatus === "Delivered") && (
-            <div className="mt-5 border-t border-white/10 pt-5">
+            <div className="mt-5 border-t border-brand-end/50 pt-5">
               <div className="flex items-center gap-2 mb-4">
                 <Package className="w-5 h-5 text-blue-400" />
-                <h4 className="text-md font-medium text-white">
+                <h4 className="text-lg font-semibold text-white">
                   Tracking Information
                 </h4>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-3">
                 <div>
                   <p className="text-sm text-gray-400">Courier Service</p>
                   <p className="font-medium mt-1 text-white">
@@ -134,15 +133,15 @@ const CustomerShipping = ({
           )}
 
         {orderNotes && (
-          <div className="mt-5 border-t border-white/10 pt-5">
+          <div className="mt-5 border-t border-brand-end/50 pt-5">
             <div>
               <div className="flex items-center gap-2">
-                <StickyNote className="w-4 h-4 text-yellow-500" />
+                <StickyNote className="w-4 h-4 text-accent" />
                 <p className="text-sm text-gray-400">Order Notes</p>
               </div>
               <div className="flex gap-2 mt-2">
-                <CheckCheck className="w-4 h-4 text-green-500" />
-                <p className="text-sm text-white">{orderNotes}</p>
+                <CheckCheck className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                <p className="text-sm text-white leading-6">{orderNotes}</p>
               </div>
             </div>
           </div>

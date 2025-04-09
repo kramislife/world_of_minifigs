@@ -35,7 +35,7 @@ export const ProductThumbnailPlaceholder = ({ width = "w-16" }) => (
 export const FallbackMessage = ({
   title,
   message,
-  minHeight = "min-h-[600px]",
+  minHeight = "min-h-[700px]",
 }) => (
   <div
     className={`w-full ${minHeight} bg-gradient-to-b from-brand/30 to-brand/10 flex flex-col items-center justify-center gap-6 rounded-xl backdrop-blur-sm px-4`}

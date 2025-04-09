@@ -20,20 +20,18 @@ const OrderHeader = ({
                 <StatusIcon className={`w-7 h-7 ${statusConfig.color}`} />
               </div>
               <div className="min-w-0">
-                <CardTitle className="text-base sm:text-lg md:text-xl text-white line-clamp-1">
+                <CardTitle className="text-md md:text-lg text-white line-clamp-1 pb-1">
                   Order #{order._id}
                 </CardTitle>
-                <div className="flex flex-col">
-                  <div className="flex items-center gap-2">
-                    <p className="text-xs text-gray-400">
-                      Placed on {format(new Date(order.createdAt), "PPP")}
-                    </p>
-                    <span className="text-gray-500">•</span>
-                    <p className="text-xs text-gray-400">
-                      {order.orderItems.length}{" "}
-                      {order.orderItems.length === 1 ? "item" : "items"}
-                    </p>
-                  </div>
+                <div className="flex items-center gap-2">
+                  <p className="text-sm text-gray-400">
+                    Placed on {format(new Date(order.createdAt), "PPP")}
+                  </p>
+                  <span className="text-gray-500">•</span>
+                  <p className="text-sm text-gray-400">
+                    {order.orderItems.length}{" "}
+                    {order.orderItems.length === 1 ? "item" : "items"}
+                  </p>
                 </div>
               </div>
             </div>
@@ -50,20 +48,12 @@ const OrderHeader = ({
             )}
           </div>
 
-          {/* Price - Always at the bottom on mobile, right side on desktop */}
-          <div className="flex justify-between items-center sm:absolute sm:top-4 sm:right-4">
-            <span className="text-sm text-gray-400 sm:hidden">Total:</span>
-            <div className="text-lg sm:text-xl md:text-2xl font-bold text-emerald-500">
-              ${order.totalPrice.toFixed(2)}
-            </div>
-          </div>
-
           {/* Mobile Cancel Button */}
           {order.orderStatus === "Pending" && (
             <Button
               variant="destructive"
               onClick={() => setShowCancelDialog(true)}
-              className="sm:hidden"
+              className="sm:hidden mt-3"
             >
               Cancel Order
             </Button>
