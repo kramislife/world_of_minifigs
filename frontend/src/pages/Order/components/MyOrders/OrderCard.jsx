@@ -1,12 +1,13 @@
 import React, { useState } from "react";
-import { format } from "date-fns";
 import { motion } from "framer-motion";
+import { format } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Package, Package2, MessageSquare, Edit2 } from "lucide-react";
-import { orderStatus } from "@/constant/orderStatus";
+import { Package2, MessageSquare, Edit2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ReviewDialog from "@/pages/Reviews/ReviewDialog";
 import { useGetReviewByOrderIdQuery } from "@/redux/api/reviewApi";
+import { orderStatus } from "@/constant/orderStatus";
+import { Badge } from "@/components/ui/badge";
 
 const OrderCard = ({ order, onClick, showReviewButton, showReviewedBadge }) => {
   const [isReviewOpen, setIsReviewOpen] = useState(false);
@@ -21,15 +22,27 @@ const OrderCard = ({ order, onClick, showReviewButton, showReviewedBadge }) => {
   const status = orderStatus.find((s) => s.value === order.orderStatus);
 
   const handleClick = (e) => {
-    if (!showReviewButton) {
-      onClick(order._id);
+    if (!order?._id || !showReviewButton) {
+      order?._id && onClick(order._id);
     }
   };
 
   const handleReviewClick = (e) => {
-    e.stopPropagation(); // Prevent the card click event from firing
-    setIsReviewOpen(true);
+    e.stopPropagation();
+    if (order?._id) {
+      setIsReviewOpen(true);
+    }
   };
+
+  // Status badge component - reused in multiple places
+  const StatusBadge = () => (
+    <Badge className={`${status?.bgColor}`}>
+      <div className="flex items-center gap-2 text-foreground">
+        {status?.icon && <status.icon className="w-4 h-4" />}
+        <span className="text-sm font-medium">{order.orderStatus}</span>
+      </div>
+    </Badge>
+  );
 
   return (
     <>
@@ -40,77 +53,75 @@ const OrderCard = ({ order, onClick, showReviewButton, showReviewedBadge }) => {
         className={!showReviewButton ? "cursor-pointer" : ""}
         onClick={handleClick}
       >
-        <Card className="bg-brand/80 border-gray-600/50 hover:border-gray-500/50 transition-all duration-300">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
+        <Card className="bg-brand-dark/60 border-brand-end/50">
+          <CardHeader className="p-5">
+            <div className="flex flex-row gap-3 justify-between">
+              {/* Order ID and Date */}
               <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-xl bg-blue-950 border border-blue-800">
-                  <Package2 className="w-5 h-5 text-blue-400" />
+                <div className="p-2.5 rounded-xl bg-brand-dark border border-brand-end/50">
+                  <Package2 className="w-5 h-5 text-blue-500" />
                 </div>
                 <div className="space-y-1">
-                  <CardTitle className="text-base font-semibold text-white">
-                    #{order._id}
+                  <CardTitle className="text-base font-semibold text-white line-clamp-1">
+                    Order #{order._id}
                   </CardTitle>
-                  <p className="text-xs text-gray-400">
+                  <p className="text-xs text-gray-300">
                     {format(new Date(order.createdAt), "MMM dd, yyyy")}
                   </p>
                 </div>
               </div>
-              <div
-                className={`px-3 py-1.5 rounded-full ${status?.color} ${status?.bgColor} border border-gray-600/50`}
-              >
-                <div className="flex items-center gap-1.5">
-                  {status?.icon && <status.icon className="w-4 h-4" />}
-                  <span className="text-sm font-medium">
-                    {order.orderStatus}
-                  </span>
-                </div>
+
+              {/* Status Badge - DESKTOP ONLY */}
+              <div className="hidden sm:block self-center">
+                <StatusBadge />
               </div>
             </div>
           </CardHeader>
 
-          <CardContent>
-            <div className="flex items-center justify-between pt-2">
-              <div className="space-y-2">
-                <p className="text-sm text-gray-400">Items</p>
-                <div className="flex items-center gap-2">
-                  <div className="p-1.5 rounded-lg bg-blue-950 border border-blue-800">
-                    <Package className="w-4 h-4 text-blue-400" />
-                  </div>
-                  <p className="text-sm text-white">
-                    {order.orderItems.length}{" "}
-                    {order.orderItems.length === 1 ? "item" : "items"}
+          <CardContent className="pb-0">
+            {/* Order Details */}
+            <div className="flex flex-col sm:flex-row gap-3 justify-between py-5 border-t border-brand-end/50">
+              {/* Items Count and Status Badge on Mobile */}
+              <div className="flex items-center justify-between gap-2 order-2 sm:order-1 w-full sm:w-auto pt-2">
+                <p className="text-sm text-gray-400">
+                  {order.orderItems.length}{" "}
+                  {order.orderItems.length === 1 ? "item" : "items"}
+                </p>
+                {/* Status Badge - MOBILE ONLY */}
+                <div className="sm:hidden">
+                  <StatusBadge />
+                </div>
+              </div>
+
+              {/* Price */}
+              <div className="flex justify-between sm:block order-1 sm:order-2">
+                <span className="text-sm text-gray-400 sm:hidden">Total:</span>
+                <div className="text-right">
+                  <p className="text-lg font-bold text-emerald-400">
+                    ${order.totalPrice.toFixed(2)}
                   </p>
                 </div>
               </div>
-              <div className="text-right">
-                <p className="text-sm text-gray-400 mb-1">Total Amount</p>
-                <p className="text-xl font-bold text-emerald-400">
-                  ${order.totalPrice.toFixed(2)}
-                </p>
-              </div>
             </div>
 
-            {/* Display Write a Review if Review is Pending otherwise show Reviewed */}
+            {/* Review Section */}
             {(showReviewButton || showReviewedBadge) && (
-              <div className="mt-4 pt-4 border-t border-gray-700">
+              <div className="py-5 border-t border-brand-end/50">
                 {showReviewButton ? (
                   <Button
                     onClick={handleReviewClick}
-                    className="w-full bg-indigo-600 hover:bg-indigo-700"
+                    className="w-full bg-accent hover:bg-accent/80 text-foreground"
                   >
                     <MessageSquare className="w-4 h-4 mr-2" />
                     Write a Review
                   </Button>
                 ) : showReviewedBadge ? (
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
                     <div className="flex items-center gap-2 text-sm text-gray-400">
                       <MessageSquare className="w-4 h-4" />
                       Reviewed
                       {isEdited && (
-                        <span className="text-xs text-yellow-400">
-                          (Edited)
-                        </span>
+                        <span className="text-xs text-accent">(Edited)</span>
                       )}
                     </div>
                     <Button
@@ -118,9 +129,6 @@ const OrderCard = ({ order, onClick, showReviewButton, showReviewedBadge }) => {
                       size="sm"
                       onClick={handleReviewClick}
                       disabled={isEdited}
-                      className={`border-gray-700 hover:bg-gray-300 ${
-                        isEdited ? "opacity-50 cursor-not-allowed" : ""
-                      }`}
                     >
                       <Edit2 className="w-4 h-4 mr-2" />
                       {isEdited ? "Already Edited" : "Edit Review"}
@@ -133,7 +141,6 @@ const OrderCard = ({ order, onClick, showReviewButton, showReviewedBadge }) => {
         </Card>
       </motion.div>
 
-      {/* Review Dialog */}
       <ReviewDialog
         open={isReviewOpen}
         onOpenChange={setIsReviewOpen}

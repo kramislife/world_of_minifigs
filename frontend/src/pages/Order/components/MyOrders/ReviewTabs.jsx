@@ -1,63 +1,59 @@
-import React, { useState } from "react";
+import React from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { MessageSquare, CheckSquare } from "lucide-react";
-import EmptyState from "./EmptyState";
+import { FallbackMessage } from "@/components/product/shared/FallbackStates";
 import OrderCard from "./OrderCard";
-import { useOrders } from "@/hooks/Order/useOrders";
 import ReviewDetailsDialog from "@/pages/Reviews/components/ReviewDetailsDialog";
-import { useGetReviewByOrderIdQuery } from "@/redux/api/reviewApi";
 
-export const ReviewTabs = ({ ordersByStatus, onOrderClick }) => {
-  const { selectedReviewTab, handleReviewTabChange } = useOrders();
-  const [selectedOrderId, setSelectedOrderId] = useState(null);
-  const [showReviewDetails, setShowReviewDetails] = useState(false);
-
-  // Fetch review data when an order is selected from history
-  const { data: reviewData } = useGetReviewByOrderIdQuery(selectedOrderId, {
-    skip: !selectedOrderId || !showReviewDetails,
-  });
-
-  const handleOrderCardClick = (orderId, isHistory) => {
-    if (isHistory) {
-      // For history tab, show review details
-      setSelectedOrderId(orderId);
-      setShowReviewDetails(true);
-    } else {
-      // For pending tab, navigate to order page
-      onOrderClick(orderId);
-    }
-  };
-
+const ReviewTabs = ({
+  ordersByStatus,
+  selectedReviewTab,
+  onReviewTabChange,
+  showReviewDetails,
+  reviewData,
+  handleOrderCardClick,
+  setShowReviewDetails,
+  handleReviewEditClick,
+}) => {
   // Extract ReviewTabContent as a sub-component
   const ReviewTabContent = ({
     type,
     orders,
-    onOrderClick,
     emptyTitle,
     emptyMessage,
     showReviewButton,
     showReviewedBadge,
   }) => {
     const isHistory = type === "history";
+    const isSingleOrder = orders?.length === 1;
+
+    if (!orders?.length) {
+      return (
+        <FallbackMessage
+          title={emptyTitle}
+          message={emptyMessage}
+          minHeight="min-h-[300px]"
+        />
+      );
+    }
 
     return (
-      <TabsContent value={type}>
-        {!orders.length ? (
-          <EmptyState title={emptyTitle} message={emptyMessage} />
-        ) : (
-          <div className="grid grid-cols-1 gap-4">
-            {orders.map((order) => (
-              <OrderCard
-                key={order._id}
-                order={order}
-                onClick={(orderId) => handleOrderCardClick(orderId, isHistory)}
-                showReviewButton={showReviewButton}
-                showReviewedBadge={showReviewedBadge}
-              />
-            ))}
-          </div>
-        )}
-      </TabsContent>
+      <div
+        className={`grid grid-cols-1 ${
+          !isSingleOrder ? "md:grid-cols-1 lg:grid-cols-2" : ""
+        } gap-4`}
+      >
+        {orders.map((order) => (
+          <OrderCard
+            key={order._id}
+            order={order}
+            onClick={(orderId) => handleOrderCardClick(orderId, isHistory)}
+            showReviewButton={showReviewButton}
+            showReviewedBadge={showReviewedBadge}
+            data-order-id={order._id}
+          />
+        ))}
+      </div>
     );
   };
 
@@ -66,48 +62,56 @@ export const ReviewTabs = ({ ordersByStatus, onOrderClick }) => {
       <Tabs
         defaultValue={selectedReviewTab}
         className="w-full"
-        onValueChange={handleReviewTabChange}
+        onValueChange={onReviewTabChange}
       >
-        <TabsList className="w-full grid grid-cols-2 mb-6">
-          <TabsTrigger value="pending" className="flex items-center gap-2">
+        <TabsList className="grid grid-cols-2 gap-2 bg-gray-900/50 mb-5">
+          <TabsTrigger
+            value="pending"
+            className=" gap-2 hover:bg-brand-start hover:text-white"
+          >
             <MessageSquare className="w-4 h-4" />
             <span className="hidden sm:inline">Pending Reviews</span>
             <span className="sm:hidden">Pending</span>
             {ordersByStatus["To Review"]?.pending.length > 0 && (
-              <span className="ml-1 text-xs bg-primary/20 px-1.5 py-0.5 rounded-full">
+              <span className="ml-1 text-xs bg-accent px-1.5 py-0.5 rounded-full text-foreground">
                 {ordersByStatus["To Review"].pending.length}
               </span>
             )}
           </TabsTrigger>
-          <TabsTrigger value="history" className="flex items-center gap-2">
+          <TabsTrigger
+            value="history"
+            className="gap-2 hover:bg-brand-start hover:text-white"
+          >
             <CheckSquare className="w-4 h-4" />
             <span className="hidden sm:inline">Review History</span>
             <span className="sm:hidden">History</span>
             {ordersByStatus["To Review"]?.history.length > 0 && (
-              <span className="ml-1 text-xs bg-primary/20 px-1.5 py-0.5 rounded-full">
+              <span className="ml-1 text-xs bg-accent px-1.5 py-0.5 rounded-full text-foreground">
                 {ordersByStatus["To Review"].history.length}
               </span>
             )}
           </TabsTrigger>
         </TabsList>
 
-        <ReviewTabContent
-          type="pending"
-          orders={ordersByStatus["To Review"]?.pending || []}
-          onOrderClick={onOrderClick}
-          emptyTitle="No Pending Reviews"
-          emptyMessage="You don't have any products waiting to be reviewed."
-          showReviewButton={true}
-        />
+        <TabsContent value="pending">
+          <ReviewTabContent
+            type="pending"
+            orders={ordersByStatus["To Review"]?.pending || []}
+            emptyTitle="No Pending Reviews"
+            emptyMessage="You don't have any products waiting to be reviewed."
+            showReviewButton={true}
+          />
+        </TabsContent>
 
-        <ReviewTabContent
-          type="history"
-          orders={ordersByStatus["To Review"]?.history || []}
-          onOrderClick={onOrderClick}
-          emptyTitle="No Review History"
-          emptyMessage="You haven't reviewed any products yet."
-          showReviewedBadge={true}
-        />
+        <TabsContent value="history">
+          <ReviewTabContent
+            type="history"
+            orders={ordersByStatus["To Review"]?.history || []}
+            emptyTitle="No Review History"
+            emptyMessage="You haven't reviewed any products yet."
+            showReviewedBadge={true}
+          />
+        </TabsContent>
       </Tabs>
 
       {/* Review Details Dialog */}
@@ -116,29 +120,11 @@ export const ReviewTabs = ({ ordersByStatus, onOrderClick }) => {
           open={showReviewDetails}
           onOpenChange={setShowReviewDetails}
           review={reviewData?.review}
-          onEditClick={() => {
-            // Find the order in history
-            const order = ordersByStatus["To Review"]?.history.find(
-              (o) => o._id === selectedOrderId
-            );
-
-            // Close this dialog - the OrderCard component will handle showing the edit dialog
-            setShowReviewDetails(false);
-
-            // Find and click the edit button on the order card
-            // This is handled by the OrderCard component when clicking its edit button
-            const orderCard = document.querySelector(
-              `[data-order-id="${selectedOrderId}"]`
-            );
-            if (orderCard) {
-              const editButton = orderCard.querySelector(
-                "button[data-edit-button]"
-              );
-              if (editButton) editButton.click();
-            }
-          }}
+          onEditClick={handleReviewEditClick}
         />
       )}
     </>
   );
 };
+
+export default ReviewTabs;

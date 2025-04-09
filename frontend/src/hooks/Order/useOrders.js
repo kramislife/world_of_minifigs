@@ -7,12 +7,15 @@ import { useProcessRefundMutation } from "@/redux/api/checkoutApi";
 import { useSearchParams, useParams, useNavigate } from "react-router-dom";
 import { orderStatus } from "@/constant/orderStatus";
 import { toast } from "react-toastify";
+import { useGetReviewByOrderIdQuery } from "@/redux/api/reviewApi";
+import { ShoppingCart } from "lucide-react";
 
 export const useOrders = () => {
   const { data, isLoading, error } = useGetAllOrdersQuery();
   const [searchParams, setSearchParams] = useSearchParams();
   const statusParam = searchParams.get("status");
   const reviewTabParam = searchParams.get("reviewTab");
+  const navigate = useNavigate();
 
   // Default status if not provided
   const [selectedStatus, setSelectedStatus] = useState(
@@ -21,6 +24,20 @@ export const useOrders = () => {
   const [selectedReviewTab, setSelectedReviewTab] = useState(
     reviewTabParam || "pending"
   );
+
+  // NEW: Mobile detection logic
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [selectedLabel, setSelectedLabel] = useState("All Orders");
+
+  // Review dialog related states
+  const [selectedOrderId, setSelectedOrderId] = useState(null);
+  const [showReviewDetails, setShowReviewDetails] = useState(false);
+
+  // Only fetch review data when we have a valid order ID AND the dialog is showing
+  const { data: reviewData } = useGetReviewByOrderIdQuery(selectedOrderId, {
+    skip:
+      !selectedOrderId || !showReviewDetails || selectedOrderId === "undefined",
+  });
 
   // Update state when URL params change
   useEffect(() => {
@@ -31,6 +48,26 @@ export const useOrders = () => {
       setSelectedReviewTab(reviewTabParam);
     }
   }, [statusParam, reviewTabParam]);
+
+  // NEW: Handle window resize for mobile detection
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 1000);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // NEW: Update selected label based on status param
+  useEffect(() => {
+    // Set selected label based on statusParam
+    if (selectedStatus === "all" || !selectedStatus) {
+      setSelectedLabel("All Orders");
+    } else {
+      const status = orderStatus.find((s) => s.value === selectedStatus);
+      if (status) setSelectedLabel(status.label);
+    }
+  }, [selectedStatus]);
 
   // Group orders by status
   const ordersByStatus = useMemo(() => {
@@ -60,6 +97,32 @@ export const useOrders = () => {
     }, {});
   }, [data]);
 
+  // NEW: Filter main and dropdown statuses
+  const mainStatus = useMemo(
+    () =>
+      orderStatus.filter(
+        (status) => !["Cancelled", "On Hold"].includes(status.value)
+      ),
+    []
+  );
+
+  const dropdownStatus = useMemo(
+    () =>
+      orderStatus.filter((status) =>
+        ["Cancelled", "On Hold"].includes(status.value)
+      ),
+    []
+  );
+
+  // NEW: Create allStatuses array
+  const allStatuses = useMemo(
+    () => [
+      { id: "all", value: "all", label: "All Orders", icon: ShoppingCart },
+      ...orderStatus,
+    ],
+    []
+  );
+
   // All statuses for dropdown/tabs with counts
   const statusesWithCounts = useMemo(() => {
     const allStatuses = [
@@ -82,6 +145,17 @@ export const useOrders = () => {
   const handleStatusChange = (value) => {
     setSelectedStatus(value);
     setSearchParams({ status: value });
+  };
+
+  // NEW: Handle tab change specifically for the OrderStatusTabs component
+  const handleTabChange = (value) => {
+    handleStatusChange(value);
+    if (value === "all") {
+      setSelectedLabel("All Orders");
+    } else {
+      const status = orderStatus.find((s) => s.value === value);
+      if (status) setSelectedLabel(status.label);
+    }
   };
 
   // Handle review tab change
@@ -107,13 +181,15 @@ export const useOrders = () => {
     );
   }, []);
 
-  // Add order details functionality
+  // Update the order details part too to ensure we never fetch with undefined
   const { id } = useParams();
   const {
     data: orderDetails,
     isLoading: isLoadingDetails,
     error: errorDetails,
-  } = useGetOrderDetailsQuery(id);
+  } = useGetOrderDetailsQuery(id, {
+    skip: !id || id === "undefined",
+  });
 
   // Prepare status configuration for the current order
   const currentOrderStatus = orderDetails?.data?.orderStatus;
@@ -127,7 +203,6 @@ export const useOrders = () => {
   const isOrderCancelled = currentOrderStatus === "Cancelled";
 
   // Cancel order dialog state and logic
-  const navigate = useNavigate();
   const [selectedReasons, setSelectedReasons] = useState([]);
   const [otherReason, setOtherReason] = useState("");
   const [processRefund, { isLoading: isProcessingRefund }] =
@@ -169,6 +244,38 @@ export const useOrders = () => {
     }
   };
 
+  // Navigation to order details - with validation
+  const handleOrderClick = (orderId) => {
+    if (!orderId) return; // Exit early if no orderId
+    navigate(`/order/${orderId}`);
+  };
+
+  // Handle order card click for reviews - with validation
+  const handleOrderCardClick = (orderId, isHistory) => {
+    if (!orderId) return; // Exit early if no orderId
+
+    if (isHistory) {
+      // For history tab, show review details
+      setSelectedOrderId(orderId);
+      setShowReviewDetails(true);
+    } else {
+      // For pending tab, navigate to order page
+      handleOrderClick(orderId);
+    }
+  };
+
+  // Handle review details dialog close
+  const handleReviewDetailsClose = () => {
+    setShowReviewDetails(false);
+    setSelectedOrderId(null);
+  };
+
+  // Handle edit button click on review details
+  const handleReviewEditClick = () => {
+    setShowReviewDetails(false);
+    // The component using this function should handle finding and clicking the edit button
+  };
+
   const isOtherSelected = selectedReasons.includes("Other");
   const isCancelButtonDisabled =
     selectedReasons.length === 0 ||
@@ -185,8 +292,8 @@ export const useOrders = () => {
     statusesWithCounts,
     handleStatusChange,
     handleReviewTabChange,
-    getStatusConfig, // Export the helper function
-    filteredOrderStatus, // Export filtered status
+    getStatusConfig,
+    filteredOrderStatus,
     orderDetails: orderDetails?.data,
     isLoadingDetails,
     errorDetails,
@@ -203,5 +310,23 @@ export const useOrders = () => {
     setOtherReason,
     isOtherSelected,
     isCancelButtonDisabled,
+
+    // Review management
+    selectedOrderId,
+    showReviewDetails,
+    reviewData,
+    handleOrderClick,
+    handleOrderCardClick,
+    handleReviewDetailsClose,
+    handleReviewEditClick,
+    setShowReviewDetails,
+
+    // NEW: OrderStatusTabs related values
+    isMobile,
+    selectedLabel,
+    mainStatus,
+    dropdownStatus,
+    allStatuses,
+    handleTabChange,
   };
 };

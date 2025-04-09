@@ -44,7 +44,7 @@ const AddressForm = ({ isEdit = false, editAddress = null, userName = "" }) => {
       </DialogDescription>
       <DialogContent className="bg-brand-start border border-brand-end/50 text-white max-w-3xl max-h-[95vh] overflow-y-auto scrollbar-none p-4 w-[95vw] rounded-lg">
         <DialogHeader>
-          <DialogTitle className="text-lg font-medium text-accent text-start mb-5">
+          <DialogTitle className="text-lg font-medium text-white text-start mb-5">
             {isEdit ? "Edit address" : "Add a new address"}
           </DialogTitle>
         </DialogHeader>
