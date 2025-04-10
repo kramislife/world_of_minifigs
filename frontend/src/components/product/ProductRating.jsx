@@ -37,9 +37,6 @@ const ProductRating = ({ product }) => {
   );
   const reviews = reviewsData?.reviews || [];
 
-  console.log("Product ID:", product?._id); // Debug log
-  console.log("Reviews Data:", reviewsData); // Debug log
-
   const ratingStats = useMemo(() => {
     if (!reviews.length)
       return {
@@ -118,8 +115,7 @@ const ProductRating = ({ product }) => {
     const text = replyText[reviewId];
     if (!text?.trim()) {
       toast.error("Reply cannot be empty");
-      return;
-    }
+      return;    }
 
     try {
       const response = await addReply({
@@ -185,13 +181,16 @@ const ProductRating = ({ product }) => {
 
   // Update the customer photos section with fallback
   const CustomerPhotosSection = () => (
-    <div className="bg-brand/70 p-8 rounded-xl">
+    <div className="bg-brand-end/30 p-8 rounded-xl border border-brand-end/50 transition-all hover:border-brand-end/70">
       <div className="flex justify-between items-center mb-6">
-        <h3 className="text-xl font-semibold">Customer Photos</h3>
+        <h3 className="text-xl font-semibold flex items-center">
+          <ImageIcon className="w-5 h-5 mr-2 text-accent" />
+          Customer Photos
+        </h3>
         {getAllProductImages.length > 0 && (
           <button
             onClick={() => setIsGalleryOpen(true)}
-            className="text-red-500 text-sm hover:underline"
+            className="text-accent text-sm hover:underline transition-colors"
           >
             View all
           </button>
@@ -205,13 +204,13 @@ const ProductRating = ({ product }) => {
               key={index}
               src={image.url}
               alt={`Customer review ${index + 1}`}
-              className="w-16 h-16 object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
+              className="w-16 h-16 object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity hover:ring-2 ring-accent/50"
               onClick={() => window.open(image.url, "_blank")}
             />
           ))}
           {getAllProductImages.length > 4 && (
             <div
-              className="w-16 h-16 rounded-lg cursor-pointer bg-gray-700/50 flex items-center justify-center hover:bg-gray-600/50 transition-colors"
+              className="w-16 h-16 rounded-lg cursor-pointer bg-brand-dark/80 flex items-center justify-center hover:bg-brand-dark transition-colors"
               onClick={() => setIsGalleryOpen(true)}
             >
               <span className="text-lg font-semibold text-white">
@@ -332,22 +331,22 @@ const ProductRating = ({ product }) => {
   if (isLoading) return <div>Loading reviews...</div>;
 
   return (
-    <div className="bg-brand-gradient py-12 px-4 sm:px-6 lg:px-8">
-      <div className=" mx-auto">
-        {/* Header with red accent */}
-        <h2 className="text-4xl font-bold mb-8 flex items-center gap-4">
-          <div className="w-1 h-10 bg-red-500 rounded" />
+    <div className="bg-brand-start py-10">
+      <div className="max-w-8xl mx-auto">
+        {/* Header with accent color */}
+        <h2 className="text-3xl font-semibold mb-8 flex items-center gap-4 px-4">
+          <div className="w-1 h-8 bg-accent rounded" />
           <span>Ratings & Reviews</span>
         </h2>
 
         {/* Grid Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 mx-5">
           {/* Left Column - Rating Summary & Shop with Confidence */}
           <div className="lg:col-span-4 space-y-5">
             {/* Rating Summary Card */}
-            <div className="bg-brand/70 p-8 rounded-xl">
+            <div className="bg-brand-end/30 p-8 rounded-xl border border-brand-end/50 transition-all hover:border-brand-end/70">
               <div className="flex flex-col items-center">
-                <div className="text-6xl font-bold mb-2">
+                <div className="text-6xl font-bold mb-2 text-white">
                   {ratingStats.averageRating}
                   <span className="text-2xl text-gray-400">/5.0</span>
                 </div>
@@ -360,7 +359,7 @@ const ProductRating = ({ product }) => {
                 <div className="text-gray-400 mb-6">
                   ({ratingStats.totalReviews}) reviews
                 </div>
-                <Button className="w-full bg-red-500 hover:bg-red-600 text-white">
+                <Button className="w-full bg-accent hover:bg-accent-secondary text-black font-semibold shadow-md hover:shadow-lg transition-all">
                   Write a Review
                 </Button>
                 <p className="text-sm text-gray-400 mt-4 text-center">
@@ -370,16 +369,22 @@ const ProductRating = ({ product }) => {
             </div>
 
             {/* Shop with Confidence Card */}
-            <div className="bg-brand/70 p-8 rounded-xl">
-              <h3 className="text-xl font-semibold mb-6">
+            <div className="bg-brand-end/30 p-8 rounded-xl border border-brand-end/50 transition-all hover:border-brand-end/70">
+              <h3 className="text-xl font-semibold mb-6 flex items-center">
+                <Shield className="w-5 h-5 mr-2 text-accent" />
                 Shop With Confidence
               </h3>
               <div className="space-y-6">
                 {confidenceFeatures.map((feature, index) => (
-                  <div key={index} className="flex items-start gap-4">
-                    <div className="flex-shrink-0">{feature.icon}</div>
+                  <div
+                    key={index}
+                    className="flex items-start gap-4 group transition-all"
+                  >
+                    <div className="flex-shrink-0 p-2 rounded-full bg-brand-dark/50 group-hover:bg-brand-dark transition-colors">
+                      {feature.icon}
+                    </div>
                     <div>
-                      <h4 className="font-semibold text-white">
+                      <h4 className="font-semibold text-white group-hover:text-accent transition-colors">
                         {feature.title}
                       </h4>
                       <p className="text-sm text-gray-400">
@@ -395,27 +400,37 @@ const ProductRating = ({ product }) => {
           {/* Right Column - Rating Distribution & Customer Photos */}
           <div className="lg:col-span-8 space-y-5">
             {/* Rating Distribution Card */}
-            <div className="bg-brand/70 p-8 rounded-xl">
-              <h3 className="text-xl font-semibold mb-6">
+            <div className="bg-brand-end/30 p-8 rounded-xl border border-brand-end/50 transition-all hover:border-brand-end/70">
+              <h3 className="text-xl font-semibold mb-6 flex items-center">
+                <Star className="w-5 h-5 mr-2 text-accent" />
                 Rating Distribution
               </h3>
-              <div className="space-y-4">
+              <div className="space-y-5">
                 {[5, 4, 3, 2, 1].map((stars) => (
-                  <div key={stars} className="flex items-center gap-4">
-                    <span className="w-4 text-gray-400">{stars}</span>
-                    <Progress
-                      value={
-                        ratingStats.totalReviews > 0
-                          ? (ratingStats.distribution[5 - stars] /
-                              ratingStats.totalReviews) *
-                            100
-                          : 0
-                      }
-                      className="h-2 flex-1 bg-gray-700/50"
-                    />
-                    <span className="text-sm text-gray-400 w-8">
-                      ({ratingStats.distribution[5 - stars]})
-                    </span>
+                  <div key={stars} className="flex items-center gap-3">
+                    <div className="flex items-center w-14">
+                      <span className="text-white font-medium mr-2">
+                        {stars}
+                      </span>
+                    </div>
+                    <div className="flex-1 relative">
+                      <Progress
+                        value={
+                          ratingStats.totalReviews > 0
+                            ? (ratingStats.distribution[5 - stars] /
+                                ratingStats.totalReviews) *
+                              100
+                            : 0
+                        }
+                        className="h-3 flex-1 bg-brand-dark/50 rounded-full"
+                        indicatorClassName="bg-accent rounded-full"
+                      />
+                    </div>
+                    <div className="w-12 text-right">
+                      <span className="text-sm text-gray-300 font-medium">
+                        ({ratingStats.distribution[5 - stars]})
+                      </span>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -427,22 +442,17 @@ const ProductRating = ({ product }) => {
         </div>
 
         {/* Reviews Section */}
-        <div className="mt-12">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-semibold">Customer Reviews</h2>
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="bg-brand/70 border border-gray-600 rounded-lg px-4 py-2 text-sm"
-            >
-              <option value="most_recent">Most Recent</option>
-              <option value="highest_rating">Highest Rating</option>
-              <option value="lowest_rating">Lowest Rating</option>
-            </select>
+        <div className="mt-12 mx-5">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+            <h2 className="text-2xl font-semibold flex items-center">
+              <MessageSquare className="w-5 h-5 mr-2 text-accent" />
+              Customer Reviews
+            </h2>
+          
           </div>
 
           {/* Review Tabs */}
-          <div className="flex gap-4 mb-8 overflow-x-auto pb-2">
+          <div className="flex flex-wrap gap-3 mb-8 overflow-x-auto pb-2">
             {[
               { id: "all", label: `All Reviews (${tabCounts.all})` },
               {
@@ -458,10 +468,10 @@ const ProductRating = ({ product }) => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`px-4 py-2 rounded-lg whitespace-nowrap ${
+                className={`px-4 py-2 rounded-lg whitespace-nowrap transition-all ${
                   activeTab === tab.id
-                    ? "bg-brand text-white"
-                    : "bg-brand/70 text-gray-400 hover:text-white"
+                    ? "bg-accent text-black font-medium shadow-md"
+                    : "bg-brand-end/30 text-gray-400 hover:text-white border border-brand-end/50 hover:border-brand-end/70"
                 }`}
               >
                 {tab.label}
@@ -473,18 +483,21 @@ const ProductRating = ({ product }) => {
           <div className="space-y-6">
             {filteredReviews.length > 0 ? (
               filteredReviews.map((review) => (
-                <Card key={review._id} className="bg-brand/70 border-none">
+                <Card
+                  key={review._id}
+                  className="bg-brand-end/30 border-brand-end/50 hover:border-brand-end/70 transition-all"
+                >
                   {review.products.map((prod) => {
                     if (prod.product.toString() === product._id.toString()) {
                       return (
                         <div key={prod.product} className="p-6">
                           <div className="flex items-start justify-between">
                             <div className="flex items-start gap-4">
-                              <Avatar>
+                              <Avatar className="ring-2 ring-brand-dark">
                                 {review.user?.avatar?.url ? (
                                   <AvatarImage src={review.user.avatar.url} />
                                 ) : (
-                                  <AvatarFallback className="bg-blue-500">
+                                  <AvatarFallback className="bg-brand-start text-white">
                                     {getInitialLetter(review.user.name)}
                                   </AvatarFallback>
                                 )}
@@ -492,11 +505,15 @@ const ProductRating = ({ product }) => {
                               <div className="space-y-4">
                                 <div>
                                   <div className="flex items-center gap-2 mb-1">
-                                    <span className="font-medium">
+                                    <span className="font-medium text-white">
                                       {review.user.name}
                                     </span>
                                     {review.user.is_verified && (
-                                      <Badge variant="info" className="text-xs">
+                                      <Badge
+                                        variant="outline"
+                                        className="text-xs bg-accent/10 text-accent border-accent/30 px-1.5 py-0"
+                                      >
+                                        <BadgeCheck className="w-3 h-3 mr-1" />
                                         Verified Buyer
                                       </Badge>
                                     )}
@@ -516,19 +533,19 @@ const ProductRating = ({ product }) => {
                                 </div>
 
                                 {prod.reviewText && (
-                                  <p className="text-gray-200">
+                                  <p className="text-gray-200 leading-relaxed">
                                     {prod.reviewText}
                                   </p>
                                 )}
 
                                 {prod.images?.length > 0 && (
-                                  <div className="flex gap-2">
+                                  <div className="flex flex-wrap gap-2">
                                     {prod.images.map((image, index) => (
                                       <img
                                         key={index}
                                         src={image.url}
                                         alt={`Review ${index + 1}`}
-                                        className="w-16 h-16 object-cover rounded-lg cursor-pointer"
+                                        className="w-16 h-16 object-cover rounded-lg cursor-pointer hover:ring-2 ring-accent/50 transition-all"
                                         onClick={() =>
                                           window.open(image.url, "_blank")
                                         }
@@ -537,7 +554,7 @@ const ProductRating = ({ product }) => {
                                   </div>
                                 )}
 
-                                <div className="flex items-center gap-4 text-sm text-gray-400">
+                                <div className="flex flex-wrap items-center gap-4 text-sm text-gray-400">
                                   <button
                                     onClick={() =>
                                       handleVote(
@@ -546,7 +563,7 @@ const ProductRating = ({ product }) => {
                                         "helpful"
                                       )
                                     }
-                                    className="flex items-center gap-1 hover:text-white"
+                                    className="flex items-center gap-1 hover:text-accent transition-colors"
                                   >
                                     <ThumbsUp className="w-4 h-4" />
                                     Helpful ({prod.helpfulVotes?.length || 0})
@@ -559,7 +576,7 @@ const ProductRating = ({ product }) => {
                                         "unhelpful"
                                       )
                                     }
-                                    className="flex items-center gap-1 hover:text-white"
+                                    className="flex items-center gap-1 hover:text-accent transition-colors"
                                   >
                                     <ThumbsDown className="w-4 h-4" />
                                     Not Helpful (
@@ -573,7 +590,7 @@ const ProductRating = ({ product }) => {
                                           !showReplyInput[review._id],
                                       })
                                     }
-                                    className="flex items-center gap-1 hover:text-white"
+                                    className="flex items-center gap-1 hover:text-accent transition-colors"
                                   >
                                     <MessageSquare className="w-4 h-4" />
                                     Reply
@@ -591,11 +608,12 @@ const ProductRating = ({ product }) => {
                                         })
                                       }
                                       placeholder="Write your reply..."
-                                      className="min-h-[100px]"
+                                      className="min-h-[100px] bg-brand-dark/50 border-brand-end/50 focus:border-accent focus:ring-accent/30"
                                     />
                                     <div className="flex justify-end gap-2">
                                       <Button
                                         variant="outline"
+                                        className="border-brand-end/50 hover:bg-brand-dark/50 hover:text-white"
                                         onClick={() => {
                                           setShowReplyInput({
                                             ...showReplyInput,
@@ -610,6 +628,7 @@ const ProductRating = ({ product }) => {
                                         Cancel
                                       </Button>
                                       <Button
+                                        className="bg-accent hover:bg-accent-secondary text-black"
                                         onClick={() =>
                                           handleReply(review._id, prod.product)
                                         }
@@ -626,15 +645,15 @@ const ProductRating = ({ product }) => {
                                     {prod.replies.map((reply, index) => (
                                       <div
                                         key={index}
-                                        className="flex items-start gap-3 pl-6 border-l-2 border-gray-700"
+                                        className="flex items-start gap-3 pl-6 border-l-2 border-brand-end/30 hover:border-accent transition-colors p-3 rounded-r-lg bg-brand-dark/20"
                                       >
-                                        <Avatar className="w-8 h-8">
+                                        <Avatar className="w-8 h-8 ring-1 ring-brand-dark">
                                           {reply.user?.avatar?.url ? (
                                             <AvatarImage
                                               src={reply.user.avatar.url}
                                             />
                                           ) : (
-                                            <AvatarFallback className="bg-blue-500 text-xs">
+                                            <AvatarFallback className="bg-brand-start text-xs text-white">
                                               {getInitialLetter(
                                                 reply.user.name
                                               )}
@@ -643,19 +662,20 @@ const ProductRating = ({ product }) => {
                                         </Avatar>
                                         <div>
                                           <div className="flex items-center gap-2">
-                                            <span className="font-medium text-sm">
+                                            <span className="font-medium text-sm text-white">
                                               {reply.user.name}
                                             </span>
                                             {reply.user.is_verified && (
                                               <Badge
-                                                variant="info"
-                                                className="text-xs"
+                                                variant="outline"
+                                                className="text-xs bg-accent/10 text-accent border-accent/30 px-1.5 py-0"
                                               >
-                                                Verified Buyer
+                                                <BadgeCheck className="w-3 h-3 mr-1" />
+                                                Verified
                                               </Badge>
                                             )}
                                           </div>
-                                          <p className="text-sm text-gray-300 mt-1">
+                                          <p className="text-sm text-gray-300 mt-1 leading-relaxed">
                                             {reply.text}
                                           </p>
                                         </div>
@@ -674,9 +694,16 @@ const ProductRating = ({ product }) => {
                 </Card>
               ))
             ) : (
-              <p className="text-center text-gray-400 py-8">
-                No reviews found for the selected filter.
-              </p>
+              <div className="py-12 bg-brand-end/30 rounded-xl border border-brand-end/50 flex flex-col items-center justify-center">
+                <MessageSquare className="w-16 h-16 text-gray-500 mb-4 opacity-30" />
+                <p className="text-center text-gray-400 text-lg font-medium">
+                  No reviews found for the selected filter.
+                </p>
+                <p className="text-center text-gray-500 mt-2">
+                  Try selecting a different filter or be the first to leave a
+                  review!
+                </p>
+              </div>
             )}
           </div>
         </div>

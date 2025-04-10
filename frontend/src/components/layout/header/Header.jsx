@@ -8,6 +8,7 @@ import DesktopNavbar from "./components/DesktopNavbar";
 import MobileMenu from "./components/MobileMenu";
 import UserDropdown from "./UserDropdown";
 import { User } from "lucide-react";
+import logo from "@/assets/worldofminifigs.png";
 import CartSheet from "./CartSheet";
 
 const Header = () => {
@@ -37,11 +38,7 @@ const Header = () => {
           <div className="flex items-center flex-shrink-0">
             {/* Logo */}
             <NavLink to="/">
-              <img
-                className="h-12 w-auto scale-110"
-                src="https://res.cloudinary.com/mark-legostore/image/upload/v1743391572/world_of_minifigs/icons/logo.png"
-                alt="logo"
-              />
+              <img className="h-12 w-auto scale-110" src={logo} alt="logo" />
             </NavLink>
           </div>
           {/* Desktop Navigation - adjust spacing */}

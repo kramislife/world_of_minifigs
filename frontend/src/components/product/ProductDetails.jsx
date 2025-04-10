@@ -1,15 +1,13 @@
 import React, { useRef, useState } from "react";
-import { motion } from "framer-motion";
 import Metadata from "@/components/layout/Metadata/Metadata";
 import CartSheet from "@/components/layout/header/CartSheet";
 import { useProductImages } from "@/hooks/Product/useProductImages";
-import ProductImageGallery from "./ProductImageGallery";
-import ProductInfo from "./ProductInfo";
+import ProductImageGallery from "@/components/product/shared/ProductImageGallery";
+import ProductInfo from "@/components/product/shared/ProductInfo";
 
 const ProductDetails = ({
   product,
   similarProducts,
-  containerVariants,
   itemVariants,
   reviewStats,
 }) => {
@@ -30,12 +28,7 @@ const ProductDetails = ({
   return (
     <>
       <Metadata title={currentProduct?.product_name || "Product Details"} />
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        className="p-5"
-      >
+      <div className="p-5 bg-brand-start">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="w-full">
             <ProductImageGallery
@@ -62,7 +55,7 @@ const ProductDetails = ({
             />
           </div>
         </div>
-      </motion.div>
+      </div>
 
       <CartSheet isOpen={isCartOpen} setIsOpen={setIsCartOpen} />
     </>

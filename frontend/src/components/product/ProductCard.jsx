@@ -1,9 +1,10 @@
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import StarRating from "@/components/product/shared/StarRating";
 import { PlaceholderImage } from "@/components/product/shared/FallbackStates";
-import { Button } from "@/components/ui/button";
 import { useProductCard } from "@/hooks/Product/useProductCard";
+import { Badge } from "../ui/badge";
 
 const ProductCard = ({ product }) => {
   const {
@@ -22,14 +23,14 @@ const ProductCard = ({ product }) => {
       onClick={handleViewDetails}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      className="bg-brand-start rounded-2xl overflow-hidden transition-all duration-300 hover:scale-100 group relative cursor-pointer h-full flex flex-col border-none  " 
+      className="bg-brand-dark/50 rounded-2xl overflow-hidden transition-all duration-300 hover:scale-100 group relative cursor-pointer h-full flex flex-col border-none" 
     >
       {/* Discount Badge */}
       {product?.discount > 0 && (
         <div className="absolute top-4 right-4 z-10">
-          <div className="bg-accent px-3 py-1.5 rounded-full text-brand-start text-sm font-medium shadow-lg">
+          <Badge variant="discount">
             {product.discount}% OFF
-          </div>
+          </Badge>
         </div>
       )}
 
