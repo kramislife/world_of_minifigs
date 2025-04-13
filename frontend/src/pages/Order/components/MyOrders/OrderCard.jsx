@@ -5,33 +5,43 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Package2, MessageSquare, Edit2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ReviewDialog from "@/pages/Reviews/ReviewDialog";
+import ReviewDetailsDialog from "@/pages/Reviews/components/ReviewDetailsDialog";
 import { useGetReviewByOrderIdQuery } from "@/redux/api/reviewApi";
 import { orderStatus } from "@/constant/orderStatus";
 import { Badge } from "@/components/ui/badge";
 
 const OrderCard = ({ order, onClick, showReviewButton, showReviewedBadge }) => {
   const [isReviewOpen, setIsReviewOpen] = useState(false);
+  const [isReviewDetailsOpen, setIsReviewDetailsOpen] = useState(false);
+
   const { data: existingReview } = useGetReviewByOrderIdQuery(order._id, {
-    skip: !showReviewedBadge,
+    skip: !order?._id || !order?.isReviewed,
   });
 
   const isEdited = existingReview?.review?.products?.some(
-    (product) => product.isEdited
+    (product) => product.isEdited && product.editedAt
   );
 
   const status = orderStatus.find((s) => s.value === order.orderStatus);
 
-  const handleClick = (e) => {
-    if (!order?._id || !showReviewButton) {
+  const handleClick = () => {
+    // If we're in review history mode and this order has a review, show the review details
+    if (showReviewedBadge && existingReview?.review) {
+      setIsReviewDetailsOpen(true);
+    } else if (!showReviewButton) {
+      // Otherwise, handle regular order click
       order?._id && onClick(order._id);
     }
   };
 
   const handleReviewClick = (e) => {
     e.stopPropagation();
-    if (order?._id) {
-      setIsReviewOpen(true);
-    }
+    setIsReviewOpen(true);
+  };
+
+  const handleEditReviewClick = (e) => {
+    e.stopPropagation();
+    setIsReviewOpen(true);
   };
 
   // Status badge component - reused in multiple places
@@ -50,7 +60,7 @@ const OrderCard = ({ order, onClick, showReviewButton, showReviewedBadge }) => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         whileHover={{ scale: 1.01 }}
-        className={!showReviewButton ? "cursor-pointer" : ""}
+        className="cursor-pointer"
         onClick={handleClick}
       >
         <Card className="bg-brand-dark/60 border-brand-end/50">
@@ -126,8 +136,9 @@ const OrderCard = ({ order, onClick, showReviewButton, showReviewedBadge }) => {
                     </div>
                     <Button
                       variant="outline"
+                      className="hover:bg-input"
                       size="sm"
-                      onClick={handleReviewClick}
+                      onClick={handleEditReviewClick}
                       disabled={isEdited}
                     >
                       <Edit2 className="w-4 h-4 mr-2" />
@@ -141,11 +152,20 @@ const OrderCard = ({ order, onClick, showReviewButton, showReviewedBadge }) => {
         </Card>
       </motion.div>
 
+      {/* Review Dialog - for creating/editing reviews */}
       <ReviewDialog
         open={isReviewOpen}
         onOpenChange={setIsReviewOpen}
         order={order}
         existingReview={existingReview}
+      />
+
+      {/* Review Details Dialog - for viewing submitted reviews */}
+      <ReviewDetailsDialog
+        open={isReviewDetailsOpen}
+        onOpenChange={setIsReviewDetailsOpen}
+        review={existingReview?.review}
+        order={order}
       />
     </>
   );
