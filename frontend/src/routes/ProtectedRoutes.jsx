@@ -9,9 +9,7 @@ const ProtectedRoutes = ({ children, adminOnly = false }) => {
   const { isLoading } = useGetMeQuery();
   const location = useLocation();
 
-  if (isLoading) {
-    return <LoadingSpinner />;
-  }
+  if (isLoading) return null;
 
   if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />;

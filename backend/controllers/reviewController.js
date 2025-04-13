@@ -23,7 +23,9 @@ export const createNewReview = catchAsyncErrors(async (req, res, next) => {
     // Process images for each product review
     const processedProducts = await Promise.all(
       products.map(async (product) => {
-        let images = [];
+        let uploadedImages = [];
+
+        // Handle image uploads if present
         if (product.images && product.images.length > 0) {
           if (product.images.length > 3) {
             return next(
@@ -31,22 +33,37 @@ export const createNewReview = catchAsyncErrors(async (req, res, next) => {
             );
           }
 
-          // Upload images to cloudinary using standardized function
-          images = await Promise.all(
-            product.images.map((image) =>
-              uploadImage(image, "world_of_minifigs/reviews")
-            )
+          // Upload each image to Cloudinary
+          uploadedImages = await Promise.all(
+            product.images.map(async (base64Image) => {
+              try {
+                const uploadedImage = await uploadImage(
+                  base64Image,
+                  "world_of_minifigs/reviews"
+                );
+                return {
+                  public_id: uploadedImage.public_id,
+                  url: uploadedImage.url,
+                };
+              } catch (error) {
+                console.error("Error uploading image:", error);
+                throw new ErrorHandler("Failed to upload image", 500);
+              }
+            })
           );
         }
 
         return {
-          ...product,
-          images,
+          product: product.product,
+          productName: product.productName,
+          rating: product.rating,
+          reviewText: product.reviewText,
+          images: uploadedImages,
         };
       })
     );
 
-    // Create the review
+    // Create the review with processed images
     const review = await ProductReview.create({
       user: req.user.user_id,
       order: orderId,
@@ -225,30 +242,36 @@ export const updateReview = catchAsyncErrors(async (req, res, next) => {
 
   const { products } = req.body;
 
+  // Process each product's updates
   for (const updatedProduct of products) {
     const productReview = review.products.find(
       (p) => p.product.toString() === updatedProduct.product
     );
 
     if (productReview) {
-      // Preserve existing votes
-      const existingHelpfulVotes = productReview.helpfulVotes || [];
-      const existingUnhelpfulVotes = productReview.unhelpfulVotes || [];
+      // Handle new images if any
+      if (updatedProduct.images && updatedProduct.images.length > 0) {
+        const uploadedImages = await Promise.all(
+          updatedProduct.images.map(async (base64Image) => {
+            const uploadedImage = await uploadImage(
+              base64Image,
+              "world_of_minifigs/reviews"
+            );
+            return {
+              public_id: uploadedImage.public_id,
+              url: uploadedImage.url,
+            };
+          })
+        );
 
-      // Update the product review
+        productReview.images = uploadedImages;
+      }
+
+      // Update other fields
       productReview.rating = updatedProduct.rating;
-      productReview.editedReviewText = updatedProduct.reviewText;
+      productReview.reviewText = updatedProduct.reviewText;
       productReview.isEdited = true;
       productReview.editedAt = Date.now();
-
-      // Preserve the votes
-      productReview.helpfulVotes = existingHelpfulVotes;
-      productReview.unhelpfulVotes = existingUnhelpfulVotes;
-
-      // Handle images if needed
-      if (updatedProduct.images && updatedProduct.images.length > 0) {
-        // ... handle image updates ...
-      }
     }
   }
 

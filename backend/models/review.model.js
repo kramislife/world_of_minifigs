@@ -59,7 +59,7 @@ const productReviewSchema = new mongoose.Schema(
         },
         reviewText: {
           type: String,
-          required: true,
+          required: false,
         },
         images: [imageSchema],
         helpfulVotes: [

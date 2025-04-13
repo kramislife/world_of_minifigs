@@ -1,57 +1,104 @@
 import { useState, useEffect, useRef } from "react";
 import { toast } from "react-toastify";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { setBuyNowItem } from "@/redux/features/buyNowSlice";
+import { useImageUpload } from "@/hooks/ImageUpload/useImageUpload";
 import {
   useCreateReviewMutation,
   useUpdateReviewMutation,
+  useGetReviewByOrderIdQuery,
 } from "@/redux/api/reviewApi";
 
-const useReviewForm = (order, existingReview, onOpenChange) => {
+const useReviewForm = (order, onOpenChange) => {
   const [ratings, setRatings] = useState({});
   const [reviews, setReviews] = useState({});
   const [images, setImages] = useState({});
   const [editedProducts, setEditedProducts] = useState({});
+  const [processingImages, setProcessingImages] = useState({});
+  const [showReviewBox, setShowReviewBox] = useState({});
   const fileInputRefs = useRef({});
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const [createReview, { isLoading: isCreating }] = useCreateReviewMutation();
   const [updateReview, { isLoading: isUpdating }] = useUpdateReviewMutation();
 
+  const { data: existingReview } = useGetReviewByOrderIdQuery(order?._id, {
+    skip: !order?._id || !order?.isReviewed,
+  });
+
+  // Use the standardized image upload hook
+  const { handleImageUpload: processImage, isUploading: isCompressing } =
+    useImageUpload({
+      maxSizeMB: 0.8,
+      maxWidthOrHeight: 1200,
+      maxFileSize: 5 * 1024 * 1024,
+      onSuccess: (imageData, productId) => {
+        // Update images state with the processed image URL
+        setImages((prev) => ({
+          ...prev,
+          [productId]: [...(prev[productId] || []), imageData],
+        }));
+
+        // Decrease processing count
+        setProcessingImages((prev) => ({
+          ...prev,
+          [productId]: Math.max(0, (prev[productId] || 0) - 1),
+        }));
+      },
+      onError: (error) => {
+        toast.error(error.message);
+        setProcessingImages((prev) => ({
+          ...prev,
+          [productId]: Math.max(0, (prev[productId] || 0) - 1),
+        }));
+      },
+    });
+
+  // Initialize state from existing review
+  useEffect(() => {
+    if (existingReview?.review?.products) {
+      const initialState = existingReview.review.products.reduce(
+        (acc, product) => {
+          const productId = product.product;
+          return {
+            ratings: { ...acc.ratings, [productId]: product.rating },
+            reviews: {
+              ...acc.reviews,
+              [productId]: product.editedReviewText || product.reviewText,
+            },
+            images: {
+              ...acc.images,
+              [productId]: product.images?.map((img) => img.url) || [],
+            },
+            editedProducts: {
+              ...acc.editedProducts,
+              [productId]: product.isEdited || false,
+            },
+          };
+        },
+        { ratings: {}, reviews: {}, images: {}, editedProducts: {} }
+      );
+
+      setRatings(initialState.ratings);
+      setReviews(initialState.reviews);
+      setImages(initialState.images);
+      setEditedProducts(initialState.editedProducts);
+    }
+  }, [existingReview]);
+
   const isProductEdited = (productId) => {
-    return (
-      existingReview?.review?.products?.find(
-        (product) => product.product === productId
-      )?.isEdited || false
+    return existingReview?.review?.products?.find(
+      (product) => product.product === productId && product.isEdited
     );
   };
 
-  useEffect(() => {
-    if (existingReview?.review?.products) {
-      const initialRatings = {};
-      const initialReviews = {};
-      const initialImages = {};
-      const initialEditedStatus = {};
-
-      existingReview.review.products.forEach((product) => {
-        const productId = product.product;
-        initialRatings[productId] = product.rating;
-        initialReviews[productId] =
-          product.editedReviewText || product.reviewText;
-        initialEditedStatus[productId] = product.isEdited || false;
-
-        if (product.images && product.images.length > 0) {
-          initialImages[productId] = product.images.map((img) => img.url);
-        }
-      });
-
-      setRatings(initialRatings);
-      setReviews(initialReviews);
-      setImages(initialImages);
-      setEditedProducts(initialEditedStatus);
-    } else {
-      setRatings({});
-      setReviews({});
-      setImages({});
-      setEditedProducts({});
-    }
-  }, [existingReview]);
+  const hasEditedProducts =
+    existingReview?.review?.products?.some(
+      (product) => product.isEdited && product.editedAt
+    ) || false;
 
   const handleRating = (productId, rating) => {
     if (isProductEdited(productId)) {
@@ -60,14 +107,8 @@ const useReviewForm = (order, existingReview, onOpenChange) => {
       );
       return;
     }
-    setRatings((prev) => ({
-      ...prev,
-      [productId]: rating,
-    }));
-    setEditedProducts((prev) => ({
-      ...prev,
-      [productId]: true,
-    }));
+    setRatings((prev) => ({ ...prev, [productId]: rating }));
+    setEditedProducts((prev) => ({ ...prev, [productId]: true }));
   };
 
   const handleReviewChange = (productId, text) => {
@@ -77,14 +118,8 @@ const useReviewForm = (order, existingReview, onOpenChange) => {
       );
       return;
     }
-    setReviews((prev) => ({
-      ...prev,
-      [productId]: text,
-    }));
-    setEditedProducts((prev) => ({
-      ...prev,
-      [productId]: true,
-    }));
+    setReviews((prev) => ({ ...prev, [productId]: text }));
+    setEditedProducts((prev) => ({ ...prev, [productId]: true }));
   };
 
   const handleImageUpload = (productId, e) => {
@@ -94,6 +129,7 @@ const useReviewForm = (order, existingReview, onOpenChange) => {
       );
       return;
     }
+
     const files = Array.from(e.target.files);
     const currentImages = images[productId] || [];
 
@@ -102,31 +138,24 @@ const useReviewForm = (order, existingReview, onOpenChange) => {
       return;
     }
 
-    const imagePromises = files.map((file) => {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = (e) => resolve(e.target.result);
-        reader.onerror = (e) => reject(e);
-        reader.readAsDataURL(file);
-      });
+    // Process each file to base64
+    files.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (reader.readyState === 2) {
+          const base64String = reader.result;
+          setImages((prev) => ({
+            ...prev,
+            [productId]: [...(prev[productId] || []), base64String],
+          }));
+          setEditedProducts((prev) => ({
+            ...prev,
+            [productId]: true,
+          }));
+        }
+      };
+      reader.readAsDataURL(file);
     });
-
-    Promise.all(imagePromises)
-      .then((results) => {
-        setImages((prev) => ({
-          ...prev,
-          [productId]: [...(prev[productId] || []), ...results],
-        }));
-        setEditedProducts((prev) => ({
-          ...prev,
-          [productId]: true,
-        }));
-      })
-      .catch((error) => {
-        toast.error("Error processing images");
-        console.error("Error processing images:", error);
-      });
-    e.target.value = "";
   };
 
   const handleRemoveImage = (productId, index) => {
@@ -136,74 +165,87 @@ const useReviewForm = (order, existingReview, onOpenChange) => {
       );
       return;
     }
-    setImages((prev) => ({
-      ...prev,
-      [productId]: prev[productId].filter((_, i) => i !== index),
-    }));
-    setEditedProducts((prev) => ({
-      ...prev,
-      [productId]: true,
-    }));
+
+    setImages((prev) => {
+      const newImages = { ...prev };
+      if (newImages[productId]) {
+        // Revoke the URL to prevent memory leaks
+        URL.revokeObjectURL(newImages[productId][index]);
+        newImages[productId] = newImages[productId].filter(
+          (_, i) => i !== index
+        );
+      }
+      return newImages;
+    });
+  };
+
+  const handleBuyAgain = (item) => {
+    const buyNowItem = {
+      product: item.product._id,
+      name: item.name,
+      discounted_price: item.discountedPrice,
+      price: item.price,
+      discount: item.discount,
+      image: item.image,
+      quantity: 1,
+      color: item.color || null,
+      includes: item.includes || "",
+    };
+
+    dispatch(setBuyNowItem(buyNowItem));
+    navigate("/checkout?mode=buy_now");
   };
 
   const handleSubmit = async () => {
     try {
-      const editedProductIds = Object.entries(editedProducts)
-        .filter(([_, isEdited]) => isEdited)
-        .map(([productId]) => productId);
+      const hasChanges = order?.orderItems?.some((item) => {
+        const productId = item.product._id;
+        const hasNewRating = ratings[productId] !== undefined;
+        const hasNewReview = reviews[productId] !== undefined;
+        const hasNewImages = images[productId]?.length > 0;
+        return hasNewRating || hasNewReview || hasNewImages;
+      });
 
-      if (editedProductIds.length === 0) {
+      if (!hasChanges) {
         toast.error("No changes have been made to the review");
         return;
       }
 
-      const hasInvalidReviews = editedProductIds.some(
-        (productId) => !reviews[productId]?.trim()
-      );
-      if (hasInvalidReviews) {
-        toast.error("Please provide review text for all edited products");
-        return;
-      }
+      // Process products with their images
+      const processedProducts = order?.orderItems?.map((item) => {
+        const productId = item.product._id;
+        const existingProduct = existingReview?.review?.products?.find(
+          (p) => p.product === productId
+        );
 
-      const hasInvalidRatings = editedProductIds.some(
-        (productId) => !ratings[productId]
-      );
-      if (hasInvalidRatings) {
-        toast.error("Please provide ratings for all edited products");
-        return;
-      }
-
-      const productReviews = order?.orderItems
-        ?.filter((item) => editedProductIds.includes(item.product._id))
-        .map((item) => ({
-          product: item.product._id,
+        return {
+          product: productId,
           productName: item.name,
-          rating: ratings[item.product._id],
-          reviewText: reviews[item.product._id],
-          images: images[item.product._id] || [],
-          isEdited: true,
-        }));
+          rating: ratings[productId] || existingProduct?.rating,
+          reviewText: reviews[productId] || existingProduct?.reviewText || "",
+          // Send the base64 image data
+          images: images[productId] || [],
+        };
+      });
 
-      if (existingReview?.review) {
-        const response = await updateReview({
-          reviewId: existingReview.review._id,
-          reviewData: { products: productReviews },
-        }).unwrap();
+      const response = await (existingReview?.review
+        ? updateReview({
+            reviewId: existingReview.review._id,
+            reviewData: { products: processedProducts },
+          })
+        : createReview({
+            order: order._id,
+            products: processedProducts,
+          })
+      ).unwrap();
 
-        if (response.success) {
-          toast.success("Review updated successfully!");
-          onOpenChange(false);
-        }
-      } else {
-        const response = await createReview({
-          order: order._id,
-          products: productReviews,
-        }).unwrap();
-
-        if (response.success) {
-          toast.success("Review submitted successfully!");
-          onOpenChange(false);
-        }
+      if (response.success) {
+        toast.success(
+          existingReview?.review
+            ? "Review updated successfully!"
+            : "Review submitted successfully!"
+        );
+        onOpenChange(false);
       }
     } catch (error) {
       console.error("Error submitting review:", error);
@@ -211,19 +253,38 @@ const useReviewForm = (order, existingReview, onOpenChange) => {
     }
   };
 
+  const toggleReviewBox = (productId) => {
+    setShowReviewBox((prev) => ({
+      ...prev,
+      [productId]: !prev[productId],
+    }));
+  };
+
   return {
+    // State
     ratings,
     reviews,
     images,
     fileInputRefs,
+    processingImages,
+    showReviewBox,
+    existingReview,
     isCreating,
     isUpdating,
-    isEdited: editedProducts,
+    isCompressing,
+
+    // Computed values
+    hasEditedProducts,
+
+    // Handlers
     handleRating,
     handleReviewChange,
     handleImageUpload,
     handleRemoveImage,
+    handleBuyAgain,
     handleSubmit,
+    toggleReviewBox,
+    isProductEdited,
   };
 };
 

@@ -1,36 +1,38 @@
+import { DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 
 const ReviewActions = ({
   onOpenChange,
   handleSubmit,
   isCreating,
   isUpdating,
-  isEdited,
+  hasEditedProducts,
   existingReview,
 }) => {
-  const getButtonText = () => {
-    if (isCreating || isUpdating) return "Submitting...";
-    if (isEdited) return "Already Edited";
-    return existingReview?.review ? "Update Review" : "Submit Review";
-  };
+  const isLoading = isCreating || isUpdating;
 
   return (
-    <div className="mt-8 flex justify-end gap-3">
-      <Button variant="outline" onClick={() => onOpenChange(false)}>
+    <DialogFooter className="gap-2">
+      <Button
+        variant="outline"
+        onClick={() => onOpenChange(false)}
+        className="w-full sm:w-auto hover:bg-input"
+        disabled={isLoading}
+      >
         Cancel
       </Button>
-      <Button
-        className={`px-6 py-2 text-white font-medium rounded-lg shadow-lg transition-all ${
-          isEdited
-            ? "bg-gray-600 cursor-not-allowed"
-            : "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
-        }`}
-        onClick={handleSubmit}
-        disabled={isCreating || isUpdating || isEdited}
-      >
-        {getButtonText()}
+      <Button variant="submit" onClick={handleSubmit} disabled={isLoading} className="w-auto">
+        {isLoading ? (
+          <>
+            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            {isUpdating ? "Updating..." : "Submitting..."}
+          </>
+        ) : (
+          <>{existingReview?.review ? "Update Review" : "Submit Review"}</>
+        )}
       </Button>
-    </div>
+    </DialogFooter>
   );
 };
 
