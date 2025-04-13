@@ -51,10 +51,8 @@ const MobileOrderStatusDropdown = ({
         {allStatuses.map((status) => {
           // Check if orders exist for this status and if there are any
           const hasOrders =
-            status.value === "all"
-              ? totalOrders > 0
-              : status.value === "To Review"
-              ? ordersByStatus["To Review"]?.pending?.length > 0
+            status.value === "all" || status.value === "To Review"
+              ? true // Always enable "all" and "To Review"
               : ordersByStatus[status.value]?.length > 0;
 
           // Get count badge based on status

@@ -36,7 +36,6 @@ const OrderStatusTabs = ({
 
   return (
     <TabsList className="grid grid-cols-7 gap-2 bg-gray-900/50">
-      
       {/* All Orders */}
       <TabsTrigger
         value="all"
@@ -53,15 +52,15 @@ const OrderStatusTabs = ({
       {mainStatus.map((status) => {
         const hasOrders =
           status.value === "To Review"
-            ? ordersByStatus["To Review"]?.pending?.length > 0
+            ? true
             : ordersByStatus[status.value]?.length > 0;
 
         return (
           <TabsTrigger
             key={status.id}
             value={status.value}
-            disabled={!hasOrders}
-            className=" gap-2 hover:bg-brand-start hover:text-white"
+            disabled={status.value !== "To Review" && !hasOrders}
+            className="gap-2 hover:bg-brand-start hover:text-white"
             onClick={() => (handleTabChange || onTabChange)(status.value)}
           >
             {status.icon && (
@@ -69,18 +68,11 @@ const OrderStatusTabs = ({
             )}
             <span>{status.label}</span>
 
-            {/* If To Review, show only the count of pending reviews */}
-            {status.value === "To Review"
-              ? ordersByStatus["To Review"]?.pending?.length > 0 && (
-                  <span className="ml-1 text-xs bg-accent px-1.5 py-0.5 rounded-full text-foreground">
-                    {ordersByStatus["To Review"].pending.length}
-                  </span>
-                )
-              : ordersByStatus[status.value]?.length > 0 && (
-                  <span className="ml-1 text-xs bg-accent px-1.5 py-0.5 rounded-full text-foreground">
-                    {ordersByStatus[status.value].length}
-                  </span>
-                )}
+            {status.value !== "To Review" && ordersByStatus[status.value]?.length > 0 && (
+              <span className="ml-1 text-xs bg-accent px-1.5 py-0.5 rounded-full text-foreground">
+                {ordersByStatus[status.value].length}
+              </span>
+            )}
           </TabsTrigger>
         );
       })}
