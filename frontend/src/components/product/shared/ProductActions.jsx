@@ -68,7 +68,8 @@ const ProductActions = ({ product, onAddToCart }) => {
     <div className="mt-5 flex flex-col sm:flex-row gap-3"
     >
       <Button
-        variant="cart"
+        variant={product?.stock <= 0 ? "destructive" : "cart"}
+        className="w-full"
         disabled={!product?.stock || product?.stock <= 0}
         onClick={handleAddToCart}
       >
