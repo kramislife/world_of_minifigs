@@ -17,6 +17,8 @@ import {
   SheetContent,
   SheetTrigger,
   SheetTitle,
+  SheetHeader,
+  SheetDescription,
 } from "@/components/ui/sheet";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { navItems } from "@/constant/navigation";
@@ -121,7 +123,13 @@ const MobileMenu = ({ user }) => {
         <Menu size={24} />
       </SheetTrigger>
       <SheetContent className="w-[400px] bg-brand-gradient p-0 z-[1000] bg-brand-start">
-        <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
+        <SheetHeader className="sr-only">
+          <SheetTitle>Mobile Menu</SheetTitle>
+          <SheetDescription>
+            This is the mobile menu. It is used to navigate the website on a
+            mobile device.
+          </SheetDescription>
+        </SheetHeader>
 
         <div className="flex flex-col h-full">
           {/* User Profile Section */}
