@@ -12,7 +12,7 @@ const SalesCharts = ({ monthlySales, stats, BaseChart, chartColors }) => {
 
   return (
     <>
-      <div className="grid gap-5 mb-8 md:grid-cols-1">
+      <div className="grid gap-5 grid-cols-1">
         <MonthlyTrendChart
           monthlySales={last12Months}
           BaseChart={BaseChart}
@@ -23,16 +23,15 @@ const SalesCharts = ({ monthlySales, stats, BaseChart, chartColors }) => {
           BaseChart={BaseChart}
           chartColors={chartColors}
         />
-      </div>
-
-      <div className="mb-8">
-        <MonthOverMonthChart
+          <MonthOverMonthChart
           lastTwoMonths={lastTwoMonths}
           stats={stats}
           BaseChart={BaseChart}
           chartColors={chartColors}
         />
       </div>
+
+     
     </>
   );
 };

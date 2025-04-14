@@ -16,15 +16,13 @@ const ProductCharts = ({
 
   return (
     <>
-      <div className="grid gap-5 mb-8">
-        <TopProductsChart
-          topProducts={topProducts}
-          BaseChart={BaseChart}
-          chartColors={chartColors}
-        />
-      </div>
+      <TopProductsChart
+        topProducts={topProducts}
+        BaseChart={BaseChart}
+        chartColors={chartColors}
+      />
 
-      <div className="grid gap-5 mb-8 md:grid-cols-2">
+      <div className="grid gap-5 md:grid-cols-2">
         <CategoryChart
           categoryStats={categoryStats}
           BaseChart={BaseChart}
@@ -37,9 +35,7 @@ const ProductCharts = ({
         />
       </div>
 
-      <div className="grid gap-5 mb-8 md:grid-cols-1">
-        <LowStockTable lowStockProducts={lowStockProducts} />
-      </div>
+      <LowStockTable lowStockProducts={lowStockProducts} />
     </>
   );
 };

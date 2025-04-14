@@ -35,9 +35,9 @@ const LowStockTable = ({ lowStockProducts }) => {
   ];
 
   return (
-    <Card className="bg-darkBrand border-none p-4 hover:bg-darkBrand/90 transition-colors">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-light text-lg font-semibold">
+    <Card className="bg-brand-dark/50 border border-brand-end/50">
+      <CardHeader>
+        <CardTitle className="text-white text-lg font-semibold">
           Low Stock Alerts
         </CardTitle>
       </CardHeader>

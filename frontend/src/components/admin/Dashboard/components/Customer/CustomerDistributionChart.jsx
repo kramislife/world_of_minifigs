@@ -39,6 +39,9 @@ const CustomerDistributionChart = ({
   const doughnutOptions = {
     cutout: "75%",
     plugins: {
+      legend: {
+        display: false, // Hide default legends
+      },
       tooltip: {
         callbacks: {
           label: function (context) {
@@ -56,22 +59,55 @@ const CustomerDistributionChart = ({
     },
   };
 
+  const legends = [
+    {
+      color: chartColors.success.base,
+      label: "Active",
+      value: customerStats?.activeCustomers || 0,
+      description: "Made at least one purchase",
+    },
+    {
+      color: chartColors.primary.base,
+      label: "New",
+      value: customerStats?.newCustomers || 0,
+      description: "Registered within 30 days",
+    },
+    {
+      color: chartColors.danger.base,
+      label: "Inactive",
+      value: customerStats?.inactiveCustomers || 0,
+      description: "No purchases, inactive for over 30 days",
+    },
+  ];
+
   return (
-    <Card className="bg-darkBrand border-gray-800 shadow-lg hover:bg-darkBrand/90 transition-colors">
+    <Card className="bg-brand-dark/50 border border-brand-end/50">
       <CardHeader>
-        <CardTitle className="text-xl font-semibold text-white">
+        <CardTitle className="text-lg font-semibold text-white">
           Customer Distribution
         </CardTitle>
-        <CardDescription className="text-gray-400 text-sm">
-          Active: Made at least one purchase
-          <br />
-          New: Registered within 30 days (no purchases)
-          <br />
-          Inactive: No purchases, registered over 30 days ago
+        <CardDescription className="text-gray-200">
+          <div className="grid gap-3 mt-2">
+            {legends.map((item, index) => (
+              <div key={index} className="flex items-center gap-2">
+                <div className="flex items-center gap-2">
+                  <div
+                    className="w-3 h-3 rounded-full"
+                    style={{ backgroundColor: item.color }}
+                  />
+                  <span className="text-sm text-gray-200">{item.label}</span>
+                </div>
+
+                <span className="text-xs text-gray-400">
+                  ({item.description})
+                </span>
+              </div>
+            ))}
+          </div>
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="h-[300px] relative">
+        <div className="h-[400px] relative flex items-center justify-center">
           <BaseChart
             type="doughnut"
             data={customerTypeData}

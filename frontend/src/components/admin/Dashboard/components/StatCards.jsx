@@ -8,7 +8,7 @@ const StatCards = ({ stats }) => {
   const cards = getStatCardConfig(stats);
 
   return (
-    <div className="grid gap-5 mb-8 md:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-3 mb-5 md:grid-cols-2 lg:grid-cols-3">
       {cards.map((card, index) => (
         <StatCardItem key={index} card={card} />
       ))}

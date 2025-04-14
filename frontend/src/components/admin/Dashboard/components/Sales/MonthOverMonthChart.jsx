@@ -24,14 +24,14 @@ const MonthOverMonthChart = ({
   };
 
   return (
-    <Card className="bg-darkBrand border-none p-4 hover:bg-darkBrand/90 transition-colors">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-light text-lg font-semibold">
+    <Card className="bg-brand-dark/50 border border-brand-end/50">
+      <CardHeader>
+        <CardTitle className="text-white text-lg font-semibold">
           Month-over-Month Performance
         </CardTitle>
       </CardHeader>
-      <CardContent className="pt-4">
-        <div className="grid md:grid-cols-3 gap-4">
+      <CardContent>
+        <div className="flex flex-col items-center md:grid md:grid-cols-3 gap-4">
           <div className="col-span-2">
             <BaseChart
               type="bar"
@@ -39,42 +39,51 @@ const MonthOverMonthChart = ({
               options={{ currency: true }}
             />
           </div>
-          <div className="flex flex-col justify-center items-center bg-gray-800/50 rounded-lg p-6 shadow-lg">
-            <div className="text-center mb-4">
-              <div
-                className={`text-5xl font-bold mb-2 transition-colors ${
+          <Card className="bg-brand-dark/50 border border-brand-end/50 w-full">
+            <CardContent className="flex flex-col items-center p-6">
+              <div className="text-center mb-4">
+                <div
+                  className={`text-5xl font-bold mb-2 transition-colors ${
+                    stats.growthPercentage >= 0
+                      ? "text-green-400"
+                      : "text-red-400"
+                  }`}
+                >
+                  {stats.growthPercentage >= 0 ? "+" : ""}
+                  {stats.growthPercentage}%
+                </div>
+                <div className="text-gray-200 text-sm font-medium">
+                  Growth Rate
+                </div>
+              </div>
+
+              <div className="w-full h-px bg-gradient-to-r from-transparent via-gray-600 to-transparent my-4"></div>
+
+              <Card
+                className={`w-full border-none ${
                   stats.growthPercentage >= 0
-                    ? "text-green-400"
-                    : "text-red-400"
+                    ? "bg-green-400/10"
+                    : "bg-red-400/10"
                 }`}
               >
-                {stats.growthPercentage >= 0 ? "+" : ""}
-                {stats.growthPercentage}%
+                <CardContent className="p-3 text-center">
+                  <p
+                    className={`text-sm leading-relaxed ${
+                      stats.growthPercentage >= 0
+                        ? "text-green-300"
+                        : "text-red-300"
+                    }`}
+                  >
+                    {stats.growthDescription}
+                  </p>
+                </CardContent>
+              </Card>
+
+              <div className="mt-4 text-xs text-gray-200 text-center">
+                Based on total sales volume
               </div>
-              <div className="text-gray-400 text-sm font-medium">
-                Growth Rate
-              </div>
-            </div>
-
-            <div className="w-full h-px bg-gradient-to-r from-transparent via-gray-600 to-transparent my-4"></div>
-
-            <div
-              className={`text-center px-4 py-3 rounded-lg transition-all transform hover:scale-105 
-                ${
-                  stats.growthPercentage >= 0
-                    ? "bg-green-400/10 text-green-300"
-                    : "bg-red-400/10 text-red-300"
-                }`}
-            >
-              <p className="text-sm leading-relaxed">
-                {stats.growthDescription}
-              </p>
-            </div>
-
-            <div className="mt-4 text-xs text-gray-400 text-center">
-              Based on total sales volume
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </div>
       </CardContent>
     </Card>
