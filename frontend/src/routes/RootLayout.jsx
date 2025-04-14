@@ -20,14 +20,17 @@ const RootLayout = () => {
   return (
     <div className="flex flex-col min-h-screen bg-brand-start text-white">
       <Header />
-      <ScrollToTop />
+      {/* Only show ScrollToTop when not in admin routes */}
+      {!isAdminRoute && <ScrollToTop />}
       {showSidebar ? (
         // Admin Layout with Sidebar
         <div className="flex flex-1 pt-[90px] max-w-[1920px] mx-auto w-full">
-          <div className="sticky top-[85px] h-screen">
+          {/* Sidebar wrapper with responsive classes */}
+          <div className="lg:sticky lg:top-[85px] lg:h-[calc(100vh-85px)]">
             <Sidebar />
           </div>
-          <main className="flex-1 p-5 overflow-y-auto scrollbar-none">
+          {/* Main content area with responsive padding */}
+          <main className="flex-1 overflow-y-auto scrollbar-none">
             <Outlet />
           </main>
         </div>
