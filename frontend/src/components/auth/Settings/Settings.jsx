@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { useUpdatePasswordMutation } from "@/redux/api/userApi";
 import { toast } from "react-toastify";
 import { Key, Save } from "lucide-react";
+import { motion } from "framer-motion";
+import { loginAnimations } from "@/hooks/Animation/animationConfig";
 import {
   Card,
   CardContent,
@@ -48,85 +50,109 @@ const Settings = () => {
   };
 
   return (
-    <div className="container mx-auto max-w-4xl py-8 px-4">
-      <h1 className="text-3xl font-bold mb-6 text-light">Account Settings</h1>
+    <div className="px-3 py-12 md:py-7">
+      <div className="container mx-auto max-w-xl">
+        <motion.div
+          {...loginAnimations.formContainerVariants}
+          className="w-full px-5 py-10 border border-brand-end/50 rounded-2xl"
+        >
+          <div>
+            <motion.div className="mb-8">
+              <motion.div className="flex items-center gap-2">
+                <Key className="h-6 w-6 text-yellow-400" />
+                <motion.h1
+                  className="text-4xl font-bold"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  Change Password
+                </motion.h1>
+              </motion.div>
+              <motion.p
+                className="text-gray-400 text-sm mt-2"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+              >
+                Update your password to keep your account secure. Your new
+                password must be at least 6 characters and include at least one
+                letter, one number, and one special character.
+              </motion.p>
+            </motion.div>
 
-      <div className="max-w-2xl mx-auto">
-        <Card className="bg-darkBrand border-none">
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <Key className="h-5 w-5 text-blue-500" />
-              <CardTitle className="text-light">Change Password</CardTitle>
-            </div>
-            <CardDescription className="text-gray-400">
-              Update your password to keep your account secure. Your new
-              password must be at least 6 characters and include at least one
-              letter, one number, and one special character.
-            </CardDescription>
-          </CardHeader>
-
-          <Separator className="bg-gray-800" />
-
-          <form onSubmit={handleSubmit}>
-            <CardContent className="pt-6 space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="oldPassword" className="text-gray-300">
-                  Current Password
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <motion.div
+                {...loginAnimations.inputVariants}
+                transition={loginAnimations.emailInputTransition}
+                className="space-y-2"
+              >
+                <Label>
+                  Current Password <span className="text-yellow-400">*</span>
                 </Label>
                 <Input
-                  id="oldPassword"
-                  name="oldPassword"
                   type="password"
+                  name="oldPassword"
                   value={passwordData.oldPassword}
                   onChange={handleChange}
-                  className="bg-brand/60 border-gray-700 text-light"
                   placeholder="Enter your current password"
+                  required
                 />
-              </div>
+              </motion.div>
 
-              <div className="space-y-2">
-                <Label htmlFor="newPassword" className="text-gray-300">
-                  New Password
+              <motion.div
+                {...loginAnimations.inputVariants}
+                transition={loginAnimations.passwordInputTransition}
+                className="space-y-2"
+              >
+                <Label>
+                  New Password <span className="text-yellow-400">*</span>
                 </Label>
                 <Input
-                  id="newPassword"
-                  name="newPassword"
                   type="password"
+                  name="newPassword"
                   value={passwordData.newPassword}
                   onChange={handleChange}
-                  className="bg-brand/60 border-gray-700 text-light"
                   placeholder="Enter your new password"
+                  required
                 />
-              </div>
+              </motion.div>
 
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword" className="text-gray-300">
-                  Confirm New Password
+              <motion.div
+                {...loginAnimations.inputVariants}
+                transition={loginAnimations.passwordInputTransition}
+                className="space-y-2"
+              >
+                <Label>
+                  Confirm New Password{" "}
+                  <span className="text-yellow-400">*</span>
                 </Label>
                 <Input
-                  id="confirmPassword"
-                  name="confirmPassword"
                   type="password"
+                  name="confirmPassword"
                   value={passwordData.confirmPassword}
                   onChange={handleChange}
-                  className="bg-brand/60 border-gray-700 text-light"
                   placeholder="Confirm your new password"
+                  required
                 />
-              </div>
-            </CardContent>
+              </motion.div>
 
-            <CardFooter className="flex justify-end pt-2 pb-6">
-              <Button
-                type="submit"
-                disabled={isLoading}
-                className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2"
-              >
-                {isLoading ? "Updating..." : "Update Password"}
-                <Save className="h-4 w-4" />
-              </Button>
-            </CardFooter>
-          </form>
-        </Card>
+              <motion.div {...loginAnimations.buttonVariants} className="pt-2">
+                <Button
+                  type="submit"
+                  variant="submit"
+                  size="lg"
+                  disabled={isLoading}
+                >
+                  <span className="relative z-10 flex items-center gap-2">
+                    {isLoading ? "Updating..." : "Update Password"}
+                    <Save className="h-4 w-4" />
+                  </span>
+                </Button>
+              </motion.div>
+            </form>
+          </div>
+        </motion.div>
       </div>
     </div>
   );
