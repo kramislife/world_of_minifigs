@@ -22,6 +22,17 @@ const OrderCard = ({ order, onClick, showReviewButton, showReviewedBadge }) => {
     (product) => product.isEdited && product.editedAt
   );
 
+  // Get the latest edit date from all products
+  const getLatestEditDate = () => {
+    if (!existingReview?.review?.products) return null;
+
+    const editDates = existingReview.review.products
+      .filter((product) => product.isEdited && product.editedAt)
+      .map((product) => new Date(product.editedAt));
+
+    return editDates.length > 0 ? Math.max(...editDates) : null;
+  };
+
   const status = orderStatus.find((s) => s.value === order.orderStatus);
 
   const handleClick = () => {
@@ -127,12 +138,21 @@ const OrderCard = ({ order, onClick, showReviewButton, showReviewedBadge }) => {
                   </Button>
                 ) : showReviewedBadge ? (
                   <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
-                    <div className="flex items-center gap-2 text-sm text-gray-400">
-                      <MessageSquare className="w-4 h-4" />
-                      Reviewed
-                      {isEdited && (
-                        <span className="text-xs text-accent">(Edited)</span>
-                      )}
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center gap-2 text-sm text-gray-400">
+                        <MessageSquare className="w-4 h-4" />
+                        Reviewed
+                        {isEdited && getLatestEditDate() && (
+                          <span className="text-xs text-accent">
+                            (Edited on{" "}
+                            {format(
+                              new Date(getLatestEditDate()),
+                              "MMM dd, yyyy"
+                            )}
+                            )
+                          </span>
+                        )}
+                      </div>
                     </div>
                     <Button
                       variant="outline"

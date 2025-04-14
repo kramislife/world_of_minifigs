@@ -1,4 +1,10 @@
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { format } from "date-fns";
 import { ThumbsUp, ThumbsDown } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -24,7 +30,6 @@ const ReviewDetailsDialog = ({ open, onOpenChange, review, order }) => {
               {format(new Date(review.createdAt), "PPP")}
             </DialogDescription>
           </DialogHeader>
-         
 
           {/* Reviews */}
           <div className="space-y-5">
@@ -156,12 +161,6 @@ const ReviewDetailsDialog = ({ open, onOpenChange, review, order }) => {
                         </div>
                       </div>
                     )}
-                      {product.isEdited && product.editedAt && (
-                        <p className="text-xs text-accent text-right">
-                          (Edited on {format(new Date(product.editedAt), "PPP")}
-                          )
-                        </p>
-                      )}
                   </div>
                 </div>
               );

@@ -28,8 +28,8 @@ const Login = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      // If returning to product page after "Buy Now", just go back to the product
-      if (returnTo === "product") {
+      // If returning to product page after voting, navigate back
+      if (returnTo === "product" && location.state?.action === "vote") {
         navigate(from);
         return;
       }

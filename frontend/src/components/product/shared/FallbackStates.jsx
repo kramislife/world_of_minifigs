@@ -38,7 +38,7 @@ export const FallbackMessage = ({
   minHeight = "min-h-[700px]",
 }) => (
   <div
-    className={`w-full ${minHeight} bg-gradient-to-b from-brand/30 to-brand/10 flex flex-col items-center justify-center gap-6 rounded-xl backdrop-blur-sm px-4`}
+    className={`w-full ${minHeight} flex flex-col items-center justify-center gap-5 rounded-xl`}
   >
     <div className="relative">
       <div className="absolute -inset-1 bg-brand/20 rounded-full blur-md" />
@@ -46,10 +46,12 @@ export const FallbackMessage = ({
     </div>
 
     <div className="space-y-3 text-center">
-      <h3 className="text-3xl font-bold text-gray-200 tracking-tight">
+      <h3 className="text-2xl md:text-3xl font-bold text-gray-200 tracking-tight">
         {title}
       </h3>
-      <p className="text-gray-400 max-w-lg leading-relaxed">{message}</p>
+      <p className="text-gray-400 leading-relaxed text-sm md:text-base">
+        {message}
+      </p>
     </div>
   </div>
 );
