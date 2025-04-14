@@ -78,7 +78,8 @@ const ViewProducts = () => {
         }
 
         return {
-          _id: index + 1,
+          id: index + 1,
+          _id: product._id,
           name: product.product_name,
           color: colorName,
           colorCode: colorCode,

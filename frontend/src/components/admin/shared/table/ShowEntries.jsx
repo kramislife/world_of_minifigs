@@ -8,36 +8,53 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const ShowEntries = ({ value, onChange }) => {
+const ShowEntries = ({ value, onChange, totalEntries }) => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   // Initialize from URL parameter on mount
   useEffect(() => {
     const pageSize = searchParams.get("pageSize");
-    if (pageSize && !isNaN(pageSize) && Number(pageSize) !== value) {
-      onChange(Number(pageSize));
+    if (pageSize) {
+      if (pageSize === "all") {
+        onChange(totalEntries);
+      } else if (!isNaN(pageSize) && Number(pageSize) !== value) {
+        onChange(Number(pageSize));
+      }
     }
   }, []);
 
   // Update URL when value changes
   const handlePageSizeChange = (newValue) => {
-    const newPageSize = Number(newValue);
-
     // Update URL parameter
     const newParams = new URLSearchParams(searchParams);
-    newParams.set("pageSize", newPageSize);
-    setSearchParams(newParams);
 
-    // Call the parent's onChange
-    onChange(newPageSize);
+    if (newValue === "all") {
+      newParams.set("pageSize", "all");
+      setSearchParams(newParams);
+      onChange(totalEntries); // Set to total number of entries
+    } else {
+      const newPageSize = Number(newValue);
+      newParams.set("pageSize", newPageSize);
+      setSearchParams(newParams);
+      onChange(newPageSize);
+    }
+  };
+
+  // Function to format the display value
+  const getDisplayValue = () => {
+    if (value >= totalEntries) return "All";
+    return value.toString();
   };
 
   return (
     <div className="flex items-center text-white">
       <span className="mr-3 text-sm md:text-md">Show</span>
-      <Select value={value.toString()} onValueChange={handlePageSizeChange}>
-        <SelectTrigger className="w-[60px] bg-brand-start border-brand-end">
-          <SelectValue placeholder={value} />
+      <Select
+        value={value >= totalEntries ? "all" : value.toString()}
+        onValueChange={handlePageSizeChange}
+      >
+        <SelectTrigger className="w-[70px] bg-brand-start border-brand-end">
+          <SelectValue placeholder={getDisplayValue()} />
         </SelectTrigger>
         <SelectContent className="bg-brand-start border-brand-end">
           {[10, 20, 30, 40, 50].map((pageSize) => (
@@ -49,6 +66,12 @@ const ShowEntries = ({ value, onChange }) => {
               {pageSize}
             </SelectItem>
           ))}
+          <SelectItem
+            value="all"
+            className="hover:text-black cursor-pointer text-white border-t border-brand-end"
+          >
+            All
+          </SelectItem>
         </SelectContent>
       </Select>
       <span className="ml-3 text-sm md:text-md">entries</span>

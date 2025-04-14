@@ -8,77 +8,80 @@ const ViewLayoutSkeleton = ({ title = "Items", columnCount = 5 }) => {
       {/* Header Section */}
       <div className="mb-8 flex justify-between items-center">
         <div className="space-y-2">
-          <Skeleton className="h-9 w-64" />
-          <Skeleton className="h-6 w-80" />
+          <Skeleton className="h-8 md:h-9 w-48 md:w-64" />
+          <Skeleton className="h-5 w-64 md:w-80 hidden md:block" />
         </div>
-        <Skeleton className="h-10 w-40 rounded-md" />
+        <Skeleton className="h-8 w-32 rounded-md" />
       </div>
 
       {/* Card Section */}
-      <Card className="bg-brand-start border-brand-end/30">
-        <CardContent className="p-6 md:p-10">
+      <Card className="bg-brand-start border-brand-end/50">
+        <CardContent className="p-5">
           {/* Controls Row */}
-          <div className="flex flex-col md:flex-row justify-between gap-6 mb-10">
-            <Skeleton className="h-10 w-48" />
-            <Skeleton className="h-10 w-64 rounded-lg" />
+          <div className="flex flex-row justify-between items-center gap-4 md:gap-6 mb-10">
+            {/* Show Entries Skeleton */}
+            <Skeleton className="h-8 w-40" />
+            {/* Search Bar Skeleton */}
+            <div className="relative flex items-center">
+              <Skeleton className="h-8 w-28 md:hidden rounded-md" />
+              <Skeleton className="hidden md:block h-10 w-[300px] rounded-md" />
+            </div>
           </div>
 
           {/* Table Skeleton */}
-          <div className="overflow-x-auto">
-            <div className="min-w-full">
+          <div className="overflow-x-auto scrollbar-none">
+            <div className="min-w-[640px]">
+              {" "}
+              {/* Minimum width for mobile */}
               {/* Table Header */}
-              <div className="mb-4 border-b border-brand-end/30 pb-4">
-                <div className="flex justify-between items-center gap-4">
+              <div className="border-b border-brand-end">
+                <div className="grid grid-cols-[repeat(auto-fit,minmax(80px,1fr))] gap-4 py-4">
                   {Array(columnCount)
                     .fill(0)
                     .map((_, i) => (
                       <Skeleton
                         key={`header-${i}`}
-                        className={`h-8 ${i === 0 ? "w-10" : "flex-1"} rounded`}
+                        className={`h-6 ${
+                          i === columnCount ? "w-24" : "w-full"
+                        }`}
                       />
                     ))}
                 </div>
               </div>
-
               {/* Table Rows */}
-              {Array(7)
+              {Array(5)
                 .fill(0)
                 .map((_, rowIndex) => (
                   <div
                     key={`row-${rowIndex}`}
-                    className="py-4 border-b border-brand-end/30 flex justify-between items-center gap-4"
+                    className="border-b border-brand-end/30"
                   >
-                    {Array(columnCount)
-                      .fill(0)
-                      .map((_, colIndex) => (
-                        <Skeleton
-                          key={`cell-${rowIndex}-${colIndex}`}
-                          className={`h-6 ${
-                            colIndex === 0
-                              ? "w-10"
-                              : colIndex === columnCount - 1
-                              ? "w-24"
-                              : "flex-1"
-                          } rounded`}
-                        />
-                      ))}
+                    <div className="grid grid-cols-[repeat(auto-fit,minmax(80px,1fr))] gap-4 py-4">
+                      {Array(columnCount)
+                        .fill(0)
+                        .map((_, colIndex) => (
+                          <Skeleton
+                            key={`cell-${rowIndex}-${colIndex}`}
+                            className={`h-5 ${
+                              colIndex === columnCount ? "w-24" : "w-full"
+                            }`}
+                          />
+                        ))}
+                    </div>
                   </div>
                 ))}
             </div>
           </div>
 
           {/* Pagination Skeleton */}
-          <div className="flex justify-between items-center mt-8">
-            <Skeleton className="h-6 w-48" />
-            <div className="flex items-center gap-2">
-              {Array(3)
-                .fill(0)
-                .map((_, i) => (
-                  <Skeleton
-                    key={`page-${i}`}
-                    className="h-9 w-9 rounded"
-                  />
-                ))}
+          <div className="mt-6 flex flex-col md:flex-row items-center justify-between gap-4">
+            {/* Showing X to Y of Z entries */}
+            <Skeleton className="h-5 w-48 md:w-64" />
+
+            {/* Pagination buttons */}
+            <div className="flex gap-2">
+              <Skeleton className="h-9 w-20 rounded-md" />
+              <Skeleton className="h-9 w-20 rounded-md" />
             </div>
           </div>
         </CardContent>

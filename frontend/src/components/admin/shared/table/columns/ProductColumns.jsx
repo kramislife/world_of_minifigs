@@ -8,7 +8,7 @@ export const createProductColumns = (
 ) => [
   {
     header: "ID",
-    accessorKey: "_id",
+    accessorKey: "id",
   },
   {
     header: "Product Name",

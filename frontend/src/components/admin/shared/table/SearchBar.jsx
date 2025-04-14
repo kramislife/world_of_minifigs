@@ -1,3 +1,4 @@
+import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -14,13 +15,12 @@ const SearchBar = ({ value, onChange, placeholder }) => {
 
   return (
     <div className="relative flex-1 md:max-w-xs">
-      <input
+      <Input
         value={searchValue}
         onChange={(e) => setSearchValue(e.target.value)}
         placeholder={placeholder}
-        className="pl-10 pr-4 py-3 bg-brand-start border border-brand-end rounded-lg w-full 
-                  focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent 
-                  placeholder-gray-200 text-xs md:text-sm"
+        className="pl-10 py-3 bg-brand-start
+                  placeholder:text-white/90 text-xs md:text-sm text-white"
       />
       <Search className="absolute left-3 top-3 h-5 w-5 text-gray-200" />
     </div>
