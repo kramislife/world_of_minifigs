@@ -50,7 +50,7 @@ const Settings = () => {
   };
 
   return (
-    <div className="px-3 py-12 md:py-7">
+    <div className="px-3 py-10 md:py-7">
       <div className="container mx-auto max-w-xl">
         <motion.div
           {...loginAnimations.formContainerVariants}
@@ -59,9 +59,8 @@ const Settings = () => {
           <div>
             <motion.div className="mb-8">
               <motion.div className="flex items-center gap-2">
-                <Key className="h-6 w-6 text-yellow-400" />
                 <motion.h1
-                  className="text-4xl font-bold"
+                  className="text-3xl md:text-4xl font-bold"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5 }}
@@ -70,7 +69,7 @@ const Settings = () => {
                 </motion.h1>
               </motion.div>
               <motion.p
-                className="text-gray-400 text-sm mt-2"
+                className="text-gray-400 text-sm mt-3 leading-5"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
@@ -146,7 +145,6 @@ const Settings = () => {
                 >
                   <span className="relative z-10 flex items-center gap-2">
                     {isLoading ? "Updating..." : "Update Password"}
-                    <Save className="h-4 w-4" />
                   </span>
                 </Button>
               </motion.div>
