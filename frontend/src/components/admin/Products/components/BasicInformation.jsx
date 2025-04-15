@@ -20,31 +20,99 @@ const BasicInformation = ({ formData, onChange, onCheckboxChange }) => {
     });
   };
 
-  return (
-    <section className="space-y-6">
-      {/* Product Name and Color */}
-      <div className="grid grid-cols-3 gap-6">
-        {/* Product Name */}
-        <div className="col-span-2 space-y-2">
-          <Label
-            htmlFor="name"
-            className="flex items-center gap-2 text-lg font-semibold"
-          >
-            <Package className="h-5 w-5 text-blue-600" />
-            Product Name
-          </Label>
-          <Input
-            id="name"
-            name="name"
-            value={formData.name}
-            onChange={onChange}
-            placeholder="Enter product name"
-            className="border-2 rounded-lg px-4 py-2 transition duration-300 focus:outline-none focus:border-blue-500 hover:border-blue-300"
-          />
-        </div>
+  const productFields = [
+    {
+      id: "name",
+      label: "Product Name",
+      icon: <Package className="h-5 w-5 text-blue-600" />,
+      colSpan: "col-span-2",
+      type: "text",
+      placeholder: "Enter product name",
+      onChange: onChange,
+    },
+  ];
 
-        {/* Product Color */}
-        <div className="space-y-2">
+  const identifierFields = [
+    {
+      id: "itemID",
+      label: "Item ID",
+      type: "text",
+      placeholder: "Enter Item ID",
+      onChange: onChange,
+    },
+    {
+      id: "partID",
+      label: "Part ID",
+      type: "text",
+      placeholder: "Enter Part ID",
+      onChange: onChange,
+    },
+  ];
+
+  const numericFields = [
+    {
+      id: "price",
+      label: "Price",
+      icon: <DollarSign className="h-5 w-5 text-green-600" />,
+      type: "number",
+      min: "0",
+      step: "0.01",
+      placeholder: "0.00",
+      onChange: handleNumericInput,
+    },
+    {
+      id: "discount",
+      label: "Discount",
+      icon: <Percent className="h-5 w-5 text-orange-600" />,
+      type: "number",
+      min: "0",
+      max: "100",
+      step: "0.01",
+      placeholder: "0.00",
+      onChange: handleNumericInput,
+    },
+    {
+      id: "stock",
+      label: "Stock",
+      icon: <Box className="h-5 w-5 text-purple-600" />,
+      type: "number",
+      min: "0",
+      step: "1",
+      placeholder: "0",
+      onChange: handleNumericInput,
+    },
+  ];
+
+  const renderField = (field) => (
+    <div key={field.id} className={`space-y-2 ${field.colSpan || ""}`}>
+      <Label
+        htmlFor={field.id}
+        className="flex items-center gap-2 text-lg font-semibold"
+      >
+        {field.icon}
+        {field.label}
+      </Label>
+      <Input
+        id={field.id}
+        name={field.id}
+        type={field.type}
+        value={formData[field.id]}
+        onChange={field.onChange}
+        placeholder={field.placeholder}
+        min={field.min}
+        max={field.max}
+        step={field.step}
+        onWheel={field.type === "number" ? (e) => e.target.blur() : undefined}
+      />
+    </div>
+  );
+
+  return (
+    <section className="space-y-5">
+      {/* Product Name and Color */}
+      <div className="grid grid-cols-1 md:grid-cols-3 md:gap-5">
+        {productFields.map(renderField)}
+        <div className="pt-5 md:pt-0">
           <ProductColors
             formData={formData}
             onCheckboxChange={onCheckboxChange}
@@ -54,114 +122,12 @@ const BasicInformation = ({ formData, onChange, onCheckboxChange }) => {
 
       {/* Item ID and Part ID */}
       <div className="grid grid-cols-2 gap-6">
-        {/* Item ID */}
-        <div className="space-y-2">
-          <Label
-            htmlFor="itemID"
-            className="flex items-center gap-2 text-lg font-semibold"
-          >
-            Item ID
-          </Label>
-          <Input
-            id="itemID"
-            name="itemID"
-            value={formData.itemID}
-            onChange={onChange}
-            placeholder="Enter Item ID"
-            className="border-2 rounded-lg px-4 py-2 transition duration-300 focus:outline-none focus:border-blue-500 hover:border-blue-300"
-          />
-        </div>
-
-        {/* Part ID */}
-        <div className="space-y-2">
-          <Label
-            htmlFor="partID"
-            className="flex items-center gap-2 text-lg font-semibold"
-          >
-            Part ID
-          </Label>
-          <Input
-            id="partID"
-            name="partID"
-            value={formData.partID}
-            onChange={onChange}
-            placeholder="Enter Part ID"
-            className="border-2 rounded-lg px-4 py-2 transition duration-300 focus:outline-none focus:border-blue-500 hover:border-blue-300"
-          />
-        </div>
+        {identifierFields.map(renderField)}
       </div>
 
       {/* Product Price, Discount, and Stock */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Price */}
-        <div className="space-y-2">
-          <Label
-            htmlFor="price"
-            className="flex items-center gap-2 text-lg font-semibold"
-          >
-            <DollarSign className="h-5 w-5 text-green-600" />
-            Price
-          </Label>
-          <Input
-            id="price"
-            name="price"
-            type="number"
-            min="0"
-            step="0.01"
-            value={formData.price}
-            onChange={handleNumericInput}
-            placeholder="0.00"
-            className="border-2 rounded-lg px-4 py-2 transition duration-300 focus:outline-none focus:border-blue-500 hover:border-blue-300"
-            onWheel={(e) => e.target.blur()}
-          />
-        </div>
-
-        {/* Discount */}
-        <div className="space-y-2">
-          <Label
-            htmlFor="discount"
-            className="flex items-center gap-2 text-lg font-semibold"
-          >
-            <Percent className="h-5 w-5 text-orange-600" />
-            Discount
-          </Label>
-          <Input
-            id="discount"
-            name="discount"
-            type="number"
-            min="0"
-            max="100"
-            step="0.01"
-            value={formData.discount}
-            onChange={handleNumericInput}
-            placeholder="0.00"
-            className="border-2 rounded-lg px-4 py-2 transition duration-300 focus:outline-none focus:border-blue-500 hover:border-blue-300"
-            onWheel={(e) => e.target.blur()}
-          />
-        </div>
-
-        {/* Stock */}
-        <div className="space-y-2">
-          <Label
-            htmlFor="stock"
-            className="flex items-center gap-2 text-lg font-semibold"
-          >
-            <Box className="h-5 w-5 text-purple-600" />
-            Stock
-          </Label>
-          <Input
-            id="stock"
-            name="stock"
-            type="number"
-            min="0"
-            step="1"
-            value={formData.stock}
-            onChange={handleNumericInput}
-            placeholder="0"
-            className="border-2 rounded-lg px-4 py-2 transition duration-300 focus:outline-none focus:border-blue-500 hover:border-blue-300"
-            onWheel={(e) => e.target.blur()}
-          />
-        </div>
+        {numericFields.map(renderField)}
       </div>
     </section>
   );

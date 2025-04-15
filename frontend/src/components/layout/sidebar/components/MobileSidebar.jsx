@@ -96,7 +96,7 @@ const MobileSidebar = () => {
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger className="fixed bottom-5 right-5 z-50 p-3 bg-accent rounded-full shadow-lg transition-colors lg:hidden">
-        <Bot size={28} className="text-black" />
+        <Bot size={28} className="text-foreground" />
       </SheetTrigger>
 
       <SheetContent

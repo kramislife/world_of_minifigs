@@ -1,7 +1,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Save, Palette } from "lucide-react";
+import { Palette } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -18,8 +18,7 @@ const UpdateColor = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
-  const [updateColor, { isLoading }] = useUpdateColorMutation();
-
+  const [updateColor, { isLoading: isUpdating }] = useUpdateColorMutation();
   const { data: colorData } = useGetColorsQuery();
   const color = colorData?.prod_color?.find((col) => col._id === id);
 
@@ -39,7 +38,6 @@ const UpdateColor = () => {
         id: id,
         ...colorData,
       }).unwrap();
-
       toast.success("Color updated successfully!");
       navigate("/admin/colors");
     } catch (error) {
@@ -50,14 +48,14 @@ const UpdateColor = () => {
   return (
     <>
       <Metadata title="Update Color" />
-      <div className="mx-auto py-6">
-        <Card className="shadow-xl border-t-4 border-t-blue-500">
-          <CardHeader>
-            <CardTitle className="text-2xl">Update Color</CardTitle>
-          </CardHeader>
+      <div className="p-3 md:p-5">
+        <form onSubmit={handleSubmit}>
+          <Card className="border-t-4 border-t-accent">
+            <CardHeader>
+              <CardTitle className="text-2xl">Update Color</CardTitle>
+            </CardHeader>
 
-          <CardContent className="p-6">
-            <form onSubmit={handleSubmit}>
+            <CardContent className="p-6 space-y-8">
               <div className="space-y-5">
                 <div className="space-y-3">
                   <Label
@@ -71,7 +69,6 @@ const UpdateColor = () => {
                     id="name"
                     name="name"
                     placeholder="Enter color name"
-                    className="mt-1"
                     defaultValue={color?.name}
                     required
                   />
@@ -92,7 +89,6 @@ const UpdateColor = () => {
                       type="text"
                       placeholder="#000000"
                       pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"
-                      className="mt-1"
                       defaultValue={color?.code}
                       required
                     />
@@ -119,31 +115,25 @@ const UpdateColor = () => {
                     id="description"
                     name="description"
                     placeholder="Enter color description"
-                    className="mt-1"
                     defaultValue={color?.description}
+                    rows={4}
                   />
                 </div>
-
-                <div className="flex justify-end space-x-4 pt-6">
-                  <Button
-                    type="submit"
-                    disabled={isLoading}
-                    className="bg-gradient-to-r from-blue-600 to-purple-600 text-white flex items-center gap-2 hover:from-blue-700 hover:to-purple-700"
-                  >
-                    {isLoading ? (
-                      <>Updating...</>
-                    ) : (
-                      <>
-                        <Save className="h-4 w-4" />
-                        Update Color
-                      </>
-                    )}
-                  </Button>
-                </div>
               </div>
-            </form>
-          </CardContent>
-        </Card>
+
+              <div className="flex justify-end space-x-4 pt-6 border-t">
+                <Button
+                  variant="submit"
+                  type="submit"
+                  className="w-auto"
+                  disabled={isUpdating}
+                >
+                  {isUpdating ? "Updating..." : "Update Color"}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </form>
       </div>
     </>
   );

@@ -57,7 +57,7 @@ const ProductDesigner = ({ formData, onChange }) => {
             <label
               key={designer._id}
               htmlFor={designer._id}
-              className={`flex items-center justify-center p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer ${
+              className={`flex items-center justify-center p-4 rounded-lg border hover:shadow-sm transition-shadow cursor-pointer ${
                 formData.productDesigner === designer._id
                   ? ACTIVE_COLOR
                   : DEFAULT_COLOR

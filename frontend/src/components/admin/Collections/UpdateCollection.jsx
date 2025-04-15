@@ -1,7 +1,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Save, FileText, BookOpen } from "lucide-react";
+import { FileText, BookOpen } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -58,13 +58,13 @@ const UpdateCollection = () => {
   return (
     <>
       <Metadata title="Update Collection" />
-      <div className="mx-auto py-6">
-        <Card className="shadow-xl border-t-4 border-t-blue-500">
+      <div className="p-3 md:p-5">
+        <Card className="border-t-4 border-t-accent">
           <CardHeader>
             <CardTitle className="text-2xl">Update Collection</CardTitle>
           </CardHeader>
 
-          <CardContent className="p-6">
+          <CardContent className="p-6 space-y-8">
             <form onSubmit={handleSubmit}>
               <div className="space-y-5">
                 <div className="space-y-3">
@@ -129,8 +129,9 @@ const UpdateCollection = () => {
                       name="isFeatured"
                       id="isFeatured"
                       defaultChecked={collection?.isFeatured}
+                      className="border-white/10 data-[state=checked]:bg-accent data-[state=checked]:border-accent"
                     />
-                    <span className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    <span className="text-sm font-medium">
                       Add to Featured Collection
                     </span>
                   </Label>
@@ -138,18 +139,12 @@ const UpdateCollection = () => {
 
                 <div className="flex justify-end space-x-4 pt-6">
                   <Button
+                    variant="submit"
                     type="submit"
                     disabled={isLoading}
-                    className="bg-gradient-to-r from-blue-600 to-purple-600 text-white flex items-center gap-2 hover:from-blue-700 hover:to-purple-700"
+                    className="w-auto"
                   >
-                    {isLoading ? (
-                      <>Updating...</>
-                    ) : (
-                      <>
-                        <Save className="h-4 w-4" />
-                        Update Collection
-                      </>
-                    )}
+                    {isLoading ? "Updating..." : "Update Collection"}
                   </Button>
                 </div>
               </div>

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Save } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -93,13 +92,13 @@ const AddSubCollection = () => {
   return (
     <>
       <Metadata title="Add Sub-Collection" />
-      <div className="mx-auto py-6">
-        <Card className="shadow-xl border-t-4 border-t-blue-500">
+      <div className="p-3 md:p-5">
+        <Card className="border-t-4 border-t-accent">
           <CardHeader>
             <CardTitle className="text-2xl">Add New Sub-Collection</CardTitle>
           </CardHeader>
 
-          <CardContent className="p-6">
+          <CardContent className="p-6 space-y-8">
             <form onSubmit={handleSubmit}>
               <div className="space-y-5">
                 <div className="space-y-3">
@@ -181,18 +180,12 @@ const AddSubCollection = () => {
 
                 <div className="flex justify-end space-x-4 pt-6">
                   <Button
+                    variant="submit"
                     type="submit"
                     disabled={isLoading || !selectedCollection}
-                    className="bg-gradient-to-r from-blue-600 to-purple-600"
+                    className="w-auto"
                   >
-                    {isLoading ? (
-                      <>Creating...</>
-                    ) : (
-                      <>
-                        <Save className="h-4 w-4 mr-2" />
-                        Create Sub-Collection
-                      </>
-                    )}
+                    {isLoading ? "Creating..." : "Create Sub-Collection"}
                   </Button>
                 </div>
               </div>

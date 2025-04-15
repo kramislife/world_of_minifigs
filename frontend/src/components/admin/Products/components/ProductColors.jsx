@@ -1,8 +1,7 @@
 import React from "react";
 import { useGetColorsQuery } from "@/redux/api/productApi";
 import { Label } from "@/components/ui/label";
-import { AlertCircle, Plus, Palette } from "lucide-react";
-import { Link } from "react-router-dom";
+import { AlertCircle, Palette } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -12,7 +11,7 @@ import {
 } from "@/components/ui/select";
 
 const ProductColors = ({ formData, onCheckboxChange }) => {
-  const { data: colorData, isLoading, error } = useGetColorsQuery();
+  const { data: colorData, error } = useGetColorsQuery();
 
   const handleColorChange = (colorId) => {
     // Clear previous colors and set the new one
@@ -24,7 +23,6 @@ const ProductColors = ({ formData, onCheckboxChange }) => {
     onCheckboxChange("productColors", colorId, true);
   };
 
-  if (isLoading) return <div>Loading colors...</div>;
 
   if (error) {
     return (
@@ -78,7 +76,7 @@ const ProductColors = ({ formData, onCheckboxChange }) => {
         value={selectedColorData?._id || ""}
         onValueChange={handleColorChange}
       >
-        <SelectTrigger className="w-full">
+        <SelectTrigger className="w-full py-6 border border-brand-end/50">
           <SelectValue placeholder="Select a color">
             {selectedColorData && (
               <div className="flex items-center gap-2">

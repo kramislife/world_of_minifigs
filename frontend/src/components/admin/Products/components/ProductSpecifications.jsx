@@ -9,7 +9,8 @@ const ProductSpecifications = ({ formData, onChange }) => {
         {formData.specifications.map((spec) => (
           <div key={spec.name} className="space-y-2">
             <Label htmlFor={spec.name} className="text-lg font-semibold">
-              {spec.name.charAt(0).toUpperCase() + spec.name.slice(1).replace('_', ' ')}
+              {spec.name.charAt(0).toUpperCase() +
+                spec.name.slice(1).replace("_", " ")}
             </Label>
             <Input
               id={spec.name}
@@ -21,12 +22,11 @@ const ProductSpecifications = ({ formData, onChange }) => {
                 onChange({
                   target: {
                     name: spec.name,
-                    value: value
-                  }
+                    value: value,
+                  },
                 });
               }}
               placeholder="0"
-              className="border-2 rounded-lg px-4 py-2 transition duration-300 focus:outline-none focus:border-blue-500 hover:border-blue-300"
             />
           </div>
         ))}

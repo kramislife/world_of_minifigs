@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Save, Palette } from "lucide-react";
+import { Palette } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,20 +17,14 @@ const AddColor = () => {
   const [createColor, { isLoading }] = useCreateColorMutation();
   const [colorCode, setColorCode] = useState("");
 
+
   const handleColorCodeChange = (e) => {
     let value = e.target.value;
-
-    // Remove any existing # symbol
     value = value.replace("#", "");
-
-    // Add # if it's a valid hex code length (3 or 6 characters)
     if (value.length === 3 || value.length === 6) {
       value = "#" + value;
     }
-
     setColorCode(value);
-
-    // Update the color picker if it's a valid hex code
     if (value.match(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/)) {
       document.getElementById("colorPicker").value = value;
     }
@@ -65,14 +59,14 @@ const AddColor = () => {
   return (
     <>
       <Metadata title="Add Color" />
-      <div className="mx-auto py-6">
-        <Card className="shadow-xl border-t-4 border-t-blue-500">
-          <CardHeader>
-            <CardTitle className="text-2xl">Add New Color</CardTitle>
-          </CardHeader>
+      <div className="p-3 md:p-5">
+        <form onSubmit={handleSubmit}>
+          <Card className="border-t-4 border-t-accent">
+            <CardHeader>
+              <CardTitle className="text-2xl">Add New Color</CardTitle>
+            </CardHeader>
 
-          <CardContent className="p-6">
-            <form onSubmit={handleSubmit}>
+            <CardContent className="p-6 space-y-8">
               <div className="space-y-5">
                 <div className="space-y-3">
                   <Label
@@ -86,7 +80,6 @@ const AddColor = () => {
                     id="name"
                     name="name"
                     placeholder="Enter color name"
-                    className="mt-1"
                     required
                   />
                 </div>
@@ -99,22 +92,23 @@ const AddColor = () => {
                     <Palette className="h-5 w-5 text-blue-600" />
                     Color Code (HEX)
                   </Label>
-                  <div className="flex gap-4 items-center">
-                    <Input
-                      id="code"
-                      name="code"
-                      type="text"
-                      placeholder="#000000"
-                      pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"
-                      className="mt-1"
-                      required
-                      value={colorCode}
-                      onChange={handleColorCodeChange}
-                    />
+                  <div className="grid grid-cols-3 gap-4 items-center">
+                    <div className="col-span-2">
+                      <Input
+                        id="code"
+                        name="code"
+                        type="text"
+                        placeholder="#000000"
+                        pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"
+                        required
+                        value={colorCode}
+                        onChange={handleColorCodeChange}
+                      />
+                    </div>
                     <Input
                       id="colorPicker"
                       type="color"
-                      className="w-20 h-10 p-1"
+                      className="w-full p-1"
                       onChange={handleColorPickerChange}
                       value={
                         colorCode.match(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/)
@@ -137,30 +131,24 @@ const AddColor = () => {
                     id="description"
                     name="description"
                     placeholder="Enter color description"
-                    className="mt-1"
+                    rows={4}
                   />
                 </div>
-
-                <div className="flex justify-end space-x-4 pt-6">
-                  <Button
-                    type="submit"
-                    disabled={isLoading}
-                    className="bg-gradient-to-r from-blue-600 to-purple-600 text-white flex items-center gap-2 hover:from-blue-700 hover:to-purple-700"
-                  >
-                    {isLoading ? (
-                      <>Creating...</>
-                    ) : (
-                      <>
-                        <Save className="h-4 w-4" />
-                        Create Color
-                      </>
-                    )}
-                  </Button>
-                </div>
               </div>
-            </form>
-          </CardContent>
-        </Card>
+
+              <div className="flex justify-end space-x-4 pt-6 border-t">
+                <Button
+                  variant="submit"
+                  type="submit"
+                  className="w-auto"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Creating..." : "Create Color"}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </form>
       </div>
     </>
   );
