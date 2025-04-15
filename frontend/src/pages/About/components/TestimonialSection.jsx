@@ -38,57 +38,53 @@ const TestimonialSection = () => {
   ];
 
   return (
-    <section className="py-10 lg:py-16 bg-gray-50">
-      <div className="px-6">
-        <motion.div
-          className="text-center mb-10"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.1 }}
-          variants={aboutAnimations.orderHeaderVariants}
-        >
-          <Badge className="bg-brand-start text-accent px-4 py-1 rounded-full text-sm font-medium mb-6">
-            TESTIMONIALS
-          </Badge>
-          <h2 className="text-3xl font-bold text-foreground mb-4">
-            Honest Reviews from Real Customers
-          </h2>
-          <p className="max-w-2xl mx-auto text-gray-600">
-            Don't just take our word for it - see what our customers have to say
-            about their experience with World of Minifigs.
-          </p>
-        </motion.div>
+    <section className="py-10 px-5 bg-background/95">
+      <motion.div
+        className="text-center mb-5 md:mb-10"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.1 }}
+        variants={aboutAnimations.orderHeaderVariants}
+      >
+        <Badge variant="accent" className="text-sm font-medium mb-5 p-1 px-5">
+          TESTIMONIALS
+        </Badge>
+        <h2 className="text-3xl font-bold text-foreground mb-4">
+          Loved by LEGO Lovers Everywhere 💛
+        </h2>
+        <p className="max-w-3xl mx-auto italic text-foreground">
+          Don’t just take our word for it — hear straight from real builders who
+          turned their imagination into reality with World of Minifigs.
+        </p>
+      </motion.div>
 
-        <motion.div
-          className="grid grid-cols-1 md:grid-cols-3 gap-4"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.1 }}
-          variants={aboutAnimations.testimonialContainerVariants}
-        >
-          {testimonials.map((testimonial, index) => (
-            <motion.div
-              key={index}
-              className={testimonial.span}
-              variants={aboutAnimations.testimonialCardVariants}
-            >
-              <Card className="h-full">
-                <CardContent className="p-6 flex flex-col h-full">
-                  <div className="mb-4 text-accent">
-                    <Quote className="w-8 h-8" />
-                  </div>
-                  <p className="italic text-gray-600 mb-4 flex-grow">
-                    "{testimonial.quote}"
-                  </p>
-                  <div className="font-semibold text-foreground mt-auto">
-                    - {testimonial.author}
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
-        </motion.div>
-      </div>
+      <motion.div
+        className="grid grid-cols-1 md:grid-cols-3 gap-5"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.1 }}
+        variants={aboutAnimations.testimonialContainerVariants}
+      >
+        {testimonials.map((testimonial, index) => (
+          <motion.div
+            key={index}
+            className={testimonial.span}
+            variants={aboutAnimations.testimonialCardVariants}
+          >
+            <Card className="h-full">
+              <CardContent className="p-5 flex flex-col h-full">
+                <div className="mb-4 text-accent">
+                  <Quote className="w-8 h-8" />
+                </div>
+                <p className="italic text-foreground/90 text-base mb-4 flex-grow">
+                  "{testimonial.quote}"
+                </p>
+                <div className="font-semibold">- {testimonial.author}</div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        ))}
+      </motion.div>
     </section>
   );
 };

@@ -20,34 +20,26 @@ const StatSection = () => {
   ];
 
   return (
-    <div className="bg-white py-10">
-      <div className="px-6">
-        <motion.div
-          className="grid grid-cols-1 md:grid-cols-3 gap-5"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.1 }}
-          variants={aboutAnimations.statsContainerVariants}
-        >
-          {stats.map((stat, index) => (
-            <motion.div key={index} variants={aboutAnimations.statCardVariants}>
-              <Card className="text-center">
-                <CardContent className="p-6">
-                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span className="text-lg font-bold text-foreground">
-                      {stat.number}
-                    </span>
-                  </div>
-                  <h3 className="text-lg font-semibold text-foreground">
-                    {stat.label}
-                  </h3>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
+    <motion.section
+      className="grid grid-cols-1 md:grid-cols-3 gap-5 bg-background py-10 px-5"
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.1 }}
+      variants={aboutAnimations.statsContainerVariants}
+    >
+      {stats.map((stat, index) => (
+        <motion.div key={index} variants={aboutAnimations.statCardVariants}>
+          <Card className="text-center">
+            <CardContent className="p-6 text-lg font-bold">
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-5">
+                <span>{stat.number}</span>
+              </div>
+              <span>{stat.label}</span>
+            </CardContent>
+          </Card>
         </motion.div>
-      </div>
-    </div>
+      ))}
+    </motion.section>
   );
 };
 
