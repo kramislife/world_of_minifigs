@@ -15,11 +15,6 @@ export const useOrderSummary = () => {
   const searchParams = new URLSearchParams(location.search);
   const mode = searchParams.get("mode");
 
-  // States
-  const [orderNotes, setOrderNotes] = useState("");
-  const [discountCode, setDiscountCode] = useState("");
-  const [appliedDiscount, setAppliedDiscount] = useState(0);
-
   // Selectors
   const cartItems = useSelector((state) => state.cart.cartItems);
   const buyNowItem = useSelector((state) => state.buyNow.item);
@@ -35,7 +30,7 @@ export const useOrderSummary = () => {
     : 0;
   const finalTotal = mode === "buy_now" ? buyNowTotal : total;
   const subtotal = finalTotal;
-  const displayTotal = finalTotal - appliedDiscount;
+  const displayTotal = finalTotal;
 
   const handleQuantityUpdate = (productId, newQuantity) => {
     if (mode === "buy_now") {
@@ -57,35 +52,11 @@ export const useOrderSummary = () => {
     }
   };
 
-  const handleRemoveItem = (productId) => {
-    if (mode === "buy_now") {
-      return;
-    }
-    dispatch(removeFromCart(productId));
-  };
-
-  const handleApplyDiscount = () => {
-    if (discountCode.toLowerCase() === "discount10") {
-      const discountAmount = finalTotal * 0.1;
-      setAppliedDiscount(discountAmount);
-      toast.success("Discount applied successfully!");
-    } else {
-      toast.error("Invalid discount code");
-    }
-  };
-
   return {
     mode,
     displayItems,
-    orderNotes,
-    setOrderNotes,
-    discountCode,
-    setDiscountCode,
     subtotal,
-    appliedDiscount,
     displayTotal,
     handleQuantityUpdate,
-    handleRemoveItem,
-    handleApplyDiscount,
   };
 };

@@ -20,28 +20,24 @@ const ContactSection = ({ email, onEmailChange }) => {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
-          <div className="relative">
-            <Input
-              type="email"
-              label="Email Address"
-              value={email}
-              onChange={onEmailChange}
-              required
-              className="bg-transparent text-white"
-            />
-            {email && !isValid && (
-              <p className="text-sm text-red-400 mt-3">
-                Please enter a valid email address
-              </p>
-            )}
-            {email && isValid && (
-              <p className="text-sm text-blue-400 mt-3">
-                Order confirmation will be sent to this email address
-              </p>
-            )}
-          </div>
-        </div>
+          <Input
+            type="email"
+            label="Email Address"
+            value={email}
+            onChange={onEmailChange}
+            required
+            className="bg-transparent text-white"
+          />
+          {email && !isValid && (
+            <p className="text-sm text-red-400 mt-3">
+              Please enter a valid email address
+            </p>
+          )}
+          {email && isValid && (
+            <p className="text-sm text-blue-400 mt-3">
+              Order confirmation will be sent to this email address
+            </p>
+          )}
       </CardContent>
     </Card>
   );

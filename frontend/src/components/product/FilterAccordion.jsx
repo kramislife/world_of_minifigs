@@ -199,55 +199,91 @@ const FilterAccordion = ({
     setCurrentCategory(null);
   };
 
+  const matchesPriceRange = (product, range) => {
+    if (!product.price) return false;
+    const [min, max] = range.split("-").map(Number);
+    if (max) {
+      return product.price >= min && product.price <= max;
+    }
+    // Handle "1000+" case
+    return product.price >= min;
+  };
+
   // Calculate filtered products that match all filters EXCEPT the one being checked
   const getFilteredProductCount = (filterKey, filterValue) => {
     if (!productsForCounting || productsForCounting.length === 0) {
       return 0;
     }
 
+    // Create a copy of current filters excluding the current filter key
+    const otherFilters = Object.entries(selectedFilters).filter(
+      ([key]) => key !== filterKey
+    );
+
     return productsForCounting.filter((product) => {
-      // For this specific calculation, we want to count products that would match
-      // if this filter option was selected (ignoring whether it's already selected)
+      // First check if the product matches the current filter value
+      let matchesCurrentFilter = false;
 
       if (filterKey === "price") {
-        const [min, max] = filterValue.split("-").map(Number);
-        if (max) {
-          return product.price >= min && product.price <= max;
-        }
-        return product.price >= min; // For "1000+" case
-      }
-
-      if (filterKey === "rating") {
-        const ratingValue = parseInt(filterValue);
-        return Math.floor(product.ratings) === ratingValue;
-      }
-
-      if (filterKey === "product_color") {
-        return (
+        matchesCurrentFilter = matchesPriceRange(product, filterValue);
+      } else if (filterKey === "product_color") {
+        matchesCurrentFilter =
           product.product_color?._id === filterValue ||
-          product.product_color === filterValue
+          product.product_color === filterValue;
+      } else if (filterKey === "rating") {
+        matchesCurrentFilter =
+          Math.floor(product.ratings) === parseInt(filterValue);
+      } else if (filterKey === "product_category") {
+        matchesCurrentFilter = product.product_category?.some(
+          (cat) => cat._id === filterValue
         );
-      }
-
-      if (filterKey === "product_skill_level") {
-        return product.product_skill_level?._id === filterValue;
-      }
-
-      if (filterKey === "product_designer") {
-        return product.product_designer?._id === filterValue;
-      }
-
-      if (filterKey === "product_category") {
-        return product.product_category?.some((cat) => cat._id === filterValue);
-      }
-
-      if (filterKey === "product_collection") {
-        return product.product_collection?.some(
+      } else if (filterKey === "product_collection") {
+        matchesCurrentFilter = product.product_collection?.some(
           (col) => col._id === filterValue
         );
+      } else if (filterKey === "product_skill_level") {
+        matchesCurrentFilter = product.product_skill_level?._id === filterValue;
+      } else if (filterKey === "product_designer") {
+        matchesCurrentFilter = product.product_designer?._id === filterValue;
       }
 
-      return false;
+      // Then check if the product matches all other active filters
+      const matchesOtherFilters = otherFilters.every(([key, values]) => {
+        if (!values || values.length === 0) return true;
+
+        if (key === "price") {
+          return values.some((range) => matchesPriceRange(product, range));
+        } else if (key === "product_color") {
+          return values.some(
+            (colorId) =>
+              product.product_color?._id === colorId ||
+              product.product_color === colorId
+          );
+        } else if (key === "rating") {
+          return values.some(
+            (rating) => Math.floor(product.ratings) === parseInt(rating)
+          );
+        } else if (key === "product_category") {
+          return values.some((catId) =>
+            product.product_category?.some((cat) => cat._id === catId)
+          );
+        } else if (key === "product_collection") {
+          return values.some((colId) =>
+            product.product_collection?.some((col) => col._id === colId)
+          );
+        } else if (key === "product_skill_level") {
+          return values.some(
+            (levelId) => product.product_skill_level?._id === levelId
+          );
+        } else if (key === "product_designer") {
+          return values.some(
+            (designerId) => product.product_designer?._id === designerId
+          );
+        }
+        return true;
+      });
+
+      return matchesCurrentFilter && matchesOtherFilters;
     }).length;
   };
 

@@ -6,224 +6,83 @@ class API_Filters {
 
   // KEYWORD SEARCH -> MULTIPLE KEYWORDS SEPARATED BY SPACE
   search() {
-    if (this.queryStr.keyword) {
-      const keywords = this.queryStr.keyword.trim().split(/\s+/);
-
-      if (keywords.length > 0 && keywords[0] !== "") {
-        const keywordFilter = {
-          $or: keywords.map((word) => ({
-            $or: [
-              { product_name: { $regex: word, $options: "i" } },
-              { product_description_1: { $regex: word, $options: "i" } },
-            ],
-          })),
-        };
-
-        // console.log("KEYWORDS: ", keywords);
-
-        this.query = this.query.find(keywordFilter); // Apply the constructed filter
-      }
-    } else {
-      this.query = this.query.find();
+    // Skip if we're using the enhanced search
+    if (this.queryStr.customQuery) {
+      return this;
     }
 
-    this.query = this.query
-      .populate("product_category", "name")
-      .populate("product_collection", "name");
+    const keyword = this.queryStr.keyword
+      ? {
+          product_name: {
+            $regex: this.queryStr.keyword,
+            $options: "i",
+          },
+        }
+      : {};
 
+    this.query = this.query.find({ ...keyword });
     return this;
   }
 
   // PRODUCT FILTER -> FILTER PRODUCTS BASED ON DIFFERENT ATTRIBUTES
   filters() {
-    // Add input validation
-    if (!this.query || !this.queryStr) {
-      return this;
-    }
-
     const queryCopy = { ...this.queryStr };
 
-    // Sanitize input values
-    Object.keys(queryCopy).forEach((key) => {
-      if (typeof queryCopy[key] === "string") {
-        queryCopy[key] = queryCopy[key].trim();
-      }
-    });
+    // If we have a custom query from enhanced search, use it
+    if (this.queryStr.customQuery) {
+      this.query = this.query.find(this.queryStr.customQuery);
+      delete queryCopy.customQuery;
+    }
 
-    // Fields to exclude from the filters
-    const fieldsToRemove = ["keyword", "page"];
-    fieldsToRemove.forEach((element) => delete queryCopy[element]);
+    // Remove fields that are not filters
+    const removeFields = ["keyword", "page", "limit"];
+    removeFields.forEach((el) => delete queryCopy[el]);
 
-    // Arrays to store OR conditions for specific fields
-    const categoryConditions = [];
-    const collectionConditions = [];
-    const subCategoryConditions = [];
-    const subCollectionConditions = [];
-    const otherConditions = [];
+    // Handle special cases for price and color
+    if (queryCopy.price) {
+      const priceRanges = Array.isArray(queryCopy.price)
+        ? queryCopy.price
+        : [queryCopy.price];
 
-    for (let key in queryCopy) {
-      if (queryCopy[key]) {
-        // Handle filters with multiple values (comma-separated)
-        if (
-          typeof queryCopy[key] === "string" &&
-          queryCopy[key].includes(",")
-        ) {
-          queryCopy[key] = queryCopy[key]
-            .split(",")
-            .map((value) => value.trim());
+      const priceQueries = priceRanges.map((range) => {
+        const [min, max] = range.split("-").map(Number);
+        if (max) {
+          return { price: { $gte: min, $lte: max } };
         }
+        return { price: { $gte: min } };
+      });
 
-        // Handle product_category filters (with OR logic)
-        if (key === "product_category") {
-          if (Array.isArray(queryCopy[key])) {
-            queryCopy[key].forEach((value) => {
-              categoryConditions.push({ [key]: value });
-            });
-          } else {
-            categoryConditions.push({ [key]: queryCopy[key] });
-          }
-        }
-        // Handle product_collection filters (with OR logic)
-        else if (key === "product_collection") {
-          if (Array.isArray(queryCopy[key])) {
-            queryCopy[key].forEach((value) => {
-              collectionConditions.push({ [key]: value });
-            });
-          } else {
-            collectionConditions.push({ [key]: queryCopy[key] });
-          }
-        }
-        // Handle sub-categories
-        else if (key === "product_sub_categories") {
-          if (Array.isArray(queryCopy[key])) {
-            queryCopy[key].forEach((value) => {
-              subCategoryConditions.push({ product_sub_categories: value });
-            });
-          } else {
-            subCategoryConditions.push({
-              product_sub_categories: queryCopy[key],
-            });
-          }
-        }
-        // Handle sub-collections
-        else if (key === "product_sub_collections") {
-          if (Array.isArray(queryCopy[key])) {
-            queryCopy[key].forEach((value) => {
-              subCollectionConditions.push({ product_sub_collections: value });
-            });
-          } else {
-            subCollectionConditions.push({
-              product_sub_collections: queryCopy[key],
-            });
-          }
-        }
-        // Handle multiple price ranges
-        else if (key === "price") {
-          const priceRanges = Array.isArray(queryCopy[key])
-            ? queryCopy[key]
-            : [queryCopy[key]];
-
-          const priceConditions = priceRanges.map((range) => {
-            if (range === "1000+") {
-              return { price: { $gte: 1000 } };
-            }
-
-            const [minPrice, maxPrice] = range.split("-").map(parseFloat);
-            return {
-              price: {
-                $gte: minPrice,
-                $lte: maxPrice,
-              },
-            };
-          });
-
-          if (priceConditions.length > 0) {
-            otherConditions.push({ $or: priceConditions });
-          }
-        }
-        // Handle rating filter
-        else if (key === "rating") {
-          const ratingValues = Array.isArray(queryCopy[key])
-            ? queryCopy[key]
-            : [queryCopy[key]];
-
-          const ratingConditions = ratingValues.map((rating) => {
-            const ratingNum = parseInt(rating);
-            if (ratingNum === 5) {
-              // For 5 stars, get ratings >= 5
-              return { ratings: { $gte: 5 } };
-            } else {
-              // For other ratings, get within range (e.g., 4.0-4.9)
-              return {
-                ratings: {
-                  $gte: ratingNum,
-                  $lt: ratingNum + 1,
-                },
-              };
-            }
-          });
-
-          if (ratingConditions.length > 0) {
-            otherConditions.push({ $or: ratingConditions });
-          }
-        }
-        // Handle product_color
-        else if (key === "product_color") {
-          if (Array.isArray(queryCopy[key])) {
-            queryCopy[key].forEach((value) => {
-              otherConditions.push({ product_color: value });
-            });
-          } else {
-            otherConditions.push({ product_color: queryCopy[key] });
-          }
-        }
-        // Handle other filters using $in
-        else {
-          otherConditions.push({ [key]: { $in: queryCopy[key] } });
-        }
+      if (priceQueries.length > 0) {
+        delete queryCopy.price;
+        this.query = this.query.find({ $or: priceQueries });
       }
     }
 
-    // Combine conditions with $or and $and logic
-    const orConditions = [];
+    if (queryCopy.product_color) {
+      const colorIds = Array.isArray(queryCopy.product_color)
+        ? queryCopy.product_color
+        : [queryCopy.product_color];
 
-    if (categoryConditions.length > 0) {
-      orConditions.push({ $or: categoryConditions });
+      delete queryCopy.product_color;
+      this.query = this.query.find({
+        product_color: { $in: colorIds },
+      });
     }
 
-    if (collectionConditions.length > 0) {
-      orConditions.push({ $or: collectionConditions });
-    }
+    // Format remaining filters
+    let queryStr = JSON.stringify(queryCopy);
+    queryStr = queryStr.replace(/\b(gt|gte|lt|lte)\b/g, (match) => `$${match}`);
 
-    if (subCategoryConditions.length > 0) {
-      orConditions.push({ $or: subCategoryConditions });
-    }
-
-    if (subCollectionConditions.length > 0) {
-      orConditions.push({ $or: subCollectionConditions });
-    }
-
-    if (otherConditions.length > 0) {
-      orConditions.push(...otherConditions);
-    }
-
-    // Add error handling for invalid query conditions
-    try {
-      if (orConditions.length > 0) {
-        this.query = this.query.find({ $and: orConditions });
-      }
-    } catch (error) {
-      console.error("Filter query error:", error);
-      this.query = this.query.find({});
-    }
-
+    this.query = this.query.find(JSON.parse(queryStr));
     return this;
   }
 
   pagination(resPerPage) {
-    const currentPage = this.queryStr.page || 1;
+    const currentPage = Number(this.queryStr.page) || 1;
     const skip = resPerPage * (currentPage - 1);
-    this.query = this.query.skip(skip).limit(resPerPage);
+
+    this.query = this.query.limit(resPerPage).skip(skip);
+    return this;
   }
 
   // method to handle sorting

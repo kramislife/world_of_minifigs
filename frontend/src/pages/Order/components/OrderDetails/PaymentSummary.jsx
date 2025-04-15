@@ -28,15 +28,15 @@ const PaymentSummary = ({
             <span>Subtotal</span>
             <span>${(totalPrice - (shippingPrice + taxPrice)).toFixed(2)}</span>
           </div>
-          <div className="flex justify-between text-gray-300">
+          {/* <div className="flex justify-between text-gray-300">
             <span>Shipping</span>
             <span>${shippingPrice.toFixed(2)}</span>
           </div>
           <div className="flex justify-between text-gray-300">
             <span>Tax</span>
             <span>${taxPrice.toFixed(2)}</span>
-          </div>
-          <div className="border-t border-gray-700 pt-3">
+          </div> */}
+          <div className="border-t border-brand-end/50 pt-3">
             <div className="flex justify-between text-lg font-bold">
               <span className="text-white">Total</span>
               <span className="text-emerald-400">${totalPrice.toFixed(2)}</span>

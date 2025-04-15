@@ -1,4 +1,4 @@
-import { useMemo, useEffect } from "react";
+import { useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { sortProducts } from "@/hooks/Product/productSort";
 import useScrollToTop from "@/hooks/Common/useScrollToTop";

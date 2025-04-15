@@ -23,14 +23,12 @@ const ProductCard = ({ product }) => {
       onClick={handleViewDetails}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      className="bg-brand-dark/50 rounded-2xl overflow-hidden transition-all duration-300 hover:scale-100 group relative cursor-pointer h-full flex flex-col border-none" 
+      className="bg-brand-dark/50 rounded-2xl overflow-hidden transition-all duration-300 hover:scale-100 group relative cursor-pointer h-full flex flex-col border-none"
     >
       {/* Discount Badge */}
       {product?.discount > 0 && (
         <div className="absolute top-4 right-4 z-10">
-          <Badge variant="discount">
-            {product.discount}% OFF
-          </Badge>
+          <Badge variant="discount">{product.discount}% OFF</Badge>
         </div>
       )}
 
@@ -95,8 +93,11 @@ const ProductCard = ({ product }) => {
           {/* Ratings */}
           <div className="flex justify-between items-center pt-2">
             <div className="flex items-center gap-2">
-              <StarRating rating={Number(reviewStats.averageRating)} />
-              <span className="text-sm text-gray-300/80">
+              <StarRating
+                rating={Number(reviewStats.averageRating)}
+                size="sm"
+              />
+              <span className="text-sm text-gray-400">
                 ({reviewStats.totalReviews})
               </span>
             </div>

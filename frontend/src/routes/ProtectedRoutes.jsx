@@ -2,7 +2,6 @@ import React from "react";
 import { useSelector } from "react-redux";
 import { Navigate, useLocation, Outlet } from "react-router-dom";
 import { useGetMeQuery } from "@/redux/api/userApi";
-import LoadingSpinner from "@/components/layout/spinner/LoadingSpinner";
 
 const ProtectedRoutes = ({ children, adminOnly = false }) => {
   const { isAuthenticated, user } = useSelector((state) => state.auth);

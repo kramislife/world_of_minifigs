@@ -177,9 +177,7 @@ const StripeForm = ({
 
   return (
     <div className="space-y-4">
-      <div className="p-4 border rounded-md border-brand-end/50">
         <PaymentElement onReady={handleReady} />
-      </div>
       {error && (
         <div className="text-red-400 text-sm mt-2 bg-red-500/10 p-3 rounded-md">
           {error}
