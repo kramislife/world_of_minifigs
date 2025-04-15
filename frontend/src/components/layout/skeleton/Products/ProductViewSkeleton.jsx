@@ -6,12 +6,12 @@ const ProductViewSkeleton = () => {
     <>
       {/* Product Details Section */}
       <div className="p-5 bg-brand-start">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
           {/* Left Column - Image Gallery */}
           <div className="w-full">
             <div className="relative flex flex-col-reverse md:flex-row gap-4 h-fit">
               {/* Thumbnails */}
-              <div className="w-full md:w-[100px] relative">
+              <div className="w-full md:w-[110px] relative">
                 <div className="w-full h-full overflow-y-auto no-scrollbar">
                   <div className="flex flex-row md:flex-col gap-2 md:max-h-[600px]">
                     {Array(5)
@@ -34,7 +34,7 @@ const ProductViewSkeleton = () => {
 
               {/* Main Image */}
               <div className="flex-1 relative rounded-lg">
-                <div className="w-full pt-[85%] relative">
+                <div className="w-full pt-[95%] relative">
                   <div className="absolute inset-0">
                     <Skeleton className="w-full h-full" />
                   </div>
@@ -47,7 +47,7 @@ const ProductViewSkeleton = () => {
           <div className="w-full">
             <div className="flex flex-col h-full">
               {/* Product Header */}
-              <div className="mb-5">
+              <div className="mb-10">
                 <div className="flex flex-col gap-3">
                   {/* Title */}
                   <div className="flex flex-col gap-2">
@@ -61,7 +61,7 @@ const ProductViewSkeleton = () => {
                   </div>
 
                   {/* Price Section */}
-                  <div className="flex items-center gap-4 mt-2">
+                  <div className="flex items-center gap-4 mt-5">
                     <Skeleton className="h-10 w-32" />
                   </div>
                 </div>
@@ -73,7 +73,7 @@ const ProductViewSkeleton = () => {
                 <Skeleton className="h-6 w-32" />
 
                 {/* Features & Classifications */}
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-5">
                   <Skeleton className="h-5 w-48" />
                   <div className="flex flex-wrap gap-2">
                     {Array(4)
