@@ -14,7 +14,7 @@ const StatCardItem = ({ card }) => {
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger>
-          <Card className="bg-darkBrand border-none hover:bg-darkBrand/90 transition-colors">
+          <Card className="bg-brand-dark/50 border border-brand-end/50">
             <CardContent className="flex justify-between items-center p-6">
               <div className="space-y-1">
                 <p className="text-sm font-medium text-gray-300">
@@ -25,10 +25,10 @@ const StatCardItem = ({ card }) => {
                   <span className={`font-bold ${card.changeColor}`}>
                     {card.change}%{" "}
                   </span>
-                  <span className="text-gray-400">{card.changeText}</span>
+                  <span className="text-gray-200">{card.changeText}</span>
                 </p>
               </div>
-              <div className="p-3 rounded-full bg-blue-500/10">
+              <div className="p-3 rounded-full bg-brand-start">
                 <Icon className={`h-8 w-8 ${card.color}`} />
               </div>
             </CardContent>

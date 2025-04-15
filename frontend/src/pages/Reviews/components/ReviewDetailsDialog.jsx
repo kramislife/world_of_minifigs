@@ -1,101 +1,170 @@
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { format } from "date-fns";
-import { Star, ThumbsUp, ThumbsDown } from "lucide-react";
+import { ThumbsUp, ThumbsDown } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import StarRating from "@/components/product/shared/StarRating";
 
-const ReviewDetailsDialog = ({ open, onOpenChange, review }) => {
-  if (!review) return null;
+const ReviewDetailsDialog = ({ open, onOpenChange, review, order }) => {
+  if (!review || !order) return null;
+
+  // Map order items to review products for displaying full product details
+  const getOrderItemForProduct = (productId) => {
+    return order.orderItems.find((item) => item.product._id === productId);
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent
-        className="max-w-5xl max-h-[90vh] overflow-y-auto bg-brand border-none 
-      scrollbar-none rounded-xl shadow-2xl py-6 px-6"
-      >
-        <div className="p-6">
+      <DialogContent className="bg-brand-start border border-brand-end/50 max-w-3xl max-h-[95vh] rounded-lg overflow-y-auto scrollbar-none p-3 w-[95vw]">
+        <div className="p-3">
           {/* Header */}
-          <div className="flex items-center justify-between border-b border-gray-700 pb-4 mb-6">
-            <div>
-              <h2 className="text-2xl font-bold text-white">Your Review</h2>
-              <p className="text-sm text-gray-400 mt-1">
-                Submitted on {format(new Date(review.createdAt), "PPP")}
-              </p>
-            </div>
-          </div>
+          <DialogHeader className="border-b border-brand-end/50 pb-2 mb-4 text-white text-left">
+            <DialogTitle>Your Review</DialogTitle>
+            <DialogDescription className="text-gray-400 text-sm">
+              Order #{order._id} • Submitted on{" "}
+              {format(new Date(review.createdAt), "PPP")}
+            </DialogDescription>
+          </DialogHeader>
 
           {/* Reviews */}
-          <div className="space-y-6">
-            {review.products.map((product) => (
-              <div
-                key={product.product}
-                className="p-6 rounded-xl bg-white/5 border border-gray-700"
-              >
-                {/* Product Info */}
-                <div className="flex items-start gap-4 mb-4">
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-white">
-                      {product.productName}
-                    </h3>
-                    {/* Rating */}
-                    <div className="flex items-center gap-1 mt-2">
-                      {[...Array(5)].map((_, index) => (
-                        <Star
-                          key={index}
-                          className={`w-5 h-5 ${
-                            index < product.rating
-                              ? "text-yellow-400 fill-yellow-400"
-                              : "text-gray-500"
-                          }`}
-                        />
-                      ))}
-                    </div>
-                  </div>
+          <div className="space-y-5">
+            {review.products.map((product) => {
+              const orderItem = getOrderItemForProduct(product.product);
 
-                  {/* Votes */}
-                  <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-1">
-                      <ThumbsUp className="w-4 h-4 text-green-400" />
-                      <span className="text-sm text-gray-400">
-                        {product.helpfulVotes?.length || 0}
-                      </span>
+              return (
+                <div
+                  key={product.product}
+                  className="p-5 rounded-xl bg-brand-dark/30 border border-brand-end/50"
+                >
+                  {/* Product Info with Image - Similar to ProductReviewCard layout */}
+                  <div className="flex flex-col gap-4">
+                    <div className="flex items-start gap-3">
+                      {/* Item image and discount */}
+                      {orderItem && (
+                        <div className="relative bg-brand-dark rounded-lg overflow-hidden">
+                          <img
+                            src={orderItem.image}
+                            alt={orderItem.name}
+                            className="w-32 h-32 object-cover"
+                          />
+                          {orderItem.discount > 0 && (
+                            <div className="absolute top-2 right-2 z-10">
+                              <Badge variant="discount">
+                                {orderItem.discount}% OFF
+                              </Badge>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      <div className="flex-1 min-w-0">
+                        {/* Product name and rating */}
+                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1">
+                          <h3 className="font-semibold text-md md:text-lg text-white line-clamp-1">
+                            {product.productName}
+                          </h3>
+
+                          {/* Star rating - ONLY VISIBLE ON LARGE SCREENS */}
+                          <div className="hidden sm:block">
+                            <StarRating rating={product.rating} size="lg" />
+                          </div>
+                        </div>
+
+                        {/* Price section */}
+                        {orderItem && (
+                          <div className="flex items-center mt-1 gap-2">
+                            <span className="font-bold text-emerald-400 text-lg">
+                              $
+                              {(
+                                orderItem.quantity * orderItem.discountedPrice
+                              ).toFixed(2)}
+                            </span>
+
+                            {orderItem.quantity > 1 && (
+                              <span className="text-xs text-gray-400 line-through">
+                                ${orderItem.discountedPrice.toFixed(2)} each
+                              </span>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Item details */}
+                        {orderItem && (
+                          <div className="flex flex-col text-sm text-gray-300 space-y-1 mt-1">
+                            {orderItem.color && <span>{orderItem.color}</span>}
+                            {orderItem.includes && (
+                              <span className="line-clamp-1">
+                                {orderItem.includes}
+                              </span>
+                            )}
+                            <span>Quantity: {orderItem.quantity}</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <ThumbsDown className="w-4 h-4 text-red-400" />
-                      <span className="text-sm text-gray-400">
-                        {product.unhelpfulVotes?.length || 0}
-                      </span>
+
+                    {/* Review Text with Votes */}
+                    <div className="w-full border-t border-brand-end/30 pt-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <h4 className="text-md font-medium text-indigo-200 hidden sm:block">
+                            Your Review
+                          </h4>
+
+                          {/* Star rating - ONLY VISIBLE ON SMALL SCREENS */}
+                          <div className="sm:hidden">
+                            <StarRating rating={product.rating} size="md" />
+                          </div>
+                        </div>
+
+                        {/* Votes */}
+                        <div className="flex items-center gap-4">
+                          <div className="flex items-center gap-1">
+                            <ThumbsUp className="w-4 h-4 text-green-400" />
+                            <span className="text-sm text-gray-400">
+                              {product.helpfulVotes?.length || 0}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <ThumbsDown className="w-4 h-4 text-red-400" />
+                            <span className="text-sm text-gray-400">
+                              {product.unhelpfulVotes?.length || 0}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <p className="text-gray-300 bg-transparent rounded-md pt-4">
+                        {product.editedReviewText ||
+                          product.reviewText ||
+                          "No written review provided."}
+                      </p>
                     </div>
+
+                    {/* Review Images */}
+                    {product.images && product.images.length > 0 && (
+                      <div className="w-full">
+                        <div className="flex flex-wrap gap-3">
+                          {product.images.map((image, index) => (
+                            <img
+                              key={index}
+                              src={image.url}
+                              alt={`Review ${index + 1}`}
+                              className="w-24 h-24 object-cover rounded-lg"
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
-
-                {/* Review Text */}
-                <div className="mt-4">
-                  <p className="text-gray-300">
-                    {product.editedReviewText || product.reviewText}
-                  </p>
-                  {product.isEdited && (
-                    <p className="text-xs text-yellow-400 mt-2">
-                      (Edited on {format(new Date(product.editedAt), "PPP")})
-                    </p>
-                  )}
-                </div>
-
-                {/* Review Images */}
-                {product.images && product.images.length > 0 && (
-                  <div className="mt-4">
-                    <div className="flex gap-2">
-                      {product.images.map((image, index) => (
-                        <img
-                          key={index}
-                          src={image.url}
-                          alt={`Review ${index + 1}`}
-                          className="w-24 h-24 object-cover rounded-lg"
-                        />
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </DialogContent>

@@ -2,7 +2,7 @@ import Collection from "../models/collection.model.js";
 import SubCollection from "../models/subCollection.model.js";
 import catchAsyncErrors from "../middlewares/catchAsyncErrors.js";
 import ErrorHandler from "../Utills/customErrorHandler.js";
-import { upload_single_image } from "../Utills/cloudinary.js";
+import { uploadImage, deleteImage } from "../Utills/cloudinary.js";
 
 //------------------------------------ GET ALL COLLECTIONS => GET /collections ------------------------------------
 
@@ -14,6 +14,7 @@ export const getAllCollections = catchAsyncErrors(async (req, res, next) => {
   }
 
   res.status(200).json({
+    success: true,
     message: `${collections.length} collections retrieved`,
     collections,
   });
@@ -27,10 +28,11 @@ export const getCollectionById = catchAsyncErrors(async (req, res, next) => {
 
   const collection = await Collection.findById(id);
   if (!collection) {
-    return next(new ErrorHandler("Failed to retrive all collections", 404));
+    return next(new ErrorHandler("Collection not found", 404));
   }
   res.status(200).json({
-    message: "Collection retrived",
+    success: true,
+    message: "Collection retrieved successfully",
     collection,
   });
 });
@@ -44,16 +46,9 @@ export const createCollection = catchAsyncErrors(async (req, res, next) => {
   if (req.body.isFeatured) {
     const featuredCount = await Collection.countDocuments({ isFeatured: true });
     if (featuredCount >= 2) {
-      const featuredCollections = await Collection.find({ isFeatured: true })
-        .select("name")
-        .limit(2);
-
-      const collectionNames = featuredCollections
-        .map((c) => c.name)
-        .join(" and ");
       return next(
         new ErrorHandler(
-          `You can only feature up to 2 collections at a time. Try removing one of the existing featured collections first.`,
+          `You can only feature up to 2 collections at a time. Please remove one of the existing featured collections first.`,
           400
         )
       );
@@ -67,6 +62,7 @@ export const createCollection = catchAsyncErrors(async (req, res, next) => {
   }
 
   res.status(201).json({
+    success: true,
     message: "Collection created successfully",
     newCollection,
   });
@@ -88,16 +84,9 @@ export const updateCollection = catchAsyncErrors(async (req, res, next) => {
   if (updatedData.isFeatured && !existingCollection.isFeatured) {
     const featuredCount = await Collection.countDocuments({ isFeatured: true });
     if (featuredCount >= 2) {
-      const featuredCollections = await Collection.find({ isFeatured: true })
-        .select("name")
-        .limit(2);
-
-      const collectionNames = featuredCollections
-        .map((c) => c.name)
-        .join(" and ");
       return next(
         new ErrorHandler(
-          `You can only feature up to 2 collections at a time. Try removing one of the existing featured collections first.`,
+          `You can only feature up to 2 collections at a time. Please remove one of the existing featured collections first.`,
           400
         )
       );
@@ -123,6 +112,7 @@ export const updateCollection = catchAsyncErrors(async (req, res, next) => {
   }
 
   res.status(200).json({
+    success: true,
     updatedCollection,
     message: "Collection updated successfully",
   });
@@ -155,6 +145,7 @@ export const deleteCollectionByID = catchAsyncErrors(async (req, res, next) => {
   const deletedCollection = await Collection.findByIdAndDelete(id);
 
   res.status(200).json({
+    success: true,
     deletedCollection,
     message: "Collection deleted successfully",
   });
@@ -171,28 +162,37 @@ export const uploadCollectionImage = catchAsyncErrors(
         return next(new ErrorHandler("No image provided", 400));
       }
 
-      // Assuming `uploadImage` is a helper function to handle the image upload
-      const url = await upload_single_image(
-        image,
-        "world_of_minifigs//collections"
-      );
+      // Find the collection first to check if it already has an image
+      const existingCollection = await Collection.findById(req.params.id);
+
+      if (!existingCollection) {
+        return next(new ErrorHandler("Collection not found", 404));
+      }
+
+      // If the collection already has an image, delete it from Cloudinary
+      if (existingCollection.image && existingCollection.image.public_id) {
+        await deleteImage(existingCollection.image.public_id);
+        console.log(
+          "Deleted previous image:",
+          existingCollection.image.public_id
+        );
+      }
+
+      // Use standardized image upload function
+      const url = await uploadImage(image, "world_of_minifigs/collections");
 
       console.log("Uploaded URL:", url);
 
-      // Update the product by pushing the single image URL to the `product_images` array
+      // Update the collection with the new image URL
       const collection = await Collection.findByIdAndUpdate(
         req.params.id,
         { image: url }, // Update operation
         { new: true, runValidators: true } // Options
       );
 
-      if (!collection) {
-        return next(new ErrorHandler("Collection not found", 404));
-      }
-
       res.status(200).json({
         success: true,
-        message: "Image uploaded successfully",
+        message: "Collection image updated successfully",
         data: collection,
       });
     } catch (error) {

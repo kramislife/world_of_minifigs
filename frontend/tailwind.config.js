@@ -8,7 +8,7 @@ export default {
         brand: {
           start: "#32475f", 
           end: "#446080", 
-          card: "#31445b",
+          dark: "#283858",
         },
         accent: {
           DEFAULT: "#FFDF00", 

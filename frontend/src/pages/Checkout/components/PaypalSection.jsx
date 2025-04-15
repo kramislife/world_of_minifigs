@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { ArrowUpRight, Loader2 } from "lucide-react";
-import { PayPalButtons, usePayPalScriptReducer, PayPalScriptProvider } from "@paypal/react-paypal-js";
+import {
+  PayPalButtons,
+  usePayPalScriptReducer,
+  PayPalScriptProvider,
+} from "@paypal/react-paypal-js";
 import { toast } from "react-toastify";
 import { useCreateOrderMutation } from "@/redux/api/orderApi";
 import { useNavigate } from "react-router-dom";
@@ -21,10 +25,10 @@ const PAYPAL_BUTTON_STYLES = {
 // EmptyStateMessage component
 const EmptyStateMessage = () => (
   <div className="flex flex-col items-center text-center space-y-3">
-    <div className="w-16 h-16 border border-white/10 rounded-md flex items-center justify-center">
-      <ArrowUpRight className="w-8 h-8 text-white/60" />
+    <div className="w-16 h-16 border border-brand-end/50 rounded-md flex items-center justify-center">
+      <ArrowUpRight className="w-8 h-8 text-accent" />
     </div>
-    <p className="text-red-400 text-sm leading-loose">
+    <p className="text-accent text-sm leading-loose">
       Please add items to your cart to proceed with payment
     </p>
   </div>
@@ -32,9 +36,9 @@ const EmptyStateMessage = () => (
 
 // Processing Overlay component
 const ProcessingOverlay = () => (
-  <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
-    <div className="bg-gray-800 p-6 rounded-lg shadow-xl text-center space-y-4">
-      <Loader2 className="w-8 h-8 animate-spin mx-auto text-blue-500" />
+  <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center">
+    <div className="bg-brand-dark/90 p-6 rounded-lg shadow-xl text-center space-y-4 border border-brand-end/50">
+      <Loader2 className="w-8 h-8 animate-spin mx-auto text-accent" />
       <p className="text-white">Processing your payment...</p>
       <p className="text-sm text-gray-400">Please don't close this window</p>
     </div>
@@ -221,15 +225,21 @@ const PayPalContent = ({
       <div className="text-center text-sm text-gray-400 py-2">
         Complete your purchase securely with PayPal
         <br />
-        <h4 className="font-medium text-emerald-400 mt-2">
+        <h4 className="font-medium text-accent mt-2">
           Total: ${total.toFixed(2)}
         </h4>
       </div>
-      {isProcessing || paypalWindowOpen}
-      <div className="p-4 border rounded-md border-white/10">
+      {isProcessing && <ProcessingOverlay />}
+      <div className="p-4 border rounded-md border-brand-end/50">
         <PayPalButtons
           key={key}
-          style={PAYPAL_BUTTON_STYLES}
+          style={{
+            layout: "vertical",
+            color: "blue",
+            shape: "rect",
+            label: "pay",
+            height: 48,
+          }}
           createOrder={handleCreateOrder}
           onApprove={handleApprove}
           onCancel={handleCancel}
@@ -237,6 +247,11 @@ const PayPalContent = ({
           forceReRender={[key, total]}
         />
       </div>
+      {error && (
+        <div className="text-red-400 text-sm bg-red-500/10 p-3 rounded-md">
+          {error}
+        </div>
+      )}
     </div>
   );
 };

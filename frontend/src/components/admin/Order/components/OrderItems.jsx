@@ -22,7 +22,7 @@ const OrderItems = ({ orderItems }) => {
               />
               {item.price > item.discountedPrice && (
                 <div className="absolute top-2 right-2 z-10">
-                  <Badge variant="destructive">
+                  <Badge variant="discount">
                     {item.discount}% OFF
                   </Badge>
                 </div>
@@ -30,7 +30,7 @@ const OrderItems = ({ orderItems }) => {
             </div>
             <div className="flex flex-1 min-w-0">
               <div className="flex-1">
-                <p className="font-semibold text-lg text-white truncate">
+                <p className="font-semibold text-lg text-white line-clamp-1">
                   {item.name}
                 </p>
                 <div className="flex flex-col text-sm text-gray-400 space-y-2 mt-2">

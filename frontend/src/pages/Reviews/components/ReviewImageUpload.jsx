@@ -1,4 +1,5 @@
-import { Camera, X } from "lucide-react";
+import { ImagePlus, X, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const ReviewImageUpload = ({
   productId,
@@ -6,56 +7,123 @@ const ReviewImageUpload = ({
   fileInputRefs,
   handleImageUpload,
   handleRemoveImage,
+  disabled,
 }) => {
+  const currentImages = images[productId] || [];
+
   return (
-    <div className="w-full">
-      <div className="flex flex-wrap gap-3">
-        {(!images[productId] || images[productId].length < 3) && (
-          <button
-            type="button"
-            onClick={() => fileInputRefs.current[productId].click()}
-            className="w-24 h-24 flex flex-col items-center justify-center bg-indigo-900/30 border-2 border-dashed border-indigo-400/40 rounded-lg hover:border-indigo-400 hover:bg-indigo-800/30 transition-all group"
-          >
-            <Camera className="w-8 h-8 text-indigo-300 mb-1 group-hover:text-indigo-200" />
-            <span className="text-xs text-indigo-300 group-hover:text-indigo-200">
-              Add Photos
-            </span>
-          </button>
-        )}
-
-        {images[productId]?.map((img, index) => (
-          <div key={index} className="relative w-24 h-24 group">
-            <img
-              src={img}
-              alt={`Review ${index + 1}`}
-              className="w-full h-full object-cover rounded-lg shadow-md"
-            />
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all rounded-lg"></div>
-            <button
-              type="button"
-              onClick={() => handleRemoveImage(productId, index)}
-              className="absolute top-1 right-1 p-1 bg-red-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
-            >
-              <X className="w-4 h-4 text-white" />
-            </button>
-          </div>
-        ))}
-
-        <input
-          type="file"
-          accept="image/*"
-          multiple
-          className="hidden"
-          ref={(el) => (fileInputRefs.current[productId] = el)}
-          onChange={(e) => handleImageUpload(productId, e)}
-        />
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-medium text-white">Add Photos</span>
+        <span className="text-sm text-gray-400">
+          {currentImages.length}/3 images
+        </span>
       </div>
 
-      <p className="text-xs text-indigo-300/80 mt-3">
-        Share up to 3 photos to help other shoppers (PNG, JPG)
-      </p>
+      {/* Upload Button - When no images */}
+      {currentImages.length === 0 && (
+        <UploadButton
+          productId={productId}
+          fileInputRefs={fileInputRefs}
+          handleImageUpload={(e) => handleImageUpload(productId, e)}
+          disabled={disabled}
+          fullWidth
+        />
+      )}
+
+      {/* Image Preview Grid */}
+      {currentImages.length > 0 && (
+        <div className="flex gap-3">
+          {/* Existing Images */}
+          {currentImages.map((image, index) => (
+            <ImagePreview
+              key={`${productId}-${index}`}
+              image={image}
+              index={index}
+              disabled={disabled}
+              onRemove={() => handleRemoveImage(productId, index)}
+            />
+          ))}
+
+          {/* Upload Button - When there are existing images */}
+          {currentImages.length < 3 && (
+            <UploadButton
+              productId={productId}
+              fileInputRefs={fileInputRefs}
+              handleImageUpload={(e) => handleImageUpload(productId, e)}
+              disabled={disabled}
+            />
+          )}
+        </div>
+      )}
     </div>
   );
 };
+
+const ImagePreview = ({ image, index, disabled, onRemove }) => (
+  <div className="relative w-36 h-36 rounded-lg overflow-hidden border border-brand-end/50">
+    <img
+      src={typeof image === "string" ? image : URL.createObjectURL(image)}
+      alt={`Review ${index + 1}`}
+      className="w-full h-full object-cover"
+      onLoad={(e) => {
+        if (typeof image !== "string") {
+          URL.revokeObjectURL(e.target.src);
+        }
+      }}
+    />
+    {!disabled && (
+      <Button
+        variant="destructive"
+        size="icon"
+        className="absolute top-1 right-1 w-6 h-6"
+        onClick={(e) => {
+          e.stopPropagation();
+          onRemove();
+        }}
+      >
+        <X className="w-4 h-4" />
+      </Button>
+    )}
+  </div>
+);
+
+const UploadButton = ({
+  productId,
+  fileInputRefs,
+  handleImageUpload,
+  disabled,
+  fullWidth = false,
+}) => (
+  <>
+    <input
+      type="file"
+      accept="image/*"
+      multiple
+      className="hidden"
+      onChange={handleImageUpload}
+      ref={(el) => (fileInputRefs.current[productId] = el)}
+      disabled={disabled}
+    />
+    <Button
+      variant="ghost"
+      className={`${
+        fullWidth ? "w-full" : "aspect-square"
+      } rounded-lg border-2 border-dashed border-brand-end hover:border-blue-400 hover:bg-brand-dark/30 text-gray-400 min-h-[145px]`}
+      onClick={() => fileInputRefs.current[productId]?.click()}
+      disabled={disabled}
+    >
+      <div className="flex flex-col items-center gap-3">
+        <ImagePlus className="w-8 h-8" />
+        <span className="text-sm">Add Photos</span>
+        {fullWidth && (
+          <span className="text-xs text-gray-500">
+            Drag and drop or click to upload
+          </span>
+        )}
+      </div>
+    </Button>
+  </>
+);
 
 export default ReviewImageUpload;

@@ -5,9 +5,10 @@ import Metadata from "@/components/layout/Metadata/Metadata";
 import ContactHeroSection from "./components/ContactHeroSection";
 import ContactFormSection from "./components/ContactFormSection";
 import SideContentSection from "./components/SideContentSection";
+import { motion } from "framer-motion";
+import { contactAnimations } from "@/hooks/Animation/animationConfig";
 
 const Contact = () => {
-
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -39,7 +40,7 @@ const Contact = () => {
     e.preventDefault();
 
     if (!formData.agreeToPrivacyPolicy) {
-      toast.error("Please agree to the Privacy Policy");
+      toast.error("Please agree to the Privacy Policy and Terms of Service");
       return;
     }
 
@@ -64,7 +65,13 @@ const Contact = () => {
       <ContactHeroSection />
 
       {/* Main Content */}
-      <div className="px-6 py-10">
+      <motion.div
+        className="px-5 lg:px-10 py-10 bg-white"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.1 }}
+        variants={contactAnimations.containerVariants}
+      >
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 items-start">
           <ContactFormSection
             formData={formData}
@@ -75,7 +82,7 @@ const Contact = () => {
           />
           <SideContentSection />
         </div>
-      </div>
+      </motion.div>
     </>
   );
 };

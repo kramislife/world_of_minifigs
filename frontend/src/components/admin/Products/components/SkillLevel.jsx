@@ -60,7 +60,7 @@ const SkillLevel = ({ formData, onChange }) => {
             <label
               key={skillLevel._id}
               htmlFor={skillLevel._id}
-              className={`flex items-center justify-center p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer ${
+              className={`flex items-center justify-center p-4 rounded-lg border hover:shadow-sm transition-shadow cursor-pointer ${
                 formData.skillLevel === skillLevel._id
                   ? ACTIVE_COLORS[0]
                   : DEFAULT_COLOR

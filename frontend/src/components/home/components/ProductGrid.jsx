@@ -1,30 +1,23 @@
-import React, { useRef } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import ProductCard from "@/components/product/ProductCard";
-import { CategoryFallback } from "@/components/product/shared/FallbackStates";
-import { motion } from "framer-motion";
+import { FallbackMessage } from "@/components/product/shared/FallbackStates";
 import { Button } from "@/components/ui/button";
 import SkeletonGrid from "@/components/layout/skeleton/Home/SkeletonGrid";
 
-// Component that displays four columns of products in Best Selling and Latest Products in Home Page
-const ProductGrid = ({
-  title,
-  products,
-  baseUrl,
-  animations,
-  isLoading,
-  isError,
-}) => {
+// A Product Grid that displays four columns of products in Best Selling and Latest Products
+const ProductGrid = ({ title, products, baseUrl, isLoading, isError }) => {
   const navigate = useNavigate();
-  const ref = useRef(null);
 
+  // Display Skeleton while loading
   if (isLoading) {
     return <SkeletonGrid />;
   }
 
+  // Display error message if there is an error
   if (isError)
     return (
-      <CategoryFallback
+      <FallbackMessage
         title="Error Loading Products"
         message="There was a problem loading the products. Please try again later."
       />
@@ -33,7 +26,7 @@ const ProductGrid = ({
   // Show fallback state when no products are available
   if (!products?.length) {
     return (
-      <CategoryFallback
+      <FallbackMessage
         title={`No ${title} Available`}
         message={`Every masterpiece starts with a single brick. Watch this space for amazing new ${title}!`}
       />
@@ -47,39 +40,22 @@ const ProductGrid = ({
   };
 
   return (
-    <div ref={ref} className="p-4 flex flex-col">
-      <motion.h2
-        variants={animations.titleVariants}
-        initial="visible"
-        animate="visible"
-        className="text-3xl font-extrabold mb-4 text-center pt-6"
-      >
-        {title}
-      </motion.h2>
+    <div className="flex flex-col p-5">
+      <h2 className="text-3xl font-extrabold text-center py-5">{title}</h2>
 
-      <motion.div
-        variants={animations.buttonVariants}
-        initial="visible"
-        animate="visible"
-        className="flex items-center justify-center pb-10"
-      >
+      <div className="flex items-center justify-center pb-2">
         <Button onClick={handleViewAll} variant="accent">
           View All
         </Button>
-      </motion.div>
+      </div>
 
-      <motion.div
-        variants={animations.containerVariants}
-        initial="visible"
-        animate="visible"
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 py-5"
-      >
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 py-5">
         {products.slice(0, 4).map((product) => (
-          <motion.div key={product._id} variants={animations.cardVariants}>
+          <div key={product._id}>
             <ProductCard product={product} />
-          </motion.div>
+          </div>
         ))}
-      </motion.div>
+      </div>
     </div>
   );
 };

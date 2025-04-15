@@ -7,6 +7,9 @@ import { useLoginMutation } from "@/redux/api/authApi";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 import Metadata from "@/components/layout/Metadata/Metadata";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 
 const Login = () => {
   const [email_username, setEmail_username] = useState("");
@@ -25,8 +28,8 @@ const Login = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      // If returning to product page after "Buy Now", just go back to the product
-      if (returnTo === "product") {
+      // If returning to product page after voting, navigate back
+      if (returnTo === "product" && location.state?.action === "vote") {
         navigate(from);
         return;
       }
@@ -67,50 +70,45 @@ const Login = () => {
   return (
     <>
       <Metadata title="Login" />
-      <div className="min-h-screen flex items-center justify-center bg-brand-gradient p-4">
-        <div className="w-full max-w-7xl flex gap-12 items-center">
-          <motion.div
-            {...loginAnimations.imageContainerVariants}
-            className="flex-1 hidden lg:block"
-          >
-            <motion.img
-              src={LoginImg}
-              alt="Login illustration"
-              className="w-full h-full object-contain drop-shadow-2xl filter saturate-110"
-              {...loginAnimations.imageVariants}
-            />
-          </motion.div>
-
-          {/* Right side - Login Form */}
+      <div className="px-3 py-12 md:py-7">
+        <div className="container mx-auto grid grid-cols-1 md:grid-cols-2 gap-2 max-w-7xl">
+          {/* Left side - Login Form */}
           <motion.div
             {...loginAnimations.formContainerVariants}
-            className="flex-1 p-8 rounded-3xl backdrop-blur-lg shadow-2xl bg-gradient-to-br from-brand-start/40 to-brand-end/40 border border-white/20 relative overflow-hidden"
+            className="w-full px-5 py-10 border border-brand-end/50 rounded-2xl"
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/5 to-transparent pointer-events-none" />
-
-            <div className="space-y-10 py-10 px-2 relative">
-              <motion.div
-                {...loginAnimations.headerVariants}
-                className="space-y-3"
-              >
-                <h1 className="text-4xl font-bold text-white tracking-tight">
-                  Login
-                </h1>
-                <p className="text-light/90 text-md tracking-wide font-light">
-                  Enter your details below to Sign-in
-                </p>
+            <div>
+              <motion.div className="mb-8">
+                <motion.h1
+                  className="text-4xl font-bold"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  Welcome back!
+                </motion.h1>
+                <motion.p
+                  className="text-gray-400 text-sm mt-2"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.5, delay: 0.2 }}
+                >
+                  Sign in to your account to continue
+                </motion.p>
               </motion.div>
 
-              <form className="space-y-7" onSubmit={submitHandler}>
+              <form onSubmit={submitHandler} className="space-y-5">
                 <motion.div
                   {...loginAnimations.inputVariants}
                   transition={loginAnimations.emailInputTransition}
-                  className="space-y-4"
+                  className="space-y-2"
                 >
-                  <input
+                  <Label>
+                    Email or Username <span className="text-yellow-400">*</span>
+                  </Label>
+                  <Input
                     type="text"
-                    placeholder="Email Address or Username"
-                    className="bg-darkBrand/50 border-white/20 text-black placeholder:text-gray-400 h-14 w-full rounded-xl focus:ring-2 focus:ring-light/40 focus:border-light/40 transition-all duration-300 text-md px-3"
+                    placeholder="Enter your email or username"
                     required
                     onChange={(e) => setEmail_username(e.target.value)}
                   />
@@ -119,54 +117,110 @@ const Login = () => {
                 <motion.div
                   {...loginAnimations.inputVariants}
                   transition={loginAnimations.passwordInputTransition}
-                  className="space-y-4"
+                  className="space-y-2"
                 >
-                  <input
+                  <div className="flex justify-between items-center">
+                    <Label>
+                      Password <span className="text-yellow-400">*</span>
+                    </Label>
+                  </div>
+                  <Input
                     type="password"
-                    placeholder="Password"
-                    className="bg-darkBrand/50 border-white/20 text-black placeholder:text-gray-400 h-14 rounded-xl focus:ring-2 focus:ring-light/40 focus:border-light/40 transition-all duration-300 text-md w-full px-3"
+                    placeholder="Enter your password"
                     required
                     onChange={(e) => setPassword(e.target.value)}
                   />
                 </motion.div>
 
-                <motion.div
-                  {...loginAnimations.forgotPasswordVariants}
-                  className="text-right"
-                >
-                  <Link
-                    to="/password/forgot"
-                    className="text-sm hover:text-blue transition-colors duration-300 font-md  tracking-widest text-accent no-underline "
+                <div className="flex justify-end">
+                  <motion.div
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.4, delay: 0.6 }}
                   >
-                    Forgot Password?
-                  </Link>
-                </motion.div>
+                    <Link
+                      to="/password/forgot-password"
+                      className="text-sm text-yellow-400 hover:text-yellow-300"
+                    >
+                      Forgot your password?
+                    </Link>
+                  </motion.div>
+                </div>
 
-                <motion.div {...loginAnimations.buttonVariants}>
-                  <button
+                <motion.div
+                  {...loginAnimations.buttonVariants}
+                  className="pt-2"
+                >
+                  <Button
                     type="submit"
-                    className="w-full bg-gradient-r border border-brand hover:bg-brand-gradient text-white h-14 rounded-xl text-md shadow-lg transition-all duration-300 relative overflow-hidden group tracking-wider"
+                    variant="submit"
+                    size="lg"
+                    disabled={isLoading}
                   >
                     <span className="relative z-10">
-                      {isLoading ? "Loading.." : "Log in"}
+                      {isLoading ? "Loading..." : "Log In"}
                     </span>
-                  </button>
+                  </Button>
                 </motion.div>
               </form>
+              <motion.div
+                className="text-gray-400 text-sm pt-5 flex items-start leading-6"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 1 }}
+              >
+                <p>
+                  By logging in, you agree to our{" "}
+                  <Link
+                    to="/terms-of-use"
+                    className="text-blue-400 hover:text-blue-300"
+                  >
+                    Terms of Service
+                  </Link>{" "}
+                  and{" "}
+                  <Link
+                    to="/privacy-policy"
+                    className="text-blue-400 hover:text-blue-300"
+                  >
+                    Privacy Policy
+                  </Link>{" "}
+                </p>
+              </motion.div>
 
               <motion.div
-                {...loginAnimations.registerLinkVariants}
-                className="text-light/90 text-md"
+                className="text-center text-gray-300 pt-5"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.8 }}
               >
-                Don't have an account?
-                <Link
-                  to="/register"
-                  className="text-blue hover:text-white transition-colors duration-300 font-md underline text-accent tracking-wider px-2"
-                >
-                  Register Now
-                </Link>
+                <p>
+                  Don't have an account?{" "}
+                  <Link
+                    to="/register"
+                    className="text-yellow-400 hover:text-yellow-300 font-medium"
+                  >
+                    Register here
+                  </Link>
+                </p>
               </motion.div>
             </div>
+          </motion.div>
+
+          {/* Right side - Image */}
+          <motion.div
+            {...loginAnimations.imageContainerVariants}
+            className="hidden md:block place-self-center"
+          >
+            <motion.div
+              className="max-w-xl w-full"
+              {...loginAnimations.imageVariants}
+            >
+              <img
+                src={LoginImg}
+                alt="Login illustration"
+                className="w-full h-auto object-contain"
+              />
+            </motion.div>
           </motion.div>
         </div>
       </div>

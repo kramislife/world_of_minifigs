@@ -88,7 +88,7 @@ const DesktopSidebar = ({ isMinimized, toggleMinimize }) => {
   return (
     <div
       className={`
-        bg-darkBrand/30 border-r border-white/20 hidden lg:block
+        bg-darkBrand/30 border-r border-brand-end/50 hidden lg:block
         transition-all duration-300 ease-in-out h-full relative
         ${isMinimized ? "w-24" : "w-72"}
       `}
@@ -97,7 +97,7 @@ const DesktopSidebar = ({ isMinimized, toggleMinimize }) => {
         variant="ghost"
         size="icon"
         onClick={toggleMinimize}
-        className="absolute top-6 -right-5 z-50"
+        className="absolute top-6 -right-5 z-50 hover:text-black"
       >
         {isMinimized ? (
           <ChevronsRight className="w-10 h-10" />

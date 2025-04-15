@@ -235,9 +235,9 @@ const ProductInfo = ({
                           handleColorChange(variant.id);
                           scrollThumbnailIntoView?.(variant.thumbnailIndex);
                         }}
-                        className={`w-8 h-8 rounded-full transition-all mt-1 ${
+                        className={`w-6 h-6 rounded-full transition-all mt-1 ${
                           variant.isActive
-                            ? "border-red-500 border-2"
+                            ? "border-accent border-2"
                             : "border border-gray-600"
                         }`}
                         style={{
@@ -249,7 +249,7 @@ const ProductInfo = ({
                   : // Show single product color if no variants
                     product?.product_color && (
                       <div
-                        className="w-6 h-6 rounded-full mt-1 border-2 border-red-500"
+                        className="w-6 h-6 rounded-full mt-1 border-2 border-accent"
                         style={{
                           backgroundColor: product.product_color.code,
                         }}

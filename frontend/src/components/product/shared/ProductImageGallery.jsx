@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
-  ProductImagePlaceholder,
+  PlaceholderImage,
   ProductThumbnailPlaceholder,
 } from "./FallbackStates";
 import { useNavigate } from "react-router-dom";
@@ -33,12 +33,7 @@ const ProductImageGallery = ({
   const DiscountBadge = () =>
     currentProduct?.discount > 0 && (
       <div className="absolute top-4 right-4 z-10">
-        <Badge
-          variant="destructive"
-          className="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5"
-        >
-          {currentProduct.discount}% OFF
-        </Badge>
+        <Badge variant="discount">{currentProduct.discount}% OFF</Badge>
       </div>
     );
 
@@ -57,11 +52,11 @@ const ProductImageGallery = ({
             </div>
           </div>
         </div>
-        <div className="flex-1 relative bg-blue-950 rounded-lg overflow-hidden">
+        <div className="flex-1 relative bg-brand-dark/30 rounded-lg overflow-hidden">
           <div className="w-full pt-[100%] relative">
             <DiscountBadge />
             <div className="absolute inset-0">
-              <ProductImagePlaceholder />
+              <PlaceholderImage width="w-64" />
             </div>
           </div>
         </div>
@@ -131,7 +126,7 @@ const ProductImageGallery = ({
                   <div
                     className={`absolute inset-0 rounded-lg overflow-hidden border-2 transition-all ${
                       currentImageIndex === index
-                        ? "border-red-600 border-4"
+                        ? "border-accent border-4"
                         : "border border-slate-700"
                     }`}
                   >
@@ -143,7 +138,7 @@ const ProductImageGallery = ({
                           className="w-full h-full object-contain md:object-cover"
                         />
                       ) : (
-                        <ProductImagePlaceholder />
+                        <PlaceholderImage width="w-16" />
                       )
                     ) : item.url ? (
                       <img
@@ -152,7 +147,7 @@ const ProductImageGallery = ({
                         className="w-full h-full object-contain md:object-cover"
                       />
                     ) : (
-                      <ProductImagePlaceholder />
+                      <PlaceholderImage width="w-16" />
                     )}
                   </div>
                 </div>
@@ -182,7 +177,7 @@ const ProductImageGallery = ({
                     transition={{ duration: 0.3 }}
                   />
                 ) : (
-                  <ProductImagePlaceholder />
+                  <PlaceholderImage width="w-64" />
                 )
               ) : displayItems[currentImageIndex]?.url ? (
                 <motion.img
@@ -196,7 +191,7 @@ const ProductImageGallery = ({
                   transition={{ duration: 0.3 }}
                 />
               ) : (
-                <ProductImagePlaceholder />
+                <PlaceholderImage width="w-64" />
               )}
             </AnimatePresence>
           </div>

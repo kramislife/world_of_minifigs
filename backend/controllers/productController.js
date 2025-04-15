@@ -2,10 +2,7 @@ import catchAsyncErrors from "../middlewares/catchAsyncErrors.js";
 import Category from "../models/category.model.js";
 import Product from "../models/product.model.js";
 import API_Filters from "../Utills/apiFilters.js";
-import {
-  delete_user_avatar_file,
-  upload_product_images,
-} from "../Utills/cloudinary.js";
+import { deleteImage, uploadImage } from "../Utills/cloudinary.js";
 import ErrorHandler from "../Utills/customErrorHandler.js";
 
 // calculate discounted price
@@ -47,7 +44,70 @@ export const getProduct = catchAsyncErrors(async (req, res, next) => {
     });
   }
 
-  // Handle paginated product listing
+  // Enhanced search logic for the keyword parameter
+  if (req.query.keyword) {
+    const keyword = req.query.keyword.trim();
+
+    // For exact phrase matching
+    const exactPhrase = {
+      product_name: { $regex: `\\b${keyword}\\b`, $options: "i" },
+    };
+
+    // For multi-word search with weighted relevance
+    const words = keyword.split(/\s+/).filter((word) => word.length > 2);
+    const wordQueries = words.map((word) => ({
+      product_name: { $regex: `\\b${word}\\b`, $options: "i" },
+    }));
+
+    // Find products that match the exact phrase or most of the keywords
+    let query;
+    if (words.length > 1) {
+      // For multi-word searches, prioritize exact matches and then partial matches
+      query = {
+        $or: [
+          exactPhrase,
+          // Match if most words appear in the product name (more than half)
+          { $and: wordQueries.slice(0, Math.ceil(words.length / 2)) },
+        ],
+      };
+    } else {
+      // For single word/phrase searches, just use the exact match
+      query = exactPhrase;
+    }
+
+    // Apply the enhanced search query
+    const apiFilters = new API_Filters(Product, {
+      ...req.query,
+      customQuery: query,
+    })
+      .search()
+      .filters();
+
+    // Rest of the pagination and response logic
+    const allFilteredProducts = await populateProductFields(
+      apiFilters.query.clone()
+    );
+    const filteredProductCount = allFilteredProducts.length;
+
+    const resPerPage = 9;
+    const currentPage = Number(req.query.page) || 1;
+    apiFilters.pagination(resPerPage);
+    const paginatedProducts = await populateProductFields(
+      apiFilters.query.clone()
+    );
+
+    return res.status(200).json({
+      resPerPage,
+      currentPage,
+      totalPages: Math.ceil(filteredProductCount / resPerPage),
+      filteredProductCount,
+      message: `${filteredProductCount} Products retrieved successfully`,
+      products: addDiscountedPrice(paginatedProducts),
+      allProducts: addDiscountedPrice(allFilteredProducts),
+    });
+  }
+
+  // Original code for regular filtering without keyword search
   const resPerPage = 9;
   const currentPage = Number(req.query.page) || 1;
   const apiFilters = new API_Filters(Product, req.query).search().filters();
@@ -210,7 +270,7 @@ export const deleteAllProducts = catchAsyncErrors(async (req, res, next) => {
 export const uploadProductImage = catchAsyncErrors(async (req, res, next) => {
   const urls = await Promise.all(
     req.body.images.map((image) =>
-      upload_product_images(image, "world_of_minifigs//products")
+      uploadImage(image, "world_of_minifigs/products")
     )
   );
 
@@ -247,7 +307,7 @@ export const deleteProductImage = catchAsyncErrors(async (req, res, next) => {
   }
 
   // Delete image from storage
-  const isDeleted = await delete_user_avatar_file(public_id);
+  const isDeleted = await deleteImage(public_id);
 
   if (!isDeleted) {
     return next(new ErrorHandler("Failed to delete image from storage", 500));

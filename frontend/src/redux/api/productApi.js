@@ -9,16 +9,7 @@ export const productApi = createApi({
     // --------------------------------- GET PRODUCTS ---------------------------------------
 
     getProducts: builder.query({
-      query: (queryString) => {
-        if (typeof queryString === "object") {
-          const params = new URLSearchParams();
-          Object.entries(queryString).forEach(([key, value]) => {
-            params.append(key, Array.isArray(value) ? value.join(",") : value);
-          });
-          queryString = params.toString();
-        }
-        return `/products?${queryString}`;
-      },
+      query: () => `/products`,
       providesTags: (result) =>
         result
           ? [

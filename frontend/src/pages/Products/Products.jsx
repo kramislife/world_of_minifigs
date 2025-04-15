@@ -1,38 +1,22 @@
-import React, { useState, useMemo } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
-import FilterAccordion from "@/components/product/FilterAccordion";
+import React from "react";
+import { useNavigate } from "react-router-dom";
 import ProductSection from "@/components/product/ProductSection";
 import Metadata from "@/components/layout/Metadata/Metadata";
-import ProductSort from "@/components/product/shared/ProductSort";
-import { Filter } from "lucide-react";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import CustomPagination from "@/components/product/shared/CustomPagination";
-import useScrollToTop from "@/hooks/Common/useScrollToTop";
+import ProductSort from "@/components/product/ProductSort";
+import CustomPagination from "@/components/product/CustomPagination";
+import ProductsSkeleton from "@/components/layout/skeleton/Products/ProductsSkeleton";
+import MobileFilters from "@/components/product/shared/MobileFilters";
+import DesktopFilters from "@/components/product/shared/DesktopFilter";
+import { FallbackMessage } from "@/components/product/shared/FallbackStates";
 import { useProductQueries } from "@/hooks/Product/useProductQueries";
 import { useProductFilters } from "@/hooks/Product/useProductFilters";
 import { useProductPagination } from "@/hooks/Product/useProductPagination";
-import ProductsSkeleton from "@/components/layout/skeleton/Products/ProductsSkeleton";
 
 const Products = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [currentSort, setCurrentSort] = useState("date_desc");
-  const scrollToTop = useScrollToTop();
-  const navigate = useNavigate();
 
-  // Fetch all product data
-  const {
-    productData,
-    isProductLoading,
-    productError,
-    filterData,
-    groupedProducts,
-  } = useProductQueries(searchParams);
+  // Get products data and filtering options
+  const { productData, isProductLoading, filterData, groupedProducts } =
+    useProductQueries();
 
   // Handle filters
   const {
@@ -45,72 +29,55 @@ const Products = () => {
     handleFilterChange,
   } = useProductFilters(filterData);
 
-  // Handle pagination and sorting with grouped products
-  const { currentPage, paginatedProducts, totalPages, sortedProducts } =
-    useProductPagination(groupedProducts, currentSort);
-
-  // Handle page change
-  const handlePageChange = (page) => {
-    if (page < 1 || page > totalPages) return;
-    const newSearchParams = new URLSearchParams(searchParams);
-    newSearchParams.set("page", page);
-    setSearchParams(newSearchParams);
-    scrollToTop();
+  // Create a wrapper for filter change that closes the sheet
+  const handleFilterChangeAndCloseSheet = (key, value) => {
+    handleFilterChange(key, value);
+    setIsFilterOpen(false);
   };
 
-  // Handle sort change
-  const handleSortChange = (value) => {
-    setCurrentSort(value);
-    const newSearchParams = new URLSearchParams(searchParams);
-    newSearchParams.set("page", "1");
-    setSearchParams(newSearchParams);
-    scrollToTop();
-  };
-
-  // Add this new handler for image navigation
-  const handleImageNavigation = (productId) => {
-    navigate(`/product/${productId}`);
-  };
+  // Handle pagination and sorting
+  const {
+    currentPage,
+    currentSort,
+    paginatedProducts,
+    totalPages,
+    sortedProducts,
+    handlePageChange,
+    handleSortChange,
+  } = useProductPagination(groupedProducts);
 
   // Loading state
   if (isProductLoading) {
     return <ProductsSkeleton />;
   }
 
+  // Display fallback message if no products are found
+  if (!sortedProducts || sortedProducts.length === 0) {
+    return (
+      <FallbackMessage
+        title="No Products Found"
+        message="Try adjusting your filters or check back later for new products."
+      />
+    );
+  }
+
   return (
     <>
       <Metadata title="Products" />
-      <div className="mx-auto px-4 py-8 bg-brand-end/50">
+      <div className="mx-auto px-4 py-8 bg-brand-start">
         {/* Mobile Filter and Sort */}
         <div className="lg:hidden mb-4 flex items-center justify-between">
-          <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
-            <SheetTrigger asChild>
-              <button className="flex items-center gap-2 bg-transparent">
-                <Filter className="h-5 w-5" />
-                <span>Filters</span>
-              </button>
-            </SheetTrigger>
-            <SheetContent
-              side="left"
-              className="w-[350px] bg-darkBrand border-gray-800"
-            >
-              <SheetHeader>
-                <SheetTitle className=" text-left">
-                  Filters
-                </SheetTitle>
-              </SheetHeader>
-              <div className="mt-6 overflow-y-auto scrollbar-none h-full">
-                <FilterAccordion
-                  categories={filterOptions}
-                  openCategories={openCategories}
-                  onCategoriesChange={setOpenCategories}
-                  selectedFilters={selectedFilters}
-                  onFilterChange={handleFilterChange}
-                  products={productData?.allProducts || []}
-                />
-              </div>
-            </SheetContent>
-          </Sheet>
+          <MobileFilters
+            isFilterOpen={isFilterOpen}
+            setIsFilterOpen={setIsFilterOpen}
+            filterOptions={filterOptions}
+            openCategories={openCategories}
+            setOpenCategories={setOpenCategories}
+            selectedFilters={selectedFilters}
+            onFilterChange={handleFilterChangeAndCloseSheet}
+            productData={productData}
+            sortedProducts={sortedProducts}
+          />
           <ProductSort
             totalProducts={sortedProducts?.length || 0}
             currentProducts={paginatedProducts?.length || 0}
@@ -121,26 +88,17 @@ const Products = () => {
           />
         </div>
 
+        {/* Desktop Filter and Sort */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 py-2">
-          {/* Desktop Filter */}
-          <div className="hidden lg:block col-span-1 border border-brand-end rounded-md p-4 sticky top-24 h-[85vh]">
-            <div className="flex items-center mb-4 space-x-2">
-              <Filter className="h-6 w-6" />
-              <h2 className="text-xl font-bold">Filters</h2>
-            </div>
-            <div className="max-h-[75vh] overflow-y-auto pr-2">
-              <FilterAccordion
-                categories={filterOptions}
-                openCategories={openCategories}
-                onCategoriesChange={setOpenCategories}
-                selectedFilters={selectedFilters}
-                onFilterChange={handleFilterChange}
-                products={productData?.allProducts || []}
-              />
-            </div>
-          </div>
-
-          {/* Products Grid with Sort */}
+          <DesktopFilters
+            filterOptions={filterOptions}
+            openCategories={openCategories}
+            setOpenCategories={setOpenCategories}
+            selectedFilters={selectedFilters}
+            onFilterChange={handleFilterChangeAndCloseSheet}
+            productData={productData}
+            sortedProducts={sortedProducts}
+          />
           <div className="col-span-1 lg:col-span-3">
             <div className="hidden lg:block">
               <ProductSort
@@ -150,21 +108,9 @@ const Products = () => {
                 onSortChange={handleSortChange}
               />
             </div>
-            {paginatedProducts && paginatedProducts.length > 0 ? (
-              <ProductSection
-                products={paginatedProducts}
-                onImageNavigation={handleImageNavigation}
-              />
-            ) : (
-              <div className="flex flex-col items-center justify-center py-16">
-                <h3 className="text-3xl font-semibold text-gray-300 mb-2">
-                  No Products Found
-                </h3>
-                <p className="text-gray-400 text-center py-2">
-                  Try refreshing the page or check back later for new products.
-                </p>
-              </div>
-            )}
+            <ProductSection
+              products={paginatedProducts}
+            />
           </div>
         </div>
 

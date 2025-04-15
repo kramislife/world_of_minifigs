@@ -1,34 +1,46 @@
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { AlertCircle } from "lucide-react";
 import { format } from "date-fns";
+import { AlertTriangle } from "lucide-react"; // optional icon for visual enhancement
 
-const OrderCancelled = ({ order, getStatusConfig }) => {
+const OrderCancelled = ({ order }) => {
+  const formattedDate = format(new Date(order.cancelledAt), "PPP 'at' p");
+
   return (
-    <Card
-      className={`${getStatusConfig("Cancelled").bgColor} border-red-500/20`}
-    >
-      <CardContent className="pt-6">
-        <div className="flex items-start gap-3">
-          <div className="p-2 rounded-lg bg-red-500/20">
-            <AlertCircle className="w-5 h-5 text-red-400" />
+    <div className="relative">
+      {/* Top colored border */}
+      <div className="absolute top-0 left-0 right-0 h-2 bg-red-500 rounded-t-md" />
+
+      <Card className="bg-brand-dark/20 border-brand-end/50 text-white overflow-hidden">
+        <CardContent className="pt-5">
+          <div className="flex items-start gap-4">
+            <div className="mt-1">
+              <AlertTriangle
+                className="text-red-400 w-5 h-5"
+                aria-hidden="true"
+              />
+            </div>
+
+            <div>
+              <h3 className="text-md md:text-lg font-semibold">
+                Order <span className="text-red-400">Cancelled</span> on{" "}
+                {formattedDate}
+              </h3>
+
+              {order?.cancellationReason ? (
+                <p className="mt-2 text-sm">
+                  <strong>Reason:</strong> {order.cancellationReason}
+                </p>
+              ) : (
+                <p className="mt-2 text-sm text-gray-400 italic">
+                  No reason provided.
+                </p>
+              )}
+            </div>
           </div>
-          <div>
-            <h3 className="text-lg font-semibold text-red-400 mb-1">
-              Order Cancelled
-            </h3>
-            <p className="text-gray-400">
-              Cancelled on {format(new Date(order.cancelledAt), "PPP")}
-            </p>
-            {order.cancellationReason && (
-              <p className="mt-2 text-gray-300">
-                Reason: {order.cancellationReason}
-              </p>
-            )}
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 

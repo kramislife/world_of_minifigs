@@ -54,7 +54,7 @@ const Profile = () => {
   );
 
   return (
-    <div className="lg:p-10 p-3 max-w-8xl">
+    <div className="p-5">
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
         {/* Left Column - Profile & Stats */}
         <div className="space-y-5 lg:col-span-2">
@@ -91,9 +91,9 @@ const Profile = () => {
         </div>
 
         {/* Right Column - Main Content */}
-        <div className="lg:col-span-3 space-y-5">
+        <div className="lg:col-span-3 space-y-5 lg:sticky lg:top-24 h-fit">
           <ProfileProgress user={user} addresses={addresses} orders={orders} />
-          <RecentActivity orders={orders} />
+          {/* <RecentActivity orders={orders} /> */}
         </div>
       </div>
     </div>

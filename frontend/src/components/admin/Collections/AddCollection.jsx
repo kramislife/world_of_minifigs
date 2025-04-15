@@ -1,12 +1,15 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Save, FileText, BookOpen } from "lucide-react";
+import { FileText, BookOpen } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import Metadata from "@/components/layout/Metadata/Metadata";
-import { useCreateCollectionMutation } from "@/redux/api/productApi";
+import {
+  useCreateCollectionMutation,
+  useGetCollectionQuery,
+} from "@/redux/api/productApi";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
@@ -17,21 +20,30 @@ const AddCollection = () => {
   const { user } = useSelector((state) => state.auth);
   const [createCollection, { isLoading }] = useCreateCollectionMutation();
 
+  // Get existing collections to calculate next popularity ID
+  const { data: collectionData } = useGetCollectionQuery();
+
+  // Calculate the next available popularity ID
+  const nextPopularityId = React.useMemo(() => {
+    if (!collectionData?.collections?.length) return "001";
+
+    // Find the highest existing popularity ID
+    const highestId = Math.max(
+      ...collectionData.collections.map((col) => parseInt(col.popularityId, 10))
+    );
+
+    // Add 1 and format as 3-digit string
+    return (highestId + 1).toString().padStart(3, "0");
+  }, [collectionData]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
 
-    // Validate popularityId format
-    const popularityId = formData.get("popularityId");
-    if (!popularityId || !/^\d{1,3}$/.test(popularityId)) {
-      toast.error("Popularity ID must be a number between 001-999");
-      return;
-    }
-
     const collectionData = {
       name: formData.get("name"),
       description: formData.get("description"),
-      popularityId: popularityId.padStart(3, "0"), // Ensure 3-digit format
+      popularityId: formData.get("popularityId"),
       createdBy: user?._id,
       is_active: true,
       isFeatured: formData.get("isFeatured") === "on",
@@ -49,13 +61,13 @@ const AddCollection = () => {
   return (
     <>
       <Metadata title="Add Collection" />
-      <div className="mx-auto py-6">
-        <Card className="shadow-xl border-t-4 border-t-blue-500">
+      <div className="p-3 md:p-5">
+        <Card className="border-t-4 border-t-accent">
           <CardHeader>
             <CardTitle className="text-2xl">Add New Collection</CardTitle>
           </CardHeader>
 
-          <CardContent className="p-6">
+          <CardContent className="p-6 space-y-8">
             <form onSubmit={handleSubmit}>
               <div className="space-y-5">
                 <div className="space-y-3">
@@ -86,13 +98,16 @@ const AddCollection = () => {
                   <Input
                     id="popularityId"
                     name="popularityId"
-                    type="number"
-                    min="001"
-                    max="999"
-                    placeholder="Enter popularity ID (001-999)"
-                    className="mt-1"
-                    required
+                    type="text"
+                    className="mt-1 bg-gray-100"
+                    value={nextPopularityId}
+                    readOnly
+                    disabled
                   />
+                  <p className="text-sm text-gray-500">
+                    This ID is automatically generated based on existing
+                    collections.
+                  </p>
                 </div>
 
                 <div className="space-y-3">
@@ -114,8 +129,12 @@ const AddCollection = () => {
 
                 <div className="space-y-3">
                   <Label className="flex items-center gap-2">
-                    <Checkbox name="isFeatured" id="isFeatured" />
-                    <span className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    <Checkbox
+                      name="isFeatured"
+                      id="isFeatured"
+                      className="border-black data-[state=checked]:bg-accent data-[state=checked]:border-accent"
+                    />
+                    <span className="text-sm font-medium">
                       Add to Featured Collection
                     </span>
                   </Label>
@@ -123,18 +142,12 @@ const AddCollection = () => {
 
                 <div className="flex justify-end space-x-4 pt-6">
                   <Button
+                    variant="submit"
                     type="submit"
                     disabled={isLoading}
-                    className="bg-gradient-to-r from-blue-600 to-purple-600 text-white flex items-center gap-2 hover:from-blue-700 hover:to-purple-700"
+                    className="w-auto"
                   >
-                    {isLoading ? (
-                      <>Creating...</>
-                    ) : (
-                      <>
-                        <Save className="h-4 w-4" />
-                        Create Collection
-                      </>
-                    )}
+                    {isLoading ? "Creating..." : "Create Collection"}
                   </Button>
                 </div>
               </div>

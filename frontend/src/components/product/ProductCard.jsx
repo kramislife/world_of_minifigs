@@ -1,8 +1,10 @@
 import React from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import StarRating from "@/components/product/shared/StarRating";
 import { PlaceholderImage } from "@/components/product/shared/FallbackStates";
-import { Button } from "@/components/ui/button";
 import { useProductCard } from "@/hooks/Product/useProductCard";
+import { Badge } from "../ui/badge";
 
 const ProductCard = ({ product }) => {
   const {
@@ -17,23 +19,21 @@ const ProductCard = ({ product }) => {
   } = useProductCard(product);
 
   return (
-    <div
+    <Card
       onClick={handleViewDetails}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      className="bg-brand-start rounded-2xl overflow-hidden transition-all duration-300 hover:scale-100 group relative cursor-pointer h-full flex flex-col"
+      className="bg-brand-dark/50 rounded-2xl overflow-hidden transition-all duration-300 hover:scale-100 group relative cursor-pointer h-full flex flex-col border-none"
     >
       {/* Discount Badge */}
       {product?.discount > 0 && (
         <div className="absolute top-4 right-4 z-10">
-          <div className="bg-accent px-3 py-1.5 rounded-full text-brand-start text-sm font-medium shadow-lg">
-            {product.discount}% OFF
-          </div>
+          <Badge variant="discount">{product.discount}% OFF</Badge>
         </div>
       )}
 
-      {/* Product Image Container  */}
-      <div className="relative w-full aspect-square overflow-hidden">
+      {/* Product Image Container */}
+      <CardContent className="p-0 relative w-full aspect-square overflow-hidden">
         {hasImages ? (
           <>
             {/* Main Image */}
@@ -62,10 +62,10 @@ const ProductCard = ({ product }) => {
         <Button onClick={(e) => e.stopPropagation()} variant="popup">
           View Details
         </Button>
-      </div>
+      </CardContent>
 
       {/* Product Info */}
-      <div className="p-5 flex flex-col gap-5 flex-grow">
+      <CardContent className="p-5 flex flex-col gap-5 flex-grow text-white">
         <h3 className="text-md font-semibold transition-colors line-clamp-1">
           {product?.product_name || "Unnamed Product"}
         </h3>
@@ -93,15 +93,18 @@ const ProductCard = ({ product }) => {
           {/* Ratings */}
           <div className="flex justify-between items-center pt-2">
             <div className="flex items-center gap-2">
-              <StarRating rating={Number(reviewStats.averageRating)} />
-              <span className="text-sm text-gray-300/80">
+              <StarRating
+                rating={Number(reviewStats.averageRating)}
+                size="sm"
+              />
+              <span className="text-sm text-gray-400">
                 ({reviewStats.totalReviews})
               </span>
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 

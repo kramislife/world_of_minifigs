@@ -40,15 +40,15 @@ const ProductSort = ({
       <div className={`flex items-center ${!minimal && "gap-2"}`}>
         {!minimal && <span className="text-sm">Sort by:</span>}
         <Select value={currentSort} onValueChange={onSortChange}>
-          <SelectTrigger className="w-[220px] bg-brand-start border-none">
+          <SelectTrigger className="w-[220px] bg-brand-dark/50 border-none">
             <SelectValue placeholder="Select sorting" />
           </SelectTrigger>
-          <SelectContent className="bg-brand-start border-none">
+          <SelectContent className="bg-brand-dark/90 border-none shadow-lg">
             {sortOptions.map((option) => (
               <SelectItem
                 key={option.value}
                 value={option.value}
-                className="hover:text-black cursor-pointer text-white"
+                className="hover:bg-accent hover:text-black cursor-pointer text-white"
               >
                 {option.label}
               </SelectItem>

@@ -1,4 +1,4 @@
-// Shared base animations for product grids 
+// Shared base animations for product grids
 const baseProductGridAnimations = {
   containerVariants: {
     hidden: { opacity: 0 },
@@ -10,7 +10,7 @@ const baseProductGridAnimations = {
       },
     },
   },
-  
+
   cardVariants: {
     hidden: {
       opacity: 0,
@@ -127,7 +127,7 @@ export const featuredProductAnimations = {
   },
 };
 
-// Collections animations 
+// Collections animations
 export const collectionsAnimations = {
   ...baseProductGridAnimations,
   containerVariants: {
@@ -140,7 +140,7 @@ export const collectionsAnimations = {
       },
     },
   },
-  
+
   // Additional collection-specific animations
   imageVariants: {
     initial: { scale: 1.2, opacity: 0 },
@@ -421,6 +421,337 @@ export const productViewAnimations = {
     visible: {
       opacity: 1,
       y: 0,
+    },
+  },
+};
+
+// Animation config for Contact page components
+export const contactAnimations = {
+  // Main container animations
+  containerVariants: {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2,
+        delayChildren: 0.1,
+      },
+    },
+  },
+
+  // Form animations
+  formVariants: {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+        damping: 15,
+        delay: 0.2,
+      },
+    },
+  },
+
+  // Side content animations
+  sideContentVariants: {
+    hidden: { opacity: 0, x: 30 },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+        damping: 15,
+        delay: 0.4,
+      },
+    },
+  },
+
+  // Social media section animations
+  socialVariants: {
+    hidden: { opacity: 0, scale: 0.9 },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+        damping: 15,
+      },
+    },
+  },
+
+  // Social media icon animations
+  iconVariants: {
+    hidden: { opacity: 0, y: 10 },
+    visible: (index) => ({
+      opacity: 1,
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+        damping: 15,
+        delay: 0.1 * index,
+      },
+    }),
+  },
+
+  // FAQ section animations
+  faqVariants: {
+    hidden: { opacity: 0, scale: 0.95 },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+        damping: 15,
+        delay: 0.2,
+      },
+    },
+  },
+
+  // FAQ item animations
+  faqItemVariants: {
+    hidden: { opacity: 0, y: 10 },
+    visible: (index) => ({
+      opacity: 1,
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+        damping: 15,
+        delay: 0.1 * index,
+      },
+    }),
+  },
+};
+
+// Animation config for About page components
+export const aboutAnimations = {
+  // Hero section animations
+  heroVariants: {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2,
+        delayChildren: 0.1,
+      },
+    },
+  },
+
+  heroTitleVariants: {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+        damping: 15,
+      },
+    },
+  },
+
+  heroTextVariants: {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+        damping: 15,
+        delay: 0.2,
+      },
+    },
+  },
+
+  // Stats section animations
+  statsContainerVariants: {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.15,
+        delayChildren: 0.1,
+      },
+    },
+  },
+
+  statCardVariants: {
+    hidden: { opacity: 0, y: 20, scale: 0.95 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+        damping: 15,
+      },
+    },
+  },
+
+  // Story section animations
+  storyImageVariants: {
+    hidden: { opacity: 0, x: -50 },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+        damping: 15,
+      },
+    },
+  },
+
+  storyContentVariants: {
+    hidden: { opacity: 0, x: 50 },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+        damping: 15,
+        delay: 0.2,
+      },
+    },
+  },
+
+  // How to order section animations
+  orderContainerVariants: {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2,
+        delayChildren: 0.1,
+      },
+    },
+  },
+
+  orderHeaderVariants: {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+        damping: 15,
+      },
+    },
+  },
+
+  orderStepVariants: {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+        damping: 15,
+      },
+    },
+  },
+
+  // Choose us section animations
+  chooseUsContainerVariants: {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2,
+        delayChildren: 0.1,
+      },
+    },
+  },
+
+  chooseUsCardVariants: {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+        damping: 15,
+      },
+    },
+  },
+
+  // Testimonial section animations
+  testimonialContainerVariants: {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.15,
+        delayChildren: 0.1,
+      },
+    },
+  },
+
+  testimonialCardVariants: {
+    hidden: { opacity: 0, y: 20, scale: 0.95 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+        damping: 15,
+      },
+    },
+  },
+
+  // Explore section animations
+  exploreContainerVariants: {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        duration: 0.5,
+        staggerChildren: 0.2,
+      },
+    },
+  },
+
+  exploreTitleVariants: {
+    hidden: { opacity: 0, y: -20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+        damping: 15,
+      },
+    },
+  },
+
+  exploreTextVariants: {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { delay: 0.2, duration: 0.5 },
+    },
+  },
+
+  exploreButtonVariants: {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { delay: 0.4, duration: 0.5 },
     },
   },
 };

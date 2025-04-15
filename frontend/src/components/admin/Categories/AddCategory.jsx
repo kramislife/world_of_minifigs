@@ -1,7 +1,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Save } from "lucide-react";
+import { FileText } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Metadata from "@/components/layout/Metadata/Metadata";
@@ -9,7 +9,6 @@ import { useCreateCategoryMutation } from "@/redux/api/productApi";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
-import { FileText } from "lucide-react";
 
 const AddCategory = () => {
   const navigate = useNavigate();
@@ -29,7 +28,7 @@ const AddCategory = () => {
 
     const categoryData = {
       name: formData.get("name"),
-      popularityId: popularityId.padStart(3, "0"), // Ensure 3-digit format
+      popularityId: popularityId.padStart(3, "0"),
       createdBy: user?._id,
       is_active: true,
     };
@@ -46,14 +45,14 @@ const AddCategory = () => {
   return (
     <>
       <Metadata title="Add Category" />
-      <div className="mx-auto py-6">
-        <Card className="shadow-xl border-t-4 border-t-blue-500">
-          <CardHeader>
-            <CardTitle className="text-2xl">Add New Category</CardTitle>
-          </CardHeader>
+      <div className="p-3 md:p-5">
+        <form onSubmit={handleSubmit}>
+          <Card className="border-t-4 border-t-accent">
+            <CardHeader>
+              <CardTitle className="text-2xl">Add New Category</CardTitle>
+            </CardHeader>
 
-          <CardContent className="p-6">
-            <form onSubmit={handleSubmit}>
+            <CardContent className="p-6 space-y-8">
               <div className="space-y-5">
                 <div className="space-y-3">
                   <Label
@@ -67,7 +66,6 @@ const AddCategory = () => {
                     id="name"
                     name="name"
                     placeholder="Enter category name"
-                    className="mt-1"
                     required
                   />
                 </div>
@@ -87,31 +85,24 @@ const AddCategory = () => {
                     min="001"
                     max="999"
                     placeholder="Enter popularity ID (001-999)"
-                    className="mt-1"
                     required
                   />
                 </div>
-
-                <div className="flex justify-end space-x-4 pt-6">
-                  <Button
-                    type="submit"
-                    disabled={isLoading}
-                    className="bg-gradient-to-r from-blue-600 to-purple-600 text-white flex items-center gap-2 hover:from-blue-700 hover:to-purple-700"
-                  >
-                    {isLoading ? (
-                      <>Creating...</>
-                    ) : (
-                      <>
-                        <Save className="h-4 w-4" />
-                        Create Category
-                      </>
-                    )}
-                  </Button>
-                </div>
               </div>
-            </form>
-          </CardContent>
-        </Card>
+
+              <div className="flex justify-end space-x-4 pt-6 border-t">
+                <Button
+                  variant="submit"
+                  type="submit"
+                  className="w-auto"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Creating..." : "Create Category"}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </form>
       </div>
     </>
   );

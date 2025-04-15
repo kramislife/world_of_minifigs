@@ -50,7 +50,7 @@ const ProductIncludes = ({ formData, onCheckboxChange }) => {
             return (
               <div
                 key={item}
-                className={`flex items-center space-x-3 p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow ${
+                className={`flex items-center space-x-3 p-4 rounded-lg border hover:shadow-sm transition-shadow ${
                   isChecked
                     ? INCLUDES_COLORS[item] || DEFAULT_COLOR
                     : DEFAULT_COLOR
@@ -62,7 +62,7 @@ const ProductIncludes = ({ formData, onCheckboxChange }) => {
                   onCheckedChange={(checked) =>
                     onCheckboxChange("productIncludes", item, checked)
                   }
-                  className="w-5 h-5 border-gray-300 rounded focus:ring focus:ring-opacity-50"
+                  className="border-black data-[state=checked]:bg-accent data-[state=checked]:border-accent"
                 />
                 <Label
                   htmlFor={item}

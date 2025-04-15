@@ -22,19 +22,16 @@ const SubCollectionsPage = () => {
             : "Sub-Collections"
         }
       />
-      <section className="p-4">
-        <h2 className="text-3xl text-gray-300 font-extrabold mb-4 pt-6 header-text flex items-center gap-2 py-5">
-          <div className="w-1 h-8 bg-red-500 rounded mr-2" />
-          <span>{collectionDetails?.collection?.name}</span>
-        </h2>
-
+      <div className="p-5">
         <CollectionGrid
           collections={subCollections}
           onCollectionClick={handleSubCollectionClick}
           isInView={true}
           isLoading={isLoading}
+          type="sub-collections"
+          collectionName={collectionDetails?.collection?.name}
         />
-      </section>
+      </div>
     </>
   );
 };

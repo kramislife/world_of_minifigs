@@ -70,9 +70,9 @@ const BaseChart = ({ type = "bar", data, options }) => {
         ? {
             y: {
               beginAtZero: true,
-              grid: { color: "rgba(255, 255, 255, 0.1)" },
+              grid: { color: "#446080" },
               ticks: {
-                color: "rgba(255, 255, 255, 0.7)",
+                color: "white",
                 callback: (value) =>
                   options?.currency
                     ? `$${value.toLocaleString()}`
@@ -80,8 +80,8 @@ const BaseChart = ({ type = "bar", data, options }) => {
               },
             },
             x: {
-              grid: { color: "rgba(255, 255, 255, 0.1)" },
-              ticks: { color: "rgba(255, 255, 255, 0.7)" },
+              grid: { color: "#446080" },
+              ticks: { color: "white" },
             },
           }
         : undefined,
@@ -89,7 +89,7 @@ const BaseChart = ({ type = "bar", data, options }) => {
       legend: {
         position: "top",
         labels: {
-          color: "rgba(255, 255, 255, 0.7)",
+          color: "white",
           font: { size: 11 },
         },
       },

@@ -37,7 +37,7 @@ const CancelOrderDialog = ({
 }) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md bg-gray-900 border-gray-800">
+      <DialogContent className="bg-brand-dark border-none">
         <DialogHeader>
           <DialogTitle className="text-white">Cancel Order</DialogTitle>
           <DialogDescription className="text-gray-400">
@@ -52,11 +52,11 @@ const CancelOrderDialog = ({
                   id={reason}
                   checked={selectedReasons.includes(reason)}
                   onCheckedChange={() => handleReasonChange(reason)}
-                  className="border-gray-600 data-[state=checked]:bg-emerald-500 data-[state=checked]:border-emerald-500"
+                  className="border-brand-end/50 data-[state=checked]:bg-accent data-[state=checked]:border-accent"
                 />
                 <Label
                   htmlFor={reason}
-                  className="text-gray-300 font-normal cursor-pointer"
+                  className="text-gray-200 font-normal cursor-pointer"
                 >
                   {reason}
                 </Label>
@@ -67,20 +67,14 @@ const CancelOrderDialog = ({
                     placeholder="Please specify your reason"
                     value={otherReason}
                     onChange={(e) => setOtherReason(e.target.value)}
-                    className="bg-gray-800 border-gray-700 text-gray-300 focus:ring-emerald-500 focus:border-emerald-500"
                   />
                 </div>
               )}
             </div>
           ))}
         </div>
-        <DialogFooter className="sm:justify-between">
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={() => onOpenChange(false)}
-            className="text-gray-400 hover:text-gray-300 hover:bg-gray-800"
-          >
+        <DialogFooter className="md:gap-0 gap-3">
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
           <Button
@@ -88,7 +82,6 @@ const CancelOrderDialog = ({
             variant="destructive"
             onClick={() => handleCancelOrder(orderId, onOpenChange)}
             disabled={isCancelButtonDisabled}
-            className="bg-red-500/20 text-red-400 hover:bg-red-500/30"
           >
             {isProcessingRefund ? "Cancelling..." : "Confirm Cancellation"}
           </Button>

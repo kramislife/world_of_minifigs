@@ -1,6 +1,10 @@
-import { Star } from "lucide-react";
+import React, { useState } from "react";
+import { AlertCircle } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import ReviewImageUpload from "./ReviewImageUpload";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import StarRating from "@/components/product/shared/StarRating";
 
 const ProductReviewCard = ({
   item,
@@ -8,152 +12,92 @@ const ProductReviewCard = ({
   reviews,
   images,
   fileInputRefs,
+  showReviewBox,
   handleRating,
   handleReviewChange,
   handleImageUpload,
   handleRemoveImage,
-  isEdited = {},
+  handleBuyAgain,
+  toggleReviewBox,
+  isProductEdited,
+  processingImages,
+  isCompressing,
+  existingReview,
 }) => {
-  const productIsEdited = isEdited?.[item.product._id] || false;
+  const isMobile = window.innerWidth < 640;
+  const hasReviewText = Boolean(reviews[item.product._id]);
+
+  const shouldShowReviewBox = !isMobile || showReviewBox || hasReviewText;
 
   return (
-    <div className="p-6 rounded-xl bg-white/5 backdrop-blur-sm border border-indigo-400/20 shadow-lg transition-all hover:border-indigo-400/40">
-      <div className="flex flex-col gap-6">
-        <div className="flex gap-6">
-          {/* Item image and discount */}
-          <div className="relative group">
+    <div className="p-4 rounded-xl bg-brand-dark/30 border border-brand-end/50">
+      <div className="flex flex-col gap-5">
+        {/* Product Info */}
+        <div className="flex items-start gap-3">
+          <div className="relative bg-brand-dark rounded-lg overflow-hidden">
             <img
               src={item.image}
               alt={item.name}
-              className="w-32 h-32 object-cover rounded-lg shadow-md transform transition-transform group-hover:scale-105"
+              className="w-32 h-32 object-cover"
             />
             {item.discount > 0 && (
-              <div className="absolute top-2 right-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-md">
-                {item.discount}% OFF
+              <div className="absolute top-2 right-2 z-10">
+                <Badge variant="discount">{item.discount}% OFF</Badge>
               </div>
             )}
           </div>
 
-          <div className="flex-1">
-            <div className="flex flex-col">
-              <div className="flex items-center justify-between">
-                {/* Item name */}
-                <h3 className="text-xl font-semibold text-white">
-                  {item.name}
-                </h3>
-
-                {/* Item rating */}
-                <div className="flex gap-2">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <button
-                      key={star}
-                      type="button"
-                      onClick={() => handleRating(item.product._id, star)}
-                      disabled={productIsEdited}
-                      className={`transition-transform hover:scale-110 focus:outline-none ${
-                        productIsEdited ? "cursor-not-allowed opacity-50" : ""
-                      }`}
-                    >
-                      <Star
-                        size={28}
-                        fill={
-                          (ratings[item.product._id] || 0) >= star
-                            ? "rgb(250 204 21)"
-                            : "none"
-                        }
-                        className={
-                          (ratings[item.product._id] || 0) >= star
-                            ? "text-yellow-400"
-                            : "text-gray-400"
-                        }
-                      />
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Item discounted price and original price */}
-              <div className="flex items-center gap-3">
-                <span className="text-lg font-semibold text-white">
-                  ${item.discountedPrice?.toFixed(2)}
-                </span>
-                {item.discount > 0 && (
-                  <span className="text-sm text-gray-400 line-through">
-                    ${item.price?.toFixed(2)}
-                  </span>
-                )}
-              </div>
-
-              {/* Item quantity */}
-              <div className="mt-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-indigo-300">Quantity:</span>
-                  <span className="text-sm text-white">{item.quantity}</span>
-                </div>
-              </div>
-
-              {/* Item color */}
-              {item.color && (
-                <span className="text-sm text-indigo-300 mt-1">
-                  Color: {item.color}
-                </span>
-              )}
-
-              {/* Item includes */}
-              {item.includes && (
-                <span className="text-sm text-indigo-300 mt-1">
-                  Includes: {item.includes}
-                </span>
-              )}
-            </div>
+          <div className="flex-1 min-w-0">
+            <ProductInfo
+              item={item}
+              ratings={ratings}
+              handleRating={handleRating}
+              isProductEdited={isProductEdited}
+            />
           </div>
         </div>
 
-        {/* Item review */}
-        <div className="w-full">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <span className="text-md font-medium text-indigo-200">
-                Your Review
-              </span>
-              <span className="text-xs text-red-400">*</span>
-            </div>
-            <span
-              className={`text-sm ${
-                reviews[item.product._id]?.length > 450
-                  ? "text-orange-300"
-                  : "text-gray-400"
-              }`}
-            >
-              {reviews[item.product._id]?.length || 0}/500
-            </span>
-          </div>
-          <Textarea
-            placeholder="What did you like or dislike about this product? How was the quality, comfort, and overall experience?"
-            className={`w-full min-h-[120px] bg-indigo-950/30 border-indigo-500/30 rounded-lg resize-none text-white placeholder:text-indigo-300/70 focus:border-indigo-400 shadow-inner ${
-              productIsEdited ? "opacity-50 cursor-not-allowed" : ""
-            }`}
-            maxLength={500}
-            value={reviews[item.product._id] || ""}
-            onChange={(e) =>
-              handleReviewChange(item.product._id, e.target.value)
-            }
-            disabled={productIsEdited}
+        {/* Mobile view actions */}
+        {isMobile && (
+          <MobileActions
+            item={item}
+            ratings={ratings}
+            handleRating={handleRating}
+            handleBuyAgain={handleBuyAgain}
+            toggleReviewBox={toggleReviewBox}
+            isProductEdited={isProductEdited}
+            existingReview={existingReview}
+            hasReviewText={hasReviewText}
           />
-        </div>
+        )}
 
-        {/* Item image upload */}
-        <ReviewImageUpload
-          productId={item.product._id}
-          images={images}
-          fileInputRefs={fileInputRefs}
-          handleImageUpload={handleImageUpload}
-          handleRemoveImage={handleRemoveImage}
-          disabled={productIsEdited}
-        />
+        {/* Review Section */}
+        {shouldShowReviewBox && (
+          <ReviewSection
+            productId={item.product._id}
+            reviews={reviews}
+            handleReviewChange={handleReviewChange}
+            isProductEdited={isProductEdited}
+          />
+        )}
 
-        {productIsEdited && (
-          <div className="mt-4 p-2 bg-yellow-900/40 border border-yellow-600/50 rounded text-yellow-300 text-sm">
+        {/* Image Upload Section */}
+        {shouldShowReviewBox && (
+          <ReviewImageUpload
+            productId={item.product._id}
+            images={images}
+            fileInputRefs={fileInputRefs}
+            handleImageUpload={handleImageUpload}
+            handleRemoveImage={handleRemoveImage}
+            disabled={isProductEdited}
+            processingImages={processingImages}
+            isCompressing={isCompressing}
+          />
+        )}
+
+        {isProductEdited && (
+          <div className="text-accent text-sm flex items-center gap-2 mt-3">
+            <AlertCircle className="w-4 h-4" />
             This review has already been edited and cannot be modified further.
           </div>
         )}
@@ -161,5 +105,121 @@ const ProductReviewCard = ({
     </div>
   );
 };
+
+// Sub-components for better organization
+const ProductInfo = ({ item, ratings, handleRating, isProductEdited }) => (
+  <>
+    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1">
+      <p className="font-semibold text-md md:text-lg text-white line-clamp-1">
+        {item.name}
+      </p>
+      <div className="hidden sm:block">
+        <StarRating
+          rating={ratings[item.product._id] || 0}
+          size="lg"
+          interactive={!isProductEdited}
+          onRatingChange={(rating) => handleRating(item.product._id, rating)}
+          disabled={isProductEdited}
+        />
+      </div>
+    </div>
+    <PriceInfo item={item} />
+    <ProductDetails item={item} />
+  </>
+);
+
+const PriceInfo = ({ item }) => (
+  <div className="flex items-center mt-1 gap-2">
+    <span className="font-bold text-emerald-400 text-lg">
+      ${(item.quantity * item.discountedPrice).toFixed(2)}
+    </span>
+    {item.quantity > 1 && (
+      <span className="text-xs text-gray-400 line-through">
+        ${item.discountedPrice.toFixed(2)} each
+      </span>
+    )}
+  </div>
+);
+
+const ProductDetails = ({ item }) => (
+  <div className="flex flex-col text-sm text-gray-300 space-y-1 mt-1">
+    {item.color && <span>{item.color}</span>}
+    {item.includes && <span className="line-clamp-1">{item.includes}</span>}
+    <span>Quantity: {item.quantity}</span>
+  </div>
+);
+
+const MobileActions = ({
+  item,
+  ratings,
+  handleRating,
+  handleBuyAgain,
+  toggleReviewBox,
+  isProductEdited,
+  existingReview,
+  hasReviewText,
+}) => (
+  <div className="sm:hidden space-y-4">
+    <div className="flex items-center justify-between gap-2">
+      <span className="text-gray-200 font-semibold text-lg">Quick Review</span>
+      <StarRating
+        rating={ratings[item.product._id] || 0}
+        size="lg"
+        interactive={!isProductEdited}
+        onRatingChange={(rating) => handleRating(item.product._id, rating)}
+        disabled={isProductEdited}
+      />
+    </div>
+    <div className="flex gap-2">
+      <Button
+        variant="accent"
+        className="w-full hover:transform-none hover:bg-accent/90"
+        onClick={handleBuyAgain}
+      >
+        Buy Again
+      </Button>
+      {!hasReviewText && (
+        <Button
+          variant="outline"
+          className="w-full hover:transform-none hover:bg-input"
+          onClick={toggleReviewBox}
+          disabled={isProductEdited}
+        >
+          {existingReview ? "Update Review" : "Write a Review"}
+        </Button>
+      )}
+    </div>
+  </div>
+);
+
+const ReviewSection = ({
+  productId,
+  reviews,
+  handleReviewChange,
+  isProductEdited,
+}) => (
+  <div className="w-full text-white">
+    <div className="flex items-center justify-between my-3">
+      <div className="flex items-center gap-2">
+        <span className="text-sm font-medium">Write a Feedback</span>
+      </div>
+      <span
+        className={`text-sm ${
+          reviews[productId]?.length > 450 ? "text-red-500" : "text-gray-400"
+        }`}
+      >
+        {reviews[productId]?.length || 0}/500
+      </span>
+    </div>
+    <Textarea
+      placeholder="Share your thoughts"
+      maxLength={500}
+      className="min-h-32 md:min-h-24 bg-transparent text-white placeholder:text-gray-300"
+      value={reviews[productId] || ""}
+      onChange={(e) => handleReviewChange(productId, e.target.value)}
+      disabled={isProductEdited}
+    />
+  </div>
+);
 
 export default ProductReviewCard;

@@ -2,14 +2,13 @@ import { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { setIsCartOpen } from "@/redux/features/userSlice";
-import logo from "@/assets/worldofminifigs.png";
-
 import SearchSheet from "./SearchSheet";
 import CartButton from "./CartButton";
 import DesktopNavbar from "./components/DesktopNavbar";
 import MobileMenu from "./components/MobileMenu";
 import UserDropdown from "./UserDropdown";
 import { User } from "lucide-react";
+import logo from "@/assets/worldofminifigs.png";
 import CartSheet from "./CartSheet";
 
 const Header = () => {
@@ -33,9 +32,9 @@ const Header = () => {
   const isItemAdded = totalItems > prevCartCount;
 
   return (
-    <nav className="bg-brand-start fixed w-full top-0 z-50 border-b border-brand-end">
+    <nav className="bg-brand-start fixed w-full top-0 z-50 border-b border-brand-end/50">
       <div className="max-w-[1920px] mx-auto">
-        <div className="flex items-center justify-between h-[85px] px-4 sm:px-6">
+        <div className="flex items-center justify-between h-[85px] p-6">
           <div className="flex items-center flex-shrink-0">
             {/* Logo */}
             <NavLink to="/">
@@ -47,27 +46,29 @@ const Header = () => {
             <DesktopNavbar />
           </div>
           {/* Search and Cart */}
-          <div className="flex items-center space-x-6">
-            <div className="z-[100]">
+          <div className="flex items-center md:space-x-2">
+            <div className="flex items-center justify-center w-8">
               <SearchSheet
                 searchQuery={searchQuery}
                 setSearchQuery={setSearchQuery}
               />
             </div>
-            <CartButton
-              itemCount={totalItems}
-              showAnimation={isItemAdded}
-              onClick={() => dispatch(setIsCartOpen(true))}
-            />
+            <div className="flex items-center justify-center h-10 w-10">
+              <CartButton
+                itemCount={totalItems}
+                showAnimation={isItemAdded}
+                onClick={() => dispatch(setIsCartOpen(true))}
+              />
+            </div>
 
             {/* User Dropdown */}
-            <div className="relative hidden md:block z-[100]">
+            <div className="hidden md:flex items-center justify-center h-10 w-10 ">
               {user ? (
                 <UserDropdown />
               ) : (
                 <button
                   onClick={() => navigate("/login")}
-                  className=" hover:text-gray-200"
+                  className="hover:text-gray-200 flex items-center justify-center"
                 >
                   <User size={24} />
                 </button>
@@ -75,7 +76,7 @@ const Header = () => {
             </div>
 
             {/* Mobile Menu */}
-            <div className="z-[100]">
+            <div className="flex items-center justify-center md:hidden  h-10 w-10">
               <MobileMenu user={user} />
             </div>
           </div>

@@ -2,7 +2,14 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { ChevronDown, ChevronRight } from "lucide-react";
 
-const NavigationItem = ({ item, isActive, isMinimized, isOpen, onToggle }) => {
+const NavigationItem = ({
+  item,
+  isActive,
+  isMinimized,
+  isOpen,
+  onToggle,
+  onNavigate,
+}) => {
   const location = useLocation();
 
   // Check if any submenu item is active
@@ -73,7 +80,7 @@ const NavigationItem = ({ item, isActive, isMinimized, isOpen, onToggle }) => {
               ${isOpen ? "opacity-100 max-h-[500px]" : "opacity-0 max-h-0"}
             `}
           >
-            <div className="mt-1 space-y-3 border-l border-accent/30 pl-2">
+            <div className="mt-1 space-y-3 border-l border-gray-700 pl-2">
               {item.subMenu.map((subItem, index) => {
                 const isSubActive = isSubItemActive(subItem.path);
                 return (
@@ -81,6 +88,7 @@ const NavigationItem = ({ item, isActive, isMinimized, isOpen, onToggle }) => {
                     key={index}
                     to={subItem.path}
                     className={subMenuItemClasses(isSubActive)}
+                    onClick={() => onNavigate?.()}
                   >
                     {subItem.icon && (
                       <subItem.icon className="w-4 h-4 opacity-70 group-hover:opacity-100" />
@@ -100,6 +108,7 @@ const NavigationItem = ({ item, isActive, isMinimized, isOpen, onToggle }) => {
     <Link
       to={item.path}
       title={item.label}
+      onClick={() => onNavigate?.()}
       className={`
         flex items-center transition-all duration-200 group
         ${isMinimized ? "p-3 rounded-lg" : "gap-5 px-4 py-3 rounded-lg w-full"}

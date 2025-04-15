@@ -1,10 +1,7 @@
 import catchAsyncErrors from "../middlewares/catchAsyncErrors.js";
 import Banner from "../models/banner.model.js";
 import ErrorHandler from "../Utills/customErrorHandler.js";
-import {
-  upload_single_image,
-  delete_user_avatar_file,
-} from "../Utills/cloudinary.js";
+import { uploadImage, deleteImage } from "../Utills/cloudinary.js";
 
 // Get all banners
 export const getAllBanners = catchAsyncErrors(async (req, res) => {
@@ -26,7 +23,7 @@ export const createBanner = catchAsyncErrors(async (req, res, next) => {
   }
 
   // Upload image to cloudinary
-  const uploadedImage = await upload_single_image(
+  const uploadedImage = await uploadImage(
     imageFile,
     "world_of_minifigs/banners"
   );
@@ -63,8 +60,9 @@ export const updateBanner = catchAsyncErrors(async (req, res, next) => {
   };
 
   if (imageFile) {
-    await delete_user_avatar_file(banner.image.public_id);
-    const uploadedImage = await upload_single_image(
+    // Delete old image and upload new one 
+    await deleteImage(banner.image.public_id);
+    const uploadedImage = await uploadImage(
       imageFile,
       "world_of_minifigs/banners"
     );
@@ -95,8 +93,8 @@ export const deleteBanner = catchAsyncErrors(async (req, res, next) => {
     return next(new ErrorHandler("Banner not found", 404));
   }
 
-  // Delete image from cloudinary
-  await delete_user_avatar_file(banner.image.public_id);
+  // Delete image from cloudinary 
+  await deleteImage(banner.image.public_id);
 
   // Delete banner from database
   await Banner.findByIdAndDelete(id);

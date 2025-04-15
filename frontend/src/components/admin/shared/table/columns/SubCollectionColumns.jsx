@@ -1,9 +1,11 @@
-import { Edit2, Trash2, ImagePlus } from "lucide-react";
+import { Edit2, Trash2, ImagePlus, Loader2 } from "lucide-react";
 
 export const createSubCollectionColumns = (
   handleEdit,
   handleDelete,
-  handleImageUpload
+  handleImageUpload,
+  isUploading,
+  uploadingSubCollectionId
 ) => [
   {
     header: "ID",
@@ -56,15 +58,23 @@ export const createSubCollectionColumns = (
                 handleImageUpload(row.original, e.target.files[0]);
               }
             }}
+            disabled={isUploading}
           />
           <div className="text-purple-600 hover:text-purple-800 p-1 rounded-full hover:bg-purple-100 transition-colors">
-            <ImagePlus size={18} />
+            {isUploading && uploadingSubCollectionId === row.original._id ? (
+              <Loader2 size={18} className="animate-spin" />
+            ) : (
+              <ImagePlus size={18} />
+            )}
           </div>
         </label>
         <button
           onClick={() => handleDelete(row.original)}
-          className="text-red-600 hover:text-red-800 p-1 rounded-full hover:bg-red-100 transition-colors"
+          className="text-red-500 hover:text-red-600 p-1 rounded-full hover:bg-red-100 transition-colors"
           title="Delete Sub-Collection"
+          disabled={
+            isUploading && uploadingSubCollectionId === row.original._id
+          }
         >
           <Trash2 size={18} />
         </button>

@@ -1,7 +1,6 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Save } from "lucide-react";
 import useProductForm from "@/hooks/Product/useProductForm";
 import BasicInformation from "./components/BasicInformation";
 import ProductDescriptions from "./components/ProductDescriptions";
@@ -28,9 +27,9 @@ const AddProduct = () => {
   return (
     <>
       <Metadata title="Add Product" />
-      <div className="mx-auto py-6 space-y-8">
+      <div className="p-3 md:p-5">
         <form onSubmit={handleSubmit}>
-          <Card className="shadow-xl border-t-4 border-t-blue-500">
+          <Card className="border-t-4 border-t-accent">
             <CardHeader>
               <CardTitle className="text-2xl">Add New Product</CardTitle>
             </CardHeader>
@@ -84,11 +83,7 @@ const AddProduct = () => {
               />
 
               <div className="flex justify-end space-x-4 pt-6 border-t">
-                <Button
-                  type="submit"
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 text-white flex items-center gap-2 hover:from-blue-700 hover:to-purple-700"
-                >
-                  <Save className="h-4 w-4" />
+                <Button variant="submit" type="submit" className="w-auto">
                   {isLoading ? "Creating... " : "Create Product"}
                 </Button>
               </div>

@@ -12,7 +12,6 @@ import {
   createCategory,
   deleteCategoryByID,
   updateCategory,
-  uploadCategoryImage,
 } from "../controllers/categoryController.js";
 
 import {
@@ -55,7 +54,6 @@ import {
   deleteSubCategoryByID,
   updateSubCategory,
   getAllSubCategories,
-  uploadSubCategoryImage,
 } from "../controllers/subCategoryController.js";
 import {
   createSubCollection,
@@ -113,19 +111,6 @@ router
       userRoles.EMPLOYEE
     ),
     deleteCategoryByID)
-  );
-
-// UPLOAD A CATEGORY IMAGE BY ADMIN
-router
-  .route("/admin/categories/:id/upload_image")
-  .patch(
-    isAuthenticatedUser,
-    isAuthorizedUser(
-      userRoles.SUPER_ADMIN,
-      userRoles.ADMIN,
-      userRoles.EMPLOYEE
-    ),
-    uploadCategoryImage
   );
 
 // ---------------------------------- COLLECTION --------------------------------------------------
@@ -234,19 +219,6 @@ router
       userRoles.EMPLOYEE
     ),
     deleteSubCategoryByID
-  );
-
-// UPLOAD A SUB CATEGORY IMAGE BY ADMIN
-router
-  .route("/admin/subcategories/:id/upload_image")
-  .patch(
-    isAuthenticatedUser,
-    isAuthorizedUser(
-      userRoles.SUPER_ADMIN,
-      userRoles.ADMIN,
-      userRoles.EMPLOYEE
-    ),
-    uploadSubCategoryImage
   );
 
 // ---------------------------------- SUB COLLECTION --------------------------------------------------

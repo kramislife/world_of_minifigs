@@ -31,7 +31,7 @@ const TopProductsChart = ({ topProducts, BaseChart, chartColors }) => {
     scales: {
       x: {
         ticks: {
-          color: "rgba(255, 255, 255, 0.7)",
+          color: "white",
           callback: function (value) {
             const label = this.getLabelForValue(value);
             const words = label.split(" - ");
@@ -39,16 +39,16 @@ const TopProductsChart = ({ topProducts, BaseChart, chartColors }) => {
           },
         },
         grid: {
-          color: "rgba(255, 255, 255, 0.1)",
+          color: "#446080",
         },
       },
       y: {
         ticks: {
-          color: "rgba(255, 255, 255, 0.7)",
+          color: "white",
           callback: (value) => `$${value.toLocaleString()}`,
         },
         grid: {
-          color: "rgba(255, 255, 255, 0.1)",
+          color: "#446080",
         },
       },
     },
@@ -70,9 +70,9 @@ const TopProductsChart = ({ topProducts, BaseChart, chartColors }) => {
   };
 
   return (
-    <Card className="bg-darkBrand border-none p-4 hover:bg-darkBrand/90 transition-colors">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-light text-lg font-semibold">
+    <Card className="bg-brand-dark/50 border border-brand-end/50">
+      <CardHeader>
+        <CardTitle className="text-white text-lg font-semibold">
           Top 10 Selling Products
         </CardTitle>
       </CardHeader>

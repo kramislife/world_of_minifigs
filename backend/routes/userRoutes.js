@@ -101,7 +101,6 @@ router.route("/designers/:id").get(getDesignerById);
 // ---------------------------------- PRODUCTS --------------------------------------------------
 
 // GET ALL PRODUCTS
-//isAuthenticatedUser,
 router.route("/products").get(getProduct);
 
 // GET ALL BEST SELLER PRODUCTS

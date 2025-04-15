@@ -52,11 +52,11 @@ const TableLayout = ({
         <table className="w-full caption-bottom text-sm">
           <thead>
             {headerGroups.map((headerGroup) => (
-              <tr key={headerGroup.id} className="border-b border-gray-200/10">
+              <tr key={headerGroup.id} className="border-b border-brand-end">
                 {headerGroup.headers.map((header) => (
                   <th
                     key={header.id}
-                    className="h-14 px-6 align-middle font-semibold text-light/90 text-center"
+                    className="h-14 px-6 align-middle font-semibold text-white text-center"
                   >
                     {flexRender(
                       header.column.columnDef.header,
@@ -72,12 +72,12 @@ const TableLayout = ({
               rows.map((row) => (
                 <tr
                   key={row.id}
-                  className="border-b border-gray-200/10 transition-colors hover:bg-blue-500/10 text-center"
+                  className="border-b border-brand-end/30 transition-colors hover:bg-brand-end/40 cursor-pointer text-center"
                 >
                   {row.getVisibleCells().map((cell) => (
                     <td
                       key={cell.id}
-                      className="py-5 text-sm text-light/80 text-center max-w-[250px] overflow-hidden text-ellipsis whitespace-nowrap"
+                      className="py-5 text-sm text-white text-center max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap"
                     >
                       {flexRender(
                         cell.column.columnDef.cell,
@@ -91,7 +91,7 @@ const TableLayout = ({
               <tr>
                 <td
                   colSpan={headerGroups[0].headers.length}
-                  className="px-6 py-8 text-center text-light/80"
+                  className="px-6 py-8 text-center text-gray-300"
                 >
                   No data found
                 </td>

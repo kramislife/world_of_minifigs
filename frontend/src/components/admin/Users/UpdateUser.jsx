@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Save, User, Mail, Phone, Shield } from "lucide-react";
+import { User, Mail, Phone, Shield } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -62,9 +62,9 @@ const UpdateUser = () => {
   return (
     <>
       <Metadata title="Update User" />
-      <div className="mx-auto py-6">
+      <div className="p-3 md:p-5">
         <form onSubmit={handleSubmit}>
-          <Card className="shadow-xl border-t-4 border-t-blue-500">
+          <Card className="border-t-4 border-t-accent">
             <CardHeader>
               <CardTitle className="text-2xl">Update User</CardTitle>
             </CardHeader>
@@ -192,12 +192,10 @@ const UpdateUser = () => {
               <div className="flex justify-end space-x-4 pt-6 border-t">
                 <Button
                   type="submit"
+                  variant="submit"
                   disabled={isUpdating}
-                  className={`bg-gradient-to-r from-blue-600 to-purple-600 text-white flex items-center gap-2 hover:from-blue-700 hover:to-purple-700 ${
-                    isUpdating ? "opacity-50" : ""
-                  }`}
+                  className="w-auto"
                 >
-                  <Save className="h-4 w-4" />
                   {isUpdating ? "Updating..." : "Update User"}
                 </Button>
               </div>

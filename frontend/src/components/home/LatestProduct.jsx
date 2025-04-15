@@ -1,9 +1,10 @@
 import React from "react";
 import ProductGrid from "./components/ProductGrid";
 import { useCategoryProducts } from "@/hooks/Product/useCategoryProducts";
-import { latestProductAnimations } from "@/hooks/Animation/animationConfig";
 
 const LatestProduct = () => {
+
+  // Fetch only "Latest" Product
   const { products, isLoading, isError, categoryId } =
     useCategoryProducts("latest");
 
@@ -12,7 +13,6 @@ const LatestProduct = () => {
       title="Latest Products"
       products={products}
       baseUrl={`product_category=${categoryId}`}
-      animations={latestProductAnimations}
       isLoading={isLoading}
       isError={isError}
     />

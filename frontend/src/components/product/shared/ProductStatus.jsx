@@ -21,8 +21,8 @@ const ProductStatus = ({ stock, variant = "default" }) => {
     if (stock > 0) {
       return {
         text: "Low Stock",
-        color: "text-yellow-500",
-        bgColor: "bg-yellow-500",
+        color: "text-accent",
+        bgColor: "bg-accent",
         pillTextColor: "text-black",
       };
     }

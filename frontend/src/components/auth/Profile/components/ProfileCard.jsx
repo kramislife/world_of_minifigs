@@ -50,15 +50,15 @@ const ProfileCard = ({
   handleNameUpdate,
 }) => {
   return (
-    <Card className="bg-darkBrand border-none overflow-hidden">
+    <Card className="bg-brand-dark/50 border-none overflow-hidden">
       {/* Gradient Banner */}
       <div className="h-32 bg-gradient-to-r from-blue-600 via-purple-600 to-violet-600"></div>
 
-      <CardContent className="relative px-6 pb-6 -mt-16">
+      <CardContent className="relative p-0 -mt-16">
         {/* Profile Picture Section */}
-        <div className="flex flex-col items-center mb-6">
+        <div className="flex flex-col items-center">
           <div className="relative group">
-            <div className="w-32 h-32 rounded-full ring-4 ring-darkBrand bg-gray-800 flex items-center justify-center overflow-hidden">
+            <div className="w-32 h-32 rounded-full ring-4 ring-accent bg-accent flex items-center justify-center overflow-hidden">
               {user?.profile_picture?.url ? (
                 <img
                   src={user.profile_picture.url}
@@ -66,7 +66,7 @@ const ProfileCard = ({
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <span className="text-5xl text-gray-400 font-semibold">
+                <span className="text-5xl text-foreground font-semibold">
                   {user?.name?.[0]?.toUpperCase()}
                 </span>
               )}
@@ -94,7 +94,7 @@ const ProfileCard = ({
           {/* User Info */}
           <div className="text-center mt-5 space-y-1">
             <div className="group relative inline-block">
-              <h2 className="text-2xl font-semibold text-light">
+              <h2 className="text-2xl font-semibold text-white">
                 {user?.name}
               </h2>
               <button
@@ -126,21 +126,19 @@ const ProfileCard = ({
         </div>
 
         {/* Contact Info Section */}
-        <div className="space-y-6">
+        <div className="space-y-3 p-5">
           {/* Phone Number */}
-          <div className="bg-brand rounded-xl p-5">
+          <div className="bg-brand-dark/50 rounded-md border border-brand-end/50 p-5">
             <div className="group flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 bg-darkBrand/70 rounded-lg">
-                  <Phone className="w-5 h-5 text-blue-500" />
-                </div>
+              <d  iv className="flex items-start gap-3">
+                <Phone className="w-5 h-5 text-accent" />
                 <div>
-                  <p className="text-sm text-gray-400">Phone Number</p>
-                  <p className="text-light mt-0.5">
+                  <p className="text-md text-gray-400">Phone Number</p>
+                  <p className="text-white mt-1 text-sm">
                     {user?.contact_number || "No phone number added"}
                   </p>
                 </div>
-              </div>
+              </d>
               <button
                 onClick={() => {
                   setPhoneNumber(user?.contact_number || "");
@@ -154,14 +152,14 @@ const ProfileCard = ({
           </div>
 
           {/* Addresses Section */}
-          <div className="bg-brand rounded-xl p-5">
+          <div className="bg-brand-dark/50 rounded-md border border-brand-end/50 p-5">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="p-2.5 bg-darkBrand/70 rounded-lg">
+                <div className=" bg-darkBrand/70 rounded-lg">
                   <MapPin className="w-5 h-5 text-blue-500" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-400">Saved Addresses</p>
+                  <p className="text-md text-gray-400"> Addresses</p>
                 </div>
               </div>
               <AddressForm
@@ -229,9 +227,11 @@ const ProfileCard = ({
 
         {/* Phone Update Dialog */}
         <Dialog open={isPhoneDialogOpen} onOpenChange={setIsPhoneDialogOpen}>
-          <DialogContent className="bg-brand-gradient border-gray-800 text-light">
+          <DialogContent className="bg-brand-start border-none">
             <DialogHeader>
-              <DialogTitle>Update Phone Number</DialogTitle>
+              <DialogTitle className="text-white">
+                Update Phone Number
+              </DialogTitle>
             </DialogHeader>
             <div className="space-y-4 py-2">
               <div>
@@ -243,13 +243,12 @@ const ProfileCard = ({
                     setPhoneNumber(e.target.value);
                     setPhoneError("");
                   }}
-                  className="bg-brand/60 border-none text-light"
                 />
                 {phoneError && (
                   <p className="text-sm text-red-400">{phoneError}</p>
                 )}
               </div>
-              <div className="flex justify-end gap-3 text-black">
+              <div className="flex justify-end gap-2">
                 <Button
                   variant="outline"
                   onClick={() => setIsPhoneDialogOpen(false)}
@@ -273,9 +272,9 @@ const ProfileCard = ({
 
         {/* Name Update Dialog */}
         <Dialog open={isNameDialogOpen} onOpenChange={setIsNameDialogOpen}>
-          <DialogContent className="bg-darkBrand border-gray-800 text-light">
+          <DialogContent className="bg-brand-start border-none">
             <DialogHeader>
-              <DialogTitle>Update Name</DialogTitle>
+              <DialogTitle className="text-white">Update Name</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
@@ -287,17 +286,15 @@ const ProfileCard = ({
                     setName(e.target.value);
                     setNameError("");
                   }}
-                  className="bg-gray-800/50 border-gray-700 text-light"
                 />
                 {nameError && (
                   <p className="text-sm text-red-400">{nameError}</p>
                 )}
               </div>
-              <div className="flex justify-end gap-3">
+              <div className="flex justify-end gap-2">
                 <Button
                   variant="outline"
                   onClick={() => setIsNameDialogOpen(false)}
-                  className="bg-transparent border-gray-700 text-gray-300 hover:bg-gray-800/50"
                 >
                   Cancel
                 </Button>

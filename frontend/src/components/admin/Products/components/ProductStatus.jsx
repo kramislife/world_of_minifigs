@@ -14,11 +14,11 @@ const ProductStatus = ({ formData, onChange, onDateChange }) => {
       {/* Product Status Section */}
       <section>
         <Label className="text-lg font-semibold">Product Status</Label>
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* In Stock Option */}
           <label
             htmlFor="inStock"
-            className={`flex items-center justify-center p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer ${
+            className={`flex items-center justify-center p-4 rounded-lg border hover:shadow-sm transition-shadow cursor-pointer ${
               formData.status === "In Stock" ? IN_STOCK_COLOR : DEFAULT_COLOR
             }`}
           >

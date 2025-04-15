@@ -1,19 +1,16 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
 import Metadata from "@/components/layout/Metadata/Metadata";
 import { Tabs } from "@/components/ui/tabs";
 import { orderStatus } from "@/constant/orderStatus";
-import LoadingSpinner from "@/components/layout/spinner/LoadingSpinner";
-import ErrorState from "./components/MyOrders/ErrorState";
-import EmptyState from "./components/MyOrders/EmptyState";
-import { OrderStatusTabs } from "./components/MyOrders/OrderStatusTabs";
-import { useOrders } from "@/hooks/Order/useOrders";
+import { FallbackMessage } from "@/components/product/shared/FallbackStates";
+import MyOrderSkeleton from "@/components/layout/skeleton/Order/MyOrderSkeleton";
 import OrdersHeader from "./components/MyOrders/OrdersHeader";
+import OrderStatusTabs from "./components/MyOrders/OrderStatusTabs";
 import OrdersContent from "./components/MyOrders/OrdersContent";
+import { useOrders } from "@/hooks/Order/useOrders";
 
+// MAIN COMPONENT: MyOrders
 const MyOrders = () => {
-  const navigate = useNavigate();
-
   const {
     orders,
     ordersByStatus,
@@ -22,25 +19,33 @@ const MyOrders = () => {
     selectedStatus,
     handleStatusChange,
     handleReviewTabChange,
+    selectedReviewTab,
+    handleOrderClick,
+
+    // Tab-related props
+    isMobile,
+    selectedLabel,
+    mainStatus,
+    dropdownStatus,
+    allStatuses,
+    handleTabChange,
+
+    // Review-related props
+    showReviewDetails,
+    reviewData,
+    handleOrderCardClick,
+    setShowReviewDetails,
+    handleReviewEditClick,
   } = useOrders();
 
-  const handleOrderClick = (orderId) => {
-    navigate(`/order/${orderId}`);
-  };
-
   // Loading state
-  if (isLoading) return <LoadingSpinner className="min-h-screen" />;
-
-  // Error state
-  if (error && error.status !== 404) {
-    return <ErrorState message={error.data?.message || error.message} />;
-  }
+  if (isLoading) return <MyOrderSkeleton />;
 
   // Empty state
   if (!orders.length || error?.status === 404) {
     return (
-      <EmptyState
-        title="My Orders"
+      <FallbackMessage
+        title="No Orders Found"
         message="You haven't placed any orders yet."
       />
     );
@@ -49,11 +54,11 @@ const MyOrders = () => {
   return (
     <>
       <Metadata title="My Orders" />
-      <div className="p-4 md:p-10">
+      <div className="px-5 py-8">
         <OrdersHeader totalOrders={orders.length} />
 
         <Tabs
-          defaultValue={selectedStatus}
+          value={selectedStatus}
           className="w-full"
           onValueChange={handleStatusChange}
         >
@@ -62,6 +67,14 @@ const MyOrders = () => {
             ordersByStatus={ordersByStatus}
             statusParam={selectedStatus}
             onTabChange={handleStatusChange}
+            orderStatus={orderStatus}
+            // Tab-related props
+            isMobile={isMobile}
+            selectedLabel={selectedLabel}
+            mainStatus={mainStatus}
+            dropdownStatus={dropdownStatus}
+            allStatuses={allStatuses}
+            handleTabChange={handleTabChange}
           />
 
           <OrdersContent
@@ -71,6 +84,13 @@ const MyOrders = () => {
             onReviewTabChange={handleReviewTabChange}
             onOrderClick={handleOrderClick}
             orders={orders}
+            selectedReviewTab={selectedReviewTab}
+            // Review-related props
+            showReviewDetails={showReviewDetails}
+            reviewData={reviewData}
+            handleOrderCardClick={handleOrderCardClick}
+            setShowReviewDetails={setShowReviewDetails}
+            handleReviewEditClick={handleReviewEditClick}
           />
         </Tabs>
       </div>

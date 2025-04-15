@@ -5,47 +5,59 @@ import ReviewActions from "./components/ReviewActions";
 import ProductReviewCard from "./components/ProductReviewCard";
 import useReviewForm from "@/hooks/Review/useReviewForm";
 
-const ReviewDialog = ({ open, onOpenChange, order, existingReview = null }) => {
+const ReviewDialog = ({ open, onOpenChange, order, existingReview }) => {
   const {
     ratings,
     reviews,
     images,
     fileInputRefs,
+    processingImages,
     isCreating,
     isUpdating,
+    isCompressing,
     handleRating,
     handleReviewChange,
     handleImageUpload,
     handleRemoveImage,
+    handleBuyAgain,
     handleSubmit,
-  } = useReviewForm(order, existingReview, onOpenChange);
+    isProductEdited,
+    showReviewBox,
+    toggleReviewBox,
+  } = useReviewForm(order, onOpenChange);
+
+
+  // Skip rendering if no order
+  if (!order) return null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent
-        className="max-w-4xl max-h-[90vh] overflow-y-auto bg-brand border-none 
-      scrollbar-none rounded-xl shadow-2xl py-6 px-6"
-      >
+      <DialogContent className="bg-brand-start border border-brand-end/50 max-w-3xl max-h-[95vh] rounded-lg overflow-y-auto scrollbar-none p-3 md:p-5 w-[95vw]">
         <ReviewHeader existingReview={existingReview} orderId={order?._id} />
 
         <EditWarning existingReview={existingReview} />
 
-        <div className="space-y-8">
-          {order?.orderItems?.map((item) => (
-            <ProductReviewCard
-              key={item._id}
-              item={item}
-              ratings={ratings}
-              reviews={reviews}
-              images={images}
-              fileInputRefs={fileInputRefs}
-              handleRating={handleRating}
-              handleReviewChange={handleReviewChange}
-              handleImageUpload={handleImageUpload}
-              handleRemoveImage={handleRemoveImage}
-            />
-          ))}
-        </div>
+        {order?.orderItems?.map((item, index) => (
+          <ProductReviewCard
+            key={`${order?._id}-${item._id}-${index}`}
+            item={item}
+            ratings={ratings}
+            reviews={reviews}
+            images={images}
+            fileInputRefs={fileInputRefs}
+            handleRating={handleRating}
+            handleReviewChange={handleReviewChange}
+            handleImageUpload={handleImageUpload}
+            handleRemoveImage={handleRemoveImage}
+            handleBuyAgain={() => handleBuyAgain(item)}
+            isProductEdited={isProductEdited(item.product._id)}
+            processingImages={processingImages}
+            isCompressing={isCompressing}
+            showReviewBox={showReviewBox[item.product._id]}
+            toggleReviewBox={() => toggleReviewBox(item.product._id)}
+            existingReview={existingReview}
+          />
+        ))}
 
         <ReviewActions
           onOpenChange={onOpenChange}

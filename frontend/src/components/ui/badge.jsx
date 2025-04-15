@@ -9,7 +9,7 @@ const badgeVariants = cva(
     variants: {
       variant: {
         default:
-          "border-transparent bg-primary text-primary-foreground hover:bg-primary/80", // Black Color
+          "border-transparent bg-primary text-primary-foreground", // Black Color
         secondary:
           "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80", // White color
         destructive:
@@ -29,6 +29,7 @@ const badgeVariants = cva(
           "border-transparent bg-pink-100 text-pink-800 hover:bg-pink-200", // Pink color
         accent:
           "border-transparent bg-purple-100 text-purple-800 hover:bg-purple-200", // Purple color
+        discount: "bg-accent text-brand-start border-none", // discount badge
       },
     },
     defaultVariants: {

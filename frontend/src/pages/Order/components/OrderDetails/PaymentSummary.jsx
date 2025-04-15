@@ -2,9 +2,14 @@ import React from "react";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { CreditCard } from "lucide-react";
 
-const PaymentSummary = ({ paymentInfo, totalPrice, taxPrice, shippingPrice }) => {
+const PaymentSummary = ({
+  paymentInfo,
+  totalPrice,
+  taxPrice,
+  shippingPrice,
+}) => {
   return (
-    <Card className="bg-brand/80 border-gray-600/50">
+    <Card className="bg-brand-dark/20 border border-brand-end/50">
       <CardHeader>
         <div className="flex items-center gap-2">
           <CreditCard className="w-5 h-5 text-blue-400" />
@@ -23,15 +28,15 @@ const PaymentSummary = ({ paymentInfo, totalPrice, taxPrice, shippingPrice }) =>
             <span>Subtotal</span>
             <span>${(totalPrice - (shippingPrice + taxPrice)).toFixed(2)}</span>
           </div>
-          <div className="flex justify-between text-gray-300">
+          {/* <div className="flex justify-between text-gray-300">
             <span>Shipping</span>
             <span>${shippingPrice.toFixed(2)}</span>
           </div>
           <div className="flex justify-between text-gray-300">
             <span>Tax</span>
             <span>${taxPrice.toFixed(2)}</span>
-          </div>
-          <div className="border-t border-gray-700 pt-3">
+          </div> */}
+          <div className="border-t border-brand-end/50 pt-3">
             <div className="flex justify-between text-lg font-bold">
               <span className="text-white">Total</span>
               <span className="text-emerald-400">${totalPrice.toFixed(2)}</span>

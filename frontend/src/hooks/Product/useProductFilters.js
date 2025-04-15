@@ -219,14 +219,22 @@ export const useProductFilters = (filterData = {}) => {
     return displayNames[key] || key;
   };
 
-  const getSubItemCount = (products = [], subItem) => {
-    if (!Array.isArray(products)) return 0;
+  const getSubItemCount = (products = [], groupedProducts = [], subItem) => {
+    // Use grouped products if available, otherwise fall back to all products
+    const productsToCount =
+      groupedProducts?.length > 0 ? groupedProducts : products;
 
-    return products.filter((product) => {
+    if (!Array.isArray(productsToCount)) return 0;
+
+    return productsToCount.filter((product) => {
       if (subItem.category) {
-        return product.product_sub_categories?.includes(subItem._id);
+        return product.product_sub_categories?.some(
+          (sub) => sub._id === subItem._id
+        );
       } else if (subItem.collection) {
-        return product.product_sub_collections?.includes(subItem._id);
+        return product.product_sub_collections?.some(
+          (sub) => sub._id === subItem._id
+        );
       }
       return false;
     }).length;
@@ -250,7 +258,7 @@ export const useProductFilters = (filterData = {}) => {
     return items
       .map((subItem) => ({
         ...subItem,
-        count: getSubItemCount(products, subItem),
+        count: getSubItemCount(products, products, subItem),
       }))
       .sort((a, b) => b.count - a.count);
   };
@@ -287,7 +295,10 @@ export const useProductFilters = (filterData = {}) => {
     });
   };
 
-  const calculateFilterCounts = (categories, products) => {
+  const calculateFilterCounts = (categories, products, groupedProducts) => {
+    const productsToCount =
+      groupedProducts?.length > 0 ? groupedProducts : products;
+
     const counts = {};
 
     // Initialize counts
@@ -299,7 +310,7 @@ export const useProductFilters = (filterData = {}) => {
     });
 
     // If no products, return empty counts
-    if (!products || products.length === 0) {
+    if (!productsToCount || productsToCount.length === 0) {
       return counts;
     }
 
@@ -310,12 +321,12 @@ export const useProductFilters = (filterData = {}) => {
 
         if (option.key === "latest" || option.key === "best_seller") {
           // For special categories (latest and best_seller), count products directly
-          count = products.filter(
+          count = productsToCount.filter(
             (product) => product.product_category?.key === option.key
           ).length;
         } else {
           // For regular categories, use the existing counting logic
-          count = products.filter((product) => {
+          count = productsToCount.filter((product) => {
             const matchesCurrentFilter =
               categoryKey === "product_color"
                 ? product.product_color?._id === option.value ||
@@ -362,6 +373,11 @@ export const useProductFilters = (filterData = {}) => {
     };
   }, []);
 
+  // Add this method to handle filter open/close in mobile view
+  const toggleMobileFilter = (isOpen) => {
+    setIsFilterOpen(isOpen);
+  };
+
   return {
     filterOptions,
     openCategories,
@@ -370,6 +386,7 @@ export const useProductFilters = (filterData = {}) => {
     setOpenCategories,
     setIsFilterOpen,
     handleFilterChange,
+    toggleMobileFilter,
     expandedItems,
     currentCategory,
     setExpandedItems,

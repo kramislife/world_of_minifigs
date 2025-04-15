@@ -11,7 +11,7 @@ const OrderCharts = ({
   if (!orderStatusCount || !dailyOrders) return null;
 
   return (
-    <div className="grid gap-6 mb-8 md:grid-cols-2">
+    <div className="grid gap-5 md:grid-cols-2">
       <OrderStatusChart
         orderStatusCount={orderStatusCount}
         BaseChart={BaseChart}

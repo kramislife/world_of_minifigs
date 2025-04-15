@@ -1,5 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
+import { aboutAnimations } from "@/hooks/Animation/animationConfig";
+import { Badge } from "@/components/ui/badge";
 
 const StorySection = () => {
   return (
@@ -7,11 +9,11 @@ const StorySection = () => {
       <div className="px-6">
         <div className="flex flex-col md:flex-row gap-10 items-center">
           <motion.div
-            initial={{ x: -50, opacity: 0 }}
-            whileInView={{ x: 0, opacity: 1 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
             className="md:w-1/2"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.1 }}
+            variants={aboutAnimations.storyImageVariants}
           >
             <img
               src="https://res.cloudinary.com/mark-legostore/image/upload/v1743056478/world_of_minifigs/icons/Father-son.png"
@@ -21,19 +23,19 @@ const StorySection = () => {
           </motion.div>
 
           <motion.div
-            initial={{ x: 50, opacity: 0 }}
-            whileInView={{ x: 0, opacity: 1 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
             className="md:w-1/2"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.1 }}
+            variants={aboutAnimations.storyContentVariants}
           >
-            <div className="inline-block bg-brand-start text-gray-700 px-4 py-1 rounded-full text-sm font-medium mb-6">
-              <span className="text-accent">OUR STORY</span>
-            </div>
-            <h2 className="text-3xl font-bold text-gray-800 mb-6">
+            <Badge className=" bg-brand-start px-4 py-1 text-sm font-medium mb-6 text-accent">
+              OUR STORY
+            </Badge>
+            <h2 className="text-3xl font-bold text-foreground mb-6">
               A Father-Son Journey Into the World of LEGO
             </h2>
-            <div className="space-y-4 text-gray-600 leading-relaxed">
+            <div className="space-y-4 text-gray-700 leading-relaxed">
               <p>
                 <span className="font-bold">World of Minifigs (WOM)</span> is an
                 online store that offers a wide range of LEGO parts,

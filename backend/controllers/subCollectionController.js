@@ -1,7 +1,7 @@
 import catchAsyncErrors from "../middlewares/catchAsyncErrors.js";
-import ErrorHandler from "../Utills/customErrorHandler.js";
-import { upload_single_image } from "../Utills/cloudinary.js";
 import SubCollection from "../models/subCollection.model.js";
+import ErrorHandler from "../Utills/customErrorHandler.js";
+import { uploadImage, deleteImage } from "../Utills/cloudinary.js";
 
 //------------------------------------ GET ALL SUB-COLLECTIONS => GET /subcollections ------------------------------------
 
@@ -16,6 +16,7 @@ export const getAllSubCollections = catchAsyncErrors(async (req, res, next) => {
     );
   }
   res.status(200).json({
+    success: true,
     message: `${subcollections.length} sub-collections retrieved`,
     subcollections,
   });
@@ -26,13 +27,14 @@ export const getAllSubCollections = catchAsyncErrors(async (req, res, next) => {
 export const getSubCollectionById = catchAsyncErrors(async (req, res, next) => {
   const { id } = req.params;
 
-  const subcollections = await SubCollection.findById(id);
-  if (!subcollections) {
-    return next(new ErrorHandler("Failed to retrive all sub-collections", 404));
+  const subcollection = await SubCollection.findById(id);
+  if (!subcollection) {
+    return next(new ErrorHandler("Sub-collection not found", 404));
   }
   res.status(200).json({
-    message: "sub-collection retrived",
-    subcollections,
+    success: true,
+    message: "Sub-collection retrieved successfully",
+    subcollection,
   });
 });
 
@@ -48,16 +50,28 @@ export const createSubCollection = catchAsyncErrors(async (req, res, next) => {
   }
 
   res.status(201).json({
-    message: "Sub Collection created successfully",
+    success: true,
+    message: "Sub-collection created successfully",
     newSubCollection,
   });
 });
 
 //------------------------------------ UPDATE SUB COLLECTION => admin/subcollections/:id ------------------------------------
 
-export const updateSubCollection = catchAsyncErrors(async (req, res) => {
+export const updateSubCollection = catchAsyncErrors(async (req, res, next) => {
   const { id } = req.params;
   const updatedData = { ...req.body };
+
+  // Get existing subcollection first
+  const existingSubCollection = await SubCollection.findById(id);
+  if (!existingSubCollection) {
+    return next(new ErrorHandler("Sub-collection not found", 404));
+  }
+
+  // Preserve the image if it's not being updated
+  if (!updatedData.image && existingSubCollection.image) {
+    updatedData.image = existingSubCollection.image;
+  }
 
   const updatedSubCollection = await SubCollection.findByIdAndUpdate(
     id,
@@ -69,36 +83,33 @@ export const updateSubCollection = catchAsyncErrors(async (req, res) => {
   );
 
   if (!updatedSubCollection) {
-    return res.status(404).json({ message: "Sub Collection not found" });
+    return next(new ErrorHandler("Failed to update sub-collection", 404));
   }
 
   res.status(200).json({
+    success: true,
+    message: "Sub-collection updated successfully",
     updatedSubCollection,
-    message: "Sub Collection updated successfully",
   });
 });
 
 //------------------------------------ DELETE SUB COLLECTION => admin/subcollections/:id ------------------------------------
 
-export const deleteSubCollectionByID = async (req, res) => {
-  try {
-    const { id } = req.params;
+export const deleteSubCollectionByID = catchAsyncErrors(async (req, res, next) => {
+  const { id } = req.params;
 
-    const deletedSubCollection = await SubCollection.findByIdAndDelete(id);
+  const deletedSubCollection = await SubCollection.findByIdAndDelete(id);
 
-    if (!deletedSubCollection) {
-      return res.status(404).json({
-        message: "SubCollection not found",
-      });
-    }
-
-    res.status(200).json({
-      message: "SubCollection deleted successfully",
-    });
-  } catch (error) {
-    res.status(400).json({ message: error.message });
+  if (!deletedSubCollection) {
+    return next(new ErrorHandler("Sub-collection not found", 404));
   }
-};
+
+  res.status(200).json({
+    success: true,
+    message: "Sub-collection deleted successfully",
+    deletedSubCollection,
+  });
+});
 
 //------------------------------------ UPLOAD SUB COLLECTION IMAGE => admin/subcollection/:id/upload_image ------------------------------------
 
@@ -111,28 +122,34 @@ export const uploadSubCollectionImage = catchAsyncErrors(
         return next(new ErrorHandler("No image provided", 400));
       }
 
-      // Assuming `uploadImage` is a helper function to handle the image upload
-      const url = await upload_single_image(
-        image,
-        "world_of_minifigs/sub_collections"
-      );
+      // Find the subcollection first to check if it already has an image
+      const existingSubCollection = await SubCollection.findById(req.params.id);
+      
+      if (!existingSubCollection) {
+        return next(new ErrorHandler("Sub-collection not found", 404));
+      }
+      
+      // If the subcollection already has an image, delete it from Cloudinary
+      if (existingSubCollection.image && existingSubCollection.image.public_id) {
+        await deleteImage(existingSubCollection.image.public_id);
+        console.log("Deleted previous image:", existingSubCollection.image.public_id);
+      }
+
+      // Use standardized image upload function
+      const url = await uploadImage(image, "world_of_minifigs/sub_collections");
 
       console.log("Uploaded URL:", url);
 
-      // Update the product by pushing the single image URL to the `product_images` array
+      // Update the subcollection with the new image URL
       const subcollection = await SubCollection.findByIdAndUpdate(
         req.params.id,
         { image: url }, // Update operation
         { new: true, runValidators: true } // Options
       );
 
-      if (!subcollection) {
-        return next(new ErrorHandler("Sub Collection not found", 404));
-      }
-
       res.status(200).json({
         success: true,
-        message: "Image uploaded successfully",
+        message: "Sub-collection image updated successfully",
         data: subcollection,
       });
     } catch (error) {

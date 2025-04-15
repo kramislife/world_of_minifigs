@@ -18,13 +18,15 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        cart: "w-full bg-red-600 hover:bg-red-700 hover:scale-105 transition-all duration-300 relative text-md py-5",
+        cart: "w-full bg-brand-dark hover:bg-brand-dark/90 hover:scale-105 transition-all duration-300 relative text-md py-5 text-white",
         buyNow:
-          "w-full bg-accent hover:bg-accent/70 hover:scale-105 transition-all duration-300 border-slate-700 text-md py-5 text-black",
+          "w-full bg-accent hover:bg-accent/80 hover:scale-105 transition-all duration-300 border-slate-700 text-md py-5 text-black",
         accent:
           "bg-accent text-foreground hover:scale-105 transition-all duration-300",
         popup:
           "bg-[#FFDF00] text-foreground hover:bg-[#FFDF00]/90 absolute bottom-4 left-1/2 transform -translate-x-1/2 translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 text-foreground px-6 py-2.5 rounded-full font-medium shadow-lg transition-all duration-300 ease-out pointer-events-none",
+        submit:
+          "w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-3 h-12 rounded-md transition-colors",
       },
       size: {
         default: "h-10 px-4 py-2",

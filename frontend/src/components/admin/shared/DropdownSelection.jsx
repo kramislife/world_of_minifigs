@@ -79,11 +79,11 @@ const DropdownSelection = ({
 
   const sortedMainData = React.useMemo(() => {
     if (!mainData) return [];
-    
+
     return [...mainData].sort((a, b) => {
       const aHasSubItems = getSubItems(a._id).length > 0;
       const bHasSubItems = getSubItems(b._id).length > 0;
-      
+
       if (aHasSubItems && !bHasSubItems) return -1;
       if (!aHasSubItems && bHasSubItems) return 1;
       return 0;
@@ -137,7 +137,7 @@ const DropdownSelection = ({
                     onCheckedChange={(checked) =>
                       onCheckboxChange(mainField, item._id, checked)
                     }
-                    className={`h-4 w-4 transition-colors duration-200
+                    className={`border-black data-[state=checked]:bg-accent data-[state=checked]:border-accent
                       ${isChecked ? "text-blue-600" : "text-gray-400"}
                       hover:text-blue-600`}
                     onClick={(e) => e.stopPropagation()}
