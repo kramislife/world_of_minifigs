@@ -201,7 +201,7 @@ const ReviewSection = ({
   <div className="w-full text-white">
     <div className="flex items-center justify-between my-3">
       <div className="flex items-center gap-2">
-        <span className="text-md font-medium">Your Review (Optional)</span>
+        <span className="text-sm font-medium">Write a Feedback</span>
       </div>
       <span
         className={`text-sm ${
