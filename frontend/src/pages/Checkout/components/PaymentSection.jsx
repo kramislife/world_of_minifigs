@@ -26,7 +26,7 @@ const PaymentSection = ({
       // Stripe
       type: PAYMENT_METHODS.CREDIT_CARD,
       content: (
-        <div className="flex items-center gap-1">
+        <div className="flex items-center">
           <img src={MasterCard} alt="Credit Card" className="h-8 w-auto" />
           <img src={Visa} alt="Credit Card" className="h-8 w-auto" />
           <img src={Stripe} alt="Credit Card" className="h-6 w-auto" />
@@ -66,8 +66,8 @@ const PaymentSection = ({
           Payment Details
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6">
-        <div className="grid grid-cols-2 gap-3">
+      <CardContent className="space-y-3 md:space-y-6 px-3 md:px-5">
+        <div className="grid grid-cols-2 gap-1 md:gap-3">
           {paymentMethods.map((method) => (
             <button
               key={method.type}

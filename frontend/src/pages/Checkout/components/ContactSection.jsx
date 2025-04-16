@@ -19,13 +19,13 @@ const ContactSection = ({ email, onEmailChange }) => {
           Contact Information
         </CardTitle>
       </CardHeader>
-      <CardContent>
-          <Input
-            type="email"
-            label="Email Address"
-            value={email}
-            onChange={onEmailChange}
-            required
+      <CardContent className="px-3 md:px-5">
+        <Input
+          type="email"
+          label="Email Address"
+          value={email}
+          onChange={onEmailChange}
+          required
             className="bg-transparent text-white"
           />
           {email && !isValid && (
@@ -34,7 +34,7 @@ const ContactSection = ({ email, onEmailChange }) => {
             </p>
           )}
           {email && isValid && (
-            <p className="text-sm text-blue-400 mt-3">
+            <p className="text-xs md:text-sm text-blue-400 mt-3">
               Order confirmation will be sent to this email address
             </p>
           )}

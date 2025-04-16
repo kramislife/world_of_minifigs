@@ -45,7 +45,7 @@ const OrderSummary = ({ onOrderNotesChange, orderNotes }) => {
           Order Summary
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-3 md:px-5">
         <div className="space-y-6">
           {/* Display Items */}
           <ul className="space-y-6">

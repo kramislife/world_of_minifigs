@@ -47,9 +47,9 @@ const Checkout = () => {
   return (
     <>
       <Metadata title={`Checkout`} />
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 p-5">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 p-3 md:p-5">
         {/* Left Column - Forms */}
-        <div className="space-y-6 overflow-y-auto">
+        <div className="space-y-5 overflow-y-auto">
           <form className="space-y-5">
             <ContactSection email={email} onEmailChange={handleEmailChange} />
             <ShippingSection

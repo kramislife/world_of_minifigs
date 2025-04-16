@@ -270,7 +270,7 @@ const ShippingSection = ({ onAddressChange, userName, onDeleteClick }) => {
           Enter your shipping address
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-3 md:px-5">
         {isLoading || isFetching ? (
           <LoadingState />
         ) : !userAddresses?.length ? (
