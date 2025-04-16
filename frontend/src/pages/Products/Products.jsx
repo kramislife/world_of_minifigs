@@ -1,5 +1,5 @@
-import React from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import React, { useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import ProductSection from "@/components/product/ProductSection";
 import Metadata from "@/components/layout/Metadata/Metadata";
 import ProductSort from "@/components/product/ProductSort";
@@ -28,14 +28,15 @@ const Products = () => {
     isFilterOpen,
     setOpenCategories,
     setIsFilterOpen,
-    handleFilterChange,
+    handleFilterChangeAndCloseSheet,
+    filterProducts,
   } = useProductFilters(filterData);
 
-  // Create a wrapper for filter change that closes the sheet
-  const handleFilterChangeAndCloseSheet = (key, value) => {
-    handleFilterChange(key, value);
-    setIsFilterOpen(false);
-  };
+  // Get filtered products
+  const filteredGroupedProducts = filterProducts(
+    groupedProducts,
+    selectedFilters
+  );
 
   // Handle pagination and sorting
   const {
@@ -46,7 +47,7 @@ const Products = () => {
     sortedProducts,
     handlePageChange,
     handleSortChange,
-  } = useProductPagination(groupedProducts);
+  } = useProductPagination(filteredGroupedProducts);
 
   // Loading state
   if (isProductLoading) {
@@ -54,7 +55,7 @@ const Products = () => {
   }
 
   // Display fallback message if no products are found
-  if (!groupedProducts || groupedProducts.length === 0) {
+  if (!filteredGroupedProducts || filteredGroupedProducts.length === 0) {
     return (
       <FallbackMessage
         title={searchKeyword ? "No Search Results" : "No Products Found"}
@@ -84,7 +85,7 @@ const Products = () => {
             selectedFilters={selectedFilters}
             onFilterChange={handleFilterChangeAndCloseSheet}
             productData={productData}
-            sortedProducts={sortedProducts}
+            sortedProducts={filteredGroupedProducts}
           />
           <ProductSort
             totalProducts={sortedProducts?.length || 0}
@@ -105,7 +106,7 @@ const Products = () => {
             selectedFilters={selectedFilters}
             onFilterChange={handleFilterChangeAndCloseSheet}
             productData={productData}
-            sortedProducts={sortedProducts}
+            sortedProducts={filteredGroupedProducts}
           />
           <div className="col-span-1 lg:col-span-3">
             <div className="hidden lg:block">

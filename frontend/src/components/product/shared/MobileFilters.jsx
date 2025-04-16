@@ -4,17 +4,17 @@ import FilterAccordion from "@/components/product/FilterAccordion";
 import {
   Sheet,
   SheetContent,
+  SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
 
 const MobileFilters = ({
   isFilterOpen,
   setIsFilterOpen,
   filterOptions,
-  openCategories,
-  setOpenCategories,
   selectedFilters,
   onFilterChange,
   productData,
@@ -23,28 +23,40 @@ const MobileFilters = ({
   return (
     <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
       <SheetTrigger asChild>
-        <button className="flex items-center gap-2 hover:text-accent">
-          <Filter className="h-5 w-5" />
+        <Button
+          variant="ghost"
+          className="hover:bg-inherit hover:text-accent text-lg"
+        >
+          <Filter className="h-8 w-8" />
           <span>Filters</span>
-        </button>
+        </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-[350px] bg-brand-start pt-12">
+      <SheetContent side="left">
         <SheetHeader>
-          <SheetTitle className="text-left text-white flex items-center gap-2">
-            <Filter className="h-5 w-5" />
-            Filters
-          </SheetTitle>
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-accent rounded-lg">
+              <Filter size={20} className="text-foreground" />
+            </div>
+            <SheetTitle className="m-0 sticky top-0 z-50">
+              Product Filters
+            </SheetTitle>
+          </div>
+          <SheetDescription className="sr-only">
+            Filter your products by various categories, collections, and
+            attributes.
+          </SheetDescription>
         </SheetHeader>
-        <div className="pt-2 overflow-y-auto scrollbar-none h-full">
-          <FilterAccordion
-            categories={filterOptions}
-            openCategories={openCategories}
-            onCategoriesChange={setOpenCategories}
-            selectedFilters={selectedFilters}
-            onFilterChange={onFilterChange}
-            products={productData?.allProducts || []}
-            groupedProducts={sortedProducts || []}
-          />
+
+        <div className="flex-1 overflow-y-auto">
+          <div className="p-5">
+            <FilterAccordion
+              categories={filterOptions}
+              selectedFilters={selectedFilters}
+              onFilterChange={onFilterChange}
+              products={productData?.allProducts || []}
+              groupedProducts={sortedProducts || []}
+            />
+          </div>
         </div>
       </SheetContent>
     </Sheet>

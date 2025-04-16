@@ -4,8 +4,6 @@ import FilterAccordion from "@/components/product/FilterAccordion";
 
 const DesktopFilters = ({
   filterOptions,
-  openCategories,
-  setOpenCategories,
   selectedFilters,
   onFilterChange,
   productData,
@@ -20,8 +18,6 @@ const DesktopFilters = ({
       <div className="max-h-[75vh] overflow-y-auto pr-2">
         <FilterAccordion
           categories={filterOptions}
-          openCategories={openCategories}
-          onCategoriesChange={setOpenCategories}
           selectedFilters={selectedFilters}
           onFilterChange={onFilterChange}
           products={productData?.allProducts || []}
