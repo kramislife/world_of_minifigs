@@ -38,7 +38,11 @@ const Header = () => {
           <div className="flex items-center flex-shrink-0">
             {/* Logo */}
             <NavLink to="/">
-              <img className="h-12 w-auto scale-110" src={logo} alt="logo" />
+              <img
+                className="h-8 md:h-12 w-auto scale-110"
+                src={logo}
+                alt="logo"
+              />
             </NavLink>
           </div>
           {/* Desktop Navigation - adjust spacing */}
@@ -76,7 +80,7 @@ const Header = () => {
             </div>
 
             {/* Mobile Menu */}
-            <div className="flex items-center justify-center md:hidden  h-10 w-10">
+            <div className="flex items-center justify-center md:hidden h-10 w-10">
               <MobileMenu user={user} />
             </div>
           </div>

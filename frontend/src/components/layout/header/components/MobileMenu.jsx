@@ -25,6 +25,7 @@ import { navItems } from "@/constant/navigation";
 import { useViewport } from "@/hooks/Common/useViewport";
 import { useLazyLogoutQuery } from "@/redux/api/authApi";
 import { toast } from "react-toastify";
+import { Button } from "@/components/ui/button";
 
 // Map icons to nav items
 const navIcons = {
@@ -122,7 +123,7 @@ const MobileMenu = ({ user }) => {
       <SheetTrigger className="md:hidden text-white hover:text-gray-200">
         <Menu size={24} />
       </SheetTrigger>
-      <SheetContent className="w-[400px] bg-brand-gradient p-0 z-[1000] bg-brand-start">
+      <SheetContent>
         <SheetHeader className="sr-only">
           <SheetTitle>Mobile Menu</SheetTitle>
           <SheetDescription>
@@ -135,7 +136,7 @@ const MobileMenu = ({ user }) => {
           {/* User Profile Section */}
           <div className="px-5 pt-16">
             {user ? (
-              <div className="flex items-center gap-3 mb-8 p-4 bg-brand-end/20 rounded-xl border border-brand-end/50">
+              <div className="flex items-center gap-3 mb-5 p-5 bg-brand-start rounded-md border border-brand-end/50">
                 <div className="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center">
                   {user?.profile_picture?.url ? (
                     <img
@@ -150,17 +151,17 @@ const MobileMenu = ({ user }) => {
                   )}
                 </div>
                 <div className="flex-1">
-                  <p className="text-white font-medium line-clamp-1">
+                  <p className="text-lg text-background font-medium line-clamp-1">
                     {user.name}
                   </p>
-                  <p className="text-sm text-gray-400 line-clamp-1">
+                  <p className="text-sm text-gray-300 line-clamp-1">
                     {user.email}
                   </p>
                 </div>
               </div>
             ) : (
-              <div className="flex items-center gap-3 mb-8 p-4 bg-brand-end/20 rounded-xl border border-white/10">
-                <div className="w-12 h-12 rounded-full bg-brand-end flex items-center justify-center">
+              <div className="flex items-center gap-3 mb-5 p-5 bg-brand-start rounded-md border border-brand-end/50">
+                <div className="w-12 h-12 rounded-full bg-brand-dark/50 flex items-center justify-center">
                   <User size={24} className="text-accent" />
                 </div>
                 <button
@@ -168,10 +169,10 @@ const MobileMenu = ({ user }) => {
                     navigate("/login");
                     setIsOpen(false);
                   }}
-                  className="flex items-center justify-between flex-1 text-white hover:text-gray-200"
+                  className="flex items-center justify-between flex-1 text-background group hover:text-accent"
                 >
                   <span className="font-medium">Sign In</span>
-                  <ArrowRight size={20} className="text-gray-400" />
+                  <ArrowRight size={20} className=" group-hover:text-accent" />
                 </button>
               </div>
             )}
@@ -188,10 +189,10 @@ const MobileMenu = ({ user }) => {
                     to={item.path}
                     onClick={() => setIsOpen(false)}
                     className={({ isActive }) =>
-                      `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
+                      `flex items-center text-lg gap-3 px-4 py-3 rounded-md transition-all duration-200 ${
                         isActive
                           ? "bg-accent text-foreground font-medium"
-                          : "text-white hover:bg-brand-dark/50 hover:text-accent"
+                          : "text-background hover:bg-brand-dark hover:text-accent"
                       }`
                     }
                   >
@@ -209,10 +210,10 @@ const MobileMenu = ({ user }) => {
                     <button
                       key={`user-item-${index}`}
                       onClick={item.onClick}
-                      className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 w-full ${
+                      className={`flex items-center gap-3 px-4 py-3 rounded-md transition-all duration-200 w-full ${
                         isActive(item.path)
                           ? "bg-accent text-foreground font-medium"
-                          : "text-white hover:bg-brand-dark/50 hover:text-accent"
+                          : "text-background hover:bg-brand-dark/50 hover:text-accent"
                       }`}
                     >
                       {item.icon}
@@ -229,22 +230,24 @@ const MobileMenu = ({ user }) => {
             {user ? (
               <button
                 onClick={handleLogout}
-                className="flex items-center gap-3 text-red-500 transition-colors duration-200 w-full px-4 py-3 rounded-xl hover:bg-gray-500/10"
+                className="flex items-center gap-3 text-red-500 px-4 py-3 hover:text-accent"
               >
                 <LogOut size={20} />
                 <span>Logout</span>
               </button>
             ) : (
-              <div className="flex flex-col gap-2 py-5">
-                <button
+              <div className="flex flex-col py-3">
+                <Button
+                  variant="accent"
+                  className="w-full"
+                  size="lg"
                   onClick={() => {
                     navigate("/register");
                     setIsOpen(false);
                   }}
-                  className="w-full px-4 py-3 rounded-xl bg-accent text-black font-medium hover:bg-accent-secondary transition-colors duration-200"
                 >
                   Create Account
-                </button>
+                </Button>
               </div>
             )}
           </div>
