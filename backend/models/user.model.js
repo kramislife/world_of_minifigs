@@ -33,13 +33,17 @@ const userSchema = new mongoose.Schema(
       required: [true, "Password is required"],
       minLength: [
         6,
-        "Password must be at least 6 characters and contain a letter, a number, and a special character.",
+        "Password must be at least 6 characters with 1 uppercase, 1 lowercase, 1 number, and 1 special (!@#$%^&*_).",
       ],
       select: false,
       validate: {
         validator: function (v) {
-          return /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*_]).{6,}$/.test(v); // Password complexity: min 6 chars, 1 letter, 1 number, 1 special char
+          return /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*_]).{6,}$/.test(
+            v
+          );
         },
+        message: (props) =>
+          "Password must be at least 6 characters with 1 uppercase, 1 lowercase, 1 number, and 1 special (!@#$%^&*_).",
       },
     },
     profile_picture: {

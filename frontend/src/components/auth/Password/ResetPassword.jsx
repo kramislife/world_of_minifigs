@@ -2,28 +2,76 @@ import { useState } from "react";
 import { useResetPasswordMutation } from "@/redux/api/authApi";
 import { toast } from "react-toastify";
 import { motion } from "framer-motion";
-import { loginAnimations } from "@/hooks/Animation/animationConfig";
+import { authAnimations } from "@/hooks/Animation/animationConfig";
 import { useParams, useNavigate } from "react-router-dom";
 import Metadata from "@/components/layout/Metadata/Metadata";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Check, X } from "lucide-react";
 
 const ResetPassword = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+  const [isPasswordFocused, setIsPasswordFocused] = useState(false);
   const [resetPassword, { isLoading }] = useResetPasswordMutation();
   const { token } = useParams();
   const navigate = useNavigate();
 
-  const validatePassword = (password) => {
-    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*_]).{6,}$/;
-    return passwordRegex.test(password);
+  // Password validation state
+  const [passwordValidation, setPasswordValidation] = useState({
+    minLength: false,
+    hasUppercase: false,
+    hasLowercase: false,
+    hasNumber: false,
+    hasSpecial: false,
+  });
+
+  // Password requirements component
+  const PasswordRequirement = ({ met, text }) => (
+    <div className="flex items-start gap-2 text-sm">
+      {met ? (
+        <Check className="w-4 h-4 text-green-500 mt-0.5" />
+      ) : (
+        <X className="w-4 h-4 text-red-500 mt-0.5" />
+      )}
+      <span className={met ? "text-green-500" : "text-gray-300"}>{text}</span>
+    </div>
+  );
+
+  // Password requirements data
+  const passwordRequirements = [
+    { key: "minLength", text: "At least 6 characters" },
+    { key: "hasUppercase", text: "One uppercase letter" },
+    { key: "hasLowercase", text: "One lowercase letter" },
+    { key: "hasNumber", text: "One number" },
+    { key: "hasSpecial", text: "One special character (!@#$%^&*_)" },
+  ];
+
+  // Check password validation
+  const checkPasswordValidation = (password) => {
+    setPasswordValidation({
+      minLength: password.length >= 6,
+      hasUppercase: /[A-Z]/.test(password),
+      hasLowercase: /[a-z]/.test(password),
+      hasNumber: /\d/.test(password),
+      hasSpecial: /[!@#$%^&*_]/.test(password),
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Check if all password requirements are met
+    const allRequirementsMet = Object.values(passwordValidation).every(
+      (requirement) => requirement
+    );
+
+    if (!allRequirementsMet) {
+      toast.error("Please meet all password requirements");
+      return;
+    }
 
     if (password !== confirmPassword) {
       toast.error("Passwords do not match");
@@ -36,7 +84,7 @@ const ResetPassword = () => {
         password,
         confirmPassword,
       }).unwrap();
-      toast.success(result?.message);
+      toast.success(result?.message || "Password reset successfully");
       navigate("/login");
     } catch (err) {
       const errorMessage = err?.data?.message || "An error occurred";
@@ -47,11 +95,11 @@ const ResetPassword = () => {
   return (
     <>
       <Metadata title="Reset Password" />
-      <div className="px-3 py-12 md:py-7">
-        <div className="container mx-auto max-w-md">
+      <div className="px-3 py-10">
+        <div className="container mx-auto max-w-lg">
           <motion.div
-            {...loginAnimations.formContainerVariants}
-            className="w-full px-5 py-10 border border-brand-end/50 rounded-2xl"
+            {...authAnimations.formContainerVariants}
+            className="w-full md:px-5 py-10 md:border border-brand-end/50 rounded-2xl"
           >
             <div>
               <motion.div className="mb-8">
@@ -80,29 +128,55 @@ const ResetPassword = () => {
 
               <form onSubmit={handleSubmit} className="space-y-5">
                 <motion.div
-                  {...loginAnimations.inputVariants}
+                  {...authAnimations.inputVariants}
+                  transition={authAnimations.getInputTransition(0)}
                   className="space-y-2"
                 >
-                  <Label>
-                    New Password <span className="text-yellow-400">*</span>
-                  </Label>
+                  <Label className="text-background">New Password</Label>
                   <Input
                     type="password"
                     placeholder="Enter new password"
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      checkPasswordValidation(e.target.value);
+                    }}
+                    onFocus={() => setIsPasswordFocused(true)}
+                    onBlur={() => setIsPasswordFocused(false)}
                     required
                     disabled={!!error}
                   />
+                  {isPasswordFocused && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="mt-2"
+                    >
+                      <div className="pt-3">
+                        <h4 className="text-sm font-medium text-gray-300 mb-2">
+                          Password Requirements:
+                        </h4>
+                        <div className="grid grid-cols-2 gap-2">
+                          {passwordRequirements.map((requirement) => (
+                            <PasswordRequirement
+                              key={requirement.key}
+                              met={passwordValidation[requirement.key]}
+                              text={requirement.text}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
                 </motion.div>
 
                 <motion.div
-                  {...loginAnimations.inputVariants}
+                  {...authAnimations.inputVariants}
+                  transition={authAnimations.getInputTransition(1)}
                   className="space-y-2"
                 >
-                  <Label>
-                    Confirm Password <span className="text-yellow-400">*</span>
-                  </Label>
+                  <Label className="text-background">Confirm Password</Label>
                   <Input
                     type="password"
                     placeholder="Confirm new password"
@@ -113,19 +187,15 @@ const ResetPassword = () => {
                   />
                 </motion.div>
 
-                <motion.div
-                  {...loginAnimations.buttonVariants}
-                  className="pt-2"
-                >
+                <motion.div {...authAnimations.buttonVariants} className="pt-2">
                   <Button
                     type="submit"
                     variant="submit"
                     size="lg"
+                    className="w-full"
                     disabled={isLoading || !!error}
                   >
-                    <span className="relative z-10">
-                      {isLoading ? "Resetting..." : "Reset Password"}
-                    </span>
+                    {isLoading ? "Resetting..." : "Reset Password"}
                   </Button>
                 </motion.div>
               </form>

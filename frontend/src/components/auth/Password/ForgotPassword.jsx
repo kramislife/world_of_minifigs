@@ -2,11 +2,11 @@ import { useState } from "react";
 import { useForgotPasswordMutation } from "@/redux/api/authApi";
 import { toast } from "react-toastify";
 import { motion } from "framer-motion";
-import { loginAnimations } from "@/hooks/Animation/animationConfig";
+import { authAnimations } from "@/hooks/Animation/animationConfig";
 import Metadata from "@/components/layout/Metadata/Metadata";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Label } from "@radix-ui/react-label";
+import { Label } from "@/components/ui/label";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
@@ -27,16 +27,16 @@ const ForgotPassword = () => {
   return (
     <>
       <Metadata title="Forgot Password" />
-      <div className="px-3 py-12 md:py-7">
+      <div className="px-3 py-10">
         <div className="container mx-auto max-w-md">
           <motion.div
-            {...loginAnimations.formContainerVariants}
-            className="w-full px-5 py-10 border border-brand-end/50 rounded-2xl"
+            {...authAnimations.formContainerVariants}
+            className="w-full md:px-5 py-10 md:border border-brand-end/50 rounded-2xl"
           >
             <div>
               <motion.div className="mb-8">
                 <motion.h1
-                  className="text-4xl font-bold"
+                  className="md:text-4xl text-3xl font-bold"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5 }}
@@ -56,12 +56,11 @@ const ForgotPassword = () => {
 
               <form onSubmit={handleSubmit} className="space-y-5">
                 <motion.div
-                  {...loginAnimations.inputVariants}
+                  {...authAnimations.inputVariants}
+                  transition={authAnimations.getInputTransition(0)}
                   className="space-y-2"
                 >
-                  <Label>
-                    Email Address <span className="text-yellow-400">*</span>
-                  </Label>
+                  <Label className="text-background">Email Address</Label>
                   <Input
                     type="email"
                     placeholder="Enter your email"
@@ -71,14 +70,15 @@ const ForgotPassword = () => {
                   />
                 </motion.div>
 
-                <motion.div
-                  {...loginAnimations.buttonVariants}
-                  className="pt-2"
-                >
-                  <Button type="submit" variant="submit" size="lg" disabled={isLoading}>
-                    <span className="relative z-10">
-                      {isLoading ? "Sending..." : "Send Reset Link"}
-                    </span>
+                <motion.div {...authAnimations.buttonVariants} className="pt-2">
+                  <Button
+                    type="submit"
+                    variant="submit"
+                    size="lg"
+                    className="w-full"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Sending..." : "Send Reset Link"}
                   </Button>
                 </motion.div>
               </form>

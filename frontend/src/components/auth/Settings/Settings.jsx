@@ -3,7 +3,7 @@ import { useUpdatePasswordMutation } from "@/redux/api/userApi";
 import { toast } from "react-toastify";
 import { Key, Save } from "lucide-react";
 import { motion } from "framer-motion";
-import { loginAnimations } from "@/hooks/Animation/animationConfig";
+import { authAnimations } from "@/hooks/Animation/animationConfig";
 import {
   Card,
   CardContent,
@@ -53,7 +53,7 @@ const Settings = () => {
     <div className="px-3 py-10 md:py-7">
       <div className="container mx-auto max-w-xl">
         <motion.div
-          {...loginAnimations.formContainerVariants}
+          {...authAnimations.formContainerVariants}
           className="w-full px-5 py-10 border border-brand-end/50 rounded-2xl"
         >
           <div>
@@ -82,8 +82,8 @@ const Settings = () => {
 
             <form onSubmit={handleSubmit} className="space-y-5">
               <motion.div
-                {...loginAnimations.inputVariants}
-                transition={loginAnimations.emailInputTransition}
+                {...authAnimations.inputVariants}
+                transition={authAnimations.getInputTransition(0)}
                 className="space-y-2"
               >
                 <Label>
@@ -100,8 +100,8 @@ const Settings = () => {
               </motion.div>
 
               <motion.div
-                {...loginAnimations.inputVariants}
-                transition={loginAnimations.passwordInputTransition}
+                {...authAnimations.inputVariants}
+                transition={authAnimations.getInputTransition(1)}
                 className="space-y-2"
               >
                 <Label>
@@ -118,8 +118,8 @@ const Settings = () => {
               </motion.div>
 
               <motion.div
-                {...loginAnimations.inputVariants}
-                transition={loginAnimations.passwordInputTransition}
+                {...authAnimations.inputVariants}
+                transition={authAnimations.getInputTransition(2)}
                 className="space-y-2"
               >
                 <Label>
@@ -136,7 +136,7 @@ const Settings = () => {
                 />
               </motion.div>
 
-              <motion.div {...loginAnimations.buttonVariants} className="pt-2">
+              <motion.div {...authAnimations.buttonVariants} className="pt-2">
                 <Button
                   type="submit"
                   variant="submit"
