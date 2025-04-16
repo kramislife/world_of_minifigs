@@ -195,23 +195,19 @@ const SearchSheet = ({ searchQuery, setSearchQuery }) => {
       <SheetTrigger className="text-white hover:text-gray-200">
         <Search size={24} />
       </SheetTrigger>
-      <SheetContent className="w-full max-w-[400px] lg:max-w-[600px] bg-brand-start gap-0 p-0 border-brand-end/50 flex flex-col h-full">
-        <div className="flex-none">
-          <SheetHeader className="p-5 border-b border-brand-end/50">
-            <SheetTitle className="text-2xl font-semibold text-accent mb-5 text-left">
-              Search
-            </SheetTitle>
-            <SheetDescription className="sr-only">
-              Search for products, categories, collections and more
-            </SheetDescription>
-            <SearchInput
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
-              handleSearch={handleSearch}
-              isSearching={isSearching}
-            />
-          </SheetHeader>
-        </div>
+      <SheetContent>
+        <SheetHeader>
+          <SheetTitle>Search</SheetTitle>
+          <SheetDescription className="sr-only">
+            Search for products, categories, collections and more
+          </SheetDescription>
+          <SearchInput
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            handleSearch={handleSearch}
+            isSearching={isSearching}
+          />
+        </SheetHeader>
 
         <div className="flex-1 overflow-y-auto">
           <div className="px-5 py-0">{renderContent()}</div>

@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import ProductSection from "@/components/product/ProductSection";
 import Metadata from "@/components/layout/Metadata/Metadata";
 import ProductSort from "@/components/product/ProductSort";
@@ -13,6 +13,8 @@ import { useProductFilters } from "@/hooks/Product/useProductFilters";
 import { useProductPagination } from "@/hooks/Product/useProductPagination";
 
 const Products = () => {
+  const [searchParams] = useSearchParams();
+  const searchKeyword = searchParams.get("keyword");
 
   // Get products data and filtering options
   const { productData, isProductLoading, filterData, groupedProducts } =
@@ -52,18 +54,24 @@ const Products = () => {
   }
 
   // Display fallback message if no products are found
-  if (!sortedProducts || sortedProducts.length === 0) {
+  if (!groupedProducts || groupedProducts.length === 0) {
     return (
       <FallbackMessage
-        title="No Products Found"
-        message="Try adjusting your filters or check back later for new products."
+        title={searchKeyword ? "No Search Results" : "No Products Found"}
+        message={
+          searchKeyword
+            ? `We couldn't find any products matching "${searchKeyword}". Try checking for typos or using more general terms.`
+            : "No products available for the selected filters. Please try different filter options."
+        }
       />
     );
   }
 
   return (
     <>
-      <Metadata title="Products" />
+      <Metadata
+        title={searchKeyword ? `Search: ${searchKeyword}` : "Products"}
+      />
       <div className="mx-auto px-4 py-8 bg-brand-start">
         {/* Mobile Filter and Sort */}
         <div className="lg:hidden mb-4 flex items-center justify-between">
@@ -108,9 +116,7 @@ const Products = () => {
                 onSortChange={handleSortChange}
               />
             </div>
-            <ProductSection
-              products={paginatedProducts}
-            />
+            <ProductSection products={paginatedProducts} />
           </div>
         </div>
 

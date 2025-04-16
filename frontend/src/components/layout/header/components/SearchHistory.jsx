@@ -21,7 +21,7 @@ const SearchHistory = ({
           onClick={handleClearAllHistory}
           className="text-gray-400 hover:text-red-400 hover:bg-transparent"
         >
-          <Trash2 className="h-4 w-4" />
+          <Trash2 className="h-4 w-4 mb-0.5" />
           Clear All
         </Button>
       </div>
