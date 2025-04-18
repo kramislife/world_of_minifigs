@@ -8,7 +8,7 @@ const Collections = () => {
   const limitedCollections = collections.slice(0, 9);
 
   return (
-    <div className="p-5">
+    <section className="p-5">
       <CollectionGrid
         collections={limitedCollections}
         onCollectionClick={handleCollectionClick}
@@ -17,7 +17,7 @@ const Collections = () => {
         isLoading={isLoading}
         type="browse"
       />
-    </div>
+    </section>
   );
 };
 

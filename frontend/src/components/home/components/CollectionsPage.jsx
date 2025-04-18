@@ -11,7 +11,7 @@ const CollectionsPage = () => {
   return (
     <>
       <Metadata title="Collections" />
-      <div className="p-5">
+      <section className="p-5">
         <CollectionGrid
           collections={collections}
           onCollectionClick={handleCollectionClick}
@@ -19,7 +19,7 @@ const CollectionsPage = () => {
           isLoading={isLoading}
           type="collections"
         />
-      </div>
+      </section>
     </>
   );
 };

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import StarRating from "@/components/product/shared/StarRating";
 import { PlaceholderImage } from "@/components/product/shared/FallbackStates";
 import { useProductCard } from "@/hooks/Product/useProductCard";
-import { Badge } from "../ui/badge";
+import { Badge } from "@/components/ui/badge";
 
 const ProductCard = ({ product }) => {
   const {
@@ -23,24 +23,24 @@ const ProductCard = ({ product }) => {
       onClick={handleViewDetails}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      className="bg-brand-dark/50 rounded-2xl overflow-hidden transition-all duration-300 hover:scale-100 group relative cursor-pointer h-full flex flex-col border-none"
+      className="bg-brand-dark/50 rounded-2xl hover:scale-100 group cursor-pointer border-none relative"
     >
       {/* Discount Badge */}
       {product?.discount > 0 && (
         <div className="absolute top-4 right-4 z-10">
-          <Badge variant="discount">{product.discount}% OFF</Badge>
+          <Badge variant="accent">{product.discount}% OFF</Badge>
         </div>
       )}
 
       {/* Product Image Container */}
-      <CardContent className="p-0 relative w-full aspect-square overflow-hidden">
+      <CardContent className="p-0 relative aspect-square overflow-hidden rounded-t-2xl">
         {hasImages ? (
           <>
             {/* Main Image */}
             <img
               src={imagesList[0]?.url}
               alt={product.product_name || "Product Image"}
-              className={`w-full h-full object-cover transition-all duration-500 absolute inset-0 ${
+              className={`object-cover transition-all duration-500 absolute inset-0 ${
                 isHovering ? "opacity-0" : "opacity-100"
               }`}
             />
@@ -49,7 +49,7 @@ const ProductCard = ({ product }) => {
             <img
               src={imagesList[currentImageIndex]?.url}
               alt={`${product.product_name} variant`}
-              className={`w-full h-full object-cover transition-all duration-500 absolute inset-0 ${
+              className={`object-cover transition-all duration-500 absolute inset-0 ${
                 isHovering ? "opacity-100" : "opacity-0"
               }`}
             />
@@ -65,29 +65,29 @@ const ProductCard = ({ product }) => {
       </CardContent>
 
       {/* Product Info */}
-      <CardContent className="p-5 flex flex-col gap-5 flex-grow text-white">
-        <h3 className="text-md font-semibold transition-colors line-clamp-1">
+      <CardContent className="p-5 flex flex-col gap-3 text-background">
+        <h3 className="text-md font-semibold line-clamp-1">
           {product?.product_name || "Unnamed Product"}
         </h3>
 
         {/* Pricing and Ratings */}
-        <div className="flex flex-col gap-3 mt-auto">
+        <div className="flex flex-col gap-2">
           {/* Pricing */}
-          <div className="flex items-baseline justify-between">
+          <div className="flex items-center gap-2">
             {product?.price ? (
               <>
                 <p className="text-2xl font-bold text-accent">
-                  ${(product?.discounted_price || 0).toFixed(2)}
+                ${(product?.discounted_price || 0).toFixed(2)}
+              </p>
+              {product?.discount > 0 && (
+                <p className="text-sm text-gray-300 line-through">
+                  ${product.price.toFixed(2)}
                 </p>
-                {product?.discount > 0 && (
-                  <p className="text-sm text-gray-300 line-through">
-                    ${product.price.toFixed(2)}
-                  </p>
-                )}
-              </>
-            ) : (
-              <p className="text-2xl font-bold text-accent">$0.00</p>
-            )}
+              )}
+            </>
+          ) : (
+            <p className="text-2xl font-bold text-accent">$0.00</p>
+          )}
           </div>
 
           {/* Ratings */}

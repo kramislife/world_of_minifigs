@@ -14,7 +14,7 @@ const Home = () => {
     { Component: LatestProduct, className: "bg-brand-end/70" },
     { Component: FeaturedProduct, className: "bg-brand-end" },
     { Component: Collections, className: "bg-brand-end/70" },
-    { Component: Subscribe, className: "bg-brand-end" },
+    // { Component: Subscribe, className: "bg-brand-end" },
   ];
 
   return (

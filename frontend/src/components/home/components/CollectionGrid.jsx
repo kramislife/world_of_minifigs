@@ -12,7 +12,6 @@ import CollectionGridSkeleton from "@/components/layout/skeleton/Home/Collection
 const CollectionGrid = ({
   collections,
   onCollectionClick,
-  isInView,
   showViewAll = false,
   isError,
   isLoading,
@@ -71,18 +70,18 @@ const CollectionGrid = ({
   };
 
   return (
-    <div className="flex flex-col">
+    <section>
       {renderTitle()}
 
       {showViewAll && (
-        <div className="flex items-center justify-center pb-2">
+        <div className="flex items-center justify-center mb-5">
           <Button variant="accent" onClick={() => navigate("/collections")}>
             View All Collections
           </Button>
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 py-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
         {collections.map((collection) => (
           <div
             key={collection._id}
@@ -109,7 +108,7 @@ const CollectionGrid = ({
 
                   {/* Title overlay */}
                   <div className="absolute inset-x-0 bottom-0 p-4">
-                    <h3 className="text-lg font-semibold text-center text-white">
+                    <h3 className="text-lg font-semibold text-center text-background">
                       {collection.name}
                     </h3>
                   </div>
@@ -119,7 +118,7 @@ const CollectionGrid = ({
           </div>
         ))}
       </div>
-    </div>
+    </section>
   );
 };
 

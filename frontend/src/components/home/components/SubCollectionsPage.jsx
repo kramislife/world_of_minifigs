@@ -22,7 +22,7 @@ const SubCollectionsPage = () => {
             : "Sub-Collections"
         }
       />
-      <div className="p-5">
+      <section className="p-5">
         <CollectionGrid
           collections={subCollections}
           onCollectionClick={handleSubCollectionClick}
@@ -31,7 +31,7 @@ const SubCollectionsPage = () => {
           type="sub-collections"
           collectionName={collectionDetails?.collection?.name}
         />
-      </div>
+      </section>
     </>
   );
 };
