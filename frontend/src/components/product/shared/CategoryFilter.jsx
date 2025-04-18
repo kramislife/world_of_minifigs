@@ -45,7 +45,7 @@ const CategoryFilter = ({
       {hasSubItems && (
         <button
           onClick={() => onCategoryClick(filterKey, option.value)}
-          className="p-1 hover:bg-accent rounded-full text-gray-400 hover:text-black transition-colors"
+          className="p-1 hover:bg-accent rounded-full text-gray-400 hover:text-foreground transition-colors"
         >
           <ChevronRight className="h-4 w-4" />
         </button>
