@@ -5,8 +5,10 @@ import { addToCart } from "@/redux/features/cartSlice";
 import { setBuyNowItem } from "@/redux/features/buyNowSlice";
 import { toast } from "react-toastify";
 import { useNavigate, useLocation } from "react-router-dom";
+import { Sheet, SheetTrigger } from "@/components/ui/sheet";
+import CartSheet from "@/components/layout/header/CartSheet";
 
-const ProductActions = ({ product, onAddToCart }) => {
+const ProductActions = ({ product }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
@@ -44,7 +46,6 @@ const ProductActions = ({ product, onAddToCart }) => {
       return;
     }
     dispatch(addToCart(formatProductForCart()));
-    onAddToCart?.();
     toast.success("Added to cart successfully");
   };
 
@@ -65,18 +66,23 @@ const ProductActions = ({ product, onAddToCart }) => {
   };
 
   return (
-    <div className="mt-5 flex flex-col sm:flex-row gap-3"
-    >
+    <div className="flex flex-col sm:flex-row gap-3">
+      <Sheet>
+        <SheetTrigger asChild>
+          <Button
+            variant={product?.stock <= 0 ? "destructive" : "cart"}
+            className="w-full"
+            disabled={!product?.stock || product?.stock <= 0}
+            onClick={handleAddToCart}
+          >
+            {product?.stock <= 0 ? "Out of Stock" : "Add to Cart"}
+          </Button>
+        </SheetTrigger>
+        <CartSheet />
+      </Sheet>
       <Button
-        variant={product?.stock <= 0 ? "destructive" : "cart"}
+        variant="accent"
         className="w-full"
-        disabled={!product?.stock || product?.stock <= 0}
-        onClick={handleAddToCart}
-      >
-        {product?.stock <= 0 ? "Out of Stock" : "Add to Cart"}
-      </Button>
-      <Button
-        variant="buyNow"
         disabled={!product?.stock || product?.stock <= 0}
         onClick={handleBuyNow}
       >

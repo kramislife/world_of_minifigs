@@ -1,4 +1,5 @@
 import React from "react";
+import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
 import SubItemFilter from "./SubItemFilter";
 
@@ -12,14 +13,15 @@ const SubCategoryFilter = ({
   onBackClick,
 }) => (
   <div>
-    <div className="px-2 pb-4 pt-2 border-b border-brand-end/50">
-      <button
+    <div className="pb-2 px-2 border-b border-brand-end/50">
+      <Button
+        variant="ghost"
         onClick={onBackClick}
-        className="flex items-center text-background hover:text-accent"
+        className="p-0 gap-0 text-background hover:bg-transparent hover:text-accent"
       >
         <ChevronLeft className="h-5 w-5 mr-1" />
         <span className="text-md font-semibold">{categoryName}</span>
-      </button>
+      </Button>
     </div>
 
     {subItems.map((subItem) => {

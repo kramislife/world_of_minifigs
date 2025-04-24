@@ -430,10 +430,6 @@ export const useProductFilters = (filterData = {}) => {
     };
   }, []);
 
-  // Add this method to handle filter open/close in mobile view
-  const toggleMobileFilter = (isOpen) => {
-    setIsFilterOpen(isOpen);
-  };
 
   const getFilteredProductCount = (key, value, products = []) => {
     if (!products || products.length === 0) return 0;

@@ -105,7 +105,7 @@ const CustomPagination = ({ currentPage, totalPages, onPageChange }) => {
   };
 
   return (
-    <nav className="flex w-full justify-center my-4 mt-8">
+    <nav className="flex w-full justify-center mb-7 mt-3">
       <div className="flex flex-row items-center gap-1">
         {/* Previous page button */}
         {currentPage > 1 && (

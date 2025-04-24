@@ -20,7 +20,7 @@ const Home = () => {
   return (
     <>
       <Metadata title="Homepage" />
-      <div className="bg-brand-gradient">
+      <div className="bg-brand">
         {sections.map(({ Component, className }, index) => (
           <div key={index} className={className}>
             <Component />

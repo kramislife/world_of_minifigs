@@ -10,8 +10,8 @@ const DesktopFilters = ({
   sortedProducts,
 }) => {
   return (
-    <div className="hidden lg:block col-span-1 border border-brand-end rounded-md p-4 sticky top-24 h-[85vh]">
-      <div className="flex items-center mb-4 space-x-2">
+    <div className="hidden lg:block border border-brand-end rounded-md p-4 sticky top-24 h-[90vh]">
+      <div className="flex items-center mb-4 gap-2">
         <Filter className="h-6 w-6" />
         <h2 className="text-xl font-bold">Filters</h2>
       </div>

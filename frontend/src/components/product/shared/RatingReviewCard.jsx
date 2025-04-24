@@ -10,8 +10,8 @@ const RatingReviewCard = ({ review, handleVote, user }) => {
   if (!review?.productDetails) return null;
 
   return (
-    <Card className="bg-brand-dark/50 border-brand-end/50">
-      <CardHeader className="pb-3">
+    <Card>
+      <CardHeader className="pb-2">
         <div className="flex items-start gap-3 border-b border-brand-end/50 pb-4">
           <Avatar className="w-10 h-10">
             <AvatarImage src={review.user?.avatar} />
@@ -23,7 +23,7 @@ const RatingReviewCard = ({ review, handleVote, user }) => {
             <div className="flex items-start justify-between">
               <div>
                 <div className="flex items-center gap-2">
-                  <h4 className="font-semibold text-white">
+                  <h4 className="font-semibold text-background">
                     {review.user?.name || "Anonymous"}
                   </h4>
                   {review.user?.is_verified && (
@@ -52,14 +52,15 @@ const RatingReviewCard = ({ review, handleVote, user }) => {
         )}
 
         {review.productDetails.images?.length > 0 && (
-          <div className="flex gap-2 my-4">
+          <div className="flex gap-2 my-4 flex-wrap">
             {review.productDetails.images.map((image, index) => (
-              <img
-                key={index}
-                src={image.url}
-                alt={`Review ${index + 1}`}
-                className="w-28 h-28 object-cover rounded-lg"
-              />
+              <div key={index} className="relative w-24 h-24 sm:w-32 sm:h-32">
+                <img
+                  src={image.url}
+                  alt={`Review ${index + 1}`}
+                  className="w-full h-full object-cover rounded-lg"
+                />
+              </div>
             ))}
           </div>
         )}
@@ -70,14 +71,14 @@ const RatingReviewCard = ({ review, handleVote, user }) => {
             className={`flex items-center gap-1 text-sm transition-all duration-200 ${
               review.productDetails.helpfulVotes?.includes(user?._id)
                 ? "text-emerald-400 scale-105"
-                : "text-gray-400 hover:text-white hover:scale-102"
+                : "text-gray-400 hover:text-background hover:scale-102"
             }`}
           >
             <ThumbsUp
               className={`w-4 h-4 transition-all duration-200 ${
                 review.productDetails.helpfulVotes?.includes(user?._id)
                   ? "fill-emerald-400"
-                  : "hover:fill-white/20"
+                  : "hover:fill-background/20"
               }`}
             />
             <span
@@ -95,14 +96,14 @@ const RatingReviewCard = ({ review, handleVote, user }) => {
             className={`flex items-center gap-1 text-sm transition-all duration-200 ${
               review.productDetails.unhelpfulVotes?.includes(user?._id)
                 ? "text-red-400 scale-105"
-                : "text-gray-400 hover:text-white hover:scale-102"
+                : "text-gray-400 hover:text-background hover:scale-102"
             }`}
           >
             <ThumbsDown
               className={`w-4 h-4 transition-all duration-200 ${
                 review.productDetails.unhelpfulVotes?.includes(user?._id)
                   ? "fill-red-400"
-                  : "hover:fill-white/20"
+                  : "hover:fill-background/20"
               }`}
             />
             <span

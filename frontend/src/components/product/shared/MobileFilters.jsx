@@ -1,6 +1,5 @@
 import React from "react";
 import { Filter } from "lucide-react";
-import FilterAccordion from "@/components/product/FilterAccordion";
 import {
   Sheet,
   SheetContent,
@@ -10,6 +9,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import FilterAccordion from "@/components/product/FilterAccordion";
 
 const MobileFilters = ({
   isFilterOpen,
@@ -35,7 +35,7 @@ const MobileFilters = ({
         <SheetHeader>
           <div className="flex items-center gap-3">
             <div className="p-2 bg-accent rounded-lg">
-              <Filter size={20} className="text-foreground" />
+              <Filter size={20}/>
             </div>
             <SheetTitle className="m-0 sticky top-0 z-50">
               Product Filters
@@ -48,7 +48,7 @@ const MobileFilters = ({
         </SheetHeader>
 
         <div className="flex-1 overflow-y-auto">
-          <div className="p-5">
+          <div className="p-3">
             <FilterAccordion
               categories={filterOptions}
               selectedFilters={selectedFilters}

@@ -8,18 +8,21 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { BarChart3 } from "lucide-react";
 
 const RatingSummary = ({ averageRating, totalReviews }) => {
   return (
-    <Card className="bg-brand-dark/50 border-brand-end/50">
+    <Card>
       <CardHeader>
-        <CardTitle className="text-center">
-          <div className="text-4xl font-bold text-white">
-            {averageRating}
-            <span className="text-xl text-gray-400">/5.0</span>
-          </div>
+        <CardTitle className="text-xl font-semibold flex items-center text-background mb-5">
+          <BarChart3 className="w-5 h-5 mr-2 text-accent" />
+          Overall Rating
         </CardTitle>
-        <CardDescription className="text-center space-y-3">
+        <CardDescription className="text-center space-y-5">
+          <div className="text-5xl font-bold text-background">
+            {averageRating}
+            <span className="text-3xl text-gray-400">/5.0</span>
+          </div>
           <div className="flex items-center justify-center gap-2">
             <StarRating rating={Number(averageRating)} size="lg" />
           </div>
@@ -29,12 +32,14 @@ const RatingSummary = ({ averageRating, totalReviews }) => {
         </CardDescription>
       </CardHeader>
 
-      <CardContent className="space-y-4">
-        <Button variant="buyNow">Write a Review</Button>
+      {/* <CardContent className="space-y-4">
+        <Button variant="accent" className="w-full">
+          Write a Review
+        </Button>
         <p className="text-sm text-gray-400 text-center">
           Share your experience to help other collectors
         </p>
-      </CardContent>
+      </CardContent> */}
     </Card>
   );
 };

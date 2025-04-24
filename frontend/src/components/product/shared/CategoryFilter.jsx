@@ -1,8 +1,8 @@
 import React from "react";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import { ChevronRight } from "lucide-react";
 import ColorFilter from "./ColorFilter";
-import { Label } from "@/components/ui/label";
 
 const CategoryFilter = ({
   option,
@@ -19,7 +19,7 @@ const CategoryFilter = ({
     ${isDisabled ? "opacity-50 pointer-events-none" : "hover:bg-brand-end/50"}`}
   >
     <div className="flex-1">
-      <Label className="flex items-center space-x-2 cursor-pointer">
+      <Label className="flex items-center gap-2 cursor-pointer">
         <Checkbox
           id={`${filterKey}-${option.value}`}
           checked={isChecked}
@@ -45,7 +45,7 @@ const CategoryFilter = ({
       {hasSubItems && (
         <button
           onClick={() => onCategoryClick(filterKey, option.value)}
-          className="p-1 hover:bg-accent rounded-full text-gray-400 hover:text-black transition-colors"
+          className="p-1 hover:bg-accent rounded-full text-gray-400 hover:text-foreground transition-colors"
         >
           <ChevronRight className="h-4 w-4" />
         </button>

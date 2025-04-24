@@ -1,9 +1,8 @@
-import React, { useRef, useState } from "react";
+import React from "react";
 import Metadata from "@/components/layout/Metadata/Metadata";
-import CartSheet from "@/components/layout/header/CartSheet";
-import { useProductImages } from "@/hooks/Product/useProductImages";
 import ProductImageGallery from "@/components/product/shared/ProductImageGallery";
 import ProductInfo from "@/components/product/shared/ProductInfo";
+import { useProductImages } from "@/hooks/Product/useProductImages";
 
 const ProductDetails = ({
   product,
@@ -11,10 +10,8 @@ const ProductDetails = ({
   itemVariants,
   reviewStats,
 }) => {
-  const thumbnailContainerRef = useRef(null);
-  const [isCartOpen, setIsCartOpen] = useState(false);
-
   const {
+    thumbnailContainerRef,
     currentImageIndex,
     setCurrentImageIndex,
     currentProduct,
@@ -23,41 +20,38 @@ const ProductDetails = ({
     nextImage,
     prevImage,
     scrollThumbnailIntoView,
-  } = useProductImages(product, similarProducts, thumbnailContainerRef);
+    pageTitle,
+  } = useProductImages(product, similarProducts, itemVariants, reviewStats);
 
   return (
     <>
-      <Metadata title={currentProduct?.product_name || "Product Details"} />
-      <div className="p-5 bg-brand-start">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="w-full">
-            <ProductImageGallery
-              currentProduct={currentProduct}
-              displayItems={displayItems}
-              currentImageIndex={currentImageIndex}
-              setCurrentImageIndex={setCurrentImageIndex}
-              thumbnailContainerRef={thumbnailContainerRef}
-              nextImage={nextImage}
-              prevImage={prevImage}
-              similarProducts={similarProducts}
-              itemVariants={itemVariants}
-            />
-          </div>
+      <Metadata title={pageTitle} />
 
-          <div className="w-full">
-            <ProductInfo
-              product={currentProduct}
-              itemVariants={itemVariants}
-              onAddToCart={() => setIsCartOpen(true)}
-              colorVariants={colorVariants}
-              scrollThumbnailIntoView={scrollThumbnailIntoView}
-              reviewStats={reviewStats}
-            />
-          </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 p-5">
+        <div className="w-full">
+          <ProductImageGallery
+            currentProduct={currentProduct}
+            displayItems={displayItems}
+            currentImageIndex={currentImageIndex}
+            setCurrentImageIndex={setCurrentImageIndex}
+            thumbnailContainerRef={thumbnailContainerRef}
+            nextImage={nextImage}
+            prevImage={prevImage}
+            similarProducts={similarProducts}
+            itemVariants={itemVariants}
+          />
+        </div>
+
+        <div className="w-full">
+          <ProductInfo
+            product={currentProduct}
+            itemVariants={itemVariants}
+            colorVariants={colorVariants}
+            scrollThumbnailIntoView={scrollThumbnailIntoView}
+            reviewStats={reviewStats}
+          />
         </div>
       </div>
-
-      <CartSheet isOpen={isCartOpen} setIsOpen={setIsCartOpen} />
     </>
   );
 };

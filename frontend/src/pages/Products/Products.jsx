@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useSearchParams } from "react-router-dom";
 import ProductSection from "@/components/product/ProductSection";
 import Metadata from "@/components/layout/Metadata/Metadata";
@@ -73,62 +73,61 @@ const Products = () => {
       <Metadata
         title={searchKeyword ? `Search: ${searchKeyword}` : "Products"}
       />
-      <div className="mx-auto px-4 py-8 bg-brand-start">
-        {/* Mobile Filter and Sort */}
-        <div className="lg:hidden mb-4 flex items-center justify-between">
-          <MobileFilters
-            isFilterOpen={isFilterOpen}
-            setIsFilterOpen={setIsFilterOpen}
-            filterOptions={filterOptions}
-            openCategories={openCategories}
-            setOpenCategories={setOpenCategories}
-            selectedFilters={selectedFilters}
-            onFilterChange={handleFilterChangeAndCloseSheet}
-            productData={productData}
-            sortedProducts={filteredGroupedProducts}
-          />
-          <ProductSort
-            totalProducts={sortedProducts?.length || 0}
-            currentProducts={paginatedProducts?.length || 0}
-            currentSort={currentSort}
-            onSortChange={handleSortChange}
-            hideProductCount={true}
-            minimal={true}
-          />
-        </div>
 
-        {/* Desktop Filter and Sort */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 py-2">
-          <DesktopFilters
-            filterOptions={filterOptions}
-            openCategories={openCategories}
-            setOpenCategories={setOpenCategories}
-            selectedFilters={selectedFilters}
-            onFilterChange={handleFilterChangeAndCloseSheet}
-            productData={productData}
-            sortedProducts={filteredGroupedProducts}
-          />
-          <div className="col-span-1 lg:col-span-3">
-            <div className="hidden lg:block">
-              <ProductSort
-                totalProducts={sortedProducts?.length || 0}
-                currentProducts={paginatedProducts?.length || 0}
-                currentSort={currentSort}
-                onSortChange={handleSortChange}
-              />
-            </div>
-            <ProductSection products={paginatedProducts} />
+      {/* Mobile Filter and Sort */}
+      <div className="lg:hidden flex items-center justify-between p-5">
+        <MobileFilters
+          isFilterOpen={isFilterOpen}
+          setIsFilterOpen={setIsFilterOpen}
+          filterOptions={filterOptions}
+          openCategories={openCategories}
+          setOpenCategories={setOpenCategories}
+          selectedFilters={selectedFilters}
+          onFilterChange={handleFilterChangeAndCloseSheet}
+          productData={productData}
+          sortedProducts={filteredGroupedProducts}
+        />
+        <ProductSort
+          totalProducts={sortedProducts?.length || 0}
+          currentProducts={paginatedProducts?.length || 0}
+          currentSort={currentSort}
+          onSortChange={handleSortChange}
+          hideProductCount={true}
+          minimal={true}
+        />
+      </div>
+
+      {/* Desktop Filter and Sort */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-5 p-5">
+        <DesktopFilters
+          filterOptions={filterOptions}
+          openCategories={openCategories}
+          setOpenCategories={setOpenCategories}
+          selectedFilters={selectedFilters}
+          onFilterChange={handleFilterChangeAndCloseSheet}
+          productData={productData}
+          sortedProducts={filteredGroupedProducts}
+        />
+        <div className="col-span-1 lg:col-span-3">
+          <div className="hidden lg:block">
+            <ProductSort
+              totalProducts={sortedProducts?.length || 0}
+              currentProducts={paginatedProducts?.length || 0}
+              currentSort={currentSort}
+              onSortChange={handleSortChange}
+            />
           </div>
+          <ProductSection products={paginatedProducts} />
         </div>
+      </div>
 
-        {/* Pagination */}
-        <div className="flex justify-center">
-          <CustomPagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
-          />
-        </div>
+      {/* Pagination */}
+      <div className="flex justify-center">
+        <CustomPagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
       </div>
     </>
   );

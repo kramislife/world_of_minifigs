@@ -111,27 +111,20 @@ const FilterAccordion = ({
   };
 
   return (
-    <div className="space-y-4">
-      <Accordion
-        type="single"
-        defaultValue="price"
-        collapsible
-        className="space-y-2"
-      >
-        {Object.entries(categories).map(([key, category]) => (
-          <AccordionItem
-            key={key}
-            value={key}
-            className="border border-brand-end rounded-md my-2 bg-brand-start"
-          >
-            <AccordionTrigger className="text-base font-semibold text-background [&>svg]:text-background">
-              {getDisplayName(key)}
-            </AccordionTrigger>
-            {renderCategoryContent(key, category)}
-          </AccordionItem>
-        ))}
-      </Accordion>
-    </div>
+    <Accordion type="single" defaultValue="price" collapsible>
+      {Object.entries(categories).map(([key, category]) => (
+        <AccordionItem
+          key={key}
+          value={key}
+          className="border border-brand-end rounded-md bg-brand-start"
+        >
+          <AccordionTrigger className="text-base font-semibold text-background [&>svg]:text-background">
+            {getDisplayName(key)}
+          </AccordionTrigger>
+          {renderCategoryContent(key, category)}
+        </AccordionItem>
+      ))}
+    </Accordion>
   );
 };
 

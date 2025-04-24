@@ -28,28 +28,24 @@ const ProductSort = ({
   return (
     <div
       className={`flex items-center justify-between ${
-        !minimal && "mb-4"
+        !minimal && "mb-5"
       } ${className}`}
     >
       {!hideProductCount && (
-        <div className="text-md">
+        <p>
           Showing <span className="text-accent">{currentProducts}</span> of{" "}
           <span>{totalProducts}</span> products
-        </div>
+        </p>
       )}
       <div className={`flex items-center ${!minimal && "gap-2"}`}>
         {!minimal && <span className="text-sm">Sort by:</span>}
         <Select value={currentSort} onValueChange={onSortChange}>
-          <SelectTrigger className="w-[220px] bg-brand-dark/50 border-none">
-            <SelectValue placeholder="Select sorting" />
+          <SelectTrigger className="w-[220px]">
+            <SelectValue placeholder="Sort by" />
           </SelectTrigger>
-          <SelectContent className="bg-brand-dark/90 border-none shadow-lg">
+          <SelectContent>
             {sortOptions.map((option) => (
-              <SelectItem
-                key={option.value}
-                value={option.value}
-                className="hover:bg-accent hover:text-black cursor-pointer text-white"
-              >
+              <SelectItem key={option.value} value={option.value}>
                 {option.label}
               </SelectItem>
             ))}

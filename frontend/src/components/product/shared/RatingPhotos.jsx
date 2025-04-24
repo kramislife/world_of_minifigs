@@ -1,48 +1,70 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { ImageIcon } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 const RatingPhotos = ({ customerPhotos, setIsGalleryOpen }) => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkScreen = () => setIsMobile(window.innerWidth < 640);
+    checkScreen();
+    window.addEventListener("resize", checkScreen);
+    return () => window.removeEventListener("resize", checkScreen);
+  }, []);
+
+  const visibleCount = isMobile ? 3 : 6;
+  const visiblePhotos = customerPhotos.slice(0, visibleCount);
+
   return (
-    <Card className="bg-brand-dark/50 border-brand-end/50">
+    <Card>
       <CardHeader>
         <div className="flex justify-between items-center">
-          <CardTitle className="text-xl font-semibold flex items-center text-white">
+          <CardTitle className="text-xl font-semibold flex items-center text-background">
             <ImageIcon className="w-5 h-5 mr-2 text-accent" />
             Customer Photos
           </CardTitle>
-          {customerPhotos.length > 0 && (
-            <button
+          {customerPhotos.length > visibleCount && (
+            <Button
+              variant="link"
               onClick={() => setIsGalleryOpen(true)}
-              className="text-accent text-sm hover:text-accent/80"
+              className="text-accent"
             >
               View all
-            </button>
+            </Button>
           )}
         </div>
       </CardHeader>
 
       <CardContent>
         {customerPhotos.length > 0 ? (
-          <div className="flex gap-3">
-            {customerPhotos.slice(0, 4).map((image, index) => (
-              <img
-                key={index}
-                src={image.url}
-                alt={`Customer review ${index + 1}`}
-                className="w-32 h-32 object-cover rounded-lg"
-              />
-            ))}
-            {customerPhotos.length > 4 && (
-              <div
-                className="w-16 h-16 rounded-lg cursor-pointer bg-brand-dark/80 flex items-center justify-center"
-                onClick={() => setIsGalleryOpen(true)}
-              >
-                <span className="text-lg font-semibold text-white">
-                  +{customerPhotos.length - 4}
-                </span>
-              </div>
-            )}
+          <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
+            {visiblePhotos.map((image, index) => {
+              const isLastVisible =
+                index === visibleCount - 1 &&
+                customerPhotos.length > visibleCount;
+
+              return (
+                <div
+                  key={index}
+                  className="relative cursor-pointer aspect-square"
+                  onClick={() => setIsGalleryOpen(true)}
+                >
+                  <img
+                    src={image.url}
+                    alt={`Customer review ${index + 1}`}
+                    className="w-full h-full object-cover rounded-lg"
+                  />
+                  {isLastVisible && (
+                    <div className="absolute inset-0 bg-black bg-opacity-60 rounded-lg flex items-center justify-center">
+                      <span className="text-lg font-semibold text-white">
+                        +{customerPhotos.length - visibleCount}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center py-8 text-gray-400">
