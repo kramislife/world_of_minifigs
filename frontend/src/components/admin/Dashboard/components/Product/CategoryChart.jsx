@@ -21,9 +21,9 @@ const CategoryChart = ({ categoryStats, BaseChart, chartColors }) => {
   };
 
   return (
-    <Card className="bg-brand-dark/50 border border-brand-end/50">
+    <Card>
       <CardHeader>
-        <CardTitle className="text-white text-lg font-semibold">
+        <CardTitle className="text-background text-lg font-semibold">
           Top 5 Categories by Order Count
         </CardTitle>
       </CardHeader>

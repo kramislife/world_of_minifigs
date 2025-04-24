@@ -42,8 +42,8 @@ const FeaturedProducts = () => {
   }
 
   return (
-    <div className="pt-5">
-      <h2 className="text-3xl font-extrabold text-center header-text py-5">
+    <section className="pt-3">
+      <h2 className="text-3xl font-extrabold text-center py-5">
         Featured Collections
       </h2>
       <div className="space-y-2">
@@ -54,13 +54,13 @@ const FeaturedProducts = () => {
             className="relative overflow-hidden group cursor-pointer"
             onClick={() => handleCollectionClick(collection)}
           >
-            <AspectRatio ratio={16 / 6} className="w-full">
+            <AspectRatio ratio={16 / 6}>
               {/* Show collection image */}
               {collection.image?.url ? (
                 <img
                   src={collection.image.url}
                   alt={collection.name}
-                  className="w-full h-full object-cover transition-transform duration-600 hover:scale-105"
+                  className="w-full h-full object-cover"
                 />
               ) : (
                 // Show placeholder image if collection image is not available
@@ -69,7 +69,7 @@ const FeaturedProducts = () => {
               <div className="absolute inset-0 bg-brand-start/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 <div className="text-center">
                   <h3 className="text-2xl font-bold mb-4">{collection.name}</h3>
-                  <Button variant="accent">
+                  <Button variant="accent" className="w-full">
                     {subCollectionsData?.subcollections?.some(
                       (sub) => sub?.collection?._id === collection._id
                     )
@@ -82,7 +82,7 @@ const FeaturedProducts = () => {
           </div>
         ))}
       </div>
-    </div>
+    </section>
   );
 };
 

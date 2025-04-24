@@ -16,132 +16,161 @@ const CustomerShipping = ({
   shippingInfo,
   orderStatus,
 }) => {
+  const addressDetails = [
+    {
+      section: [
+        {
+          label: "Contact Number",
+          value: shippingAddress.contact_number || "N/A",
+        },
+        {
+          label: "Address",
+          value: `${shippingAddress.address_line1}${
+            shippingAddress.address_line2
+              ? `, ${shippingAddress.address_line2}`
+              : ""
+          }`,
+        },
+      ],
+    },
+    {
+      section: [
+        {
+          label: "City & State",
+          value: `${shippingAddress.city}, ${shippingAddress.state}`,
+        },
+        {
+          label: "Country",
+          value: shippingAddress.country,
+        },
+      ],
+    },
+    {
+      section: [
+        {
+          label: "Postal Code",
+          value: shippingAddress.postal_code,
+        },
+      ],
+    },
+  ];
+
+  const trackingDetails = [
+    {
+      label: "Courier Service",
+      value: shippingInfo?.courier,
+      colSpan: 1,
+    },
+    {
+      label: "Tracking Number",
+      value: shippingInfo?.trackingNumber,
+      colSpan: 1,
+    },
+    {
+      label: "Track Package",
+      value: shippingInfo?.trackingLink,
+      colSpan: 2,
+      isLink: true,
+    },
+    {
+      label: "Shipped On",
+      value: shippingInfo?.shippedAt
+        ? format(new Date(shippingInfo.shippedAt), "PPP")
+        : null,
+      colSpan: 1,
+      icon: <Calendar className="w-3 h-3" />,
+    },
+    {
+      label: "Additional Information",
+      value: shippingInfo?.additionalInfo,
+      colSpan: 2,
+      icon: <Info className="w-3 h-3" />,
+    },
+  ];
+
+  const renderDetail = ({ label, value }) => (
+    <div key={label}>
+      <p className="text-sm text-gray-300">{label}</p>
+      <p className="font-medium mt-1 text-background">{value}</p>
+    </div>
+  );
+
+  const renderTrackingDetail = ({ label, value, colSpan, isLink, icon }) => {
+    if (!value) return null;
+
+    return (
+      <div key={label} className={`${colSpan === 2 ? "md:col-span-2" : ""}`}>
+        <p className="text-sm text-gray-300 flex items-center gap-1">
+          {icon}
+          {label}
+        </p>
+        <div className="font-medium mt-1 text-background">
+          {isLink ? (
+            <a
+              href={value}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-400 hover:text-blue-300 underline flex items-center gap-1"
+            >
+              {value}
+            </a>
+          ) : (
+            value
+          )}
+        </div>
+      </div>
+    );
+  };
+
   return (
-    <Card className="bg-brand-dark/20 border border-brand-end/50">
+    <Card>
       <CardHeader>
         <div className="flex items-center gap-2">
           <Truck className="w-6 h-6 text-green-500" />
-          <h3 className="text-lg font-semibold text-white">Shipping Details</h3>
+          <h3 className="text-lg font-semibold text-background">
+            Shipping Details
+          </h3>
         </div>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
-          <div className="space-y-5">
-            <div>
-              <p className="text-sm text-gray-400">Contact Number</p>
-              <p className="font-medium mt-1 text-white">
-                {shippingAddress.contact_number || "N/A"}
-              </p>
+          {addressDetails.map((group, index) => (
+            <div key={index} className="space-y-5">
+              {group.section.map(renderDetail)}
             </div>
-            <div>
-              <p className="text-sm text-gray-400">Address</p>
-              <p className="font-medium mt-1 text-white">
-                {shippingAddress.address_line1}
-                {shippingAddress.address_line2 && (
-                  <>, {shippingAddress.address_line2}</>
-                )}
-              </p>
-            </div>
-          </div>
-          <div className="space-y-4">
-            <div>
-              <p className="text-sm text-gray-400">City & State</p>
-              <p className="font-medium mt-1 text-white">
-                {shippingAddress.city}, {shippingAddress.state}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-400">Country</p>
-              <p className="font-medium mt-1 text-white">
-                {shippingAddress.country}
-              </p>
-            </div>
-          </div>
-          <div className="space-y-4">
-            <div>
-              <p className="text-sm text-gray-400">Postal Code</p>
-              <p className="font-medium text-white mt-1">
-                {shippingAddress.postal_code}
-              </p>
-            </div>
-          </div>
+          ))}
         </div>
 
-        {/* Shipping Tracking Information - only shown when available */}
+        {/* Shipping Tracking Information */}
         {shippingInfo &&
           (orderStatus === "Shipped" || orderStatus === "Delivered") && (
             <div className="mt-5 border-t border-brand-end/50 pt-5">
               <div className="flex items-center gap-2 mb-4">
                 <Package className="w-5 h-5 text-blue-400" />
-                <h4 className="text-lg font-semibold text-white">
+                <h4 className="text-lg font-semibold text-background">
                   Tracking Information
                 </h4>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-3">
-                <div>
-                  <p className="text-sm text-gray-400">Courier Service</p>
-                  <p className="font-medium mt-1 text-white">
-                    {shippingInfo.courier}
-                  </p>
-                </div>
-
-                <div>
-                  <p className="text-sm text-gray-400">Tracking Number</p>
-                  <p className="font-medium mt-1 text-white">
-                    {shippingInfo.trackingNumber}
-                  </p>
-                </div>
-
-                <div className="md:col-span-2">
-                  <p className="text-sm text-gray-400">Track Package</p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <a
-                      href={shippingInfo.trackingLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-400 hover:text-blue-300 underline flex items-center gap-1"
-                    >
-                      {shippingInfo.trackingLink}
-                    </a>
-                  </div>
-                </div>
-
-                {shippingInfo.shippedAt && (
-                  <div>
-                    <p className="text-sm text-gray-400 flex items-center gap-1">
-                      <Calendar className="w-3 h-3" /> Shipped On
-                    </p>
-                    <p className="font-medium mt-1 text-white">
-                      {format(new Date(shippingInfo.shippedAt), "PPP")}
-                    </p>
-                  </div>
-                )}
-
-                {shippingInfo.additionalInfo && (
-                  <div className="md:col-span-2">
-                    <p className="text-sm text-gray-400 flex items-center gap-1">
-                      <Info className="w-3 h-3" /> Additional Information
-                    </p>
-                    <p className="font-medium mt-1 text-white">
-                      {shippingInfo.additionalInfo}
-                    </p>
-                  </div>
-                )}
+                {trackingDetails.map(renderTrackingDetail)}
               </div>
             </div>
           )}
 
+        {/* Order Notes */}
         {orderNotes && (
           <div className="mt-5 border-t border-brand-end/50 pt-5">
             <div>
               <div className="flex items-center gap-2">
                 <StickyNote className="w-4 h-4 text-accent" />
-                <p className="text-sm text-gray-400">Order Notes</p>
+                <p className="text-sm text-gray-300">Order Notes</p>
               </div>
               <div className="flex gap-2 mt-2">
                 <CheckCheck className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                <p className="text-sm text-white leading-6">{orderNotes}</p>
+                <p className="text-sm text-background leading-6">
+                  {orderNotes}
+                </p>
               </div>
             </div>
           </div>

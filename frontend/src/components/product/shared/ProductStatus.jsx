@@ -1,36 +1,37 @@
 import React from "react";
+import { Badge } from "@/components/ui/badge";
 
 const ProductStatus = ({ stock, variant = "default" }) => {
   const getStockStatus = () => {
     if (!stock || stock <= 0) {
       return {
         text: "Unavailable",
-        color: "text-red-500",
-        bgColor: "bg-red-500",
-        pillTextColor: "text-light",
+        badgeVariant: "destructive",
+        dotColor: "bg-destructive",
+        textColor: "text-destructive",
       };
     }
     if (stock > 50) {
       return {
         text: "In Stock",
-        color: "text-green-500",
-        bgColor: "bg-green-500",
-        pillTextColor: "text-black",
+        badgeVariant: "success",
+        dotColor: "bg-green-500",
+        textColor: "text-green-500",
       };
     }
     if (stock > 0) {
       return {
         text: "Low Stock",
-        color: "text-accent",
-        bgColor: "bg-accent",
-        pillTextColor: "text-black",
+        badgeVariant: "warning",
+        dotColor: "bg-yellow-500",
+        textColor: "text-accent",
       };
     }
     return {
       text: "Unavailable",
-      color: "text-red-500",
-      bgColor: "bg-red-500",
-      pillTextColor: "text-light",
+      badgeVariant: "destructive",
+      dotColor: "bg-destructive",
+      textColor: "text-destructive",
     };
   };
 
@@ -39,26 +40,27 @@ const ProductStatus = ({ stock, variant = "default" }) => {
   switch (variant) {
     case "pill":
       return (
-        <span
-          className={`px-5 py-1 rounded-full text-xs ${stockStatus.bgColor} ${stockStatus.pillTextColor}`}
-        >
-          {stockStatus.text}
-        </span>
+        <Badge variant={stockStatus.badgeVariant}>{stockStatus.text}</Badge>
       );
+
     case "dot":
       return (
-        <div className="flex items-center gap-2">
-          <div className={`w-2 h-2 rounded-full ${stockStatus.bgColor}`} />
-          <span className={`text-sm font-medium ${stockStatus.color}`}>
-            {stockStatus.text === "Low Stock" 
+        <div className="flex items-center gap-2 relative">
+          <span
+            className={`w-2 h-2 rounded-full ${stockStatus.dotColor} animate-ping absolute`}
+          />
+          <span className={`w-2 h-2 rounded-full ${stockStatus.dotColor}`} />
+          <span className={`text-sm font-medium ${stockStatus.textColor}`}>
+            {stockStatus.text === "Low Stock"
               ? `Hurry up, ${stock} stocks left!`
               : stockStatus.text}
           </span>
         </div>
       );
+
     default:
       return (
-        <span className={`text-sm font-medium ${stockStatus.color}`}>
+        <span className={`text-sm font-medium ${stockStatus.textColor}`}>
           {stockStatus.text}
         </span>
       );

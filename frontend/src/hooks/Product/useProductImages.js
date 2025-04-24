@@ -1,10 +1,12 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 
 export const useProductImages = (
   product,
   similarProducts,
-  thumbnailContainerRef
+  itemVariants,
+  reviewStats
 ) => {
+  const thumbnailContainerRef = useRef(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [currentProduct, setCurrentProduct] = useState(product);
 
@@ -129,7 +131,9 @@ export const useProductImages = (
     scrollThumbnailIntoView(newIndex);
   };
 
+  // Return all the data and refs needed by ProductDetails
   return {
+    thumbnailContainerRef,
     currentImageIndex,
     setCurrentImageIndex,
     currentProduct,
@@ -138,5 +142,6 @@ export const useProductImages = (
     nextImage,
     prevImage,
     scrollThumbnailIntoView,
+    pageTitle: currentProduct?.product_name || "Product Details",
   };
 };

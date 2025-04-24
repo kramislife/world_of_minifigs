@@ -43,17 +43,6 @@ export const createReviewColumns = () => [
     ),
   },
   {
-    header: "Engagement",
-    accessorKey: "engagement",
-    cell: ({ row }) => (
-      <div className="flex flex-col text-sm">
-        <span>👍 {row.original.helpfulVotes}</span>
-        <span>👎 {row.original.unhelpfulVotes}</span>
-        <span>💬 {row.original.replies}</span>
-      </div>
-    ),
-  },
-  {
     header: "Date",
     accessorKey: "createdAt",
     cell: ({ row }) => (

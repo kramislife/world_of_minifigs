@@ -4,7 +4,7 @@ import { FallbackMessage } from "@/components/product/shared/FallbackStates";
 
 const RatingReviewList = ({ reviews, activeTab, handleVote, user }) => {
   return (
-    <div className="space-y-5">
+    <div className="space-y-3">
       {reviews[activeTab].length > 0 ? (
         reviews[activeTab].map((review, index) => (
           <RatingReviewCard

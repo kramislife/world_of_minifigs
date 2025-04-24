@@ -1,8 +1,10 @@
+import { useNavigate } from "react-router-dom";
 import { ShoppingBag, ShoppingCart, Star, TrendingUp } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { useNavigate } from "react-router-dom";
+import { Sheet, SheetTrigger } from "@/components/ui/sheet";
+import CartSheet from "@/components/layout/header/CartSheet";
 
-const ActivityStats = ({ stats, setIsCartOpen }) => {
+const ActivityStats = ({ stats }) => {
   const navigate = useNavigate();
 
   const activities = [
@@ -21,8 +23,8 @@ const ActivityStats = ({ stats, setIsCartOpen }) => {
       value: stats.cartItems,
       bgColor: "bg-blue-500/10",
       textColor: "text-blue-400",
-      onClick: () => stats.cartItems > 0 && setIsCartOpen(true),
       isClickable: stats.cartItems > 0,
+      isCartTrigger: true,
     },
     {
       icon: <Star className="w-5 h-5 text-yellow-400" />,
@@ -48,29 +50,42 @@ const ActivityStats = ({ stats, setIsCartOpen }) => {
   return (
     <Card className="bg-brand-dark/50 border-none">
       <CardContent className="p-5">
-        {activities.map((activity, index) => (
-          <div
-            key={index}
-            className={`flex justify-between items-center p-4 rounded-lg transition-all duration-300 ${
-              activity.isClickable
-                ? "hover:bg-brand-dark/50 cursor-pointer hover:border-brand-end/50"
-                : "cursor-default"
-            } border border-transparent`}
-            onClick={activity.onClick}
-          >
-            <div className="flex items-center gap-4">
-              <div className={`p-3 rounded-xl ${activity.bgColor}`}>
-                {activity.icon}
+        {activities.map((activity, index) => {
+          const ActivityContent = (
+            <div
+              className={`flex justify-between items-center p-4 rounded-lg transition-all duration-300 ${
+                activity.isClickable
+                  ? "hover:bg-brand-dark/50 cursor-pointer hover:border-brand-end/50"
+                  : "cursor-default"
+              } border border-transparent`}
+            >
+              <div className="flex items-center gap-4">
+                <div className={`p-3 rounded-xl ${activity.bgColor}`}>
+                  {activity.icon}
+                </div>
+                <span className="text-gray-200 font-medium">
+                  {activity.label}
+                </span>
               </div>
-              <span className="text-gray-200 font-medium">
-                {activity.label}
+              <span className={`text-2xl font-bold ${activity.textColor}`}>
+                {activity.value}
               </span>
             </div>
-            <span className={`text-2xl font-bold ${activity.textColor}`}>
-              {activity.value}
-            </span>
-          </div>
-        ))}
+          );
+
+          return (
+            <div key={index}>
+              {activity.isCartTrigger ? (
+                <Sheet>
+                  <SheetTrigger asChild>{ActivityContent}</SheetTrigger>
+                  <CartSheet />
+                </Sheet>
+              ) : (
+                <div onClick={activity.onClick}>{ActivityContent}</div>
+              )}
+            </div>
+          );
+        })}
       </CardContent>
     </Card>
   );

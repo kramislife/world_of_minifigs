@@ -47,24 +47,19 @@ const FaqSection = () => {
         Frequently Asked Questions
       </h3>
 
-      <Accordion type="single" collapsible className="space-y-4">
+      <Accordion type="single" collapsible>
         {faqs.map((faq, index) => (
           <motion.div
             key={index}
             variants={contactAnimations.faqItemVariants}
             custom={index}
           >
-            <AccordionItem
-              value={`item-${index}`}
-              className="border border-gray-200 rounded-md overflow-hidden text-foreground text-sm"
-            >
-              <AccordionTrigger className="p-4 text-left font-medium hover:text-accent hover:bg-brand-start hover:no-underline">
-                {faq.question}
-              </AccordionTrigger>
-              <AccordionContent className="p-4 bg-gray-100 border-t border-gray-200">
+            <AccordionItem value={`item-${index}`}>
+              <AccordionTrigger>{faq.question}</AccordionTrigger>
+              <AccordionContent>
                 <div className="flex gap-2">
                   <CircleCheckBig className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                  <p className="text-black leading-6">{faq.answer}</p>
+                  <p>{faq.answer}</p>
                 </div>
               </AccordionContent>
             </AccordionItem>

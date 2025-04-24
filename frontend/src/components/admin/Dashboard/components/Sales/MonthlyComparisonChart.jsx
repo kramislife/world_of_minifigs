@@ -16,9 +16,9 @@ const MonthlyComparisonChart = ({ monthlySales, BaseChart, chartColors }) => {
   };
 
   return (
-    <Card className="bg-brand-dark/50 border border-brand-end/50">
+    <Card>
       <CardHeader>
-        <CardTitle className="text-white text-lg font-semibold">
+        <CardTitle className="text-background text-lg font-semibold">
           Monthly Sales Comparison
         </CardTitle>
       </CardHeader>

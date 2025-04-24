@@ -10,8 +10,8 @@ const OrderHeader = ({
   setShowCancelDialog,
 }) => {
   return (
-    <Card className="bg-brand-dark/20 border border-brand-end/50">
-      <CardHeader className="p-4">
+    <Card >
+      <CardHeader>
         <div className="flex flex-col gap-2">
           {/* Top Section - Order ID and Status */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
@@ -20,15 +20,15 @@ const OrderHeader = ({
                 <StatusIcon className={`w-7 h-7 ${statusConfig.color}`} />
               </div>
               <div className="min-w-0">
-                <CardTitle className="text-md md:text-lg text-white line-clamp-1 pb-1">
+                <CardTitle className="text-sm md:text-lg text-background">
                   Order #{order._id}
                 </CardTitle>
                 <div className="flex items-center gap-2">
-                  <p className="text-sm text-gray-400">
+                  <p className="text-sm text-gray-300">
                     Placed on {format(new Date(order.createdAt), "PPP")}
                   </p>
-                  <span className="text-gray-500">•</span>
-                  <p className="text-sm text-gray-400">
+                  <span className="text-gray-400">•</span>
+                  <p className="text-sm text-gray-300">
                     {order.orderItems.length}{" "}
                     {order.orderItems.length === 1 ? "item" : "items"}
                   </p>

@@ -46,7 +46,6 @@ const OrderDetailsDialog = ({ isOpen, onClose, order }) => {
   };
 
   const handleStatusUpdate = async () => {
-    // Only include shipping info if status is being changed to "Shipped"
     const updateData = {
       orderStatus: selectedStatus,
       ...(selectedStatus === "Shipped" && { shippingInfo }),
@@ -80,30 +79,41 @@ const OrderDetailsDialog = ({ isOpen, onClose, order }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto scrollbar-none bg-brand-gradient border border-gray-800 rounded-xl py-10 px-5">
+      <DialogContent className="max-w-7xl">
         <DialogHeader>
-          <DialogTitle>
-            <div className="flex items-center justify-between border-b border-gray-500/50 pb-4">
-              <div className="space-y-1">
-                <span className="text-sm font-medium text-gray-400">
-                  Order ID
-                </span>
-                <p className="text-lg font-bold text-white font-mono">
-                  #{order._id}
-                </p>
-              </div>
-              <div className="space-y-1 text-left">
-                <span className="text-sm font-medium text-gray-400">
-                  Order Date
-                </span>
-                <p className="text-lg font-bold text-white">{formattedDate}</p>
-              </div>
+          <DialogTitle className="flex items-center justify-between">
+            <div className="space-y-1 text-sm font-medium text-gray-400">
+              <span>Order ID</span>
+              <p className="text-sm md:text-lg font-bold text-background">
+                #{order._id}
+              </p>
+            </div>
+            <div className="space-y-1 text-sm font-medium text-gray-400">
+              <span>Order Date</span>
+              <p className="text-sm md:text-lg font-bold text-background">
+                {formattedDate}
+              </p>
             </div>
           </DialogTitle>
         </DialogHeader>
 
-        <div className="relative grid grid-cols-1 lg:grid-cols-5 gap-4 mt-4">
-          <div className="lg:col-span-3 space-y-4">
+        <div className="relative grid grid-cols-1 lg:grid-cols-5 gap-5">
+          {/* Mobile Order: Status First */}
+          <div className="block lg:hidden">
+            <OrderStatus
+              selectedStatus={selectedStatus}
+              setSelectedStatus={setSelectedStatus}
+              order={order}
+              user={user}
+              handleStatusUpdate={handleStatusUpdate}
+              isLoading={isLoading}
+              shippingInfo={shippingInfo}
+              handleShippingInfoChange={handleShippingInfoChange}
+            />
+          </div>
+
+          {/* Main Content Area */}
+          <div className="lg:col-span-3 space-y-5">
             <OrderItems orderItems={order.orderItems} />
             <ShippingDetails
               shippingAddress={order.shippingAddress}
@@ -113,27 +123,31 @@ const OrderDetailsDialog = ({ isOpen, onClose, order }) => {
             />
           </div>
 
-          <div className="lg:col-span-2">
-            <div className="sticky top-0 space-y-4">
-              <OrderStatus
-                selectedStatus={selectedStatus}
-                setSelectedStatus={setSelectedStatus}
-                order={order}
-                user={user}
-                handleStatusUpdate={handleStatusUpdate}
-                isLoading={isLoading}
-                shippingInfo={shippingInfo}
-                handleShippingInfoChange={handleShippingInfoChange}
-              />
-              <CustomerInfo user={order.user} email={order.email} />
-              <PaymentInfo
-                paymentInfo={order.paymentInfo}
-                shippingPrice={order.shippingPrice}
-                taxPrice={order.taxPrice}
-                totalPrice={order.totalPrice}
-              />
+            {/* Sidebar Content */}
+            <div className="lg:col-span-2">
+              <div className="space-y-5 lg:sticky lg:top-3">
+                {/* Hide OrderStatus on mobile as it's shown above */}
+                <div className="hidden lg:block">
+                  <OrderStatus
+                    selectedStatus={selectedStatus}
+                    setSelectedStatus={setSelectedStatus}
+                    order={order}
+                    user={user}
+                    handleStatusUpdate={handleStatusUpdate}
+                    isLoading={isLoading}
+                    shippingInfo={shippingInfo}
+                    handleShippingInfoChange={handleShippingInfoChange}
+                  />
+                </div>
+                <CustomerInfo user={order.user} email={order.email} />
+                <PaymentInfo
+                  paymentInfo={order.paymentInfo}
+                  shippingPrice={order.shippingPrice}
+                  taxPrice={order.taxPrice}
+                  totalPrice={order.totalPrice}
+                />
+              </div>
             </div>
-          </div>
         </div>
       </DialogContent>
     </Dialog>

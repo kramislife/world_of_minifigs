@@ -7,7 +7,6 @@ const ReviewActions = ({
   handleSubmit,
   isCreating,
   isUpdating,
-  hasEditedProducts,
   existingReview,
 }) => {
   const isLoading = isCreating || isUpdating;
@@ -15,14 +14,19 @@ const ReviewActions = ({
   return (
     <DialogFooter className="gap-2">
       <Button
-        variant="outline"
+        variant="secondary"
         onClick={() => onOpenChange(false)}
-        className="w-full sm:w-auto hover:bg-input"
+        className="w-auto"
         disabled={isLoading}
       >
         Cancel
       </Button>
-      <Button variant="submit" onClick={handleSubmit} disabled={isLoading} className="w-auto">
+      <Button
+        variant="submit"
+        onClick={handleSubmit}
+        disabled={isLoading}
+        className="w-auto"
+      >
         {isLoading ? (
           <>
             <Loader2 className="w-4 h-4 mr-2 animate-spin" />

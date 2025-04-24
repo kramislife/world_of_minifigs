@@ -1,7 +1,7 @@
 import React from "react";
 import { useGetColorsQuery } from "@/redux/api/productApi";
 import { Label } from "@/components/ui/label";
-import { AlertCircle, Palette } from "lucide-react";
+import { AlertCircle, Palette, Loader2 } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/select";
 
 const ProductColors = ({ formData, onCheckboxChange }) => {
-  const { data: colorData, error } = useGetColorsQuery();
+  const { data: colorData, error, isLoading } = useGetColorsQuery();
 
   const handleColorChange = (colorId) => {
     // Clear previous colors and set the new one
@@ -23,6 +23,14 @@ const ProductColors = ({ formData, onCheckboxChange }) => {
     onCheckboxChange("productColors", colorId, true);
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center gap-2 text-accent p-4 border rounded-lg">
+        <Loader2 className="h-4 w-4 animate-spin" />
+        <p>Loading colors...</p>
+      </div>
+    );
+  }
 
   if (error) {
     return (
@@ -33,23 +41,14 @@ const ProductColors = ({ formData, onCheckboxChange }) => {
     );
   }
 
-  // if (!colorData?.prod_color || colorData.prod_color.length === 0) {
-  //   return (
-  //     <div className="space-y-4">
-  //       <div className="flex justify-between items-center">
-  //         <Label className="text-lg font-semibold">Product Color</Label>
-  //       </div>
-  //       <Link to="/admin/new-color">
-  //         <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-lg space-y-4 hover:bg-gray-50 transition-colors cursor-pointer">
-  //           <Plus size={24} className="text-gray-400" />
-  //           <p className="text-gray-500 text-center">
-  //             No colors available. Click to add colors.
-  //           </p>
-  //         </div>
-  //       </Link>
-  //     </div>
-  //   );
-  // }
+  if (!colorData?.prod_color || colorData.prod_color.length === 0) {
+    return (
+      <div className="flex items-center gap-2 text-yellow-500 p-4 border rounded-lg">
+        <AlertCircle size={20} />
+        <p>No colors available.</p>
+      </div>
+    );
+  }
 
   // Handle both string ID and object ID cases
   const selectedColor =
@@ -59,9 +58,6 @@ const ProductColors = ({ formData, onCheckboxChange }) => {
   const selectedColorData = colorData.prod_color.find(
     (color) => color._id === selectedColor || color._id === selectedColor?._id
   );
-
-  //   console.log("Selected Color:", selectedColor); // Debug log
-  //   console.log("Selected Color Data:", selectedColorData); // Debug log
 
   return (
     <div className="space-y-2">
@@ -76,7 +72,7 @@ const ProductColors = ({ formData, onCheckboxChange }) => {
         value={selectedColorData?._id || ""}
         onValueChange={handleColorChange}
       >
-        <SelectTrigger className="w-full py-6 border border-brand-end/50">
+        <SelectTrigger className="w-full py-6 bg-transparent border">
           <SelectValue placeholder="Select a color">
             {selectedColorData && (
               <div className="flex items-center gap-2">
@@ -89,12 +85,12 @@ const ProductColors = ({ formData, onCheckboxChange }) => {
             )}
           </SelectValue>
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="bg-background">
           {colorData.prod_color.map((color) => (
             <SelectItem
               key={color._id}
               value={color._id}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 text-foreground"
             >
               <div className="flex items-center gap-2">
                 <div

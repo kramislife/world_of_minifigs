@@ -28,54 +28,54 @@ const ChooseUsSection = () => {
   ];
 
   return (
-    <section className="py-10 lg:py-16 bg-white">
-      <div className="px-6">
-        <motion.div
-          className="text-center mb-10"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.1 }}
-          variants={aboutAnimations.orderHeaderVariants}
-        >
-          <Badge className="bg-brand-start text-accent px-4 py-1 rounded-full text-sm font-medium mb-6">
-            WHY CHOOSE US
-          </Badge>
-          <h2 className="text-3xl font-bold text-gray-800 mb-4">
-            Minifigure Magic, Delivered
-          </h2>
-          <p className="max-w-2xl mx-auto text-gray-600">
-            See why our customers enjoy buying LEGO from us. We're committed to
-            quality, authenticity, and exceptional service.
-          </p>
-        </motion.div>
+    <section className="px-5 py-10 bg-background">
+      <motion.div
+        className="text-center mb-5 md:mb-10"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.1 }}
+        variants={aboutAnimations.orderHeaderVariants}
+      >
+        <Badge variant="accent" className="text-sm font-medium mb-5 p-1 px-5">
+          WHY CHOOSE US
+        </Badge>
+        <h2 className="text-3xl font-bold text-foreground mb-4">
+          Minifigure Magic, Delivered ✨
+        </h2>
+        <p className="max-w-3xl mx-auto italic text-foreground">
+          Discover why LEGO lovers trust us — from top tier quality and 100%
+          authenticity to service that builds smiles with every order.
+        </p>
+      </motion.div>
 
-        <motion.div
-          className="grid grid-cols-1 md:grid-cols-3 gap-5"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.1 }}
-          variants={aboutAnimations.chooseUsContainerVariants}
-        >
-          {features.map((feature, index) => (
-            <motion.div
-              key={index}
-              variants={aboutAnimations.chooseUsCardVariants}
-            >
-              <Card>
-                <CardContent className="p-8 text-center">
-                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                    {feature.icon}
-                  </div>
-                  <CardTitle className="text-xl font-bold text-foreground mb-4">
-                    {feature.title}
-                  </CardTitle>
-                  <p className="text-gray-600">{feature.description}</p>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
-        </motion.div>
-      </div>
+      <motion.div
+        className="grid grid-cols-1 md:grid-cols-3 gap-5"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.1 }}
+        variants={aboutAnimations.chooseUsContainerVariants}
+      >
+        {features.map((feature, index) => (
+          <motion.div
+            key={index}
+            variants={aboutAnimations.chooseUsCardVariants}
+          >
+            <Card className="bg-background border">
+              <CardContent className="p-5 text-center border rounded-md">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                  {feature.icon}
+                </div>
+                <CardTitle className="text-xl font-bold mb-4">
+                  {feature.title}
+                </CardTitle>
+                <p className="text-foreground/80 italic">
+                  {feature.description}
+                </p>
+              </CardContent>
+            </Card>
+          </motion.div>
+        ))}
+      </motion.div>
     </section>
   );
 };

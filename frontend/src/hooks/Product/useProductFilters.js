@@ -24,6 +24,7 @@ export const useProductFilters = (filterData = {}) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [expandedItems, setExpandedItems] = useState({});
   const [currentCategory, setCurrentCategory] = useState(null);
+  const [filteredProducts, setFilteredProducts] = useState([]);
 
   const {
     categoriesData = {},
@@ -173,16 +174,71 @@ export const useProductFilters = (filterData = {}) => {
     setSelectedFilters(initialFilters);
   }, [searchParams]);
 
+  // Filter products when filters or products change
+  const filterProducts = (products, filters) => {
+    if (!products) return [];
+
+    return products.filter((product) => {
+      return Object.entries(filters).every(([key, values]) => {
+        if (!values || values.length === 0) return true;
+
+        switch (key) {
+          case "price":
+            return values.some((range) => {
+              const [min, max] = range.split("-").map(Number);
+              if (max) {
+                return product.price >= min && product.price <= max;
+              }
+              return product.price >= min;
+            });
+          case "product_color":
+            return values.some(
+              (colorId) =>
+                product.product_color?._id === colorId ||
+                product.product_color === colorId
+            );
+          case "product_category":
+            return values.some((catId) =>
+              product.product_category?.some((cat) => cat._id === catId)
+            );
+          case "product_collection":
+            return values.some((colId) =>
+              product.product_collection?.some((col) => col._id === colId)
+            );
+          case "product_skill_level":
+            return values.some(
+              (levelId) => product.product_skill_level?._id === levelId
+            );
+          case "product_designer":
+            return values.some(
+              (designerId) => product.product_designer?._id === designerId
+            );
+          case "product_sub_categories":
+            return values.some((subCatId) =>
+              product.product_sub_categories?.some(
+                (sub) => sub._id === subCatId
+              )
+            );
+          case "product_sub_collections":
+            return values.some((subColId) =>
+              product.product_sub_collections?.some(
+                (sub) => sub._id === subColId
+              )
+            );
+          default:
+            return true;
+        }
+      });
+    });
+  };
+
   const handleFilterChange = (category, value) => {
-    // Create new array based on previous filters
     const newFilters = { ...selectedFilters };
 
-    // Initialize the category array if it doesn't exist
     if (!newFilters[category]) {
       newFilters[category] = [];
     }
 
-    // Toggle the value
     if (newFilters[category].includes(value)) {
       newFilters[category] = newFilters[category].filter((v) => v !== value);
     } else {
@@ -193,17 +249,18 @@ export const useProductFilters = (filterData = {}) => {
 
     // Update URL params
     const newSearchParams = new URLSearchParams(searchParams);
-
-    // If the filter array is empty, remove the parameter
     if (newFilters[category].length === 0) {
       newSearchParams.delete(category);
     } else {
       newSearchParams.set(category, newFilters[category].join(","));
     }
-
-    // Reset to page 1 when filters change
     newSearchParams.set("page", "1");
     setSearchParams(newSearchParams);
+  };
+
+  const handleFilterChangeAndCloseSheet = (key, value) => {
+    handleFilterChange(key, value);
+    setIsFilterOpen(false);
   };
 
   const getDisplayName = (key) => {
@@ -373,9 +430,51 @@ export const useProductFilters = (filterData = {}) => {
     };
   }, []);
 
-  // Add this method to handle filter open/close in mobile view
-  const toggleMobileFilter = (isOpen) => {
-    setIsFilterOpen(isOpen);
+
+  const getFilteredProductCount = (key, value, products = []) => {
+    if (!products || products.length === 0) return 0;
+
+    return products.filter((product) => {
+      switch (key) {
+        case "price":
+          const [min, max] = value.split("-").map(Number);
+          if (max) {
+            return product.price >= min && product.price <= max;
+          }
+          return product.price >= min;
+
+        case "product_color":
+          return (
+            product.product_color?._id === value ||
+            product.product_color === value
+          );
+
+        case "product_category":
+          return product.product_category?.some((cat) => cat._id === value);
+
+        case "product_collection":
+          return product.product_collection?.some((col) => col._id === value);
+
+        case "product_skill_level":
+          return product.product_skill_level?._id === value;
+
+        case "product_designer":
+          return product.product_designer?._id === value;
+
+        case "product_sub_categories":
+          return product.product_sub_categories?.some(
+            (sub) => sub._id === value
+          );
+
+        case "product_sub_collections":
+          return product.product_sub_collections?.some(
+            (sub) => sub._id === value
+          );
+
+        default:
+          return false;
+      }
+    }).length;
   };
 
   return {
@@ -383,14 +482,15 @@ export const useProductFilters = (filterData = {}) => {
     openCategories,
     selectedFilters,
     isFilterOpen,
+    filteredProducts,
+    currentCategory,
     setOpenCategories,
     setIsFilterOpen,
-    handleFilterChange,
-    toggleMobileFilter,
-    expandedItems,
-    currentCategory,
-    setExpandedItems,
     setCurrentCategory,
+    handleFilterChange,
+    handleFilterChangeAndCloseSheet,
+    filterProducts,
+    getFilteredProductCount,
     getDisplayName,
     getSubItems,
     getSubItemCount,

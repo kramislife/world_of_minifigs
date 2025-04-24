@@ -4,13 +4,8 @@ import {
   Shield,
   Phone,
   MapPin,
-  Trash2,
   PencilLine,
-  User,
 } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import AddressForm from "@/pages/Checkout/components/AddressForm";
-import DeleteConfirmDialog from "@/components/admin/shared/DeleteDialog";
 import {
   Dialog,
   DialogContent,
@@ -18,8 +13,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import AddressForm from "@/pages/Checkout/components/AddressForm";
+import DeleteDialog from "@/components/admin/shared/DeleteDialog";
 
 const ProfileCard = ({
   user,
@@ -118,7 +116,7 @@ const ProfileCard = ({
                   <span>Verified Account</span>
                 </Badge>
               )}
-              <Badge variant="primary" className="capitalize text-sm">
+              <Badge variant="info" className="capitalize text-sm">
                 {user?.role}
               </Badge>
             </div>
@@ -130,7 +128,7 @@ const ProfileCard = ({
           {/* Phone Number */}
           <div className="bg-brand-dark/50 rounded-md border border-brand-end/50 p-5">
             <div className="group flex items-center justify-between">
-              <d  iv className="flex items-start gap-3">
+              <d iv className="flex items-start gap-3">
                 <Phone className="w-5 h-5 text-accent" />
                 <div>
                   <p className="text-md text-gray-400">Phone Number</p>
@@ -202,12 +200,12 @@ const ProfileCard = ({
                           userName={user?.name}
                           className="p-1.5 rounded-lg hover:bg-gray-600/50"
                         />
-                        <button
-                          onClick={() => handleDeleteClick(address._id)}
-                          className="text-red-500 hover:text-red-400 transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        <DeleteDialog
+                          onConfirm={() => handleDeleteConfirm(address._id)}
+                          title="Delete Address"
+                          itemToDelete={address.name || "this address"}
+                          isLoading={isDeleting}
+                        />
                       </div>
                     </div>
                   </div>
@@ -312,18 +310,6 @@ const ProfileCard = ({
             </div>
           </DialogContent>
         </Dialog>
-
-        {/* Delete Confirmation Dialog */}
-        <DeleteConfirmDialog
-          isOpen={isDeleteDialogOpen}
-          onClose={() => {
-            setIsDeleteDialogOpen(false);
-          }}
-          onConfirm={handleDeleteConfirm}
-          title="Delete Address"
-          description="Are you sure you want to delete this address? This action cannot be undone."
-          isLoading={isDeleting}
-        />
       </CardContent>
     </Card>
   );

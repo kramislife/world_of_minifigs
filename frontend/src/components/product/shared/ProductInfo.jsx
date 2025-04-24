@@ -2,9 +2,9 @@ import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { CircleCheckBig } from "lucide-react";
-import StarRating from "./StarRating";
-import ProductStatus from "./ProductStatus";
-import ProductActions from "./ProductActions";
+import StarRating from "@/components/product/shared/StarRating";
+import ProductStatus from "@/components/product/shared/ProductStatus";
+import ProductActions from "@/components/product/shared/ProductActions";
 import { useNavigate } from "react-router-dom";
 
 const ProductInfo = ({
@@ -13,7 +13,7 @@ const ProductInfo = ({
   onAddToCart,
   colorVariants,
   scrollThumbnailIntoView,
-  reviewStats = { averageRating: 0, totalReviews: 0 }, // Default value
+  reviewStats = { averageRating: 0, totalReviews: 0 },
 }) => {
   const navigate = useNavigate();
 
@@ -25,176 +25,139 @@ const ProductInfo = ({
     <AnimatePresence mode="wait">
       <motion.div
         variants={itemVariants}
-        className="flex flex-col h-full"
-        key={product?._id} // Add key for proper animation
+        key={product?._id}
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         exit={{ opacity: 0, x: -20 }}
         transition={{ duration: 0.3 }}
+        className="space-y-6"
       >
-        {/* Product Header Section */}
-        <div className="mb-5">
-          <div className="flex flex-col gap-3">
-            {/* Title and Item/Part ID */}
-            <motion.div
-              className="flex flex-col gap-2"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-            >
-              <h1 className="text-2xl md:text-3xl font-bold text-white">
-                {product?.product_name || "Unnamed Product"}
-              </h1>
-
-              {/* Reviews and ID information in a single line */}
-              <div className="flex flex-wrap items-center gap-x-2 gap-y-2 mt-1">
-                <div className="flex items-center gap-1 min-w-fit">
-                  <StarRating rating={Number(reviewStats.averageRating)} />
-                  <span className="text-gray-400 text-sm whitespace-nowrap">
-                    ({reviewStats.totalReviews}{" "}
-                    {reviewStats.totalReviews === 1 ? "review" : "reviews"})
-                  </span>
-                </div>
-
-                {(product?.itemID || product?.partID) && (
-                  <>
-                    <span className="text-gray-400 hidden sm:inline">|</span>
-                    <div className="flex flex-wrap items-center gap-x-2">
-                      {product?.itemID && (
-                        <span className="text-sm text-gray-400 whitespace-nowrap">
-                          Item ID: {product.itemID}
-                        </span>
-                      )}
-
-                      <span className="text-gray-400">•</span>
-                      {product?.partID && (
-                        <span className="text-sm text-gray-400 whitespace-nowrap">
-                          Part ID: {product.partID}
-                        </span>
-                      )}
-                    </div>
-                  </>
-                )}
-              </div>
-            </motion.div>
-
-            {/* Price Section */}
-            <motion.div
-              className="flex items-center gap-4 mt-2"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.3 }}
-            >
-              <div className="flex items-center gap-2">
-                {/* Discounted price is pre-calculated by backend */}
-                <span className="text-4xl font-bold text-white">
-                  ${(product?.discounted_price || 0).toFixed(2)}
-                </span>
-                {product?.discount > 0 && product?.price && (
-                  <span className="text-md text-gray-400 line-through">
-                    ${product?.price.toFixed(2)}
-                  </span>
-                )}
-              </div>
-            </motion.div>
-          </div>
-        </div>
-
-        {/* Product Details */}
+        {/* Title and Ratings */}
         <motion.div
-          className="space-y-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="space-y-2"
+        >
+          <h1 className="text-2xl md:text-3xl font-bold">
+            {product?.product_name || "Unnamed Product"}
+          </h1>
+
+          <div className="flex flex-wrap items-center gap-2 text-sm text-gray-300">
+            {reviewStats.totalReviews > 0 && (
+              <div className="flex items-center gap-1">
+                <StarRating rating={Number(reviewStats.averageRating)} />
+                <span className="whitespace-nowrap">
+                  ({reviewStats.totalReviews}{" "}
+                  {reviewStats.totalReviews === 1 ? "review" : "reviews"})
+                </span>
+              </div>
+            )}
+
+            {(product?.itemID || product?.partID) && (
+              <>            
+                <div className="flex flex-wrap items-center gap-2">
+                  {product?.itemID && (
+                    <span className="whitespace-nowrap">
+                      Item ID: {product.itemID}
+                    </span>
+                  )}
+                  {product?.itemID && product?.partID && (
+                    <span className="text-gray-300">•</span>
+                  )}
+                  {product?.partID && (
+                    <span className="whitespace-nowrap">
+                      Part ID: {product.partID}
+                    </span>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
+        </motion.div>
+
+        {/* Price */}
+        <motion.div
+          className="flex items-center gap-3"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+        >
+          <span className="text-4xl font-bold">
+            ${(product?.discounted_price || 0).toFixed(2)}
+          </span>
+          {product?.discount > 0 && product?.price && (
+            <span className="text-base text-gray-300 line-through">
+              ${product?.price.toFixed(2)}
+            </span>
+          )}
+        </motion.div>
+
+        {/* Product Meta Info */}
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4 }}
+          className="space-y-6"
         >
-          {/* Availability Status */}
+          {/* Availability */}
           {product?.product_availability && (
             <ProductStatus stock={product?.stock} variant="dot" />
           )}
 
-          {/* Product Classification Section */}
-          <div className="flex flex-col gap-2">
-            <span className="text-sm font-semibold text-gray-300">
-              Features & Classifications
-            </span>
-            <div className="flex flex-wrap gap-2">
-              {/* Only render badges when we have data */}
-              {product && (
-                <>
-                  {/* Categories */}
-                  {product.product_category?.map((cat) => {
-                    // Find sub-categories that belong to this category
-                    const relatedSubCategories =
-                      product.product_sub_categories?.filter(
-                        (subCat) => subCat.category._id === cat._id
-                      );
+          {/* Classifications */}
+          {(product.product_category?.length > 0 ||
+            product.product_collection?.length > 0) && (
+            <div className="space-y-2">
+              <span className="text-sm font-semibold">
+                Features & Classifications
+              </span>
+              <div className="flex flex-wrap gap-2">
+                {product?.product_category?.map((cat) => {
+                  const relatedSubCategories =
+                    product?.product_sub_categories?.filter(
+                      (subCat) => subCat.category._id === cat._id
+                    );
 
-                    // If there are related sub-categories, show them instead of the parent
-                    if (relatedSubCategories?.length > 0) {
-                      return relatedSubCategories.map((subCat) => (
-                        <Badge
-                          key={subCat._id}
-                          variant="default"
-                          className="bg-blue-600/10 text-blue-400 mt-1 hover:bg-blue-600/20 border border-blue-600/20 transition-colors duration-200 py-1.5"
-                        >
+                  return relatedSubCategories?.length > 0
+                    ? relatedSubCategories.map((subCat) => (
+                        <Badge key={subCat._id} variant="subCategory">
                           {subCat.name}
                         </Badge>
-                      ));
-                    }
-
-                    // If no sub-categories, show the parent category
-                    return (
-                      <Badge
-                        key={cat._id}
-                        variant="default"
-                        className="bg-blue-600/10 text-blue-400 mt-1 hover:bg-blue-600/20 border border-blue-600/20 transition-colors duration-200 py-1.5"
-                      >
-                        {cat.name}
-                      </Badge>
-                    );
-                  })}
-
-                  {/* Collections */}
-                  {product.product_collection?.map((col) => {
-                    // Find sub-collections that belong to this collection
-                    const relatedSubCollections =
-                      product.product_sub_collections?.filter(
-                        (subCol) => subCol.collection._id === col._id
+                      ))
+                    : (
+                        <Badge key={cat._id} variant="category">
+                          {cat.name}
+                        </Badge>
                       );
+                })}
 
-                    // If there are related sub-collections, show them instead of the parent
-                    if (relatedSubCollections?.length > 0) {
-                      return relatedSubCollections.map((subCol) => (
-                        <Badge
-                          key={subCol._id}
-                          variant="default"
-                          className="bg-purple-600/10 text-purple-400 mt-1 hover:bg-purple-600/20 border border-purple-600/20 transition-colors duration-200 py-1.5"
-                        >
+                {product?.product_collection?.map((col) => {
+                  const relatedSubCollections =
+                    product?.product_sub_collections?.filter(
+                      (subCol) => subCol.collection._id === col._id
+                    );
+
+                  return relatedSubCollections?.length > 0
+                    ? relatedSubCollections.map((subCol) => (
+                        <Badge key={subCol._id} variant="collection">
                           {subCol.name}
                         </Badge>
-                      ));
-                    }
-
-                    // If no sub-collections, show the parent collection
-                    return (
-                      <Badge
-                        key={col._id}
-                        variant="default"
-                        className="bg-purple-600/10 text-purple-400 mt-1 hover:bg-purple-600/20 border border-purple-600/20 transition-colors duration-200 py-1.5"
-                      >
-                        {col.name}
-                      </Badge>
-                    );
-                  })}
-                </>
-              )}
+                      ))
+                    : (
+                        <Badge key={col._id} variant="subCollection">
+                          {col.name}
+                        </Badge>
+                      );
+                })}
+              </div>
             </div>
-          </div>
+          )}
 
-          {/* Includes Section */}
+          {/* Includes */}
           {product?.product_includes && (
-            <div className="flex flex-col gap-2">
-              <span className="text-sm font-semibold text-gray-300 ">
+            <div className="space-y-2">
+              <span className="text-sm font-semibold">
                 Bundle Details
               </span>
               <div className="flex flex-wrap gap-2">
@@ -202,11 +165,7 @@ const ProductInfo = ({
                   .split(",")
                   .filter((item) => item.trim())
                   .map((item, index) => (
-                    <Badge
-                      key={index}
-                      variant="default"
-                      className="bg-indigo-600/10 text-indigo-400 mt-1 hover:bg-indigo-600/20 border border-indigo-600/20 transition-colors duration-200 py-1.5"
-                    >
+                    <Badge key={index} variant="subCategory">
                       {item.trim()}
                     </Badge>
                   ))}
@@ -214,42 +173,33 @@ const ProductInfo = ({
             </div>
           )}
 
-          {/* Color Variants Section */}
+          {/* Color Variants */}
           {(colorVariants?.length > 0 || product?.product_color) && (
-            <motion.div
-              className="flex flex-col gap-2"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.3 }}
-            >
-              <span className="text-sm font-semibold text-gray-300">
+            <div className="space-y-2">
+              <span className="text-sm font-semibold">
                 {colorVariants?.length > 0 ? "Color Variants" : "Color"}
               </span>
               <div className="flex flex-wrap gap-2">
                 {colorVariants?.length > 0
-                  ? // Show color variants if available
-                    colorVariants.map((variant) => (
+                  ? colorVariants.map((variant) => (
                       <button
                         key={variant.id}
                         onClick={() => {
                           handleColorChange(variant.id);
                           scrollThumbnailIntoView?.(variant.thumbnailIndex);
                         }}
-                        className={`w-6 h-6 rounded-full transition-all mt-1 ${
+                        className={`w-6 h-6 rounded-full transition-all ${
                           variant.isActive
                             ? "border-accent border-2"
                             : "border border-gray-600"
                         }`}
-                        style={{
-                          backgroundColor: variant.color.code,
-                        }}
+                        style={{ backgroundColor: variant.color.code }}
                         title={variant.color.name}
                       />
                     ))
-                  : // Show single product color if no variants
-                    product?.product_color && (
+                  : product?.product_color && (
                       <div
-                        className="w-6 h-6 rounded-full mt-1 border-2 border-accent"
+                        className="w-6 h-6 rounded-full border-2 border-accent"
                         style={{
                           backgroundColor: product.product_color.code,
                         }}
@@ -257,26 +207,26 @@ const ProductInfo = ({
                       />
                     )}
               </div>
-            </motion.div>
+            </div>
           )}
 
-          {/* Product Description Section */}
-          <div className="space-y-1 font-light">
-            {[
-              product?.product_description_1,
-              product?.product_description_2,
-              product?.product_description_3,
-            ]
-              .filter((description) => description?.trim())
-              .map((description, index) => (
-                <div key={index} className="flex items-start gap-3">
-                  <CircleCheckBig className="w-5 h-5 text-green-500 mt-1 flex-shrink-0" />
-                  <p className="text-gray-300 leading-relaxed">{description}</p>
-                </div>
-              ))}
-          </div>
+          {/* Descriptions */}
+          {[product?.product_description_1, product?.product_description_2, product?.product_description_3]
+            .filter((desc) => desc?.trim())
+            .length > 0 && (
+            <div className="space-y-2">
+              {[product?.product_description_1, product?.product_description_2, product?.product_description_3]
+                .filter((desc) => desc?.trim())
+                .map((desc, index) => (
+                  <div key={index} className="flex items-start gap-3">
+                    <CircleCheckBig className="w-5 h-5 text-green-500 mt-1 flex-shrink-0" />
+                    <p>{desc}</p>
+                  </div>
+                ))}
+            </div>
+          )}
 
-          {/* Cart Actions */}
+          {/* Actions */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

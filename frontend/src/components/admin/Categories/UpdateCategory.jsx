@@ -1,7 +1,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {  FileText } from "lucide-react";
+import { FileText, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Metadata from "@/components/layout/Metadata/Metadata";
@@ -57,59 +57,60 @@ const UpdateCategory = () => {
       <Metadata title="Update Category" />
       <div className="p-3 md:p-5">
         <form onSubmit={handleSubmit}>
-          <Card className="border-t-4 border-t-accent">
+          <Card className="bg-background">
             <CardHeader>
               <CardTitle className="text-2xl">Update Category</CardTitle>
             </CardHeader>
 
-            <CardContent className="p-6 space-y-8">
-              <div className="space-y-5">
-                <div className="space-y-3">
-                  <Label
-                    htmlFor="name"
-                    className="flex items-center gap-2 text-lg font-semibold"
-                  >
-                    <FileText className="h-5 w-5 text-blue-600" />
-                    Category Name
-                  </Label>
-                  <Input
-                    id="name"
-                    name="name"
-                    placeholder="Enter category name"
-                    defaultValue={category?.name}
-                    required
-                  />
-                </div>
+            <CardContent className="space-y-5">
+              <Label
+                htmlFor="name"
+                className="flex items-center gap-2 text-lg font-semibold"
+              >
+                <FileText className="h-5 w-5 text-blue-600" />
+                Category Name
+              </Label>
+              <Input
+                id="name"
+                name="name"
+                placeholder="Enter category name"
+                defaultValue={category?.name}
+                required
+              />
 
-                <div className="space-y-3">
-                  <Label
-                    htmlFor="popularityId"
-                    className="flex items-center gap-2 text-lg font-semibold"
-                  >
-                    <FileText className="h-5 w-5 text-green-600" />
-                    Popularity ID
-                  </Label>
-                  <Input
-                    id="popularityId"
-                    name="popularityId"
-                    type="number"
-                    min="001"
-                    max="999"
-                    placeholder="Enter popularity ID (001-999)"
-                    defaultValue={category?.popularityId}
-                    required
-                  />
-                </div>
-              </div>
+              <Label
+                htmlFor="popularityId"
+                className="flex items-center gap-2 text-lg font-semibold"
+              >
+                <FileText className="h-5 w-5 text-green-600" />
+                Popularity ID
+              </Label>
+              <Input
+                id="popularityId"
+                name="popularityId"
+                type="number"
+                min="001"
+                max="999"
+                placeholder="Enter popularity ID (001-999)"
+                defaultValue={category?.popularityId}
+                required
+              />
 
-              <div className="flex justify-end space-x-4 pt-6 border-t">
+              <div className="flex justify-end">
                 <Button
                   variant="submit"
                   type="submit"
                   className="w-auto"
                   disabled={isUpdating}
                 >
-                  {isUpdating ? "Updating..." : "Update Category"}
+                  {isUpdating ? (
+                    <>
+                      <Loader2 className="animate-spin h-4 w-4" />
+                      Updating Category...
+                    </>
+                  ) : (
+                    "Update Category"
+                  )}
                 </Button>
               </div>
             </CardContent>

@@ -1,5 +1,9 @@
 import { useState, useEffect } from "react";
-import { useGetMeQuery } from "@/redux/api/userApi";
+import {
+  useGetMeQuery,
+  useGetUserAddressesQuery,
+  useUpdateAddressMutation,
+} from "@/redux/api/userApi";
 import { useDeleteAddressMutation } from "@/redux/api/userApi";
 import { toast } from "react-toastify";
 import { PAYMENT_METHODS } from "@/constant/paymentMethod";
@@ -13,8 +17,6 @@ export const useCheckout = () => {
   const [email, setEmail] = useState("");
 
   // Handle Delete Address
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [addressToDelete, setAddressToDelete] = useState(null);
   const [deleteAddress, { isLoading: isDeleting }] = useDeleteAddressMutation();
   const [refetchCallback, setRefetchCallback] = useState(null);
 
@@ -26,6 +28,26 @@ export const useCheckout = () => {
 
   // Add state for order notes
   const [orderNotes, setOrderNotes] = useState("");
+
+  // Add shipping related states and queries
+  const [updateAddress, { isLoading: isUpdatingDefault }] =
+    useUpdateAddressMutation();
+  const {
+    data: userAddresses,
+    isLoading: isLoadingAddresses,
+    isFetching: isFetchingAddresses,
+    refetch: refetchAddresses,
+  } = useGetUserAddressesQuery(undefined, {
+    refetchOnMountOrArgChange: true,
+  });
+
+  // Add email validation logic
+  const isValidEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const emailIsValid = !email || isValidEmail(email);
 
   // Update email when user data is available
   useEffect(() => {
@@ -44,33 +66,80 @@ export const useCheckout = () => {
     setEmail(e.target.value);
   };
 
-  // Handle Delete Address
-  const handleDeleteClick = (address, refetchAddresses) => {
-    setAddressToDelete(address);
-    setRefetchCallback(() => refetchAddresses);
-    setIsDeleteDialogOpen(true);
-  };
-
-  // Handle Delete Confirm
-  const handleDeleteConfirm = async () => {
+  // Replace handleDeleteClick and handleDeleteConfirm with a single function
+  const handleDeleteAddress = async (address) => {
     try {
-      const response = await deleteAddress(addressToDelete._id).unwrap();
+      const response = await deleteAddress(address._id).unwrap();
       if (response.success) {
         toast.success(response.message || "Address deleted successfully");
-        if (refetchCallback) {
-          await refetchCallback();
-        }
-        setIsDeleteDialogOpen(false);
-        setAddressToDelete(null);
+        await refetchAddresses();
       }
     } catch (error) {
       toast.error(error?.data?.message || "Failed to delete address");
     }
   };
 
-  const handleAddressChange = (field, value) => {
-    if (field === "selectedAddress") {
-      setSelectedAddress(value);
+  // Handle address selection
+  useEffect(() => {
+    if (userAddresses?.length > 0) {
+      const defaultAddress =
+        userAddresses.find((addr) => addr.is_default) ||
+        userAddresses.find((addr) => addr._id === selectedAddress?._id) ||
+        userAddresses[0];
+
+      if (defaultAddress) {
+        setSelectedAddress(defaultAddress);
+      }
+    }
+  }, [userAddresses]);
+
+  const handleAddressSelect = (addr) => {
+    const updatedAddr = userAddresses.find((a) => a._id === addr._id) || addr;
+    setSelectedAddress(updatedAddr);
+  };
+
+  const formatAddress = (addr) => {
+    const parts = [
+      addr.address_line1,
+      addr.address_line2,
+      addr.city,
+      addr.state,
+      addr.postal_code,
+      addr.country,
+    ].filter(Boolean);
+    return parts.join(", ");
+  };
+
+  const handleMakeDefault = async (addr, e) => {
+    e.stopPropagation();
+    try {
+      const response = await updateAddress({
+        id: addr._id,
+        addressData: {
+          name: addr.name,
+          contact_number: addr.contact_number,
+          address_line1: addr.address_line1,
+          address_line2: addr.address_line2,
+          city: addr.city,
+          state: addr.state,
+          postal_code: addr.postal_code,
+          country: addr.country,
+          country_code: addr.country_code,
+          is_default: true,
+        },
+      }).unwrap();
+
+      if (response.success) {
+        toast.success(response.message);
+        await refetchAddresses();
+      }
+    } catch (error) {
+      console.error("Error setting default address:", error);
+      toast.error(
+        error?.data?.message ||
+          error?.message ||
+          "Failed to set default address"
+      );
     }
   };
 
@@ -110,21 +179,33 @@ export const useCheckout = () => {
     };
   };
 
+  // Add payment method change handler
+  const handlePaymentMethodChange = (methodType, e) => {
+    e.preventDefault();
+    setPaymentMethod(methodType);
+  };
+
   return {
     email,
     handleEmailChange,
+    emailIsValid,
     user,
-    isDeleteDialogOpen,
-    setIsDeleteDialogOpen,
-    handleDeleteClick,
-    handleDeleteConfirm,
     isDeleting,
     paymentMethod,
     setPaymentMethod,
     selectedAddress,
-    handleAddressChange,
+    handleAddressSelect,
     createOrderData,
     orderNotes,
     setOrderNotes,
+    userAddresses,
+    isLoadingAddresses,
+    isFetchingAddresses,
+    isUpdatingDefault,
+    formatAddress,
+    handleMakeDefault,
+    refetchAddresses,
+    handleDeleteAddress,
+    handlePaymentMethodChange,
   };
 };

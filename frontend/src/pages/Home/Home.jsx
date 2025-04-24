@@ -14,13 +14,13 @@ const Home = () => {
     { Component: LatestProduct, className: "bg-brand-end/70" },
     { Component: FeaturedProduct, className: "bg-brand-end" },
     { Component: Collections, className: "bg-brand-end/70" },
-    { Component: Subscribe, className: "bg-brand-end" },
+    // { Component: Subscribe, className: "bg-brand-end" },
   ];
 
   return (
     <>
       <Metadata title="Homepage" />
-      <div className="bg-brand-gradient">
+      <div className="bg-brand">
         {sections.map(({ Component, className }, index) => (
           <div key={index} className={className}>
             <Component />

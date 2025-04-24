@@ -91,7 +91,7 @@ const DropdownSelection = ({
   }, [mainData, getSubItems]);
 
   return (
-    <Card className="w-full shadow-none border-none">
+    <Card className="w-full shadow-none border-none bg-transparent">
       <CardContent className="p-0">
         <div className="flex items-center justify-between mb-6">
           <Label className="text-xl font-semibold text-gray-900">{title}</Label>

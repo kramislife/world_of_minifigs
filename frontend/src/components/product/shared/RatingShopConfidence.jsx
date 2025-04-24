@@ -22,14 +22,14 @@ const confidenceFeatures = [
 
 const RatingShopConfidence = () => {
   return (
-    <Card className="bg-brand-dark/50 border-brand-end/50">
+    <Card>
       <CardHeader>
-        <CardTitle className="text-xl font-semibold flex items-center text-white">
+        <CardTitle className="text-xl font-semibold flex items-center text-background">
           <Shield className="w-5 h-5 mr-2 text-accent" />
           Shop With Confidence
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-5">
         {confidenceFeatures.map((feature, index) => (
           <div
             key={index}

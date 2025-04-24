@@ -12,23 +12,14 @@ import { useSelector, useDispatch } from "react-redux";
 import { clearCart } from "@/redux/features/cartSlice";
 import { useCheckout } from "@/hooks/Payment/useCheckout";
 import { useGetPayPalCredentialsQuery } from "@/redux/api/checkoutApi";
-
-// Extract PayPal button styles
-const PAYPAL_BUTTON_STYLES = {
-  layout: "vertical",
-  color: "blue",
-  shape: "rect",
-  label: "pay",
-  height: 45,
-};
-
+import LoadingSpinner from "@/components/layout/spinner/LoadingSpinner";
 // EmptyStateMessage component
 const EmptyStateMessage = () => (
-  <div className="flex flex-col items-center text-center space-y-3">
+  <div className="flex flex-col items-center text-center pt-5 space-y-3">
     <div className="w-16 h-16 border border-brand-end/50 rounded-md flex items-center justify-center">
       <ArrowUpRight className="w-8 h-8 text-accent" />
     </div>
-    <p className="text-accent text-sm leading-loose">
+    <p className="text-background text-sm">
       Please add items to your cart to proceed with payment
     </p>
   </div>
@@ -221,37 +212,30 @@ const PayPalContent = ({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <div className="text-center text-sm text-gray-400 py-2">
         Complete your purchase securely with PayPal
         <br />
-        <h4 className="font-medium text-accent mt-2">
+        <h4 className="font-bold text-lg text-emerald-500 mt-2">
           Total: ${total.toFixed(2)}
         </h4>
       </div>
       {isProcessing && <ProcessingOverlay />}
-      <div className="p-4 border rounded-md border-brand-end/50">
-        <PayPalButtons
-          key={key}
-          style={{
-            layout: "vertical",
-            color: "blue",
-            shape: "rect",
-            label: "pay",
-            height: 48,
-          }}
-          createOrder={handleCreateOrder}
-          onApprove={handleApprove}
-          onCancel={handleCancel}
-          disabled={isProcessing}
-          forceReRender={[key, total]}
-        />
-      </div>
-      {error && (
-        <div className="text-red-400 text-sm bg-red-500/10 p-3 rounded-md">
-          {error}
-        </div>
-      )}
+      <PayPalButtons
+        key={key}
+        style={{
+          layout: "vertical",
+          color: "blue",
+          shape: "rect",
+          label: "pay",
+          height: 48,
+        }}
+        createOrder={handleCreateOrder}
+        onApprove={handleApprove}
+        onCancel={handleCancel}
+        disabled={isProcessing}
+        forceReRender={[key, total]}
+      />
     </div>
   );
 };
@@ -264,7 +248,7 @@ const PayPalSection = (props) => {
   } = useGetPayPalCredentialsQuery();
 
   if (isLoading) {
-    return <div>Loading PayPal...</div>;
+    return <LoadingSpinner height="h-40" />;
   }
 
   if (isError || !paypalData?.clientId) {

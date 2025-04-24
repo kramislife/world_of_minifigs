@@ -11,7 +11,7 @@ const OrderCancelled = ({ order }) => {
       {/* Top colored border */}
       <div className="absolute top-0 left-0 right-0 h-2 bg-red-500 rounded-t-md" />
 
-      <Card className="bg-brand-dark/20 border-brand-end/50 text-white overflow-hidden">
+      <Card className="text-background">
         <CardContent className="pt-5">
           <div className="flex items-start gap-4">
             <div className="mt-1">
@@ -28,11 +28,11 @@ const OrderCancelled = ({ order }) => {
               </h3>
 
               {order?.cancellationReason ? (
-                <p className="mt-2 text-sm">
+                <p className="mt-2 text-sm text-gray-300">
                   <strong>Reason:</strong> {order.cancellationReason}
                 </p>
               ) : (
-                <p className="mt-2 text-sm text-gray-400 italic">
+                <p className="mt-2 text-sm text-gray-300 italic">
                   No reason provided.
                 </p>
               )}

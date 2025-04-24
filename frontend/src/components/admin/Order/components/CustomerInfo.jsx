@@ -1,23 +1,40 @@
 import { User } from "lucide-react";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
 
 const CustomerInfo = ({ user, email }) => {
   return (
-    <div className="bg-brand/80 rounded-xl p-6">
-      <div className="flex items-center gap-2 mb-4">
-        <User className="w-6 h-6 text-purple-500" />
-        <h3 className="text-lg font-semibold text-white">Customer</h3>
-      </div>
-      <div className="space-y-4">
-        <div>
-          <p className="text-sm text-gray-400">Name</p>
-          <p className="font-medium mt-1 text-white">{user?.name || "N/A"}</p>
+    <Card>
+      <CardHeader>
+        <div className="flex items-center gap-2">
+          <User className="w-5 h-5 text-purple-500" />
+          <h3 className="text-lg font-semibold text-background">
+            Customer Details
+          </h3>
         </div>
-        <div>
-          <p className="text-sm text-gray-400">Email</p>
-          <p className="font-medium mt-1 text-white">{email || "N/A"}</p>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          <div>
+            <p className="text-sm text-gray-300">Name</p>
+            <p className="font-medium mt-1 text-background">
+              {user?.name || "N/A"}
+            </p>
+          </div>
+          <div>
+            <p className="text-sm text-gray-300">Email</p>
+            <p className="font-medium mt-1 text-background">{email || "N/A"}</p>
+          </div>
+          {user?.contact_number && (
+            <div>
+              <p className="text-sm text-gray-300">Phone Number</p>
+              <p className="font-medium mt-1 text-background">
+                {user.contact_number}
+              </p>
+            </div>
+          )}
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 

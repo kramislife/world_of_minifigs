@@ -1,10 +1,15 @@
 import React from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import StarRating from "@/components/product/shared/StarRating";
+import { Badge } from "@/components/ui/badge";
 import { PlaceholderImage } from "@/components/product/shared/FallbackStates";
+import StarRating from "@/components/product/shared/StarRating";
 import { useProductCard } from "@/hooks/Product/useProductCard";
-import { Badge } from "../ui/badge";
 
 const ProductCard = ({ product }) => {
   const {
@@ -23,33 +28,30 @@ const ProductCard = ({ product }) => {
       onClick={handleViewDetails}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      className="bg-brand-dark/50 rounded-2xl overflow-hidden transition-all duration-300 hover:scale-100 group relative cursor-pointer h-full flex flex-col border-none"
+      className="group cursor-pointer relative"
     >
       {/* Discount Badge */}
       {product?.discount > 0 && (
         <div className="absolute top-4 right-4 z-10">
-          <Badge variant="discount">{product.discount}% OFF</Badge>
+          <Badge variant="accent">{product.discount}% OFF</Badge>
         </div>
       )}
 
-      {/* Product Image Container */}
-      <CardContent className="p-0 relative w-full aspect-square overflow-hidden">
+      {/* Card Header with Image */}
+      <CardHeader className="space-y-0 p-0 relative aspect-square overflow-hidden rounded-t-lg">
         {hasImages ? (
           <>
-            {/* Main Image */}
             <img
               src={imagesList[0]?.url}
               alt={product.product_name || "Product Image"}
-              className={`w-full h-full object-cover transition-all duration-500 absolute inset-0 ${
+              className={`object-cover transition-all duration-500 absolute inset-0 ${
                 isHovering ? "opacity-0" : "opacity-100"
               }`}
             />
-
-            {/* Image shown during hover */}
             <img
               src={imagesList[currentImageIndex]?.url}
               alt={`${product.product_name} variant`}
-              className={`w-full h-full object-cover transition-all duration-500 absolute inset-0 ${
+              className={`object-cover transition-all duration-500 absolute inset-0 ${
                 isHovering ? "opacity-100" : "opacity-0"
               }`}
             />
@@ -58,52 +60,45 @@ const ProductCard = ({ product }) => {
           <PlaceholderImage />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
         <Button onClick={(e) => e.stopPropagation()} variant="popup">
           View Details
         </Button>
-      </CardContent>
+      </CardHeader>
 
-      {/* Product Info */}
-      <CardContent className="p-5 flex flex-col gap-5 flex-grow text-white">
-        <h3 className="text-md font-semibold transition-colors line-clamp-1">
+      {/* Card Content with Name, Price, Rating */}
+      <CardContent className="px-3 pt-5 flex flex-col gap-2 text-background">
+        <h3 className="text-md font-semibold line-clamp-1">
           {product?.product_name || "Unnamed Product"}
         </h3>
 
-        {/* Pricing and Ratings */}
-        <div className="flex flex-col gap-3 mt-auto">
-          {/* Pricing */}
-          <div className="flex items-baseline justify-between">
-            {product?.price ? (
-              <>
-                <p className="text-2xl font-bold text-accent">
-                  ${(product?.discounted_price || 0).toFixed(2)}
+        {/* Price */}
+        <div className="flex items-center gap-2">
+          {product?.price ? (
+            <>
+              <p className="text-2xl font-bold text-accent">
+                ${(product?.discounted_price || 0).toFixed(2)}
+              </p>
+              {product?.discount > 0 && (
+                <p className="text-sm text-gray-300 line-through">
+                  ${product.price.toFixed(2)}
                 </p>
-                {product?.discount > 0 && (
-                  <p className="text-sm text-gray-300 line-through">
-                    ${product.price.toFixed(2)}
-                  </p>
-                )}
-              </>
-            ) : (
-              <p className="text-2xl font-bold text-accent">$0.00</p>
-            )}
-          </div>
-
-          {/* Ratings */}
-          <div className="flex justify-between items-center pt-2">
-            <div className="flex items-center gap-2">
-              <StarRating
-                rating={Number(reviewStats.averageRating)}
-                size="sm"
-              />
-              <span className="text-sm text-gray-400">
-                ({reviewStats.totalReviews})
-              </span>
-            </div>
-          </div>
+              )}
+            </>
+          ) : (
+            <p className="text-2xl font-bold text-accent">$0.00</p>
+          )}
         </div>
       </CardContent>
+
+      {/* Card Footer with Ratings */}
+      <CardFooter className="px-3">
+        <div className="flex items-center gap-2">
+          <StarRating rating={Number(reviewStats.averageRating)} size="sm" />
+          <span className="text-sm text-gray-400">
+            ({reviewStats.totalReviews})
+          </span>
+        </div>
+      </CardFooter>
     </Card>
   );
 };

@@ -8,7 +8,6 @@ import {
 } from "@/redux/api/productApi";
 import { toast } from "react-toastify";
 import { createCollectionColumns } from "@/components/admin/shared/table/columns/CollectionColumns";
-import DeleteDialog from "@/components/admin/shared/DeleteDialog";
 import { useImageUpload } from "@/hooks/ImageUpload/useImageUpload";
 
 const ViewCollection = () => {
@@ -41,28 +40,6 @@ const ViewCollection = () => {
   // handle edit
   const handleEdit = (collection) => {
     navigate(`/admin/update-collection/${collection._id}`);
-  };
-
-  // delete dialog
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [collectionToDelete, setCollectionToDelete] = useState(null);
-
-  // handle delete click
-  const handleDeleteClick = (collection) => {
-    setCollectionToDelete(collection);
-    setDeleteDialogOpen(true);
-  };
-
-  // handle delete confirm
-  const handleDeleteConfirm = async () => {
-    try {
-      const response = await deleteCollection(collectionToDelete._id).unwrap();
-      toast.success(response.message || "Collection deleted successfully");
-      setDeleteDialogOpen(false);
-      setCollectionToDelete(null);
-    } catch (error) {
-      toast.error(error?.data?.message || "Failed to delete collection");
-    }
   };
 
   // Track which collection is getting an image upload
@@ -133,22 +110,34 @@ const ViewCollection = () => {
     processImage(event);
   };
 
-  // column component for table
+  // Add handleDelete function
+  const handleDelete = async (collection) => {
+    try {
+      const response = await deleteCollection(collection._id).unwrap();
+      toast.success(response.message || "Collection deleted successfully");
+    } catch (error) {
+      toast.error(error?.data?.message || "Failed to delete collection");
+    }
+  };
+
+  // Fix the columns creation with correct parameter order
   const columns = useMemo(
     () =>
       createCollectionColumns(
         handleEdit,
-        handleDeleteClick,
+        handleDelete,
         handleImageUpload,
         isImageUploading,
-        collectionToUpload?._id
+        collectionToUpload?._id,
+        isDeleting
       ),
     [
       handleEdit,
-      handleDeleteClick,
+      handleDelete,
       handleImageUpload,
       isImageUploading,
       collectionToUpload,
+      isDeleting,
     ]
   );
 
@@ -177,40 +166,17 @@ const ViewCollection = () => {
   }, [collectionData]);
 
   return (
-    <>
-      <ViewLayout
-        title="Collection"
-        description="Manage your collections"
-        addNewPath="/admin/new-collection"
-        isLoading={isLoading}
-        error={error}
-        data={data}
-        columns={columns}
-        globalFilter={globalFilter}
-        setGlobalFilter={setGlobalFilter}
-      />
-
-      {/* delete dialog */}
-      <DeleteDialog
-        isOpen={deleteDialogOpen}
-        onClose={() => {
-          setDeleteDialogOpen(false);
-          setCollectionToDelete(null);
-        }}
-        onConfirm={handleDeleteConfirm}
-        title="Delete Collection"
-        description={
-          <>
-            Are you sure you want to delete{" "}
-            <span className="font-semibold text-red-500">
-              {collectionToDelete?.name}
-            </span>
-            ? This action cannot be undone.
-          </>
-        }
-        isLoading={isDeleting}
-      />
-    </>
+    <ViewLayout
+      title="Collection"
+      description="Manage your collections"
+      addNewPath="/admin/new-collection"
+      isLoading={isLoading}
+      error={error}
+      data={data}
+      columns={columns}
+      globalFilter={globalFilter}
+      setGlobalFilter={setGlobalFilter}
+    />
   );
 };
 

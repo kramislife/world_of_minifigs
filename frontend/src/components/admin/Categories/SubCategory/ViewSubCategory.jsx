@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import ViewLayout from "@/components/admin/shared/ViewLayout";
 import {
@@ -7,7 +7,6 @@ import {
 } from "@/redux/api/productApi";
 import { toast } from "react-toastify";
 import { createSubCategoryColumns } from "@/components/admin/shared/table/columns/SubCategoryColumns";
-import DeleteDialog from "@/components/admin/shared/DeleteDialog";
 
 const ViewSubCategories = () => {
   const {
@@ -18,38 +17,24 @@ const ViewSubCategories = () => {
   const [deleteSubCategory, { isLoading: isDeleting }] =
     useDeleteSubCategoryMutation();
   const [globalFilter, setGlobalFilter] = useState("");
-  const [subCategoryToDelete, setSubCategoryToDelete] = useState(null);
   const navigate = useNavigate();
-
-  // Handle API errors
-  useEffect(() => {
-    if (error) {
-      toast.error(error?.data?.message || "Failed to fetch sub-categories");
-    }
-  }, [error]);
 
   const handleEdit = (subCategory) => {
     navigate(`/admin/update-subcategory/${subCategory._id}`);
   };
 
-  const handleDelete = (subCategory) => {
-    setSubCategoryToDelete(subCategory);
-  };
-
-  const confirmDelete = async () => {
+  const handleDelete = async (subCategory) => {
     try {
-      const response = await deleteSubCategory(
-        subCategoryToDelete._id
-      ).unwrap();
+      const response = await deleteSubCategory(subCategory._id).unwrap();
       toast.success(response.message || "Sub-category deleted successfully");
-      setSubCategoryToDelete(null);
     } catch (error) {
       toast.error(error?.data?.message || "Failed to delete sub-category");
     }
   };
 
-  const columns = useMemo(() =>
-    createSubCategoryColumns(handleEdit, handleDelete)
+  const columns = useMemo(
+    () => createSubCategoryColumns(handleEdit, handleDelete, isDeleting),
+    [handleEdit, handleDelete, isDeleting]
   );
 
   const data = useMemo(() => {
@@ -70,37 +55,17 @@ const ViewSubCategories = () => {
   }, [subCategoryData]);
 
   return (
-    <>
-      <ViewLayout
-        title="Sub Category"
-        description="Manage your product sub-categories"
-        addNewPath="/admin/new-subcategory"
-        isLoading={isLoading}
-        error={error}
-        data={data}
-        columns={columns}
-        globalFilter={globalFilter}
-        setGlobalFilter={setGlobalFilter}
-      />
-
-      {/* delete dialog */}
-      <DeleteDialog
-        isOpen={!!subCategoryToDelete}
-        onClose={() => setSubCategoryToDelete(null)}
-        onConfirm={confirmDelete}
-        title="Delete Sub-Category"
-        description={
-          <>
-            Are you sure you want to delete{" "}
-            <span className="font-semibold text-red-500">
-              {subCategoryToDelete?.name}
-            </span>
-            ? This action cannot be undone.
-          </>
-        }
-        isLoading={isDeleting}
-      />
-    </>
+    <ViewLayout
+      title="Sub Category"
+      description="Manage your product sub-categories"
+      addNewPath="/admin/new-subcategory"
+      isLoading={isLoading}
+      error={error}
+      data={data}
+      columns={columns}
+      globalFilter={globalFilter}
+      setGlobalFilter={setGlobalFilter}
+    />
   );
 };
 

@@ -1,7 +1,8 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import useProductForm from "@/hooks/Product/useProductForm";
+import { Loader2 } from "lucide-react";
+import Metadata from "@/components/layout/Metadata/Metadata";
 import BasicInformation from "./components/BasicInformation";
 import ProductDescriptions from "./components/ProductDescriptions";
 import ProductSpecifications from "./components/ProductSpecifications";
@@ -12,8 +13,7 @@ import ProductIncludes from "./components/ProductIncludes";
 import SkillLevel from "./components/SkillLevel";
 import ProductDesigner from "./components/ProductDesigner";
 import ProductStatus from "./components/ProductStatus";
-import Metadata from "@/components/layout/Metadata/Metadata";
-
+import useProductForm from "@/hooks/Product/useProductForm";
 const AddProduct = () => {
   const {
     formData,
@@ -29,7 +29,7 @@ const AddProduct = () => {
       <Metadata title="Add Product" />
       <div className="p-3 md:p-5">
         <form onSubmit={handleSubmit}>
-          <Card className="border-t-4 border-t-accent">
+          <Card className="bg-background">
             <CardHeader>
               <CardTitle className="text-2xl">Add New Product</CardTitle>
             </CardHeader>
@@ -82,9 +82,20 @@ const AddProduct = () => {
                 onDateChange={handleDateChange}
               />
 
-              <div className="flex justify-end space-x-4 pt-6 border-t">
-                <Button variant="submit" type="submit" className="w-auto">
-                  {isLoading ? "Creating... " : "Create Product"}
+              <div className="flex justify-end">
+                <Button
+                  variant="submit"
+                  type="submit"
+                  className="w-auto flex items-center gap-2"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="animate-spin h-4 w-4" />
+                      Creating Product...
+                    </>
+                  ) : (
+                    "Create Product"
+                  )}
                 </Button>
               </div>
             </CardContent>

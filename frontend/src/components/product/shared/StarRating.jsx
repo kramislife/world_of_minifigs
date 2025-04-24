@@ -87,7 +87,7 @@ export const RatingDistribution = ({ distribution = [], totalReviews = 0 }) => (
     {[5, 4, 3, 2, 1].map((stars) => (
       <div key={stars} className="flex items-center">
         <div className="flex items-center w-32">
-          <span className="text-white font-medium mr-1">{stars}</span>
+          <span className="text-background font-medium mr-2">{stars}</span>
 
           <div className="flex gap-1">
             {[...Array(stars)].map((_, index) => (
@@ -114,11 +114,10 @@ export const RatingDistribution = ({ distribution = [], totalReviews = 0 }) => (
                 : 0
             }
             className="h-3 flex-1 bg-brand-end/80 rounded-full"
-            indicatorClassName="bg-accent rounded-full"
           />
         </div>
         <div className="w-8 text-right">
-          <span className="text-sm text-gray-300 font-medium">
+          <span className="text-sm text-gray-400 font-medium">
             ({distribution[5 - stars]})
           </span>
         </div>

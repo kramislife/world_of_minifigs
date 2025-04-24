@@ -6,15 +6,13 @@ import {
   useDeleteAddressMutation,
 } from "@/redux/api/userApi";
 import { useGetAllOrdersQuery } from "@/redux/api/orderApi";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import { useRef, useState } from "react";
 import { toast } from "react-toastify";
-import { setIsCartOpen } from "@/redux/features/userSlice";
 import { formatDistanceToNow } from "date-fns";
 import { useImageUpload } from "@/hooks/ImageUpload/useImageUpload";
 
 export const useProfileData = () => {
-  const dispatch = useDispatch();
   const {
     data: user,
     isLoading: isUserLoading,
@@ -24,7 +22,6 @@ export const useProfileData = () => {
   const { data: orders } = useGetAllOrdersQuery();
   const { cartItems } = useSelector((state) => state.cart);
   const fileInputRef = useRef(null);
-  const { isCartOpen } = useSelector((state) => state.auth);
 
   const [updateProfilePicture, { isLoading: isApiUploading }] =
     useUpdateProfilePictureMutation();
@@ -133,10 +130,6 @@ export const useProfileData = () => {
       completed: orders?.data?.some((order) => order.isReviewed),
     },
   ];
-
-  const handleCartOpen = (value) => {
-    dispatch(setIsCartOpen(value));
-  };
 
   const formatDate = (date) => {
     return formatDistanceToNow(new Date(date), { addSuffix: true });
@@ -257,8 +250,6 @@ export const useProfileData = () => {
     setIsDeleteDialogOpen,
     selectedAddressId,
     isDeleting,
-    isCartOpen,
-    setIsCartOpen: handleCartOpen,
     formatDate,
     getActivityDetails,
     generateActivities,

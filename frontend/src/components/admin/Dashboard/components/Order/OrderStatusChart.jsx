@@ -37,12 +37,12 @@ const OrderStatusChart = ({ orderStatusCount, BaseChart, chartColors }) => {
   };
 
   return (
-    <Card className="bg-brand-dark/50 border border-brand-end/50">
+    <Card>
       <CardHeader>
-        <CardTitle className="text-lg font-semibold text-white">
+        <CardTitle className="text-lg font-semibold text-background">
           Order Status Distribution
         </CardTitle>
-        <CardDescription className="text-gray-400 text-sm">
+        <CardDescription className="text-gray-300 text-sm">
           Current status of all orders
         </CardDescription>
       </CardHeader>

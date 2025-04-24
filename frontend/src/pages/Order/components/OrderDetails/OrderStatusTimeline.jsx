@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 
 const OrderStatusTimeline = ({ order, filteredOrderStatus }) => {
   return (
-    <Card className="bg-brand-dark/20 border border-brand-end/50">
+    <Card >
       <CardContent className="p-4">
         <div className="flex justify-between items-center">
           {filteredOrderStatus.map((step, index) => {

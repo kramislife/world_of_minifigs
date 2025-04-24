@@ -38,7 +38,7 @@ export const FallbackMessage = ({
   minHeight = "min-h-[700px]",
 }) => (
   <div
-    className={`w-full ${minHeight} flex flex-col items-center justify-center gap-5 rounded-xl`}
+    className={`w-full ${minHeight} flex flex-col items-center justify-center px-5 gap-5 rounded-xl`}
   >
     <div className="relative">
       <div className="absolute -inset-1 bg-brand/20 rounded-full blur-md" />

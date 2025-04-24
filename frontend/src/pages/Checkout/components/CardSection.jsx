@@ -12,37 +12,13 @@ import {
   useGetStripeApiKeyQuery,
 } from "@/redux/api/checkoutApi";
 import { toast } from "react-toastify";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Loader2 } from "lucide-react";
 import { useCreateOrderMutation } from "@/redux/api/orderApi";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { clearCart } from "@/redux/features/cartSlice";
 import { useCheckout } from "@/hooks/Payment/useCheckout";
-
-// Extract Stripe appearance configuration
-const STRIPE_APPEARANCE = {
-  theme: "stripe",
-  variables: {
-    colorPrimary: "#2563eb",
-    colorDanger: "#dc203c",
-    fontFamily: "'Poppins', sans-serif",
-    spacingUnit: "4px",
-    borderRadius: "4px",
-  },
-  rules: {
-    ".Input": {
-      border: "1px solid #334155",
-      boxShadow: "none",
-    },
-    ".Input:focus": {
-      border: "1px solid #2563eb",
-    },
-    ".Label": {
-      color: "#d2d9e2",
-      padding: "0px 0px 3px 3px",
-    },
-  },
-};
+import { STRIPE_APPEARANCE } from "@/constant/paymentMethod";
 
 // Update EmptyStateMessage to match the theme
 const EmptyStateMessage = () => (
@@ -177,20 +153,22 @@ const StripeForm = ({
 
   return (
     <div className="space-y-4">
-        <PaymentElement onReady={handleReady} />
-      {error && (
-        <div className="text-red-400 text-sm mt-2 bg-red-500/10 p-3 rounded-md">
-          {error}
-        </div>
-      )}
+      <PaymentElement onReady={handleReady} />
       {isReady && (
         <Button
+          variant="submit"
           onClick={handlePaymentSubmit}
           disabled={processing || !stripe || !elements}
-          className="w-full h-12 bg-blue-600 hover:bg-blue-700"
-          type="button"
+          className="w-full"
         >
-          {processing ? "Processing..." : `Pay $${total.toFixed(2)}`}
+          {processing ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin mr-2" />
+              Processing...
+            </>
+          ) : (
+            `Pay $${total.toFixed(2)}`
+          )}
         </Button>
       )}
     </div>

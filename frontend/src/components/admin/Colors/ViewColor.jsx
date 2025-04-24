@@ -7,7 +7,6 @@ import {
 } from "@/redux/api/productApi";
 import { toast } from "react-toastify";
 import { createColorColumns } from "@/components/admin/shared/table/columns/ColorColumns";
-import DeleteDialog from "@/components/admin/shared/DeleteDialog";
 
 const ViewColor = () => {
   const { data: colorData, isLoading, error } = useGetColorsQuery();
@@ -23,23 +22,11 @@ const ViewColor = () => {
     navigate(`/admin/update-color/${color._id}`);
   };
 
-  // delete dialog
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [colorToDelete, setColorToDelete] = useState(null);
-
-  // handle delete click
-  const handleDeleteClick = (color) => {
-    setColorToDelete(color);
-    setDeleteDialogOpen(true);
-  };
-
-  // handle delete confirm
-  const handleDeleteConfirm = async () => {
+  // Simplified delete handler
+  const handleDeleteClick = async (color) => {
     try {
-      const response = await deleteColor(colorToDelete._id).unwrap();
+      const response = await deleteColor(color._id).unwrap();
       toast.success(response.message || "Color deleted successfully");
-      setDeleteDialogOpen(false);
-      setColorToDelete(null);
     } catch (error) {
       toast.error(error?.data?.message || "Failed to delete color");
     }
@@ -68,40 +55,17 @@ const ViewColor = () => {
   }, [colorData]);
 
   return (
-    <>
-      <ViewLayout
-        title="Colors"
-        description="Manage your product colors"
-        addNewPath="/admin/new-color"
-        isLoading={isLoading}
-        error={error}
-        data={data}
-        columns={columns}
-        globalFilter={globalFilter}
-        setGlobalFilter={setGlobalFilter}
-      />
-
-      {/* delete dialog */}
-      <DeleteDialog
-        isOpen={deleteDialogOpen}
-        onClose={() => {
-          setDeleteDialogOpen(false);
-          setColorToDelete(null);
-        }}
-        onConfirm={handleDeleteConfirm}
-        title="Delete Color"
-        description={
-          <>
-            Are you sure you want to delete{" "}
-            <span className="font-semibold text-red-500">
-              {colorToDelete?.name}
-            </span>
-            ? This action cannot be undone.
-          </>
-        }
-        isLoading={isDeleting}
-      />
-    </>
+    <ViewLayout
+      title="Colors"
+      description="Manage your product colors"
+      addNewPath="/admin/new-color"
+      isLoading={isLoading}
+      error={error}
+      data={data}
+      columns={columns}
+      globalFilter={globalFilter}
+      setGlobalFilter={setGlobalFilter}
+    />
   );
 };
 

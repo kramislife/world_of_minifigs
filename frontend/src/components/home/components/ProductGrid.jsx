@@ -40,7 +40,7 @@ const ProductGrid = ({ title, products, baseUrl, isLoading, isError }) => {
   };
 
   return (
-    <div className="flex flex-col p-5">
+    <section className="flex flex-col p-5">
       <h2 className="text-3xl font-extrabold text-center py-5">{title}</h2>
 
       <div className="flex items-center justify-center pb-2">
@@ -56,7 +56,7 @@ const ProductGrid = ({ title, products, baseUrl, isLoading, isError }) => {
           </div>
         ))}
       </div>
-    </div>
+    </section>
   );
 };
 

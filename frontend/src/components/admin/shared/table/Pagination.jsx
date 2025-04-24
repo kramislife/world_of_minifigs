@@ -1,3 +1,5 @@
+import { Button } from "@/components/ui/button";
+
 const Pagination = ({ table }) => {
   const {
     getState,
@@ -14,7 +16,7 @@ const Pagination = ({ table }) => {
   const endRow = Math.min((pageIndex + 1) * pageSize, totalRows);
 
   return (
-    <div className="mt-6 flex flex-col md:flex-row items-center justify-between gap-4">
+    <div className="mt-5 flex flex-col md:flex-row items-center justify-between gap-4">
       <div className="text-sm text-gray-200">
         {totalRows > 0 ? (
           <>
@@ -27,22 +29,22 @@ const Pagination = ({ table }) => {
       </div>
 
       <div className="flex gap-2">
-        <button
+        <Button
+          variant="ghost"
           onClick={() => previousPage()}
           disabled={!getCanPreviousPage()}
-          className="px-4 py-2 border border-brand-end rounded-md text-sm font-medium text-white 
-                     hover:bg-brand-end/50"
+          className="border border-brand-end/50 text-background hover:bg-brand-dark/50"
         >
           Previous
-        </button>
-        <button
+        </Button>
+        <Button
+          variant="ghost"
           onClick={() => nextPage()}
           disabled={!getCanNextPage()}
-          className="px-4 py-2 border border-brand-end rounded-md text-sm font-medium text-white 
-                     hover:bg-brand-end/50"
+          className="border border-brand-end/50 text-background hover:bg-brand-dark/50"
         >
           Next
-        </button>
+        </Button>
       </div>
     </div>
   );

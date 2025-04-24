@@ -81,9 +81,9 @@ const CustomerDistributionChart = ({
   ];
 
   return (
-    <Card className="bg-brand-dark/50 border border-brand-end/50">
+    <Card>
       <CardHeader>
-        <CardTitle className="text-lg font-semibold text-white">
+        <CardTitle className="text-lg font-semibold text-background">
           Customer Distribution
         </CardTitle>
         <CardDescription className="text-gray-200">
@@ -116,7 +116,7 @@ const CustomerDistributionChart = ({
         </div>
         <div className="mt-4 text-center">
           <span className="text-sm text-gray-400">Total Customers: </span>
-          <span className="text-lg font-semibold text-white">
+          <span className="text-lg font-semibold text-background">
             {customerStats?.totalCustomers || 0}
           </span>
         </div>

@@ -18,7 +18,7 @@ const ExploreSection = () => {
           alt="LEGO background"
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-black/40 mix-blend-multiply"></div>
+        <div className="absolute inset-0 bg-black/70 mix-blend-multiply"></div>
       </div>
 
       {/* Content Container */}
@@ -31,30 +31,27 @@ const ExploreSection = () => {
       >
         <div className="max-w-3xl mx-auto">
           <motion.h2
-            className="text-4xl md:text-5xl font-extrabold text-white mb-5 drop-shadow-lg"
+            className="text-4xl md:text-5xl font-extrabold text-white mb-5"
             variants={aboutAnimations.exploreTitleVariants}
           >
             Ready to Start Your <span className="text-accent">LEGO</span>{" "}
             Adventure?
           </motion.h2>
           <motion.p
-            className="max-w-2xl mx-auto text-white/90 mb-8 text-lg bg-black/30 rounded-xl p-4 drop-shadow-lg"
+            className="max-w-2xl mx-auto text-white/90 mb-10 text-base"
             variants={aboutAnimations.exploreTextVariants}
           >
-            Explore our collection of authentic LEGO parts and minifigures to
-            bring your creative vision to life.
+            Dive into our world of authentic LEGO parts and minifigures and
+            start building your imagination — one brick at a time .
           </motion.p>
           <motion.div
-            className="text-center mt-10"
+            className="text-center"
             variants={aboutAnimations.exploreButtonVariants}
           >
             <Link to="/collections">
-              <Button className="relative bg-accent text-foreground overflow-hidden group">
-                <span className="absolute inset-0 bg-brand-start origin-left transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-in-out z-0"></span>
-                <span className="relative z-10 flex items-center text-foreground group-hover:text-white transition-colors duration-300">
-                  Explore Our Collection
-                  <Heart className="ml-2 h-4 w-4 text-foreground group-hover:text-white transition-colors duration-300" />
-                </span>
+              <Button variant="accent">
+                Explore Our Collection
+                <Heart className="h-4 w-4" />
               </Button>
             </Link>
           </motion.div>

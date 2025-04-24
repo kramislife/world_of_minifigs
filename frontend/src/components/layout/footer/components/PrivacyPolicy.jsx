@@ -270,50 +270,28 @@ const PrivacyPolicy = () => {
 
   return (
     <>
-      <Metadata
-        title="Privacy Policy | Brick Extreme"
-        description="Learn about how Brick Extreme collects, uses, and protects your personal information when you use our website or purchase our custom LEGO® creations."
-      />
+      <Metadata title="Privacy Policy" />
+      <div className="bg-background p-5">
+        <h1 className="text-2xl font-bold text-foreground mb-2">
+          Privacy Policy
+        </h1>
+        <p className="text-gray-700 text-xs md:text-sm leading-6 mb-2">
+          Welcome to Brick Extreme! We are committed to protecting your privacy
+          and ensuring the security of your personal information. This Privacy
+          Policy outlines how we collect, use, and share information when you
+          visit our website (www.brickextreme.com) or make a purchase from us.
+        </p>
 
-      <div className="bg-brand-start p-5 max-w-8xl">
-        {/* Header */}
-        <div className="bg-white p-6 rounded-t-lg">
-          <h1 className="text-2xl font-bold text-brand-start mb-3">
-            Privacy Policy
-          </h1>
-          <p className="text-brand-start text-sm leading-6">
-            Welcome to Brick Extreme! We are committed to protecting your
-            privacy and ensuring the security of your personal information. This
-            Privacy Policy outlines how we collect, use, and share information
-            when you visit our website (www.brickextreme.com) or make a purchase
-            from us.
-          </p>
-        </div>
-
-        {/* Privacy Sections using Shadcn Accordion */}
-        <Accordion
-          type="single"
-          collapsible
-          className="w-full border border-gray-200 bg-white"
-        >
+        <Accordion type="single" collapsible>
           {sections.map((section) => (
-            <AccordionItem
-              key={section.id}
-              value={section.id}
-              className="border-b border-gray-200 last:border-b-0"
-            >
-              <AccordionTrigger className="px-4 py-3 text-brand-start font-medium hover:no-underline hover:text-yellow-300 hover:bg-brand-start">
-                {section.title}
-              </AccordionTrigger>
-              <AccordionContent className="px-4 py-4 text-brand-start leading-6">
-                {section.content}
-              </AccordionContent>
+            <AccordionItem key={section.id} value={section.id}>
+              <AccordionTrigger>{section.title}</AccordionTrigger>
+              <AccordionContent>{section.content}</AccordionContent>
             </AccordionItem>
           ))}
         </Accordion>
 
-        {/* Footer */}
-        <div className="py-4 text-right text-sm text-yellow-300">
+        <div className="py-4 text-right text-sm text-foreground">
           Last Updated: {privacyLastUpdated}
         </div>
       </div>

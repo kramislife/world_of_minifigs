@@ -1,7 +1,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileText, BookOpen } from "lucide-react";
+import { FileText, BookOpen, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -51,64 +51,62 @@ const UpdateSkillLevel = () => {
     <>
       <Metadata title="Update Skill Level" />
       <div className="p-3 md:p-5">
-        <Card className="border-t-4 border-t-accent">
-          <CardHeader>
-            <CardTitle className="text-2xl">Update Skill Level</CardTitle>
-          </CardHeader>
+        <form onSubmit={handleSubmit}>
+          <Card className="bg-background">
+            <CardHeader>
+              <CardTitle className="text-2xl">Update Skill Level</CardTitle>
+            </CardHeader>
 
-          <CardContent className="p-6 space-y-8">
-            <form onSubmit={handleSubmit}>
-              <div className="space-y-5">
-                <div className="space-y-3">
-                  <Label
-                    htmlFor="name"
-                    className="flex items-center gap-2 text-lg font-semibold"
-                  >
-                    <FileText className="h-5 w-5 text-blue-600" />
-                    Skill Level Name
-                  </Label>
-                  <Input
-                    id="name"
-                    name="name"
-                    placeholder="Enter skill level name"
-                    className="mt-1"
-                    defaultValue={skillLevel?.name}
-                    required
-                  />
-                </div>
+            <CardContent className="space-y-5">
+              <Label
+                htmlFor="name"
+                className="flex items-center gap-2 text-lg font-semibold"
+              >
+                <FileText className="h-5 w-5 text-blue-600" />
+                Skill Level Name
+              </Label>
+              <Input
+                id="name"
+                name="name"
+                placeholder="Enter skill level name"
+                defaultValue={skillLevel?.name}
+                required
+              />
 
-                <div className="space-y-3">
-                  <Label
-                    htmlFor="description"
-                    className="flex items-center gap-2 text-lg font-semibold"
-                  >
-                    <BookOpen className="h-5 w-5 text-blue-600" />
-                    Description
-                  </Label>
-                  <Textarea
-                    id="description"
-                    name="description"
-                    placeholder="Enter skill level description"
-                    className="mt-1"
-                    defaultValue={skillLevel?.description}
-                    rows={4}
-                  />
-                </div>
+              <Label
+                htmlFor="description"
+                className="flex items-center gap-2 text-lg font-semibold"
+              >
+                <BookOpen className="h-5 w-5 text-purple-600" />
+                Description
+              </Label>
+              <Textarea
+                id="description"
+                name="description"
+                placeholder="Enter skill level description"
+                defaultValue={skillLevel?.description}
+              />
 
-                <div className="flex justify-end space-x-4 pt-6">
-                  <Button
-                    type="submit"
-                    variant="submit"
-                    disabled={isLoading}
-                    className="w-auto"
-                  >
-                    {isLoading ? "Updating..." : "Update Skill Level"}
-                  </Button>
-                </div>
+              <div className="flex justify-end">
+                <Button
+                  variant="submit"
+                  type="submit"
+                  className="w-auto"
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="animate-spin h-4 w-4 mr-2" />
+                      Updating Skill Level...
+                    </>
+                  ) : (
+                    "Update Skill Level"
+                  )}
+                </Button>
               </div>
-            </form>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </form>
       </div>
     </>
   );

@@ -19,8 +19,8 @@ const SearchBar = ({ value, onChange, placeholder }) => {
         value={searchValue}
         onChange={(e) => setSearchValue(e.target.value)}
         placeholder={placeholder}
-        className="pl-10 py-3 bg-brand-start
-                  placeholder:text-white/90 text-xs md:text-sm text-white"
+        className="pl-10 py-3 bg-inherit
+                  placeholder:text-gray-200 border border-brand-end/50 text-background"
       />
       <Search className="absolute left-3 top-3 h-5 w-5 text-gray-200" />
     </div>

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FileText, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -93,105 +94,109 @@ const AddSubCollection = () => {
     <>
       <Metadata title="Add Sub-Collection" />
       <div className="p-3 md:p-5">
-        <Card className="border-t-4 border-t-accent">
-          <CardHeader>
-            <CardTitle className="text-2xl">Add New Sub-Collection</CardTitle>
-          </CardHeader>
+        <form onSubmit={handleSubmit}>
+          <Card className="bg-background">
+            <CardHeader>
+              <CardTitle className="text-2xl">Add New Sub-Collection</CardTitle>
+            </CardHeader>
 
-          <CardContent className="p-6 space-y-8">
-            <form onSubmit={handleSubmit}>
-              <div className="space-y-5">
-                <div className="space-y-3">
-                  <Label
-                    htmlFor="collection"
-                    className="flex items-center gap-2 text-lg font-semibold"
-                  >
-                    Parent Collection
-                  </Label>
-                  <Select
-                    name="collection"
-                    required
-                    onValueChange={handleCollectionChange}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a collection" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {collectionData?.collections?.map((collection) => (
-                        <SelectItem key={collection._id} value={collection._id}>
-                          {collection.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+            <CardContent className="space-y-5">
+              <Label
+                htmlFor="collection"
+                className="flex items-center gap-2 text-lg font-semibold"
+              >
+                <FileText className="h-5 w-5 text-purple-600" />
+                Parent Collection
+              </Label>
+              <Select
+                name="collection"
+                required
+                onValueChange={handleCollectionChange}
+              >
+                <SelectTrigger className="bg-transparent border">
+                  <SelectValue placeholder="Select a collection" />
+                </SelectTrigger>
+                <SelectContent className="bg-background">
+                  {collectionData?.collections?.map((collection) => (
+                    <SelectItem
+                      className="flex items-center gap-2 text-foreground"
+                      key={collection._id}
+                      value={collection._id}
+                    >
+                      {collection.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
 
-                <div className="space-y-3">
-                  <Label
-                    htmlFor="name"
-                    className="flex items-center gap-2 text-lg font-semibold"
-                  >
-                    Sub-Collection
-                  </Label>
-                  <Input
-                    id="name"
-                    name="name"
-                    placeholder="Enter sub-collection name"
-                    required
-                  />
-                </div>
+              <Label
+                htmlFor="name"
+                className="flex items-center gap-2 text-lg font-semibold"
+              >
+                <FileText className="h-5 w-5 text-blue-600" />
+                Sub-Collection Name
+              </Label>
+              <Input
+                id="name"
+                name="name"
+                placeholder="Enter sub-collection name"
+                required
+              />
 
-                <div className="space-y-3">
-                  <Label
-                    htmlFor="popularityId"
-                    className="flex items-center gap-2 text-lg font-semibold"
-                  >
-                    Popularity ID
-                  </Label>
-                  <Input
-                    id="popularityId"
-                    name="popularityId"
-                    value={nextPopularityId}
-                    disabled
-                    className="bg-gray-100"
-                  />
-                  {selectedCollection && (
-                    <p className="text-sm text-gray-500">
-                      This ID is automatically generated based on existing
-                      sub-collections.
-                    </p>
+              <Label
+                htmlFor="popularityId"
+                className="flex items-center gap-2 text-lg font-semibold"
+              >
+                <FileText className="h-5 w-5 text-green-600" />
+                Popularity ID
+              </Label>
+              <Input
+                id="popularityId"
+                name="popularityId"
+                value={nextPopularityId}
+                className="bg-gray-100"
+                disabled
+              />
+              {selectedCollection && (
+                <p className="text-sm text-gray-500">
+                  This ID is automatically generated based on existing
+                  sub-collections.
+                </p>
+              )}
+
+              <Label
+                htmlFor="description"
+                className="flex items-center gap-2 text-lg font-semibold"
+              >
+                Description
+              </Label>
+              <Textarea
+                id="description"
+                name="description"
+                placeholder="Enter sub-collection description"
+                className="h-32"
+              />
+
+              <div className="flex justify-end">
+                <Button
+                  variant="submit"
+                  type="submit"
+                  className="w-auto"
+                  disabled={isLoading || !selectedCollection}
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="animate-spin h-4 w-4 mr-2" />
+                      Creating Sub-Collection...
+                    </>
+                  ) : (
+                    "Create Sub-Collection"
                   )}
-                </div>
-
-                <div className="space-y-3">
-                  <Label
-                    htmlFor="description"
-                    className="flex items-center gap-2 text-lg font-semibold"
-                  >
-                    Description
-                  </Label>
-                  <Textarea
-                    id="description"
-                    name="description"
-                    placeholder="Enter sub-collection description"
-                    className="h-32"
-                  />
-                </div>
-
-                <div className="flex justify-end space-x-4 pt-6">
-                  <Button
-                    variant="submit"
-                    type="submit"
-                    disabled={isLoading || !selectedCollection}
-                    className="w-auto"
-                  >
-                    {isLoading ? "Creating..." : "Create Sub-Collection"}
-                  </Button>
-                </div>
+                </Button>
               </div>
-            </form>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </form>
       </div>
     </>
   );

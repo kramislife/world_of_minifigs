@@ -10,6 +10,7 @@ import {
 
 export const useProductQueries = () => {
   const [searchParams] = useSearchParams();
+  const searchKeyword = searchParams.get("keyword");
 
   // Create API-safe search params (remove sort parameter)
   const apiSearchParams = useMemo(() => {
@@ -53,21 +54,72 @@ export const useProductQueries = () => {
     error: designersError,
   } = useGetDesignersQuery();
 
-  // Group similar products by partID and name
+  // Group similar products by partID and name, considering search keyword
   const groupedProducts = useMemo(() => {
     if (!productData?.allProducts?.length) return [];
 
+    // Get filter parameters
+    const collectionFilter = searchParams.get("product_collection");
+    const subCollectionFilter = searchParams.get("product_sub_collections");
+    const keyword = searchParams.get("keyword")?.toLowerCase();
+
+    // Filter products first based on collection/sub-collection and search
+    const filteredProducts = productData.allProducts.filter((product) => {
+      let matchesFilters = true;
+
+      // Apply collection filter
+      if (collectionFilter) {
+        matchesFilters = product.product_collection.some(
+          (col) => col._id === collectionFilter
+        );
+      }
+
+      // Apply sub-collection filter
+      if (subCollectionFilter) {
+        matchesFilters =
+          matchesFilters &&
+          product.product_sub_collections.some(
+            (sub) => sub._id === subCollectionFilter
+          );
+      }
+
+      // Apply keyword search if present
+      if (keyword) {
+        const searchableFields = [
+          product.product_name,
+          ...(product.product_category?.map((cat) => cat.name) || []),
+          ...(product.product_sub_categories?.map((subCat) => subCat.name) ||
+            []),
+          ...(product.product_collection?.map((col) => col.name) || []),
+          ...(product.product_sub_collections?.map((subCol) => subCol.name) ||
+            []),
+          product.product_color?.name,
+          product.itemID,
+          product.partID,
+        ]
+          .filter(Boolean)
+          .map((field) => field.toLowerCase());
+
+        matchesFilters =
+          matchesFilters &&
+          searchableFields.some((field) => field.includes(keyword));
+      }
+
+      return matchesFilters;
+    });
+
+    // If no products match the filters, return empty array
+    if (filteredProducts.length === 0) return [];
+
+    // Group filtered products
     const groups = {};
 
-    // Group products by partID and base product name
-    productData.allProducts.forEach((product) => {
+    filteredProducts.forEach((product) => {
       if (!product.partID) {
-        // If no partID, treat as individual product
         groups[product._id] = [product];
         return;
       }
 
-      // Get base product name (remove any text after hyphen or parenthesis)
       const baseName = product.product_name.split(/[\(\-]/)[0].trim();
       const groupKey = `${product.partID}-${baseName}`;
 
@@ -78,24 +130,17 @@ export const useProductQueries = () => {
       groups[groupKey].push(product);
     });
 
-    // Select one representative product from each group
-    // Preferably one with an image, or the first one
     return Object.values(groups).map((group) => {
-      // If only one product in group, return it
       if (group.length === 1) return group[0];
-
-      // Try to find a product with an image
       const productWithImage = group.find(
         (p) =>
           p.product_images &&
           p.product_images.length > 0 &&
           p.product_images[0].url
       );
-
-      // Return product with image or first product in group
       return productWithImage || group[0];
     });
-  }, [productData?.allProducts]);
+  }, [productData?.allProducts, searchParams]);
 
   return {
     productData,

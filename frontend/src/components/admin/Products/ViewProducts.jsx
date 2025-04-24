@@ -7,52 +7,40 @@ import {
 } from "@/redux/api/productApi";
 import { toast } from "react-toastify";
 import { createProductColumns } from "@/components/admin/shared/table/columns/ProductColumns";
-import DeleteDialog from "@/components/admin/shared/DeleteDialog";
 
 const ViewProducts = () => {
   const { data: productData, isLoading, error } = useGetProductsQuery();
-
-  // delete product
   const [deleteProduct, { isLoading: isDeleting }] = useDeleteProductMutation();
-
   const [globalFilter, setGlobalFilter] = useState("");
   const navigate = useNavigate();
 
-  // handle edit
   const handleEdit = (product) => {
     navigate(`/admin/update-product/${product._id}`);
   };
 
-  // handle view gallery
   const handleViewGallery = (product) => {
     navigate(`/admin/product-gallery/${product._id}`);
   };
 
-  // delete dialog
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [productToDelete, setProductToDelete] = useState(null);
-
-  // handle delete click
-  const handleDeleteClick = (product) => {
-    setProductToDelete(product);
-    setDeleteDialogOpen(true);
-  };
-
-  // handle delete confirm
-  const handleDeleteConfirm = async () => {
+  const handleDelete = async (product) => {
     try {
-      const response = await deleteProduct(productToDelete._id).unwrap();
+      const response = await deleteProduct(product._id).unwrap();
       toast.success(response.message || "Product deleted successfully");
-      setDeleteDialogOpen(false);
-      setProductToDelete(null);
     } catch (error) {
       toast.error(error?.data?.message || "Failed to delete product");
     }
   };
 
   // column component for table
-  const columns = useMemo(() =>
-    createProductColumns(handleEdit, handleDeleteClick, handleViewGallery)
+  const columns = useMemo(
+    () =>
+      createProductColumns(
+        handleEdit,
+        handleDelete,
+        handleViewGallery,
+        isDeleting
+      ),
+    [handleEdit, handleDelete, handleViewGallery, isDeleting]
   );
 
   const data = useMemo(() => {
@@ -96,40 +84,17 @@ const ViewProducts = () => {
   }, [productData]);
 
   return (
-    <>
-      <ViewLayout
-        title="Product"
-        description="Manage your product inventory"
-        addNewPath="/admin/new-product"
-        isLoading={isLoading}
-        error={error}
-        data={data}
-        columns={columns}
-        globalFilter={globalFilter}
-        setGlobalFilter={setGlobalFilter}
-      />
-
-      {/* delete dialog */}
-      <DeleteDialog
-        isOpen={deleteDialogOpen}
-        onClose={() => {
-          setDeleteDialogOpen(false);
-          setProductToDelete(null);
-        }}
-        onConfirm={handleDeleteConfirm}
-        title="Delete Product"
-        description={
-          <>
-            Are you sure you want to delete{" "}
-            <span className="font-semibold text-red-500">
-              {productToDelete?.name}
-            </span>
-            ? This action cannot be undone.
-          </>
-        }
-        isLoading={isDeleting}
-      />
-    </>
+    <ViewLayout
+      title="Product"
+      description="Manage your product inventory"
+      addNewPath="/admin/new-product"
+      isLoading={isLoading}
+      error={error}
+      data={data}
+      columns={columns}
+      globalFilter={globalFilter}
+      setGlobalFilter={setGlobalFilter}
+    />
   );
 };
 

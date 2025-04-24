@@ -1,7 +1,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Palette } from "lucide-react";
+import { Palette, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -50,85 +50,83 @@ const UpdateColor = () => {
       <Metadata title="Update Color" />
       <div className="p-3 md:p-5">
         <form onSubmit={handleSubmit}>
-          <Card className="border-t-4 border-t-accent">
+          <Card className="bg-background">
             <CardHeader>
               <CardTitle className="text-2xl">Update Color</CardTitle>
             </CardHeader>
 
-            <CardContent className="p-6 space-y-8">
-              <div className="space-y-5">
-                <div className="space-y-3">
-                  <Label
-                    htmlFor="name"
-                    className="flex items-center gap-2 text-lg font-semibold"
-                  >
-                    <Palette className="h-5 w-5 text-blue-600" />
-                    Color Name
-                  </Label>
-                  <Input
-                    id="name"
-                    name="name"
-                    placeholder="Enter color name"
-                    defaultValue={color?.name}
-                    required
-                  />
-                </div>
+            <CardContent className="space-y-5">
+              <Label
+                htmlFor="name"
+                className="flex items-center gap-2 text-lg font-semibold"
+              >
+                <Palette className="h-5 w-5 text-blue-600" />
+                Color Name
+              </Label>
+              <Input
+                id="name"
+                name="name"
+                placeholder="Enter color name"
+                defaultValue={color?.name}
+                required
+              />
 
-                <div className="space-y-3">
-                  <Label
-                    htmlFor="code"
-                    className="flex items-center gap-2 text-lg font-semibold"
-                  >
-                    <Palette className="h-5 w-5 text-blue-600" />
-                    Color Code (HEX)
-                  </Label>
-                  <div className="flex gap-4 items-center">
-                    <Input
-                      id="code"
-                      name="code"
-                      type="text"
-                      placeholder="#000000"
-                      pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"
-                      defaultValue={color?.code}
-                      required
-                    />
-                    <Input
-                      type="color"
-                      defaultValue={color?.code}
-                      className="w-20 h-10 p-1"
-                      onChange={(e) => {
-                        document.getElementById("code").value = e.target.value;
-                      }}
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  <Label
-                    htmlFor="description"
-                    className="flex items-center gap-2 text-lg font-semibold"
-                  >
-                    <Palette className="h-5 w-5 text-blue-600" />
-                    Description
-                  </Label>
-                  <Textarea
-                    id="description"
-                    name="description"
-                    placeholder="Enter color description"
-                    defaultValue={color?.description}
-                    rows={4}
-                  />
-                </div>
+              <Label
+                htmlFor="code"
+                className="flex items-center gap-2 text-lg font-semibold"
+              >
+                <Palette className="h-5 w-5 text-blue-600" />
+                Color Code (HEX)
+              </Label>
+              <div className="flex gap-4 items-center">
+                <Input
+                  id="code"
+                  name="code"
+                  type="text"
+                  placeholder="#000000"
+                  pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"
+                  defaultValue={color?.code}
+                  required
+                />
+                <Input
+                  type="color"
+                  defaultValue={color?.code}
+                  className="w-20 h-10 p-1"
+                  onChange={(e) => {
+                    document.getElementById("code").value = e.target.value;
+                  }}
+                />
               </div>
 
-              <div className="flex justify-end space-x-4 pt-6 border-t">
+              <Label
+                htmlFor="description"
+                className="flex items-center gap-2 text-lg font-semibold"
+              >
+                <Palette className="h-5 w-5 text-blue-600" />
+                Description
+              </Label>
+              <Textarea
+                id="description"
+                name="description"
+                placeholder="Enter color description"
+                defaultValue={color?.description}
+              />
+
+              <div className="flex justify-end">
                 <Button
                   variant="submit"
                   type="submit"
                   className="w-auto"
                   disabled={isUpdating}
                 >
-                  {isUpdating ? "Updating..." : "Update Color"}
+                  {isUpdating ? (
+                    <>
+                      <Loader2 className="animate-spin h-4 w-4" />
+                      Updating Color...
+                    </>
+                  ) : (
+                    "Update Color"
+                  )}
                 </Button>
               </div>
             </CardContent>

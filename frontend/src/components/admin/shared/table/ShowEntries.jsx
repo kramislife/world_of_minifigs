@@ -47,31 +47,24 @@ const ShowEntries = ({ value, onChange, totalEntries }) => {
   };
 
   return (
-    <div className="flex items-center text-white">
+    <div className="flex items-center text-background">
       <span className="mr-3 text-sm md:text-md">Show</span>
       <Select
         value={value >= totalEntries ? "all" : value.toString()}
         onValueChange={handlePageSizeChange}
       >
-        <SelectTrigger className="w-[70px] bg-brand-start border-brand-end">
+        <SelectTrigger className="w-[70px] bg-inherit border border-brand-end/50">
           <SelectValue placeholder={getDisplayValue()} />
         </SelectTrigger>
-        <SelectContent className="bg-brand-start border-brand-end">
+        <SelectContent>
           {[10, 20, 30, 40, 50].map((pageSize) => (
-            <SelectItem
-              key={pageSize}
-              value={pageSize.toString()}
-              className="hover:text-black cursor-pointer text-white"
-            >
+            <SelectItem key={pageSize} value={pageSize.toString()}>
               {pageSize}
             </SelectItem>
           ))}
-          <SelectItem
-            value="all"
-            className="hover:text-black cursor-pointer text-white border-t border-brand-end"
-          >
-            All
-          </SelectItem>
+          <div className="border-t border-brand-end/50 mt-2 pt-1">
+            <SelectItem value="all">All</SelectItem>
+          </div>
         </SelectContent>
       </Select>
       <span className="ml-3 text-sm md:text-md">entries</span>

@@ -1,82 +1,75 @@
 import React from "react";
-import { AlertTriangle, X } from "lucide-react";
+import { AlertTriangle, Loader2, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose,
+} from "@/components/ui/dialog";
 
-const Dialog = ({ open, onClose, children }) => {
-  if (!open) return null;
-
-  React.useEffect(() => {
-    const handleEscape = (e) => {
-      if (e.key === "Escape") onClose();
-    };
-    document.addEventListener("keydown", handleEscape);
-    return () => document.removeEventListener("keydown", handleEscape);
-  }, [onClose]);
-
-  return (
-    <div className="fixed inset-0 z-50">
-      {/* Backdrop */}
-      <div className="fixed inset-0 bg-black/70" onClick={onClose} />
-
-      {/* Dialog */}
-      <div className="fixed left-[50%] top-[50%] z-50 w-full max-w-[450px] translate-x-[-50%] translate-y-[-50%] duration-200 animate-in fade-in-0 zoom-in-95 slide-in-from-left-1/2 slide-in-from-top-[48%] sm:max-w-[450px]">
-        {children}
-      </div>
-    </div>
-  );
-};
-
-const DeleteConfirmDialog = ({
-  isOpen,
-  onClose,
+const DeleteDialog = ({
   onConfirm,
   title,
-  description,
+  itemToDelete,
   isLoading,
+  triggerVariant = "ghost",
+  triggerSize = "default",
+  triggerClassName = "p-0 hover:bg-transparent hover:scale-110 transition-all duration-300",
 }) => {
   return (
-    <Dialog open={isOpen} onClose={onClose}>
-      <div className="relative rounded-lg border bg-brand-start shadow-lg border-none">
-        {/* Content */}
-        <div className="p-6">
-          {/* Header */}
-          <div className="space-y-3 text-gray-200">
-            <h2 className="flex gap-2 items-center font-semibold text-lg leading-none tracking-tight pb-3 border-b border-brand-end/50">
-              <AlertTriangle className="h-5 w-5 text-red-500" />
-              {title || "Confirm Deletion"}
-            </h2>
-            <p className="leading-loose text-sm font-light text-white">
-              {description ||
-                "This action cannot be undone. Are you sure you want to delete this item?"}
-            </p>
-          </div>
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button
+          variant={triggerVariant}
+          size={triggerSize}
+          className={triggerClassName}
+        >
+          <Trash2 className="h-4 w-4 text-red-500 hover:scale-110 transition-transform" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle className="flex gap-2 items-center">
+            <AlertTriangle className="h-5 w-5 text-accent" />
+            {title || "Confirm Deletion"}
+          </DialogTitle>
+        </DialogHeader>
+        <DialogDescription className="space-y-2">
+          Are you sure you want to delete{" "}
+          <span className="font-semibold text-accent italic">
+            {itemToDelete}
+          </span>{" "}
+          ? This action cannot be undone.
+        </DialogDescription>
 
-          {/* Footer */}
-          <div className="flex gap-2 justify-end mt-6">
-            <Button variant="secondary" onClick={onClose} disabled={isLoading}>
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button variant="secondary" disabled={isLoading}>
               Cancel
             </Button>
-            <Button
-              variant="destructive"
-              onClick={onConfirm}
-              disabled={isLoading}
-            >
-              {isLoading ? "Deleting..." : "Delete"}
-            </Button>
-          </div>
-        </div>
-
-        {/* Close button */}
-        <button
-          onClick={onClose}
-          className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
-        >
-          <X className="h-4 w-4" />
-          <span className="sr-only">Close</span>
-        </button>
-      </div>
+          </DialogClose>
+          <Button
+            variant="destructive"
+            onClick={onConfirm}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin mr-2" /> Deleting...
+              </>
+            ) : (
+              "Delete"
+            )}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 };
 
-export default DeleteConfirmDialog;
+export default DeleteDialog;

@@ -14,14 +14,14 @@ const StatCardItem = ({ card }) => {
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger>
-          <Card className="bg-brand-dark/50 border border-brand-end/50">
-            <CardContent className="flex justify-between items-center p-6">
-              <div className="space-y-1">
-                <p className="text-sm font-medium text-gray-300">
+          <Card>
+            <CardContent className="flex justify-between items-center p-5">
+              <div className="space-y-3 text-start">
+                <p className="text-sm font-medium text-gray-200">
                   {card.title}
                 </p>
-                <p className="text-3xl font-bold text-white">{card.value}</p>
-                <p className="text-xs">
+                <p className="text-3xl font-bold text-background">{card.value}</p>
+                <p className="text-sm">
                   <span className={`font-bold ${card.changeColor}`}>
                     {card.change}%{" "}
                   </span>

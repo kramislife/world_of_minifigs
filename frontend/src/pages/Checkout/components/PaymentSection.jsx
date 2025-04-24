@@ -1,17 +1,17 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PAYMENT_METHODS } from "@/constant/paymentMethod";
-import MasterCard from "@/assets/mastercard.svg";
-import Visa from "@/assets/visa.png";
-import Stripe from "@/assets/stripe.svg";
-import PayPal from "@/assets/Paypal.png";
+import { Button } from "@/components/ui/button";
+import { CreditCard } from "lucide-react";
 import CardSection from "./CardSection";
 import PayPalSection from "./PayPalSection";
-import { CreditCard } from "lucide-react";
+import {
+  PAYMENT_METHODS,
+  PAYMENT_METHOD_CONFIG,
+} from "@/constant/paymentMethod";
 
 const PaymentSection = ({
   paymentMethod,
-  onPaymentMethodChange,
+  handlePaymentMethodChange,
   total,
   email,
   selectedAddress,
@@ -21,68 +21,38 @@ const PaymentSection = ({
   handleStripeSuccess,
   onPayPalApprove,
 }) => {
-  const paymentMethods = [
-    {
-      // Stripe
-      type: PAYMENT_METHODS.CREDIT_CARD,
-      content: (
-        <div className="flex items-center gap-1">
-          <img src={MasterCard} alt="Credit Card" className="h-8 w-auto" />
-          <img src={Visa} alt="Credit Card" className="h-8 w-auto" />
-          <img src={Stripe} alt="Credit Card" className="h-6 w-auto" />
-        </div>
-      ),
-      className: "bg-white",
-    },
-    {
-      // PayPal
-      type: PAYMENT_METHODS.PAYPAL,
-      content: <img src={PayPal} alt="PayPal" className="h-20 w-auto" />,
-      className: "bg-yellow-300",
-    },
-  ];
-
-  // Payment button styles
-  const getPaymentButtonStyles = (isSelected) => `
-    w-full h-12 rounded-md transition-all duration-200 flex items-center justify-center
-    ${
-      isSelected
-        ? "border-2 border-accent"
-        : "border border-brand-end/50 hover:border-accent/50"
-    }
-  `;
-
-  // Handle payment method change with preventDefault
-  const handlePaymentMethodChange = (methodType, e) => {
-    e.preventDefault(); // Prevent form submission
-    onPaymentMethodChange(methodType);
-  };
-
   return (
-    <Card className="bg-brand-dark/20 border border-brand-end/50">
+    <Card>
       <CardHeader>
-        <CardTitle className="text-white flex items-center gap-2 text-lg">
+        <CardTitle className="text-background flex items-center gap-2 text-lg">
           <CreditCard className="w-5 h-5 text-accent" />
           Payment Details
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6">
-        <div className="grid grid-cols-2 gap-3">
-          {paymentMethods.map((method) => (
-            <button
+      <CardContent className="space-y-3 px-3 md:px-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+          {PAYMENT_METHOD_CONFIG.map((method) => (
+            <Button
               key={method.type}
               onClick={(e) => handlePaymentMethodChange(method.type, e)}
-              type="button" // Add type="button" to prevent form submission
-              className={`${getPaymentButtonStyles(
-                paymentMethod === method.type
-              )} ${method.className}`}
+              type="button"
+              variant={paymentMethod === method.type ? "accent" : "secondary"}
+              className="hover:scale-100 transition-all duration-200"
             >
-              {method.content}
-            </button>
+              <div className="flex items-center">
+                {method.content.images.map((image, index) => (
+                  <img
+                    key={index}
+                    src={image.src}
+                    alt={image.alt}
+                    className={image.className}
+                  />
+                ))}
+              </div>
+            </Button>
           ))}
         </div>
 
-        {/* If the payment method is Stripe, show the CardSection component */}
         {paymentMethod === PAYMENT_METHODS.CREDIT_CARD ? (
           <CardSection
             total={total}

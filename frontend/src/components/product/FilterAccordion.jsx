@@ -5,168 +5,10 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Checkbox } from "@/components/ui/checkbox";
-import { ChevronRight, ChevronLeft } from "lucide-react";
+import CategoryFilter from "./shared/CategoryFilter";
+import SubCategoryFilter from "./shared/SubCategoryFilter";
 import { useProductFilters } from "@/hooks/Product/useProductFilters";
 
-// Component for rendering a color filter option
-const ColorFilterOption = ({ option, count }) => (
-  <div className="flex items-center space-x-2">
-    <div
-      className="w-4 h-4 rounded-full border border-gray-600"
-      style={{ backgroundColor: option.code }}
-    />
-    <span className="text-sm text-gray-300 group-hover:text-accent py-2">
-      {option.label}
-    </span>
-  </div>
-);
-
-// Component for rendering a sub-item in the expanded category view
-const SubItemOption = ({
-  subItem,
-  filterKey,
-  isChecked,
-  count,
-  onFilterChange,
-}) => (
-  <label
-    key={subItem._id}
-    className={`flex items-center justify-between p-4 group cursor-pointer ${
-      count === 0
-        ? "opacity-50 pointer-events-none"
-        : "hover:bg-brand-end/50 rounded-md"
-    }`}
-  >
-    <div className="flex items-center space-x-2">
-      <Checkbox
-        id={`${filterKey}-${subItem._id}`}
-        checked={isChecked}
-        onCheckedChange={() => onFilterChange(filterKey, subItem._id)}
-        disabled={count === 0}
-        className="border-brand-end data-[state=checked]:bg-accent data-[state=checked]:border-accent"
-      />
-      <span className="text-sm text-white group-hover:text-accent">
-        {subItem.name}
-      </span>
-    </div>
-    <span className="text-sm text-gray-400">({count})</span>
-  </label>
-);
-
-// Component for rendering a category option in the main view
-const CategoryOption = ({
-  option,
-  filterKey,
-  isChecked,
-  hasSubItems,
-  itemCount,
-  isDisabled,
-  onFilterChange,
-  onCategoryClick,
-}) => (
-  <div
-    className={`flex items-center justify-between py-2 px-2 rounded-sm group
-    ${isDisabled ? "opacity-50 pointer-events-none" : "hover:bg-brand-start"}`}
-  >
-    <div className="flex-1">
-      <label className="flex items-center space-x-2 cursor-pointer">
-        <Checkbox
-          id={`${filterKey}-${option.value}`}
-          checked={isChecked}
-          onCheckedChange={() => onFilterChange(filterKey, option.value)}
-          disabled={isDisabled}
-          className="border-gray-200 data-[state=checked]:bg-accent data-[state=checked]:border-accent"
-        />
-        {filterKey === "product_color" ? (
-          <ColorFilterOption
-            option={option}
-            isChecked={isChecked}
-            isDisabled={isDisabled}
-            onChange={() => onFilterChange(filterKey, option.value)}
-            count={itemCount}
-          />
-        ) : (
-          <span className="text-sm text-white group-hover:text-accent py-2">
-            {option.label}
-          </span>
-        )}
-      </label>
-    </div>
-    <div className="flex items-center space-x-4">
-      {!hasSubItems && (
-        <span className="text-sm text-gray-200">({itemCount})</span>
-      )}
-      {hasSubItems && (
-        <button
-          onClick={() => onCategoryClick(filterKey, option.value)}
-          className="p-1 hover:bg-accent rounded-full text-yellow-300 hover:text-black"
-        >
-          <ChevronRight className="h-4 w-4" />
-        </button>
-      )}
-    </div>
-  </div>
-);
-
-// Component for rendering the expanded sub-category view
-const SubCategoryView = ({
-  categoryKey,
-  categoryName,
-  subItems,
-  selectedFilters,
-  productsForCounting,
-  onFilterChange,
-  onBackClick,
-}) => (
-  <div>
-    <div className="px-2 pb-4 pt-2 border-b border-gray-700">
-      <button
-        onClick={onBackClick}
-        className="flex items-center hover:text-accent"
-      >
-        <ChevronLeft className="h-5 w-5 mr-1" />
-        <span className="text-md font-semibold">{categoryName}</span>
-      </button>
-    </div>
-
-    <div className="bg-brand-start p-2">
-      {subItems.map((subItem) => {
-        const filterKey =
-          categoryKey === "product_category"
-            ? "product_sub_categories"
-            : "product_sub_collections";
-
-        // Calculate count of products with this sub-item
-        const count =
-          productsForCounting?.filter((product) => {
-            if (categoryKey === "product_category") {
-              return product.product_sub_categories?.some(
-                (sub) => sub._id === subItem._id
-              );
-            } else {
-              return product.product_sub_collections?.some(
-                (sub) => sub._id === subItem._id
-              );
-            }
-          }).length || 0;
-
-        return (
-          <SubItemOption
-            key={subItem._id}
-            subItem={subItem}
-            filterKey={filterKey}
-            isChecked={selectedFilters[filterKey]?.includes(subItem._id)}
-            count={count}
-            onFilterChange={onFilterChange}
-          />
-        );
-      })}
-    </div>
-  </div>
-);
-
-// Main FilterAccordion component
 const FilterAccordion = ({
   categories,
   selectedFilters,
@@ -180,16 +22,15 @@ const FilterAccordion = ({
     setCurrentCategory,
     getDisplayName,
     getSubItems,
+    getFilteredProductCount,
     subCategoriesData,
     subCollectionsData,
   } = useProductFilters({
     categories,
     colorsData: colors,
+    products: groupedProducts?.length > 0 ? groupedProducts : products,
+    selectedFilters,
   });
-
-  // Use groupedProducts for counting when available, fallback to all products
-  const productsForCounting =
-    groupedProducts?.length > 0 ? groupedProducts : products;
 
   const handleCategoryClick = (key, categoryId) => {
     setCurrentCategory({ key, id: categoryId });
@@ -199,128 +40,34 @@ const FilterAccordion = ({
     setCurrentCategory(null);
   };
 
-  const matchesPriceRange = (product, range) => {
-    if (!product.price) return false;
-    const [min, max] = range.split("-").map(Number);
-    if (max) {
-      return product.price >= min && product.price <= max;
-    }
-    // Handle "1000+" case
-    return product.price >= min;
-  };
-
-  // Calculate filtered products that match all filters EXCEPT the one being checked
-  const getFilteredProductCount = (filterKey, filterValue) => {
-    if (!productsForCounting || productsForCounting.length === 0) {
-      return 0;
-    }
-
-    // Create a copy of current filters excluding the current filter key
-    const otherFilters = Object.entries(selectedFilters).filter(
-      ([key]) => key !== filterKey
-    );
-
-    return productsForCounting.filter((product) => {
-      // First check if the product matches the current filter value
-      let matchesCurrentFilter = false;
-
-      if (filterKey === "price") {
-        matchesCurrentFilter = matchesPriceRange(product, filterValue);
-      } else if (filterKey === "product_color") {
-        matchesCurrentFilter =
-          product.product_color?._id === filterValue ||
-          product.product_color === filterValue;
-      } else if (filterKey === "rating") {
-        matchesCurrentFilter =
-          Math.floor(product.ratings) === parseInt(filterValue);
-      } else if (filterKey === "product_category") {
-        matchesCurrentFilter = product.product_category?.some(
-          (cat) => cat._id === filterValue
-        );
-      } else if (filterKey === "product_collection") {
-        matchesCurrentFilter = product.product_collection?.some(
-          (col) => col._id === filterValue
-        );
-      } else if (filterKey === "product_skill_level") {
-        matchesCurrentFilter = product.product_skill_level?._id === filterValue;
-      } else if (filterKey === "product_designer") {
-        matchesCurrentFilter = product.product_designer?._id === filterValue;
-      }
-
-      // Then check if the product matches all other active filters
-      const matchesOtherFilters = otherFilters.every(([key, values]) => {
-        if (!values || values.length === 0) return true;
-
-        if (key === "price") {
-          return values.some((range) => matchesPriceRange(product, range));
-        } else if (key === "product_color") {
-          return values.some(
-            (colorId) =>
-              product.product_color?._id === colorId ||
-              product.product_color === colorId
-          );
-        } else if (key === "rating") {
-          return values.some(
-            (rating) => Math.floor(product.ratings) === parseInt(rating)
-          );
-        } else if (key === "product_category") {
-          return values.some((catId) =>
-            product.product_category?.some((cat) => cat._id === catId)
-          );
-        } else if (key === "product_collection") {
-          return values.some((colId) =>
-            product.product_collection?.some((col) => col._id === colId)
-          );
-        } else if (key === "product_skill_level") {
-          return values.some(
-            (levelId) => product.product_skill_level?._id === levelId
-          );
-        } else if (key === "product_designer") {
-          return values.some(
-            (designerId) => product.product_designer?._id === designerId
-          );
-        }
-        return true;
-      });
-
-      return matchesCurrentFilter && matchesOtherFilters;
-    }).length;
-  };
-
-  // Render category content based on whether we're in a subcategory view or main view
   const renderCategoryContent = (key, category) => {
-    // If a category is selected, show its sub-items
+    const productsToCount =
+      groupedProducts?.length > 0 ? groupedProducts : products;
+
     if (currentCategory && currentCategory.key === key) {
       const currentCategoryName = category.find(
         (cat) => cat.value === currentCategory.id
       )?.label;
 
-      const subItems = getSubItems(
-        key,
-        currentCategory.id,
-        productsForCounting
-      );
+      const subItems = getSubItems(key, currentCategory.id);
 
       return (
-        <SubCategoryView
+        <SubCategoryFilter
           categoryKey={key}
-          categoryId={currentCategory.id}
           categoryName={currentCategoryName}
           subItems={subItems}
           selectedFilters={selectedFilters}
-          productsForCounting={productsForCounting}
+          productsForCounting={productsToCount}
           onFilterChange={onFilterChange}
           onBackClick={handleBackClick}
         />
       );
     }
 
-    // Otherwise show the main category list with checkboxes
     return (
-      <AccordionContent className="p-3 bg-brand-end/50">
+      <AccordionContent className="p-0 bg-brand-start border-t border-brand-end">
         {category.length > 0 ? (
           category.map((option) => {
-            // Check if this category has sub-items
             const hasSubItems =
               (key === "product_category" &&
                 subCategoriesData?.sub_categories?.some(
@@ -331,12 +78,15 @@ const FilterAccordion = ({
                   (sub) => sub.collection?._id === option.value
                 ));
 
-            // Get correct count based on current filters
-            const itemCount = getFilteredProductCount(key, option.value);
+            const itemCount = getFilteredProductCount(
+              key,
+              option.value,
+              productsToCount
+            );
             const isDisabled = itemCount === 0;
 
             return (
-              <CategoryOption
+              <CategoryFilter
                 key={option.value}
                 option={option}
                 filterKey={key}
@@ -351,7 +101,7 @@ const FilterAccordion = ({
           })
         ) : (
           <div className="py-4 text-center">
-            <span className="text-sm text-gray-500">
+            <span className="text-sm text-gray-300">
               No {getDisplayName(key).toLowerCase()} available
             </span>
           </div>
@@ -361,31 +111,20 @@ const FilterAccordion = ({
   };
 
   return (
-    <div className="space-y-4">
-      <Accordion
-        type="single"
-        defaultValue="price"
-        collapsible
-        className="space-y-2"
-      >
-        {Object.entries(categories).map(([key, category]) => (
-          <AccordionItem
-            key={key}
-            value={key}
-            className="border border-brand-end rounded-md my-2 bg-brand-start"
-          >
-            <AccordionTrigger className="px-4 py-3 transition-colors group hover:no-underline rounded-md">
-              <div className="flex items-center justify-between w-full">
-                <span className="font-semibold text-white group-hover:text-accent">
-                  {getDisplayName(key)}
-                </span>
-              </div>
-            </AccordionTrigger>
-            {renderCategoryContent(key, category)}
-          </AccordionItem>
-        ))}
-      </Accordion>
-    </div>
+    <Accordion type="single" defaultValue="price" collapsible>
+      {Object.entries(categories).map(([key, category]) => (
+        <AccordionItem
+          key={key}
+          value={key}
+          className="border border-brand-end rounded-md bg-brand-start"
+        >
+          <AccordionTrigger className="text-base font-semibold text-background [&>svg]:text-background">
+            {getDisplayName(key)}
+          </AccordionTrigger>
+          {renderCategoryContent(key, category)}
+        </AccordionItem>
+      ))}
+    </Accordion>
   );
 };
 

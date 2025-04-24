@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   PlaceholderImage,
   ProductThumbnailPlaceholder,
-} from "./FallbackStates";
+} from "@/components/product/shared/FallbackStates";
 import { useNavigate } from "react-router-dom";
 
 const ProductImageGallery = ({
@@ -33,7 +33,7 @@ const ProductImageGallery = ({
   const DiscountBadge = () =>
     currentProduct?.discount > 0 && (
       <div className="absolute top-4 right-4 z-10">
-        <Badge variant="discount">{currentProduct.discount}% OFF</Badge>
+        <Badge variant="accent">{currentProduct.discount}% OFF</Badge>
       </div>
     );
 
@@ -127,7 +127,7 @@ const ProductImageGallery = ({
                     className={`absolute inset-0 rounded-lg overflow-hidden border-2 transition-all ${
                       currentImageIndex === index
                         ? "border-accent border-4"
-                        : "border border-slate-700"
+                        : "border border-brand-start"
                     }`}
                   >
                     {similarProducts ? (
@@ -202,18 +202,18 @@ const ProductImageGallery = ({
               <Button
                 variant="ghost"
                 size="icon"
-                className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 z-10"
+                className="absolute left-2 top-1/2 -translate-y-1/2 bg-foreground/50 hover:bg-foreground/70 z-10"
                 onClick={handlePrevImage}
               >
-                <ChevronLeft className="w-6 h-6 text-white" />
+                <ChevronLeft className="w-6 h-6 text-background" />
               </Button>
               <Button
                 variant="ghost"
                 size="icon"
-                className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 z-10"
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-foreground/50 hover:bg-foreground/70 z-10"
                 onClick={handleNextImage}
               >
-                <ChevronRight className="w-6 h-6 text-white" />
+                <ChevronRight className="w-6 h-6 text-background" />
               </Button>
             </>
           )}

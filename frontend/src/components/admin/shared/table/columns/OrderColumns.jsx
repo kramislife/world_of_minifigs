@@ -36,7 +36,7 @@ export const createOrderColumns = ({ onViewDetails }) => [
       </div>
     ),
   },
-   {
+  {
     header: "Total",
     accessorKey: "totalPrice",
     cell: ({ row }) => (
@@ -54,10 +54,10 @@ export const createOrderColumns = ({ onViewDetails }) => [
       const statusVariantMap = {
         Pending: "warning",
         Processing: "info",
-        Shipped: "primary",
+        Shipped: "category",
         Delivered: "success",
-        Cancelled: "error",
-        "On Hold": "muted",
+        Cancelled: "destructive",
+        "On Hold": "secondary",
         "Pre-Order": "accent",
       };
 
@@ -68,11 +68,6 @@ export const createOrderColumns = ({ onViewDetails }) => [
           >
             {row.original.orderStatus}
           </Badge>
-          {row.original.priority !== "Normal" && (
-            <span className="text-xs text-gray-500">
-              Priority: {row.original.priority}
-            </span>
-          )}
         </div>
       );
     },
@@ -90,7 +85,7 @@ export const createOrderColumns = ({ onViewDetails }) => [
           variant="ghost"
           size="icon"
           onClick={() => onViewDetails(row.original)}
-          className="hover:text-primary"
+          className="text-blue-600 p-0 hover:bg-transparent hover:scale-110 transition-all duration-300"
         >
           <Eye className="h-5 w-5" />
         </Button>
