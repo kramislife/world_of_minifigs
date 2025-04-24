@@ -50,7 +50,11 @@ const SheetContent = React.forwardRef(
       <SheetOverlay />
       <SheetPrimitive.Content
         ref={ref}
-        className={cn(sheetVariants({ side }), className)}
+        className={cn(
+          sheetVariants({ side }),
+          "w-full max-w-[400px] lg:max-w-[600px] bg-brand-start gap-0 p-0 border-brand-end/50 flex flex-col h-full",
+          className
+        )}
         {...props}
       >
         {children}
@@ -67,7 +71,7 @@ SheetContent.displayName = SheetPrimitive.Content.displayName;
 const SheetHeader = ({ className, ...props }) => (
   <div
     className={cn(
-      "flex flex-col space-y-2 text-center sm:text-left",
+      "flex flex-col space-y-2 text-center sm:text-left p-5 border-b border-brand-end/50",
       className
     )}
     {...props}
@@ -89,7 +93,10 @@ SheetFooter.displayName = "SheetFooter";
 const SheetTitle = React.forwardRef(({ className, ...props }, ref) => (
   <SheetPrimitive.Title
     ref={ref}
-    className={cn("text-lg font-semibold text-foreground", className)}
+    className={cn(
+      " font-semibold text-2xl text-accent mb-5 text-left",
+      className
+    )}
     {...props}
   />
 ));
