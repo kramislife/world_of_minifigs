@@ -4,27 +4,27 @@ import { User } from "lucide-react";
 
 const Customer = ({ user }) => {
   return (
-    <Card className="bg-brand-dark/20 border border-brand-end/50">
+    <Card >
       <CardHeader>
         <div className="flex items-center gap-2">
           <User className="w-5 h-5 text-purple-500" />
-          <h3 className="text-lg font-semibold text-white">Customer Details</h3>
+          <h3 className="text-lg font-semibold text-background">Customer Details</h3>
         </div>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
           <div>
-            <p className="text-sm text-gray-400">Name</p>
-            <p className="font-medium mt-1 text-white">{user.name}</p>
+            <p className="text-sm text-gray-300">Name</p>
+            <p className="font-medium mt-1 text-background">{user.name}</p>
           </div>
           <div>
-            <p className="text-sm text-gray-400">Email</p>
-            <p className="font-medium mt-1 text-white">{user.email}</p>
+            <p className="text-sm text-gray-300">Email</p>
+            <p className="font-medium mt-1 text-background">{user.email}</p>
           </div>
-          {user.phone && (
+          {user.contact_number && (
             <div>
-              <p className="text-sm text-gray-400">Phone</p>
-              <p className="font-medium mt-1 text-white">{user.phone}</p>
+              <p className="text-sm text-gray-300">Phone Number</p>
+              <p className="font-medium mt-1 text-background">{user.contact_number}</p>
             </div>
           )}
         </div>

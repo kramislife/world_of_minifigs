@@ -5,11 +5,11 @@ import { Badge } from "@/components/ui/badge";
 
 const CustomerItems = ({ orderItems }) => {
   return (
-    <Card className="bg-brand-dark/20 border border-brand-end/50">
+    <Card >
       <CardHeader>
         <div className="flex items-center gap-3">
           <Package2 className="w-6 h-6 text-blue-400" />
-          <h3 className="text-xl font-bold text-white">Order Items</h3>
+          <h3 className="text-xl font-bold text-background">Order Items</h3>
         </div>
       </CardHeader>
       <CardContent>
@@ -35,7 +35,7 @@ const CustomerItems = ({ orderItems }) => {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1">
-                  <p className="font-semibold text-md md:text-lg text-white line-clamp-1">
+                  <p className="font-semibold text-md md:text-lg text-background line-clamp-1">
                     {item.name}
                   </p>
                   <p className="hidden sm:block font-bold text-lg text-emerald-400">
