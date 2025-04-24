@@ -80,11 +80,11 @@ export const adminNavigation = [
     label: "Users",
     path: "/admin/users",
   },
-  {
-    icon: Star,
-    label: "Reviews",
-    path: "/admin/reviews",
-  },
+  // {
+  //   icon: Star,
+  //   label: "Reviews",
+  //   path: "/admin/reviews",
+  // },
   // {
   //   icon: PackagePlus,
   //   label: "New Product",

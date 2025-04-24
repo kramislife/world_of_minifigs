@@ -5,14 +5,9 @@ import {
   SheetTrigger,
   SheetHeader,
   SheetTitle,
+  SheetDescription,
 } from "@/components/ui/sheet";
-import {
-  Bot,
-  CircleChevronUp,
-  Menu,
-  PanelTop,
-  PanelTopClose,
-} from "lucide-react";
+import { Bot } from "lucide-react";
 import { adminNavigation } from "@/constant/adminNavigation";
 import { useLocation } from "react-router-dom";
 import NavigationItem from "./NavigationItem";
@@ -95,24 +90,19 @@ const MobileSidebar = () => {
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
-      <SheetTrigger className="fixed bottom-5 right-5 z-50 p-3 bg-accent rounded-full shadow-lg transition-colors lg:hidden">
+      <SheetTrigger className="fixed bottom-5 right-5 z-50 p-3 bg-accent rounded-full lg:hidden">
         <Bot size={28} className="text-foreground" />
       </SheetTrigger>
 
-      <SheetContent
-        side="left"
-        className="w-full max-w-[400px] lg:max-w-[600px] bg-brand-start gap-0 p-0 border-brand-end/50 flex flex-col h-full"
-        onInteractOutside={() => setIsOpen(false)}
-      >
-        <div className="flex-none">
-          <SheetHeader className="p-5 border-b border-brand-end/50">
-            <SheetTitle className="text-2xl font-semibold text-accent text-left">
-              Admin Dashboard
-            </SheetTitle>
-          </SheetHeader>
-        </div>
+      <SheetContent side="left" onInteractOutside={() => setIsOpen(false)}>
+        <SheetHeader className="pb-0">
+          <SheetTitle>Admin Dashboard</SheetTitle>
+          <SheetDescription className="sr-only">
+            Manage your admin dashboard
+          </SheetDescription>
+        </SheetHeader>
 
-        <div className="flex-1 overflow-y-auto bg-darkBrand/30 text-white">
+        <div className="flex-1 overflow-y-auto scrollbar-none text-background">
           {/* Navigation */}
           <nav className="p-4 space-y-2">
             {adminNavigation.map((item, index) => (

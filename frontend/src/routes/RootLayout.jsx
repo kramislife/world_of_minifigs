@@ -18,10 +18,13 @@ const RootLayout = () => {
   const showSidebar = isAdminOrEmployee && isAdminRoute;
 
   return (
-    <div className="flex flex-col min-h-screen bg-brand-start text-white">
+    <div className="flex flex-col min-h-screen bg-brand-start text-background">
       <Header />
-      {/* Only show ScrollToTop when not in admin routes */}
-      {!isAdminRoute && <ScrollToTop />}
+      {/* Show ScrollToTop based on screen size and route */}
+      <div className={`${isAdminRoute ? "hidden lg:block" : "block"}`}>
+        <ScrollToTop />
+      </div>
+
       {showSidebar ? (
         // Admin Layout with Sidebar
         <div className="flex flex-1 pt-[90px] max-w-[1920px] mx-auto w-full">

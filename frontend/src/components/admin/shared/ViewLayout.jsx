@@ -54,10 +54,10 @@ const ViewLayout = ({
       <div className="p-5">
         <div className="mb-8 flex justify-between items-center">
           <div className="space-y-2">
-            <h1 className="text-xl md:text-3xl font-bold text-white tracking-tight">
+            <h1 className="text-xl md:text-3xl font-bold text-background tracking-tight">
               {title} Management
             </h1>
-            <p className="text-gray-200/70 hidden md:block text-md">
+            <p className="text-gray-200 hidden md:block text-md">
               {description || `Manage your ${title.toLowerCase()}`}
             </p>
           </div>
@@ -69,7 +69,7 @@ const ViewLayout = ({
           )}
         </div>
 
-        <Card className="bg-brand-start border-brand-end/50">
+        <Card className="bg-brand-start border border-brand-end/50 shadow-none">
           <CardContent className="p-5">
             <div className="flex flex-row justify-between gap-6 mb-10">
               <ShowEntries

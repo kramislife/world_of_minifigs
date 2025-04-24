@@ -52,11 +52,18 @@ const TableLayout = ({
         <table className="w-full caption-bottom text-sm">
           <thead>
             {headerGroups.map((headerGroup) => (
-              <tr key={headerGroup.id} className="border-b border-brand-end">
+              <tr key={headerGroup.id} className="border-b border-brand-end/50">
                 {headerGroup.headers.map((header) => (
                   <th
                     key={header.id}
-                    className="h-14 px-6 align-middle font-semibold text-white text-center"
+                    className="h-12 text-background text-center"
+                    style={{
+                      width: header.column.columnDef.size
+                        ? `${header.column.columnDef.size}px`
+                        : "auto",
+                      minWidth: header.column.columnDef.minSize || "auto",
+                      maxWidth: header.column.columnDef.maxSize || "auto",
+                    }}
                   >
                     {flexRender(
                       header.column.columnDef.header,
@@ -72,12 +79,19 @@ const TableLayout = ({
               rows.map((row) => (
                 <tr
                   key={row.id}
-                  className="border-b border-brand-end/30 transition-colors hover:bg-brand-end/40 cursor-pointer text-center"
+                  className="border-b border-brand-end/30 hover:bg-brand-dark cursor-pointer text-center last:border-b-0"
                 >
                   {row.getVisibleCells().map((cell) => (
                     <td
                       key={cell.id}
-                      className="py-5 text-sm text-white text-center max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap"
+                      className="py-5 text-sm text-background whitespace-nowrap"
+                      style={{
+                        width: cell.column.columnDef.size
+                          ? `${cell.column.columnDef.size}px`
+                          : "auto",
+                        minWidth: cell.column.columnDef.minSize || "auto",
+                        maxWidth: cell.column.columnDef.maxSize || "auto",
+                      }}
                     >
                       {flexRender(
                         cell.column.columnDef.cell,
