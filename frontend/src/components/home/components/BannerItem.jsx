@@ -1,6 +1,4 @@
 import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
 import DeleteDialog from "@/components/admin/shared/DeleteDialog";
 
 export const BannerItem = ({
@@ -20,15 +18,13 @@ export const BannerItem = ({
       {isAdmin && (
         <div className="absolute top-4 right-4 flex gap-2">
           <DeleteDialog
-            trigger={
-              <Button variant="secondary" size="icon">
-                <Trash2 className="text-red-500" />
-              </Button>
-            }
             onConfirm={() => onDelete(banner._id)}
             title="Delete Banner"
-            description="Are you sure you want to delete this banner? This action cannot be undone."
+            itemToDelete={`Banner ${index + 1}`}
             isLoading={isDeleting}
+            triggerVariant="secondary"
+            triggerSize="icon"
+            triggerClassName="hover:bg-accent"
           />
         </div>
       )}

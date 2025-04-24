@@ -12,7 +12,7 @@ export const BannerUpload = ({
     <AspectRatio ratio={16 / 7}>
       <div
         onClick={onFileInputClick}
-        className="flex items-center justify-center w-full h-full cursor-pointer bg-brand-dark/50"
+        className="flex items-center justify-center w-full h-full cursor-pointer"
       >
         <div className="flex flex-col items-center justify-center text-gray-400 group">
           {isUploading ? (
