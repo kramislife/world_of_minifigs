@@ -1,5 +1,4 @@
 import React from "react";
-import { Input } from "@/components/ui/input";
 import Select from "react-select";
 import {
   Dialog,
@@ -7,12 +6,14 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogDescription,
 } from "@/components/ui/dialog";
-import { Plus, Pencil } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { Plus, Pencil, Loader2 } from "lucide-react";
 import { useAddressForm } from "@/hooks/Payment/useAddressForm";
-import { DialogDescription } from "@radix-ui/react-dialog";
 
 const AddressForm = ({ isEdit = false, editAddress = null, userName = "" }) => {
   const {
@@ -27,34 +28,91 @@ const AddressForm = ({ isEdit = false, editAddress = null, userName = "" }) => {
     setUserCountry,
     countryOptions,
     customStyles,
+    formatOptionLabel,
   } = useAddressForm({ isEdit, editAddress, userName });
+
+  const twoColumnFields = [
+    {
+      id: "name",
+      label: "Address Label",
+      placeholder: "Home, Work, etc.",
+      type: "text",
+    },
+    {
+      id: "contact_number",
+      label: "Phone Number",
+      placeholder: "Enter Phone Number",
+      type: "tel",
+    },
+  ];
+
+  const singleColumnFields = [
+    {
+      id: "address_line1",
+      label: "Street Address",
+      placeholder: "Enter Street Address",
+      type: "text",
+    },
+    {
+      id: "address_line2",
+      label: "Apartment, suite, etc. (optional)",
+      placeholder: "Enter Apartment, suite, etc.",
+      type: "text",
+    },
+  ];
+
+  const threeColumnFields = [
+    {
+      id: "city",
+      label: "City",
+      placeholder: "Enter City",
+      type: "text",
+    },
+    {
+      id: "state",
+      label: "State/Province",
+      placeholder: "Enter State/Province",
+      type: "text",
+    },
+    {
+      id: "postal_code",
+      label: "Postal Code",
+      placeholder: "Enter Postal Code",
+      type: "text",
+    },
+  ];
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger
-        className={`flex items-center gap-2 text-blue-500 hover:scale-110 transition-all duration-200 ${
+        className={`flex items-center gap-2 text-background hover:text-background/80 ${
           isEdit ? "opacity-0 group-hover:opacity-100" : ""
         }`}
       >
-        {isEdit ? <Pencil className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+        {isEdit ? (
+          <Pencil className="w-4 h-4 text-blue-500 hover:scale-110 transition-all duration-300" />
+        ) : (
+          <Plus className="w-4 h-4" />
+        )}
         <span>{isEdit ? "" : "Add Address"}</span>
       </DialogTrigger>
+
       <DialogDescription className="sr-only">
-        {isEdit ? "Edit address" : "Add a new address"}
+        {isEdit ? "Edit Address" : "Add a New Address"}
       </DialogDescription>
-      <DialogContent className="bg-brand-start border border-brand-end/50 text-white max-w-3xl max-h-[95vh] overflow-y-auto scrollbar-none p-4 w-[95vw] rounded-lg">
+
+      <DialogContent className="max-w-3xl">
         <DialogHeader>
-          <DialogTitle className="text-lg font-medium text-white text-start mb-5">
+          <DialogTitle>
             {isEdit ? "Edit address" : "Add a new address"}
           </DialogTitle>
         </DialogHeader>
+
         <form onSubmit={handleSubmit}>
-          <div className="space-y-6">
-            {/* SelectCountry */}
+          <div className="space-y-5">
+            {/* Country Selector */}
             <div className="space-y-2">
-              <label className="text-sm font-medium text-white block mb-1">
-                Country
-              </label>
+              <Label className="text-background">Country</Label>
               <Select
                 options={countryOptions}
                 value={userCountry}
@@ -64,154 +122,67 @@ const AddressForm = ({ isEdit = false, editAddress = null, userName = "" }) => {
                 }}
                 styles={customStyles}
                 placeholder="Select Country"
-                formatOptionLabel={({ label, flag }) => (
-                  <div className="flex items-center gap-2">
-                    <span>{flag}</span>
-                    <span className="text-sm">{label}</span>
-                  </div>
-                )}
+                formatOptionLabel={formatOptionLabel}
                 required
               />
             </div>
 
-            {/* Top row - Address Label and Phone Number in two columns */}
+            {/* Two Column Row */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label
-                  htmlFor="name"
-                  className="text-sm font-medium text-white block mb-1"
-                >
-                  Address Label {true && <span className="text-accent">*</span>}
-                </label>
+              {twoColumnFields.map(({ id, label, placeholder, type }) => (
+                <div key={id} className="space-y-2">
+                  <Label htmlFor={id} className="text-background">
+                    {label}
+                  </Label>
+                  <Input
+                    id={id}
+                    type={type}
+                    value={formData[id]}
+                    onChange={(e) => handleFieldChange(id, e.target.value)}
+                    placeholder={placeholder}
+                    required
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* Single Column Fields */}
+            {singleColumnFields.map(({ id, label, placeholder, type }) => (
+              <div key={id} className="space-y-2">
+                <Label htmlFor={id} className="text-background">
+                  {label}
+                </Label>
                 <Input
-                  id="name"
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => handleFieldChange("name", e.target.value)}
-                  required={true}
-                  placeholder="Home, Work, etc."
-                  className="bg-transparent text-white placeholder:text-white/50 border border-brand-end/50"
+                  id={id}
+                  type={type}
+                  value={formData[id]}
+                  onChange={(e) => handleFieldChange(id, e.target.value)}
+                  placeholder={placeholder}
+                  required={id === "address_line1"}
                 />
               </div>
-              <div className="space-y-2">
-                <label
-                  htmlFor="contact_number"
-                  className="text-sm font-medium text-white block mb-1"
-                >
-                  Phone Number <span className="text-accent">*</span>
-                </label>
-                <Input
-                  id="contact_number"
-                  type="tel"
-                  value={formData.contact_number}
-                  onChange={(e) =>
-                    handleFieldChange("contact_number", e.target.value)
-                  }
-                  required={true}
-                  placeholder="Enter Phone Number"
-                  className="bg-transparent text-white placeholder:text-white/50 border border-brand-end/50"
-                />
-              </div>
-            </div>
+            ))}
 
-            {/* Address Lines */}
-            <div className="space-y-2">
-              <label
-                htmlFor="address_line1"
-                className="text-sm font-medium text-white block mb-1"
-              >
-                Street Address <span className="text-accent">*</span>
-              </label>
-              <Input
-                id="address_line1"
-                type="text"
-                value={formData.address_line1}
-                onChange={(e) =>
-                  handleFieldChange("address_line1", e.target.value)
-                }
-                required={true}
-                placeholder="Enter Street Address"
-                className="bg-transparent text-white placeholder:text-white/50 border border-brand-end/50"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label
-                htmlFor="address_line2"
-                className="text-sm font-medium text-white block mb-1"
-              >
-                Apartment, suite, etc. (optional)
-              </label>
-              <Input
-                id="address_line2"
-                type="text"
-                value={formData.address_line2}
-                onChange={(e) =>
-                  handleFieldChange("address_line2", e.target.value)
-                }
-                placeholder="Enter Apartment, suite, etc."
-                className="bg-transparent text-white placeholder:text-white/50 border border-brand-end/50"
-              />
-            </div>
-
-            {/* City, State, Postal Code grid - responsive for smaller screens */}
+            {/* Three Column Row */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <label
-                  htmlFor="city"
-                  className="text-sm font-medium text-white block mb-1"
-                >
-                  City <span className="text-accent">*</span>
-                </label>
-                <Input
-                  id="city"
-                  type="text"
-                  value={formData.city}
-                  onChange={(e) => handleFieldChange("city", e.target.value)}
-                  required={true}
-                  placeholder="Enter City"
-                  className="bg-transparent text-white placeholder:text-white/50 border border-brand-end/50"
-                />
-              </div>
-              <div className="space-y-2">
-                <label
-                  htmlFor="state"
-                  className="text-sm font-medium text-white block mb-1"
-                >
-                  State/Province <span className="text-accent">*</span>
-                </label>
-                <Input
-                  id="state"
-                  type="text"
-                  value={formData.state}
-                  onChange={(e) => handleFieldChange("state", e.target.value)}
-                  required={true}
-                  placeholder="Enter State/Province"
-                  className="bg-transparent text-white placeholder:text-white/50 border border-brand-end/50"
-                />
-              </div>
-              <div className="space-y-2">
-                <label
-                  htmlFor="postal_code"
-                  className="text-sm font-medium text-white block mb-1"
-                >
-                  Postal Code <span className="text-accent">*</span>
-                </label>
-                <Input
-                  id="postal_code"
-                  type="text"
-                  value={formData.postal_code}
-                  onChange={(e) =>
-                    handleFieldChange("postal_code", e.target.value)
-                  }
-                  required={true}
-                  placeholder="Enter Postal Code"
-                  className="bg-transparent text-white placeholder:text-white/50 border border-brand-end/50"
-                />
-              </div>
+              {threeColumnFields.map(({ id, label, placeholder, type }) => (
+                <div key={id} className="space-y-2">
+                  <Label htmlFor={id} className="text-background">
+                    {label}
+                  </Label>
+                  <Input
+                    id={id}
+                    type={type}
+                    value={formData[id]}
+                    onChange={(e) => handleFieldChange(id, e.target.value)}
+                    placeholder={placeholder}
+                    required
+                  />
+                </div>
+              ))}
             </div>
 
-            {/* Setting the address as default */}
+            {/* Default Address Checkbox */}
             <div className="flex items-center space-x-2">
               <Checkbox
                 id="is_default"
@@ -219,23 +190,23 @@ const AddressForm = ({ isEdit = false, editAddress = null, userName = "" }) => {
                 onCheckedChange={(checked) =>
                   handleFieldChange("is_default", checked)
                 }
-                className="border-white/10 data-[state=checked]:bg-accent data-[state=checked]:border-accent"
+                className="border-white"
               />
-              <label
-                htmlFor="is_default"
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-white"
-              >
+              <Label htmlFor="is_default" className="text-background">
                 Set as default address
-              </label>
+              </Label>
             </div>
 
             {/* Submit Button */}
             <Button
-              variant="accent"
+              variant="submit"
               type="submit"
-              className="w-full h-12"
+              className="w-full"
               disabled={isCreating || isUpdating}
             >
+              {(isCreating || isUpdating) && (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              )}
               {isEdit
                 ? isUpdating
                   ? "Updating address..."

@@ -9,7 +9,7 @@ import {
 } from "@/redux/features/cartSlice";
 import { toast } from "react-toastify";
 
-export const useCartSheet = (isOpen, setIsOpen) => {
+export const useCartSheet = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
@@ -43,10 +43,10 @@ export const useCartSheet = (isOpen, setIsOpen) => {
 
   // Refetch cart items when sheet opens
   useEffect(() => {
-    if (isOpen && cartItems.length > 0) {
+    if (cartItems.length > 0) {
       refetch();
     }
-  }, [isOpen, cartItems.length, refetch]);
+  }, [cartItems.length, refetch]);
 
   // Merge latest product data with cart items
   const updatedCartItems = useMemo(() => {
@@ -71,7 +71,6 @@ export const useCartSheet = (isOpen, setIsOpen) => {
 
   const handleCheckout = () => {
     if (!isAuthenticated) {
-      setIsOpen(false);
       toast.info("Please login to proceed with checkout");
       navigate("/login", {
         state: {
@@ -81,7 +80,6 @@ export const useCartSheet = (isOpen, setIsOpen) => {
       return;
     }
     navigate("/checkout?mode=cart");
-    setIsOpen(false);
   };
 
   const hasOutOfStockItems = updatedCartItems.some((item) => item.stock === 0);
