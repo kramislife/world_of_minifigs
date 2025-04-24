@@ -1,17 +1,17 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import { toast } from "react-toastify";
-import { useRegisterMutation } from "@/redux/api/authApi";
-import RegisterImg from "@/assets/authAssets/Register.png";
-import { authAnimations } from "@/hooks/Animation/animationConfig";
 import { useSelector } from "react-redux";
-import Metadata from "@/components/layout/Metadata/Metadata";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Check, X } from "lucide-react";
+import { Check, Loader2, X } from "lucide-react";
+import { motion } from "framer-motion";
+import { toast } from "react-toastify";
+import Metadata from "@/components/layout/Metadata/Metadata";
+import RegisterImg from "@/assets/authAssets/Register.png";
+import { authAnimations } from "@/hooks/Animation/animationConfig";
+import { useRegisterMutation } from "@/redux/api/authApi";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -317,7 +317,14 @@ const Register = () => {
                   size="lg"
                   disabled={isLoading}
                 >
-                  {isLoading ? "Creating Account..." : "Register Now"}
+                  {isLoading ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <Loader2 className="animate-spin w-5 h-5" />
+                      <span>Creating Account...</span>
+                    </div>
+                  ) : (
+                    "Register Now"
+                  )}
                 </Button>
               </motion.div>
             </form>

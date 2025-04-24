@@ -1,15 +1,16 @@
-import { motion } from "framer-motion";
-import LoginImg from "@/assets/authAssets/Login.png";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { authAnimations } from "@/hooks/Animation/animationConfig";
 import { useEffect, useState } from "react";
-import { useLoginMutation } from "@/redux/api/authApi";
-import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
-import Metadata from "@/components/layout/Metadata/Metadata";
+import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Loader2 } from "lucide-react";
+import { toast } from "react-toastify";
+import LoginImg from "@/assets/authAssets/Login.png";
+import Metadata from "@/components/layout/Metadata/Metadata";
+import { authAnimations } from "@/hooks/Animation/animationConfig";
+import { useLoginMutation } from "@/redux/api/authApi";
 
 const Login = () => {
   const [email_username, setEmail_username] = useState("");
@@ -163,7 +164,14 @@ const Login = () => {
                   size="lg"
                   disabled={isLoading}
                 >
-                  {isLoading ? "Loading..." : "Log In"}
+                  {isLoading ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <Loader2 className="animate-spin w-5 h-5" />
+                      <span>Logging in...</span>
+                    </div>
+                  ) : (
+                    "Log In"
+                  )}
                 </Button>
               </motion.div>
             </form>

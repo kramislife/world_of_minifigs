@@ -1,14 +1,14 @@
 import { useState } from "react";
-import { useResetPasswordMutation } from "@/redux/api/authApi";
+import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { motion } from "framer-motion";
-import { authAnimations } from "@/hooks/Animation/animationConfig";
-import { useParams, useNavigate } from "react-router-dom";
-import Metadata from "@/components/layout/Metadata/Metadata";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Check, X } from "lucide-react";
+import { Check, Loader2, X } from "lucide-react";
+import Metadata from "@/components/layout/Metadata/Metadata";
+import { authAnimations } from "@/hooks/Animation/animationConfig";
+import { useResetPasswordMutation } from "@/redux/api/authApi";
 
 const ResetPassword = () => {
   const [password, setPassword] = useState("");
@@ -192,10 +192,17 @@ const ResetPassword = () => {
                     type="submit"
                     variant="submit"
                     size="lg"
-                    className="w-full"
+                    className="w-full flex items-center justify-center gap-2"
                     disabled={isLoading || !!error}
                   >
-                    {isLoading ? "Resetting..." : "Reset Password"}
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Resetting Password...
+                      </>
+                    ) : (
+                      "Reset Password"
+                    )}
                   </Button>
                 </motion.div>
               </form>

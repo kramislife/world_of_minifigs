@@ -1,12 +1,13 @@
 import { useState } from "react";
-import { useForgotPasswordMutation } from "@/redux/api/authApi";
 import { toast } from "react-toastify";
 import { motion } from "framer-motion";
-import { authAnimations } from "@/hooks/Animation/animationConfig";
-import Metadata from "@/components/layout/Metadata/Metadata";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import Metadata from "@/components/layout/Metadata/Metadata";
+import { authAnimations } from "@/hooks/Animation/animationConfig";
+import { useForgotPasswordMutation } from "@/redux/api/authApi";
+import { Loader2 } from "lucide-react";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
@@ -75,10 +76,17 @@ const ForgotPassword = () => {
                     type="submit"
                     variant="submit"
                     size="lg"
-                    className="w-full"
+                    className="w-full flex items-center justify-center gap-2"
                     disabled={isLoading}
                   >
-                    {isLoading ? "Sending..." : "Send Reset Link"}
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Sending Reset Link...
+                      </>
+                    ) : (
+                      "Send Reset Link"
+                    )}
                   </Button>
                 </motion.div>
               </form>

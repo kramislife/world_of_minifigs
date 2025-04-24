@@ -1,9 +1,9 @@
 import React from "react";
-import { useProfileData } from "@/hooks/Profile/useProfileData";
 import ProfileCard from "./components/ProfileCard";
 import ActivityStats from "./components/ActivityStats";
 import ProfileProgress from "./components/ProfileProgress";
 import RecentActivity from "./components/RecentActivity";
+import { useProfileData } from "@/hooks/Profile/useProfileData";
 
 const Profile = () => {
   const {
@@ -12,7 +12,6 @@ const Profile = () => {
     fileInputRef,
     isUploading,
     stats,
-    setIsCartOpen,
     addresses,
     orders,
     phoneNumber,
@@ -54,7 +53,7 @@ const Profile = () => {
   );
 
   return (
-    <div className="p-5">
+    <div className="p-3">
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
         {/* Left Column - Profile & Stats */}
         <div className="space-y-5 lg:col-span-2">
@@ -87,7 +86,7 @@ const Profile = () => {
             setIsNameDialogOpen={setIsNameDialogOpen}
             handleNameUpdate={handleNameUpdate}
           />
-          <ActivityStats stats={stats} setIsCartOpen={setIsCartOpen} />
+          <ActivityStats stats={stats} />
         </div>
 
         {/* Right Column - Main Content */}
