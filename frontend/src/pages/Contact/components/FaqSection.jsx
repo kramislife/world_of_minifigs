@@ -47,7 +47,7 @@ const FaqSection = () => {
         Frequently Asked Questions
       </h3>
 
-      <Accordion type="single" collapsible className="space-y-4">
+      <Accordion type="single" collapsible>
         {faqs.map((faq, index) => (
           <motion.div
             key={index}

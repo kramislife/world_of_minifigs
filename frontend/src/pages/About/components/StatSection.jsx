@@ -29,8 +29,8 @@ const StatSection = () => {
     >
       {stats.map((stat, index) => (
         <motion.div key={index} variants={aboutAnimations.statCardVariants}>
-          <Card className="text-center">
-            <CardContent className="p-6 text-lg font-bold">
+          <Card className="bg-background">
+            <CardContent className="p-6 text-lg font-bold border rounded-md text-center">
               <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-5">
                 <span>{stat.number}</span>
               </div>

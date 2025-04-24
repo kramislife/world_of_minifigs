@@ -71,8 +71,8 @@ const TestimonialSection = () => {
             className={testimonial.span}
             variants={aboutAnimations.testimonialCardVariants}
           >
-            <Card className="h-full">
-              <CardContent className="p-5 flex flex-col h-full">
+            <Card className="h-full bg-background border">
+              <CardContent className="p-5 flex flex-col h-full border rounded-md">
                 <div className="mb-4 text-accent">
                   <Quote className="w-8 h-8" />
                 </div>

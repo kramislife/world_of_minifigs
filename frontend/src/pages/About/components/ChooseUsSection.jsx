@@ -60,8 +60,8 @@ const ChooseUsSection = () => {
             key={index}
             variants={aboutAnimations.chooseUsCardVariants}
           >
-            <Card>
-              <CardContent className="p-5 text-center">
+            <Card className="bg-background border">
+              <CardContent className="p-5 text-center border rounded-md">
                 <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
                   {feature.icon}
                 </div>
