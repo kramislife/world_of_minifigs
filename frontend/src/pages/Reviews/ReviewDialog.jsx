@@ -26,13 +26,12 @@ const ReviewDialog = ({ open, onOpenChange, order, existingReview }) => {
     toggleReviewBox,
   } = useReviewForm(order, onOpenChange);
 
-
   // Skip rendering if no order
   if (!order) return null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-brand-start border border-brand-end/50 max-w-3xl max-h-[95vh] rounded-lg overflow-y-auto scrollbar-none p-3 md:p-5 w-[95vw]">
+      <DialogContent className="max-w-3xl">
         <ReviewHeader existingReview={existingReview} orderId={order?._id} />
 
         <EditWarning existingReview={existingReview} />

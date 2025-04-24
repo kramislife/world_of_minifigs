@@ -14,8 +14,8 @@ const ReviewImageUpload = ({
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-white">Add Photos</span>
-        <span className="text-sm text-gray-400">
+        <span className="text-sm font-medium text-background">Add Photos</span>
+        <span className="text-sm text-gray-300">
           {currentImages.length}/3 images
         </span>
       </div>
@@ -109,7 +109,7 @@ const UploadButton = ({
       variant="ghost"
       className={`${
         fullWidth ? "w-full" : "aspect-square"
-      } rounded-lg border-2 border-dashed border-brand-end hover:border-blue-400 hover:bg-brand-dark/30 text-gray-400 min-h-[145px]`}
+      } rounded-lg border-2 border-dashed border-brand-end hover:border-blue-400 hover:bg-brand-dark/30 text-gray-300 min-h-[145px]`}
       onClick={() => fileInputRefs.current[productId]?.click()}
       disabled={disabled}
     >
@@ -117,7 +117,7 @@ const UploadButton = ({
         <ImagePlus className="w-8 h-8" />
         <span className="text-sm">Add Photos</span>
         {fullWidth && (
-          <span className="text-xs text-gray-500">
+          <span className="text-xs text-gray-400">
             Drag and drop or click to upload
           </span>
         )}

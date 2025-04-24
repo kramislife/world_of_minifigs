@@ -42,7 +42,7 @@ const ProductReviewCard = ({
             />
             {item.discount > 0 && (
               <div className="absolute top-2 right-2 z-10">
-                <Badge variant="discount">{item.discount}% OFF</Badge>
+                <Badge variant="accent">{item.discount}% OFF</Badge>
               </div>
             )}
           </div>
@@ -110,7 +110,7 @@ const ProductReviewCard = ({
 const ProductInfo = ({ item, ratings, handleRating, isProductEdited }) => (
   <>
     <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1">
-      <p className="font-semibold text-md md:text-lg text-white line-clamp-1">
+      <p className="font-semibold text-md md:text-lg text-background line-clamp-1">
         {item.name}
       </p>
       <div className="hidden sm:block">
@@ -172,16 +172,16 @@ const MobileActions = ({
     </div>
     <div className="flex gap-2">
       <Button
-        variant="accent"
-        className="w-full hover:transform-none hover:bg-accent/90"
+        variant="cart"
+        className="w-full hover:scale-100 text-background"
         onClick={handleBuyAgain}
       >
         Buy Again
       </Button>
       {!hasReviewText && (
         <Button
-          variant="outline"
-          className="w-full hover:transform-none hover:bg-input"
+          variant="accent"
+          className="w-full hover:scale-100"
           onClick={toggleReviewBox}
           disabled={isProductEdited}
         >
@@ -198,14 +198,14 @@ const ReviewSection = ({
   handleReviewChange,
   isProductEdited,
 }) => (
-  <div className="w-full text-white">
+  <div className="w-full text-background">
     <div className="flex items-center justify-between my-3">
       <div className="flex items-center gap-2">
         <span className="text-sm font-medium">Write a Feedback</span>
       </div>
       <span
         className={`text-sm ${
-          reviews[productId]?.length > 450 ? "text-red-500" : "text-gray-400"
+          reviews[productId]?.length > 450 ? "text-red-500" : "text-gray-300"
         }`}
       >
         {reviews[productId]?.length || 0}/500
@@ -214,7 +214,7 @@ const ReviewSection = ({
     <Textarea
       placeholder="Share your thoughts"
       maxLength={500}
-      className="min-h-32 md:min-h-24 bg-transparent text-white placeholder:text-gray-300"
+      className="min-h-32 md:min-h-24 bg-transparent placeholder:text-gray-200"
       value={reviews[productId] || ""}
       onChange={(e) => handleReviewChange(productId, e.target.value)}
       disabled={isProductEdited}
