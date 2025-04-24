@@ -1,4 +1,5 @@
 import { Search } from "lucide-react";
+import { SheetClose } from "@/components/ui/sheet";
 
 const SearchSuggestions = ({ searchResults, searchQuery, handleSearch }) => {
   if (!searchResults?.products?.length) return null;
@@ -61,6 +62,10 @@ const SearchSuggestions = ({ searchResults, searchQuery, handleSearch }) => {
     }
   });
 
+  const handleItemClick = (item) => {
+    handleSearch(item);
+  };
+
   const renderSuggestionSection = (title, items) => {
     if (items.size === 0) return null;
 
@@ -108,23 +113,24 @@ const SearchSuggestions = ({ searchResults, searchQuery, handleSearch }) => {
     });
 
     return (
-      <div className="mt-6">
-        <h3 className="text-sm font-semibold text-gray-400 mb-3">{title}</h3>
+      <>
+        <h3 className="text-sm font-semibold text-gray-400 mt-5">{title}</h3>
         <div className="space-y-2">
           {sortedItems.map((item, index) => (
-            <div
-              key={index}
-              className="flex items-center rounded-lg hover:bg-brand-dark/50 p-3 cursor-pointer group transition-all duration-200"
-              onClick={() => handleSearch(item)}
-            >
-              <Search className="h-4 w-4 text-gray-400 group-hover:text-accent mr-2 shrink-0 transition-colors duration-200" />
-              <span className="text-sm text-white group-hover:text-accent break-words overflow-hidden text-ellipsis transition-colors duration-200">
-                {item}
-              </span>
-            </div>
+            <SheetClose key={index} asChild>
+              <div
+                className="flex items-center text-sm rounded-md hover:bg-brand-dark/50 p-3 cursor-pointer group"
+                onClick={() => handleItemClick(item)}
+              >
+                <Search className="h-4 w-4 text-gray-400 group-hover:text-accent shrink-0" />
+                <span className="text-background group-hover:text-accent truncate ml-2">
+                  {item}
+                </span>
+              </div>
+            </SheetClose>
           ))}
         </div>
-      </div>
+      </>
     );
   };
 

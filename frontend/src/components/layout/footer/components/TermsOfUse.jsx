@@ -239,43 +239,24 @@ const TermsOfUse = () => {
   ];
 
   return (
-    <div className="bg-brand-start p-5 max-w-8xl">
-      {/* Header */}
-      <div className="bg-white p-6 rounded-t-lg">
-        <h1 className="text-2xl font-bold text-brand-start mb-3">
-          Terms of Use
-        </h1>
-        <p className="text-brand-start text-sm leading-6">
-          Welcome to the World of Minifigs! By accessing and using our website
-          (www.worldofminifigs.com) and purchasing products from us, you agree
-          to be bound by these Terms of Use ("Terms"). If you do not agree with
-          any part of these Terms, you must not use our website.
-        </p>
-      </div>
+    <div className="bg-background p-5">
+      <h1 className="text-2xl font-bold text-foreground mb-2">Terms of Use</h1>
+      <p className="text-gray-700 text-xs md:text-sm leading-6 mb-2">
+        Welcome to the World of Minifigs! By accessing and using our website
+        (www.worldofminifigs.com) and purchasing products from us, you agree to
+        be bound by these Terms of Use ("Terms"). If you do not agree with any
+        part of these Terms, you must not use our website.
+      </p>
 
-      {/* Terms Sections using Shadcn Accordion */}
-      <Accordion
-        type="single"
-        collapsible
-        className="w-full border border-gray-200 bg-white"
-      >
+      <Accordion type="single" collapsible>
         {sections.map((section) => (
-          <AccordionItem
-            key={section.id}
-            value={section.id}
-            className="border-b border-gray-200 last:border-b-0"
-          >
-            <AccordionTrigger className="px-4 py-3 text-brand-start font-medium hover:no-underline hover:text-yellow-300 hover:bg-brand-start">
-              {section.title}
-            </AccordionTrigger>
-            <AccordionContent className="px-4 py-4 text-brand-start leading-6">
-              {section.content}
-            </AccordionContent>
+          <AccordionItem key={section.id} value={section.id}>
+            <AccordionTrigger>{section.title}</AccordionTrigger>
+            <AccordionContent>{section.content}</AccordionContent>
           </AccordionItem>
         ))}
       </Accordion>
-      {/* Footer */}
-      <div className="py-4 text-right text-sm text-yellow-300">
+      <div className="py-4 text-right text-sm text-foreground">
         Last Updated: {termsLastUpdated}
       </div>
     </div>

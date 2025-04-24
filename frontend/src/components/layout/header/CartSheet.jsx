@@ -1,9 +1,9 @@
 import {
-  Sheet,
   SheetContent,
   SheetDescription,
   SheetHeader,
   SheetTitle,
+  SheetClose,
 } from "@/components/ui/sheet";
 import LoadingSpinner from "@/components/layout/spinner/LoadingSpinner";
 import { ShoppingCart, ArrowRight } from "lucide-react";
@@ -13,7 +13,7 @@ import CartFooter from "./components/CartFooter";
 import { useCartSheet } from "@/hooks/Product/useCartSheet";
 import { Button } from "@/components/ui/button";
 
-const CartSheet = ({ isOpen, setIsOpen }) => {
+const CartSheet = () => {
   const navigate = useNavigate();
   const {
     isLoading,
@@ -25,7 +25,7 @@ const CartSheet = ({ isOpen, setIsOpen }) => {
     hasOutOfStockItems,
     handleQuantityUpdate,
     handleCheckout,
-  } = useCartSheet(isOpen, setIsOpen);
+  } = useCartSheet();
 
   const CartEmpty = () => {
     return (
@@ -40,74 +40,73 @@ const CartSheet = ({ isOpen, setIsOpen }) => {
           Looks like you haven't added anything to your cart yet. Explore our
           top products and build up with awesome bricks!
         </p>
-        <Button
-          variant="accent"
-          onClick={() => {
-            navigate("/products");
-            setIsOpen(false);
-          }}
-        >
-          Start Shopping
-          <ArrowRight className="h-4 w-4" />
-        </Button>
+        <SheetClose asChild>
+          <Button
+            variant="accent"
+            onClick={() => {
+              navigate("/products");
+            }}
+          >
+            Start Shopping
+            <ArrowRight className="h-4 w-4" />
+          </Button>
+        </SheetClose>
       </div>
     );
   };
 
   return (
-    <Sheet open={isOpen} onOpenChange={setIsOpen}>
-      <SheetContent>
-        <SheetHeader>
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-accent rounded-lg">
-              <ShoppingCart size={20} className="text-foreground" />
-            </div>
-            <SheetTitle className="m-0 sticky top-0 z-50">
-              Shopping Cart
-            </SheetTitle>
+    <SheetContent>
+      <SheetHeader>
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-accent rounded-lg">
+            <ShoppingCart size={20} className="text-foreground" />
           </div>
-          <SheetDescription className="sr-only">
-            View your shopping cart items, adjust quantities, and proceed to
-            checkout.
-          </SheetDescription>
-        </SheetHeader>
-
-        <div className="flex-1 overflow-y-auto">
-          <div className="p-5">
-            {isLoading ? (
-              <div className="flex justify-center items-center py-20">
-                <LoadingSpinner height="h-full" />
-              </div>
-            ) : updatedCartItems.length === 0 ? (
-              <CartEmpty />
-            ) : (
-              <div>
-                <ul className="space-y-5">
-                  {updatedCartItems.map((item) => (
-                    <CartItem
-                      key={item.product}
-                      item={item}
-                      onQuantityUpdate={handleQuantityUpdate}
-                    />
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
+          <SheetTitle className="m-0 sticky top-0 z-50">
+            Shopping Cart
+          </SheetTitle>
         </div>
+        <SheetDescription className="sr-only">
+          View your shopping cart items, adjust quantities, and proceed to
+          checkout.
+        </SheetDescription>
+      </SheetHeader>
 
-        {!isLoading && updatedCartItems.length > 0 && (
-          <CartFooter
-            total={total}
-            onCheckout={handleCheckout}
-            showLoginMessage={showLoginMessage}
-            checkoutDisabled={checkoutDisabled}
-            isAuthenticated={isAuthenticated}
-            hasOutOfStockItems={hasOutOfStockItems}
-          />
-        )}
-      </SheetContent>
-    </Sheet>
+      <div className="flex-1 overflow-y-auto">
+        <div className="p-5">
+          {isLoading ? (
+            <div className="flex justify-center items-center py-20">
+              <LoadingSpinner height="h-full" />
+            </div>
+          ) : updatedCartItems.length === 0 ? (
+            <CartEmpty />
+          ) : (
+            <div>
+              <ul className="space-y-5">
+                {updatedCartItems.map((item) => (
+                  <CartItem
+                    key={item.product}
+                    item={item}
+                    onQuantityUpdate={handleQuantityUpdate}
+                  />
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {!isLoading && updatedCartItems.length > 0 && (
+        <CartFooter
+          total={total}
+          onCheckout={handleCheckout}
+          showLoginMessage={showLoginMessage}
+          checkoutDisabled={checkoutDisabled}
+          isAuthenticated={isAuthenticated}
+          hasOutOfStockItems={hasOutOfStockItems}
+        />
+      )}
+    </SheetContent>
   );
 };
 
