@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Save, User, FileText, Instagram } from "lucide-react";
+import { Save, User, FileText, Instagram, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -70,113 +70,70 @@ const AddDesigner = () => {
     <>
       <Metadata title="Add Designer" />
       <div className="p-3 md:p-5">
-        <Card className="border-t-4 border-t-accent">
-          <CardHeader>
-            <CardTitle className="text-2xl">Add New Designer</CardTitle>
-          </CardHeader>
+        <form onSubmit={handleSubmit}>
+          <Card className="bg-background">
+            <CardHeader>
+              <CardTitle className="text-2xl">Add New Designer</CardTitle>
+            </CardHeader>
 
-          <CardContent className="p-6 space-y-8">
-            <form onSubmit={handleSubmit}>
-              <div className="space-y-5">
-                {/* Designer Name */}
-                <div className="space-y-3">
-                  <Label
-                    htmlFor="name"
-                    className="flex items-center gap-2 text-lg font-semibold"
-                  >
-                    <User className="h-5 w-5 text-blue-600" />
-                    Designer Name
-                  </Label>
-                  <Input
-                    id="name"
-                    name="name"
-                    placeholder="Enter designer name"
-                    className="mt-1"
-                    required
-                  />
-                </div>
+            <CardContent className="space-y-5">
+              <Label
+                htmlFor="name"
+                className="flex items-center gap-2 text-lg font-semibold"
+              >
+                <User className="h-5 w-5 text-blue-600" />
+                Designer Name
+              </Label>
+              <Input
+                id="name"
+                name="name"
+                placeholder="Enter designer name"
+                required
+              />
 
-                {/* Designer Bio */}
-                <div className="space-y-3">
-                  <Label
-                    htmlFor="bio"
-                    className="flex items-center gap-2 text-lg font-semibold"
-                  >
-                    <FileText className="h-5 w-5 text-blue-600" />
-                    Bio
-                  </Label>
-                  <Textarea
-                    id="bio"
-                    name="bio"
-                    placeholder="Enter designer bio"
-                    className="mt-1"
-                    rows={4}
-                  />
-                </div>
+              <Label
+                htmlFor="bio"
+                className="flex items-center gap-2 text-lg font-semibold"
+              >
+                <FileText className="h-5 w-5 text-purple-600" />
+                Bio
+              </Label>
+              <Textarea id="bio" name="bio" placeholder="Enter designer bio" />
 
-                {/* Designer Instagram */}
-                <div className="space-y-3">
-                  <Label
-                    htmlFor="instagram"
-                    className="flex items-center gap-2 text-lg font-semibold"
-                  >
-                    <Instagram className="h-5 w-5 text-blue-600" />
-                    Instagram Profile
-                  </Label>
-                  <Input
-                    id="instagram"
-                    name="instagram"
-                    placeholder="https://instagram.com/username"
-                    className="mt-1"
-                    type="url"
-                  />
-                </div>
+              <Label
+                htmlFor="instagram"
+                className="flex items-center gap-2 text-lg font-semibold"
+              >
+                <Instagram className="h-5 w-5 text-green-600" />
+                Instagram Profile
+              </Label>
+              <Input
+                id="instagram"
+                name="instagram"
+                placeholder="https://instagram.com/username"
+                type="url"
+              />
 
-                {/* Designer Profile Picture */}
-                {/* <div className="space-y-3">
-                  <Label
-                    htmlFor="profile_picture"
-                    className="flex items-center gap-2 text-lg font-semibold"
-                  >
-                    <ImageIcon className="h-5 w-5 text-blue-600" />
-                    Profile Picture
-                  </Label>
-                  <div className="mt-1 space-y-2">
-                    <Input
-                      id="profile_picture"
-                      name="profile_picture"
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageChange}
-                      className="mt-1"
-                    />
-                    {previewImage && (
-                      <div className="relative w-32 h-32 rounded-lg overflow-hidden">
-                        <img
-                          src={previewImage}
-                          alt="Preview"
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                    )}
-                  </div>
-                </div> */}
-
-                {/* Create Designer Button */}
-                <div className="flex justify-end space-x-4 pt-6">
-                  <Button
-                    type="submit"
-                    variant="submit"
-                    disabled={isLoading}
-                    className="w-auto"
-                  >
-                    {isLoading ? "Creating..." : "Create Designer"}
-                  </Button>
-                </div>
+              <div className="flex justify-end">
+                <Button
+                  variant="submit"
+                  type="submit"
+                  className="w-auto"
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="animate-spin h-4 w-4 mr-2" />
+                      Creating Designer...
+                    </>
+                  ) : (
+                    "Create Designer"
+                  )}
+                </Button>
               </div>
-            </form>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </form>
       </div>
     </>
   );

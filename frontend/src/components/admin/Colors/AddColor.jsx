@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Palette } from "lucide-react";
+import { Loader2, Palette } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -16,7 +16,6 @@ const AddColor = () => {
   const { user } = useSelector((state) => state.auth);
   const [createColor, { isLoading }] = useCreateColorMutation();
   const [colorCode, setColorCode] = useState("");
-
 
   const handleColorCodeChange = (e) => {
     let value = e.target.value;
@@ -61,89 +60,86 @@ const AddColor = () => {
       <Metadata title="Add Color" />
       <div className="p-3 md:p-5">
         <form onSubmit={handleSubmit}>
-          <Card className="border-t-4 border-t-accent">
+          <Card className="bg-background">
             <CardHeader>
               <CardTitle className="text-2xl">Add New Color</CardTitle>
             </CardHeader>
 
-            <CardContent className="p-6 space-y-8">
-              <div className="space-y-5">
-                <div className="space-y-3">
-                  <Label
-                    htmlFor="name"
-                    className="flex items-center gap-2 text-lg font-semibold"
-                  >
-                    <Palette className="h-5 w-5 text-blue-600" />
-                    Color Name
-                  </Label>
+            <CardContent className="space-y-5">
+              <Label
+                htmlFor="name"
+                className="flex items-center gap-2 text-lg font-semibold"
+              >
+                <Palette className="h-5 w-5 text-blue-600" />
+                Color Name
+              </Label>
+              <Input
+                id="name"
+                name="name"
+                placeholder="Enter color name"
+                required
+              />
+
+              <Label
+                htmlFor="code"
+                className="flex items-center gap-2 text-lg font-semibold"
+              >
+                <Palette className="h-5 w-5 text-blue-600" />
+                Color Code (HEX)
+              </Label>
+              <div className="grid grid-cols-4 gap-4 items-center">
+                <div className="col-span-3">
                   <Input
-                    id="name"
-                    name="name"
-                    placeholder="Enter color name"
+                    id="code"
+                    name="code"
+                    type="text"
+                    placeholder="#000000"
+                    pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"
                     required
+                    value={colorCode}
+                    onChange={handleColorCodeChange}
                   />
                 </div>
-
-                <div className="space-y-3">
-                  <Label
-                    htmlFor="code"
-                    className="flex items-center gap-2 text-lg font-semibold"
-                  >
-                    <Palette className="h-5 w-5 text-blue-600" />
-                    Color Code (HEX)
-                  </Label>
-                  <div className="grid grid-cols-3 gap-4 items-center">
-                    <div className="col-span-2">
-                      <Input
-                        id="code"
-                        name="code"
-                        type="text"
-                        placeholder="#000000"
-                        pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"
-                        required
-                        value={colorCode}
-                        onChange={handleColorCodeChange}
-                      />
-                    </div>
-                    <Input
-                      id="colorPicker"
-                      type="color"
-                      className="w-full p-1"
-                      onChange={handleColorPickerChange}
-                      value={
-                        colorCode.match(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/)
-                          ? colorCode
-                          : "#000000"
-                      }
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  <Label
-                    htmlFor="description"
-                    className="flex items-center gap-2 text-lg font-semibold"
-                  >
-                    <Palette className="h-5 w-5 text-blue-600" />
-                    Description
-                  </Label>
-                  <Textarea
-                    id="description"
-                    name="description"
-                    placeholder="Enter color description"
-                    rows={4}
-                  />
-                </div>
+                <Input
+                  id="colorPicker"
+                  type="color"
+                  className="w-full p-1"
+                  onChange={handleColorPickerChange}
+                  value={
+                    colorCode.match(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/)
+                      ? colorCode
+                      : "#000000"
+                  }
+                />
               </div>
 
-              <div className="flex justify-end space-x-4 pt-6 border-t">
+              <Label
+                htmlFor="description"
+                className="flex items-center gap-2 text-lg font-semibold"
+              >
+                <Palette className="h-5 w-5 text-blue-600" />
+                Description
+              </Label>
+              <Textarea
+                id="description"
+                name="description"
+                placeholder="Enter color description"
+              />
+
+              <div className="flex justify-end">
                 <Button
                   variant="submit"
                   type="submit"
-                  className="w-auto"
-                  disabled={isLoading}
+                  className="w-auto flex items-center gap-2"
                 >
-                  {isLoading ? "Creating..." : "Create Color"}
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="animate-spin h-4 w-4" />
+                      Creating Color...
+                    </>
+                  ) : (
+                    "Create Color"
+                  )}
                 </Button>
               </div>
             </CardContent>

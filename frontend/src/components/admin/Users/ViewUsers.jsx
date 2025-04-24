@@ -7,7 +7,6 @@ import {
 } from "@/redux/api/userApi";
 import { toast } from "react-toastify";
 import { createUserColumns } from "@/components/admin/shared/table/columns/UserColumns";
-import DeleteDialog from "@/components/admin/shared/DeleteDialog";
 import { useSelector } from "react-redux";
 
 const ViewUsers = () => {
@@ -18,8 +17,6 @@ const ViewUsers = () => {
 
   // State
   const [globalFilter, setGlobalFilter] = useState("");
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [userToDelete, setUserToDelete] = useState(null);
   const navigate = useNavigate();
 
   // Handlers
@@ -27,17 +24,10 @@ const ViewUsers = () => {
     navigate(`/admin/update-user/${user._id}`);
   };
 
-  const handleDeleteClick = (user) => {
-    setUserToDelete(user);
-    setDeleteDialogOpen(true);
-  };
-
-  const handleDeleteConfirm = async () => {
+  const handleDelete = async (user) => {
     try {
-      const response = await deleteUser(userToDelete._id).unwrap();
+      const response = await deleteUser(user._id).unwrap();
       toast.success(response.message || "User deleted successfully");
-      setDeleteDialogOpen(false);
-      setUserToDelete(null);
     } catch (error) {
       toast.error(error?.data?.message || "Failed to delete user");
     }
@@ -45,8 +35,8 @@ const ViewUsers = () => {
 
   // Column component for table
   const columns = useMemo(
-    () => createUserColumns(handleEdit, handleDeleteClick),
-    []
+    () => createUserColumns(handleEdit, handleDelete, isDeleting),
+    [handleEdit, handleDelete, isDeleting]
   );
 
   // Transform data for table
@@ -82,40 +72,17 @@ const ViewUsers = () => {
   }, [userData, currentUser]);
 
   return (
-    <>
-      <ViewLayout
-        title="User"
-        description="Manage system users and their permissions"
-        // addNewPath="/admin/new-user"  // Uncomment if you want to add new user functionality
-        isLoading={isLoading}
-        error={error}
-        data={data}
-        columns={columns}
-        globalFilter={globalFilter}
-        setGlobalFilter={setGlobalFilter}
-      />
-
-      {/* Delete dialog */}
-      <DeleteDialog
-        isOpen={deleteDialogOpen}
-        onClose={() => {
-          setDeleteDialogOpen(false);
-          setUserToDelete(null);
-        }}
-        onConfirm={handleDeleteConfirm}
-        title="Delete User"
-        description={
-          <>
-            Are you sure you want to delete user{" "}
-            <span className="font-semibold text-red-500">
-              {userToDelete?.name}
-            </span>
-            ? This action cannot be undone.
-          </>
-        }
-        isLoading={isDeleting}
-      />
-    </>
+    <ViewLayout
+      title="User"
+      description="Manage system users and their permissions"
+      // addNewPath="/admin/new-user"  // Uncomment if you want to add new user functionality
+      isLoading={isLoading}
+      error={error}
+      data={data}
+      columns={columns}
+      globalFilter={globalFilter}
+      setGlobalFilter={setGlobalFilter}
+    />
   );
 };
 

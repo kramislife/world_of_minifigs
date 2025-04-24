@@ -14,6 +14,7 @@ import ProductDesigner from "./components/ProductDesigner";
 import ProductStatus from "./components/ProductStatus";
 import useProductUpdate from "@/hooks/Product/useProductUpdate";
 import Metadata from "@/components/layout/Metadata/Metadata";
+import { Loader2 } from "lucide-react";
 
 const UpdateProduct = () => {
   const { id } = useParams();
@@ -26,13 +27,12 @@ const UpdateProduct = () => {
     handleDateChange,
   } = useProductUpdate(id);
 
-
   return (
     <>
       <Metadata title="Update Product" />
       <div className="p-3 md:p-5">
         <form onSubmit={handleSubmit}>
-          <Card className="border-t-4 border-t-accent">
+          <Card className="bg-background">
             <CardHeader>
               <CardTitle className="text-2xl">Update Product</CardTitle>
             </CardHeader>
@@ -85,9 +85,16 @@ const UpdateProduct = () => {
                 onDateChange={handleDateChange}
               />
 
-              <div className="flex justify-end space-x-4 pt-6 border-t">
+              <div className="flex justify-end">
                 <Button variant="submit" type="submit" className="w-auto">
-                  {isLoading ? "Updating..." : "Update Product"}
+                  {isLoading ? (
+                    <span className="flex items-center gap-2">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Updating Product...
+                    </span>
+                  ) : (
+                    "Update Product"
+                  )}
                 </Button>
               </div>
             </CardContent>

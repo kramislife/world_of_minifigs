@@ -7,10 +7,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { orderStatus, isValidStatusTransition } from "@/constant/orderStatus";
-import { ClockArrowDown } from "lucide-react";
+import { ClockArrowDown, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
 
 const OrderStatus = ({
   selectedStatus,
@@ -23,12 +24,15 @@ const OrderStatus = ({
   handleShippingInfoChange,
 }) => {
   return (
-    <div className="bg-brand/80 rounded-xl p-6">
-      <div className="flex items-center gap-3 mb-6">
-        <ClockArrowDown className="w-6 h-6 text-blue-400" />
-        <h3 className="text-xl font-bold text-white">Order Status</h3>
-      </div>
-      <div className="space-y-4 text-white">
+    <Card>
+      <CardHeader>
+        <div className="flex items-center gap-3">
+          <ClockArrowDown className="w-6 h-6 text-blue-400" />
+          <h3 className="text-xl font-bold text-background">Order Status</h3>
+        </div>
+      </CardHeader>
+
+      <CardContent>
         <Select
           value={selectedStatus || order.orderStatus}
           onValueChange={setSelectedStatus}
@@ -39,7 +43,7 @@ const OrderStatus = ({
             !["admin", "super_admin"].includes(user?.role)
           }
         >
-          <SelectTrigger className="w-full bg-brand border border-gray-700">
+          <SelectTrigger className="bg-background">
             <SelectValue>
               {orderStatus.find(
                 (status) =>
@@ -47,7 +51,7 @@ const OrderStatus = ({
               )?.label || order.orderStatus}
             </SelectValue>
           </SelectTrigger>
-          <SelectContent className="bg-brand border border-gray-700">
+          <SelectContent className="bg-background">
             {orderStatus
               .filter(
                 (status) =>
@@ -61,9 +65,9 @@ const OrderStatus = ({
                 <SelectItem
                   key={status.id}
                   value={status.value}
-                  className="text-white bg-brand cursor-pointer py-3 px-5"
+                  className="text-foreground cursor-pointer"
                 >
-                  <div className="flex items-center gap-2 ml-2">
+                  <div className="flex items-center gap-2">
                     <status.icon className={`w-4 h-4 ${status.color}`} />
                     {status.label}
                   </div>
@@ -74,55 +78,57 @@ const OrderStatus = ({
 
         {selectedStatus === "Shipped" &&
           selectedStatus !== order.orderStatus && (
-            <div className="mt-4 space-y-4 bg-brand/40 p-4 rounded-lg">
-              <h4 className="font-semibold text-blue-400">
+            <div className="space-y-5 pt-5">
+              <h4 className="text-lg font-semibold text-background">
                 Shipping Information
               </h4>
 
-              <div className="space-y-2">
-                <Label htmlFor="courier">Courier Service *</Label>
+              <div className="space-y-3">
+                <Label htmlFor="courier" className="text-background">
+                  Courier Service
+                </Label>
                 <Input
                   id="courier"
                   placeholder="Enter courier service name"
-                  className="bg-brand border border-gray-700"
                   value={shippingInfo.courier}
                   onChange={handleShippingInfoChange}
                   required
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="trackingNumber">Tracking Number *</Label>
+              <div className="space-y-3">
+                <Label htmlFor="trackingNumber" className="text-background">
+                  Tracking Number
+                </Label>
                 <Input
                   id="trackingNumber"
                   placeholder="Enter tracking number"
-                  className="bg-brand border border-gray-700"
                   value={shippingInfo.trackingNumber}
                   onChange={handleShippingInfoChange}
                   required
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="trackingLink">Tracking Link *</Label>
+              <div className="space-y-3">
+                <Label htmlFor="trackingLink" className="text-background">
+                  Tracking Link
+                </Label>
                 <Input
                   id="trackingLink"
                   placeholder="Enter tracking link"
-                  className="bg-brand border border-gray-700"
                   value={shippingInfo.trackingLink}
                   onChange={handleShippingInfoChange}
                   required
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="additionalInfo">
+              <div className="space-y-3">
+                <Label htmlFor="additionalInfo" className="text-background">
                   Additional Information (Optional)
                 </Label>
                 <Input
                   id="additionalInfo"
                   placeholder="Enter any additional shipping information"
-                  className="bg-brand border border-gray-700"
                   value={shippingInfo.additionalInfo}
                   onChange={handleShippingInfoChange}
                 />
@@ -131,39 +137,49 @@ const OrderStatus = ({
           )}
 
         {order.orderStatus === "Cancelled" && (
-          <div className="mb-4 p-1">
-            <div className="text-red-400 font-medium text-sm mb-2">
+          <div className="pt-5 space-y-3">
+            <div className="text-red-400 font-medium">
               Cancelled on{" "}
               {order.cancelledAt
                 ? format(new Date(order.cancelledAt), "PPP")
                 : "N/A"}
             </div>
             {order.cancellationReason && (
-              <div className="text-gray-400 text-sm">
+              <div className="text-sm text-gray-300">
                 Reason: {order.cancellationReason}
               </div>
             )}
           </div>
         )}
 
-        <Button
-          onClick={handleStatusUpdate}
-          disabled={
-            !selectedStatus ||
-            selectedStatus === order.orderStatus ||
-            isLoading ||
-            !["admin", "super_admin"].includes(user?.role) ||
-            (selectedStatus === "Shipped" &&
-              (!shippingInfo.courier ||
-                !shippingInfo.trackingNumber ||
-                !shippingInfo.trackingLink))
-          }
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isLoading ? "Updating..." : "Update Status"}
-        </Button>
-      </div>
-    </div>
+        <div className="pt-3">
+          <Button
+            variant="submit"
+            className="w-full"
+            onClick={handleStatusUpdate}
+            disabled={
+              !selectedStatus ||
+              selectedStatus === order.orderStatus ||
+              isLoading ||
+              !["admin", "super_admin"].includes(user?.role) ||
+              (selectedStatus === "Shipped" &&
+                (!shippingInfo.courier ||
+                  !shippingInfo.trackingNumber ||
+                  !shippingInfo.trackingLink))
+            }
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="animate-spin h-4 w-4 mr-2" />
+                Updating Status...
+              </>
+            ) : (
+              "Update Status"
+            )}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 
