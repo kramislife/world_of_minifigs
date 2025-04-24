@@ -72,10 +72,10 @@ const Dashboard = () => {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           {/* Greeting Section */}
           <div className="space-y-3">
-            <h2 className="text-3xl font-bold text-light tracking-wide flex items-center gap-2">
+            <h2 className="text-3xl font-bold">
               {dashboardStats.ui.greeting}, {userData?.name || "Admin"}!
             </h2>
-            <p className="text-sm font-light text-gray-200 tracking-widest">
+            <p className="text-sm font-light text-gray-200">
               Today is {dashboardStats.ui.currentDate} at{" "}
               {dashboardStats.ui.currentTime}
             </p>
@@ -84,7 +84,7 @@ const Dashboard = () => {
           {/* Select Section - Hidden on larger screens */}
           <div className="md:hidden w-full">
             <Select value={activeTab} onValueChange={handleTabChange}>
-              <SelectTrigger className="w-full bg-brand-dark/50 border-brand-end/50 py-6">
+              <SelectTrigger>
                 <SelectValue>
                   <div className="flex items-center gap-2">
                     {TabIcon && <TabIcon className="h-4 w-4" />}
@@ -92,15 +92,11 @@ const Dashboard = () => {
                   </div>
                 </SelectValue>
               </SelectTrigger>
-              <SelectContent className="bg-brand-dark/90 border-brand-end/50">
+              <SelectContent>
                 {dashboardStats.ui.navigationTabs.map((tab) => {
                   const Icon = iconComponents[tab.icon];
                   return (
-                    <SelectItem
-                      key={tab.id}
-                      value={tab.id}
-                      className="hover:bg-accent hover:text-black cursor-pointer text-white"
-                    >
+                    <SelectItem key={tab.id} value={tab.id}>
                       <div className="flex items-center gap-2">
                         <Icon className="h-4 w-4" />
                         {tab.label}
@@ -115,7 +111,7 @@ const Dashboard = () => {
           {/* Select Section - Visible only on larger screens */}
           <div className="hidden md:block">
             <Select value={activeTab} onValueChange={handleTabChange}>
-              <SelectTrigger className="w-[220px] bg-brand-dark/50 border-brand-end/50">
+              <SelectTrigger className="w-[220px]">
                 <SelectValue>
                   <div className="flex items-center gap-2">
                     {TabIcon && <TabIcon className="h-4 w-4" />}
@@ -123,15 +119,11 @@ const Dashboard = () => {
                   </div>
                 </SelectValue>
               </SelectTrigger>
-              <SelectContent className="bg-brand-dark/90 border-brand-end/50">
+              <SelectContent>
                 {dashboardStats.ui.navigationTabs.map((tab) => {
                   const Icon = iconComponents[tab.icon];
                   return (
-                    <SelectItem
-                      key={tab.id}
-                      value={tab.id}
-                      className="hover:bg-accent hover:text-black cursor-pointer text-white"
-                    >
+                    <SelectItem key={tab.id} value={tab.id}>
                       <div className="flex items-center gap-2">
                         <Icon className="h-4 w-4" />
                         {tab.label}

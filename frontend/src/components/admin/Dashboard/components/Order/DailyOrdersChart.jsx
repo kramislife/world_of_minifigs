@@ -24,12 +24,12 @@ const DailyOrdersChart = ({ dailyOrders, BaseChart, chartColors }) => {
   };
 
   return (
-    <Card className="bg-brand-dark/50 border border-brand-end/50">
+    <Card>
       <CardHeader>
-        <CardTitle className="text-lg font-semibold text-white">
+        <CardTitle className="text-lg font-semibold text-background">
           Daily Order Volume
         </CardTitle>
-        <CardDescription className="text-gray-400 text-sm">
+        <CardDescription className="text-gray-300 text-sm">
           Number of orders placed per day
         </CardDescription>
       </CardHeader>

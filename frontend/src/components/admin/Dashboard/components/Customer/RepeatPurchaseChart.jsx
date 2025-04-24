@@ -65,9 +65,9 @@ const RepeatPurchaseChart = ({ customerStats, BaseChart, chartColors }) => {
   ];
 
   return (
-    <Card className="bg-brand-dark/50 border border-brand-end/50">
+    <Card>
       <CardHeader>
-        <CardTitle className="text-lg font-semibold text-white">
+        <CardTitle className="text-lg font-semibold text-background">
           Repeat Purchase Rate
         </CardTitle>
         <CardDescription className="text-gray-200">
@@ -81,7 +81,7 @@ const RepeatPurchaseChart = ({ customerStats, BaseChart, chartColors }) => {
                   />
                   <span className="text-sm text-gray-200">{item.label}</span>
                 </div>
-                <span className="text-xs text-gray-400">
+                <span className="text-xs text-gray-300">
                   ({item.description})
                 </span>
               </div>

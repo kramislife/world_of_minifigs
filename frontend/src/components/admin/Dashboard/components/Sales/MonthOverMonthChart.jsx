@@ -24,9 +24,9 @@ const MonthOverMonthChart = ({
   };
 
   return (
-    <Card className="bg-brand-dark/50 border border-brand-end/50">
+    <Card>
       <CardHeader>
-        <CardTitle className="text-white text-lg font-semibold">
+        <CardTitle className="text-background text-lg font-semibold">
           Month-over-Month Performance
         </CardTitle>
       </CardHeader>
@@ -39,8 +39,8 @@ const MonthOverMonthChart = ({
               options={{ currency: true }}
             />
           </div>
-          <Card className="bg-brand-dark/50 border border-brand-end/50 w-full">
-            <CardContent className="flex flex-col items-center p-6">
+          <Card className="w-full">
+            <CardContent className="flex flex-col items-center p-5">
               <div className="text-center mb-4">
                 <div
                   className={`text-5xl font-bold mb-2 transition-colors ${

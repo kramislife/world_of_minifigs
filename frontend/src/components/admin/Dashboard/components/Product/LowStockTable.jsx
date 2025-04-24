@@ -8,13 +8,13 @@ const LowStockTable = ({ lowStockProducts }) => {
     {
       header: "Product",
       accessorKey: "name",
-      cell: (info) => <span className="text-white">{info.getValue()}</span>,
+      cell: (info) => <span className="text-background">{info.getValue()}</span>,
     },
     {
       header: "Current Stock",
       accessorKey: "stock",
       cell: (info) => (
-        <span className="text-white">{info.getValue()} units</span>
+        <span className="text-background">{info.getValue()} units</span>
       ),
     },
     {
@@ -24,8 +24,8 @@ const LowStockTable = ({ lowStockProducts }) => {
         <span
           className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${
             info.getValue() <= 2
-              ? "bg-red-600 text-white"
-              : "bg-amber-500/80 text-white"
+              ? "bg-red-600 text-background"
+              : "bg-amber-500/80 text-background"
           }`}
         >
           {info.getValue() <= 2 ? "Critical" : "Low"}
@@ -35,9 +35,9 @@ const LowStockTable = ({ lowStockProducts }) => {
   ];
 
   return (
-    <Card className="bg-brand-dark/50 border border-brand-end/50">
+    <Card>
       <CardHeader>
-        <CardTitle className="text-white text-lg font-semibold">
+        <CardTitle className="text-background text-lg font-semibold">
           Low Stock Alerts
         </CardTitle>
       </CardHeader>
