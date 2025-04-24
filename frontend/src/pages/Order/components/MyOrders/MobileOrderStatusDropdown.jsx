@@ -33,7 +33,7 @@ const MobileOrderStatusDropdown = ({
 
   return (
     <Select value={statusParam || "all"} onValueChange={onTabChange}>
-      <SelectTrigger className="bg-brand-dark/20 border border-brand-end/50">
+      <SelectTrigger>
         <div className="flex items-center">
           {renderSelectedIcon()}
           <SelectValue placeholder="Select status">
@@ -47,7 +47,7 @@ const MobileOrderStatusDropdown = ({
         </div>
       </SelectTrigger>
 
-      <SelectContent className="bg-brand-start border-brand-end/50">
+      <SelectContent>
         {allStatuses.map((status) => {
           // Check if orders exist for this status and if there are any
           const hasOrders =
@@ -77,7 +77,7 @@ const MobileOrderStatusDropdown = ({
               key={status.id || status.value}
               value={status.value}
               disabled={status.value !== "all" && !hasOrders}
-              className="py-3 cursor-pointer text-white pl-8 hover:bg-brand-end/50 focus:bg-brand-end/50 focus:text-white"
+              className="py-3 focus:bg-brand-end/50 focus:text-background"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">

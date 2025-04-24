@@ -74,16 +74,16 @@ const OrderCard = ({ order, onClick, showReviewButton, showReviewedBadge }) => {
         className="cursor-pointer"
         onClick={handleClick}
       >
-        <Card className="bg-brand-dark/60 border-brand-end/50">
-          <CardHeader className="p-5">
+        <Card>
+          <CardHeader>
             <div className="flex flex-row gap-3 justify-between">
               {/* Order ID and Date */}
               <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-xl bg-brand-dark border border-brand-end/50">
+                <div className="p-2 rounded-xl bg-brand-dark border border-brand-end/50">
                   <Package2 className="w-5 h-5 text-blue-500" />
                 </div>
                 <div className="space-y-1">
-                  <CardTitle className="text-base font-semibold text-white line-clamp-1">
+                  <CardTitle className="text-sm text-background">
                     Order #{order._id}
                   </CardTitle>
                   <p className="text-xs text-gray-300">
@@ -104,7 +104,7 @@ const OrderCard = ({ order, onClick, showReviewButton, showReviewedBadge }) => {
             <div className="flex flex-col sm:flex-row gap-3 justify-between py-5 border-t border-brand-end/50">
               {/* Items Count and Status Badge on Mobile */}
               <div className="flex items-center justify-between gap-2 order-2 sm:order-1 w-full sm:w-auto pt-2">
-                <p className="text-sm text-gray-400">
+                <p className="text-sm text-gray-300">
                   {order.orderItems.length}{" "}
                   {order.orderItems.length === 1 ? "item" : "items"}
                 </p>
@@ -116,7 +116,7 @@ const OrderCard = ({ order, onClick, showReviewButton, showReviewedBadge }) => {
 
               {/* Price */}
               <div className="flex justify-between sm:block order-1 sm:order-2">
-                <span className="text-sm text-gray-400 sm:hidden">Total:</span>
+                <span className="text-sm text-gray-300 sm:hidden">Total:</span>
                 <div className="text-right">
                   <p className="text-lg font-bold text-emerald-400">
                     ${order.totalPrice.toFixed(2)}
@@ -130,8 +130,9 @@ const OrderCard = ({ order, onClick, showReviewButton, showReviewedBadge }) => {
               <div className="py-5 border-t border-brand-end/50">
                 {showReviewButton ? (
                   <Button
+                    variant="accent"
                     onClick={handleReviewClick}
-                    className="w-full bg-accent hover:bg-accent/80 text-foreground"
+                    className="w-full hover:scale-100"
                   >
                     <MessageSquare className="w-4 h-4 mr-2" />
                     Write a Review

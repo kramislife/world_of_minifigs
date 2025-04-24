@@ -35,11 +35,10 @@ const OrderStatusTabs = ({
   }
 
   return (
-    <TabsList className="grid grid-cols-7 gap-2 bg-gray-900/50">
+    <TabsList className="grid grid-cols-7 gap-2">
       {/* All Orders */}
       <TabsTrigger
         value="all"
-        className="hover:bg-brand-start hover:text-white"
         onClick={() => (handleTabChange || onTabChange)("all")}
       >
         All Orders
@@ -60,7 +59,6 @@ const OrderStatusTabs = ({
             key={status.id}
             value={status.value}
             disabled={status.value !== "To Review" && !hasOrders}
-            className="gap-2 hover:bg-brand-start hover:text-white"
             onClick={() => (handleTabChange || onTabChange)(status.value)}
           >
             {status.icon && (
@@ -68,11 +66,12 @@ const OrderStatusTabs = ({
             )}
             <span>{status.label}</span>
 
-            {status.value !== "To Review" && ordersByStatus[status.value]?.length > 0 && (
-              <span className="ml-1 text-xs bg-accent px-1.5 py-0.5 rounded-full text-foreground">
-                {ordersByStatus[status.value].length}
-              </span>
-            )}
+            {status.value !== "To Review" &&
+              ordersByStatus[status.value]?.length > 0 && (
+                <span className="ml-1 text-xs bg-accent px-1.5 py-0.5 rounded-full text-foreground">
+                  {ordersByStatus[status.value].length}
+                </span>
+              )}
           </TabsTrigger>
         );
       })}
@@ -80,17 +79,14 @@ const OrderStatusTabs = ({
       {/* Display dropdown statuses - Cancelled and On Hold */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <TabsTrigger
-            value={statusParam}
-            className="hover:bg-brand-start hover:text-white"
-          >
+          <TabsTrigger value={statusParam}>
             <span className="hidden md:inline">More</span>
             <div className="flex items-center mt-1 ml-1">
               <MoreHorizontal className="w-4 h-4" />
             </div>
           </TabsTrigger>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-[200px] mt-1 ml-2 bg-brand-start border border-brand-end/50">
+        <DropdownMenuContent className="w-[200px] mt-1 ml-2">
           {dropdownStatus.map((status) => (
             <DropdownMenuItem
               key={status.id}
@@ -99,7 +95,6 @@ const OrderStatusTabs = ({
                 !ordersByStatus[status.value] ||
                 ordersByStatus[status.value]?.length === 0
               }
-              className="text-white cursor-pointer focus:bg-brand-end focus:text-white"
             >
               {status.icon && (
                 <status.icon className={`w-4 h-4 ${status.color}`} />

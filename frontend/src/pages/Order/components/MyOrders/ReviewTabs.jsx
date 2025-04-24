@@ -58,10 +58,7 @@ const ReviewTabs = ({
       onValueChange={onReviewTabChange}
     >
       <TabsList className="grid grid-cols-2 gap-2 bg-gray-900/50 mb-5">
-        <TabsTrigger
-          value="pending"
-          className="gap-2 hover:bg-brand-start hover:text-white"
-        >
+        <TabsTrigger value="pending">
           <MessageSquare className="w-4 h-4" />
           <span className="hidden sm:inline">Pending Reviews</span>
           <span className="sm:hidden">Pending</span>
@@ -69,10 +66,7 @@ const ReviewTabs = ({
             {ordersByStatus["To Review"]?.pending?.length || 0}
           </span>
         </TabsTrigger>
-        <TabsTrigger
-          value="history"
-          className="gap-2 hover:bg-brand-start hover:text-white"
-        >
+        <TabsTrigger value="history">
           <CheckSquare className="w-4 h-4" />
           <span className="hidden sm:inline">Review History</span>
           <span className="sm:hidden">History</span>

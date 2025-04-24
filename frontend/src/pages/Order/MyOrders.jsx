@@ -57,11 +57,7 @@ const MyOrders = () => {
       <div className="px-5 py-8">
         <OrdersHeader totalOrders={orders.length} />
 
-        <Tabs
-          value={selectedStatus}
-          className="w-full"
-          onValueChange={handleStatusChange}
-        >
+        <Tabs value={selectedStatus} onValueChange={handleStatusChange}>
           <OrderStatusTabs
             totalOrders={orders.length}
             ordersByStatus={ordersByStatus}
