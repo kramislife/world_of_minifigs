@@ -30,6 +30,9 @@ export const BannerUpload = ({
                     : "Add your first banner"}
                 </span>
               </p>
+              <p className="text-xs text-gray-500">
+                Supports: JPG, PNG, GIF, WebP (Max 5MB)
+              </p>
             </>
           )}
         </div>
@@ -37,7 +40,7 @@ export const BannerUpload = ({
           ref={fileInputRef}
           type="file"
           className="hidden"
-          accept="image/*"
+          accept="image/*,.gif"
           onChange={onUpload}
           disabled={isUploading}
         />
