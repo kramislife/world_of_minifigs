@@ -3,7 +3,7 @@ import { NavLink } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { User, Search, ShoppingCart, Menu } from "lucide-react";
 import { Sheet, SheetTrigger } from "@/components/ui/sheet";
-import logo from "@/assets/worldofminifigs.png";
+import logo from "@/assets/wof_logo.png";
 import SearchSheet from "./SearchSheet";
 import CartSheet from "./CartSheet";
 import DesktopNavbar from "./components/DesktopNavbar";
@@ -87,7 +87,7 @@ const Header = () => {
         <div className="flex items-center justify-between h-[85px] p-5">
           <div className="flex items-center">
             <NavLink to="/">
-              <img className="h-12" src={logo} alt="logo" />
+              <img className="h-20 p-1" src={logo} alt="logo" />
             </NavLink>
           </div>
           <div className="flex-grow flex justify-center">

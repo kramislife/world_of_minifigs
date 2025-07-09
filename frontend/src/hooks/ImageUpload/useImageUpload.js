@@ -39,19 +39,30 @@ export const useImageUpload = (options = {}) => {
     setUploadProgress(10);
 
     try {
-      // Compression options
-      const compressionOptions = {
-        maxSizeMB,
-        maxWidthOrHeight,
-        useWebWorker,
-        onProgress: (progress) => {
-          setUploadProgress(10 + Math.round(progress * 80));
-        },
-      };
+      // Check if file is a GIF
+      const isGif = file.type === "image/gif";
 
-      setUploadProgress(20);
-      const compressedFile = await imageCompression(file, compressionOptions);
-      setUploadProgress(90);
+      let processedFile = file;
+
+      if (!isGif) {
+        // Compression options for non-GIF images
+        const compressionOptions = {
+          maxSizeMB,
+          maxWidthOrHeight,
+          useWebWorker,
+          onProgress: (progress) => {
+            setUploadProgress(10 + Math.round(progress * 80));
+          },
+        };
+
+        setUploadProgress(20);
+        processedFile = await imageCompression(file, compressionOptions);
+        setUploadProgress(90);
+      } else {
+        // For GIFs, skip compression to preserve animation quality
+        setUploadProgress(50);
+        toast.info("GIF detected - preserving animation quality");
+      }
 
       // Convert to base64
       const reader = new FileReader();
@@ -62,7 +73,7 @@ export const useImageUpload = (options = {}) => {
         }
         setIsUploading(false);
       };
-      reader.readAsDataURL(compressedFile);
+      reader.readAsDataURL(processedFile);
     } catch (error) {
       console.error("Error processing image:", error);
       toast.error(`Error processing image: ${error.message}`);
@@ -88,19 +99,30 @@ export const useImageUpload = (options = {}) => {
       setUploadProgress(10);
 
       try {
-        // Compression options
-        const compressionOptions = {
-          maxSizeMB,
-          maxWidthOrHeight,
-          useWebWorker,
-          onProgress: (progress) => {
-            setUploadProgress(10 + Math.round(progress * 80));
-          },
-        };
+        // Check if file is a GIF
+        const isGif = file.type === "image/gif";
 
-        setUploadProgress(20);
-        const compressedFile = await imageCompression(file, compressionOptions);
-        setUploadProgress(90);
+        let processedFile = file;
+
+        if (!isGif) {
+          // Compression options for non-GIF images
+          const compressionOptions = {
+            maxSizeMB,
+            maxWidthOrHeight,
+            useWebWorker,
+            onProgress: (progress) => {
+              setUploadProgress(10 + Math.round(progress * 80));
+            },
+          };
+
+          setUploadProgress(20);
+          processedFile = await imageCompression(file, compressionOptions);
+          setUploadProgress(90);
+        } else {
+          // For GIFs, skip compression to preserve animation
+          setUploadProgress(50);
+          toast.info("GIF detected - preserving animation quality");
+        }
 
         // Convert to base64
         const reader = new FileReader();
@@ -111,7 +133,7 @@ export const useImageUpload = (options = {}) => {
           }
           setIsUploading(false);
         };
-        reader.readAsDataURL(compressedFile);
+        reader.readAsDataURL(processedFile);
       } catch (error) {
         console.error("Error processing image:", error);
         toast.error(`Error processing image: ${error.message}`);
