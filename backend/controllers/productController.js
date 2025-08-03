@@ -35,7 +35,7 @@ export const getProduct = catchAsyncErrors(async (req, res, next) => {
   if (req.query.ids) {
     const productIds = req.query.ids.split(",");
     const products = await populateProductFields(
-      Product.find({ _id: { $in: productIds } })
+      Product.find({ _id: { $in: productIds } }),
     );
 
     return res.status(200).json({
@@ -85,7 +85,7 @@ export const getProduct = catchAsyncErrors(async (req, res, next) => {
 
     // Rest of the pagination and response logic
     const allFilteredProducts = await populateProductFields(
-      apiFilters.query.clone()
+      apiFilters.query.clone(),
     );
     const filteredProductCount = allFilteredProducts.length;
 
@@ -93,7 +93,7 @@ export const getProduct = catchAsyncErrors(async (req, res, next) => {
     const currentPage = Number(req.query.page) || 1;
     apiFilters.pagination(resPerPage);
     const paginatedProducts = await populateProductFields(
-      apiFilters.query.clone()
+      apiFilters.query.clone(),
     );
 
     return res.status(200).json({
@@ -110,16 +110,19 @@ export const getProduct = catchAsyncErrors(async (req, res, next) => {
   // Original code for regular filtering without keyword search
   const resPerPage = 9;
   const currentPage = Number(req.query.page) || 1;
+  if (req.query.minifig_part_type && typeof req.query.minifig_part_type === "string") {
+  req.query.minifig_part_type = { $in: req.query.minifig_part_type.split(",") };
+}
   const apiFilters = new API_Filters(Product, req.query).search().filters();
 
   const allFilteredProducts = await populateProductFields(
-    apiFilters.query.clone()
+    apiFilters.query.clone(),
   );
   const filteredProductCount = allFilteredProducts.length;
 
   apiFilters.pagination(resPerPage);
   const paginatedProducts = await populateProductFields(
-    apiFilters.query.clone()
+    apiFilters.query.clone(),
   );
 
   res.status(200).json({
@@ -180,7 +183,7 @@ export const getProductById = catchAsyncErrors(async (req, res, next) => {
   const baseProductName = product.product_name.split(/[\(\-]/)[0].trim();
   const escapedProductName = baseProductName.replace(
     /[.*+?^${}()|[\]\\]/g,
-    "\\$&"
+    "\\$&",
   );
 
   const similarProducts = await populateProductFields(
@@ -188,7 +191,7 @@ export const getProductById = catchAsyncErrors(async (req, res, next) => {
       product_name: { $regex: escapedProductName, $options: "i" },
       partID: product.partID,
       _id: { $ne: product._id },
-    })
+    }),
   ).populate("product_color", "name code");
 
   res.status(200).json({
@@ -226,7 +229,7 @@ export const updateProduct = catchAsyncErrors(async (req, res, next) => {
   const updatedProduct = await Product.findByIdAndUpdate(
     req.params.id,
     req.body,
-    { new: true }
+    { new: true },
   );
 
   if (!updatedProduct) {
@@ -270,14 +273,14 @@ export const deleteAllProducts = catchAsyncErrors(async (req, res, next) => {
 export const uploadProductImage = catchAsyncErrors(async (req, res, next) => {
   const urls = await Promise.all(
     req.body.images.map((image) =>
-      uploadImage(image, "world_of_minifigs/products")
-    )
+      uploadImage(image, "world_of_minifigs/products"),
+    ),
   );
 
   const product = await Product.findByIdAndUpdate(
     req.params.id,
     { $push: { product_images: { $each: urls } } },
-    { new: true, runValidators: true }
+    { new: true, runValidators: true },
   );
 
   if (!product) {
@@ -316,7 +319,7 @@ export const deleteProductImage = catchAsyncErrors(async (req, res, next) => {
   const updatedProduct = await Product.findByIdAndUpdate(
     id,
     { $pull: { product_images: { public_id } } }, // Remove the image with matching `public_id`
-    { new: true, runValidators: true }
+    { new: true, runValidators: true },
   );
 
   if (!updatedProduct) {

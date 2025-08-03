@@ -39,7 +39,7 @@ const userSchema = new mongoose.Schema(
       validate: {
         validator: function (v) {
           return /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*_]).{6,}$/.test(
-            v
+            v,
           );
         },
         message: (props) =>
@@ -100,7 +100,7 @@ const userSchema = new mongoose.Schema(
       ref: "User",
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // ------------------------------------ GENERATE VERIFICATION TOKEN ------------------------------------------
@@ -123,12 +123,12 @@ userSchema.methods.generateRefreshToken = function () {
     process.env.JWT_REFRESH_TOKEN_SECRET,
     {
       expiresIn: `${process.env.JWT_REFRESH_TOKEN_EXPIRY}d`,
-    }
+    },
   );
 
   this.refresh_token = token;
   this.refresh_token_expiry = new Date(
-    Date.now() + process.env.JWT_REFRESH_TOKEN_EXPIRY * 24 * 60 * 60 * 1000
+    Date.now() + process.env.JWT_REFRESH_TOKEN_EXPIRY * 24 * 60 * 60 * 1000,
   ); // 7 days from now
 
   return token;
@@ -170,7 +170,7 @@ userSchema.methods.generateResetPasswordToken = function () {
     .digest("hex");
 
   this.reset_password_token_expiry = new Date(
-    Date.now() + process.env.PASSWORD_RESET_EXPIRY * 60 * 1000
+    Date.now() + process.env.PASSWORD_RESET_EXPIRY * 60 * 1000,
   ); // 30 minutes from now
 
   // new Date(

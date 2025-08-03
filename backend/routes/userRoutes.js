@@ -30,11 +30,14 @@ import {
   getAllSkillLevels,
   getSkillLevelById,
 } from "../controllers/skillLevelController.js";
+
 import {
   getAllDesigners,
   getDesignerById,
 } from "../controllers/designerController.js";
+
 import { isAuthenticatedUser } from "../middlewares/auth.middleware.js";
+
 import {
   createAddress,
   deleteAddress,
@@ -42,13 +45,23 @@ import {
   getSingleAddress,
   updateAddress,
 } from "../controllers/authController.js";
+
 import { getAllColors } from "../controllers/colorController.js";
+
 import {
   getSearchHistory,
   addToSearchHistory,
   clearSearchHistory,
   deleteSearchTerm,
 } from "../controllers/searchHistoryController.js";
+
+import {
+  createMinifigProject,
+  getUserProjects,
+  getMinifigProjectById,
+  updateMinifigProject,
+  deleteMinifigProject,
+} from "../controllers/minifigProjectController.js";
 
 const router = express.Router();
 
@@ -142,5 +155,21 @@ router
 router
   .route("/search/history/term")
   .delete(isAuthenticatedUser, deleteSearchTerm);
+
+// ---------------------------------- CUSTOM MINIFIG PROJECT -------------------------------------------
+// Create new project
+router
+  .route("/me/minifig-projects")
+  .post(isAuthenticatedUser, createMinifigProject);
+
+// GET all projects
+router.route("/me/minifig-projects").get(isAuthenticatedUser, getUserProjects);
+
+// GET, UPDATE, DELETE specific project by ID
+router
+  .route("/me/minifig-projects/:id")
+  .get(isAuthenticatedUser, getMinifigProjectById)
+  .put(isAuthenticatedUser, updateMinifigProject)
+  .delete(isAuthenticatedUser, deleteMinifigProject);
 
 export default router;
