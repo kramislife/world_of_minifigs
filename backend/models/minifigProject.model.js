@@ -23,7 +23,7 @@ const minifigPartSchema = new mongoose.Schema(
       default: 1,
     },
     product_color: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
       ref: "Color",
       required: false,
     },
@@ -48,7 +48,7 @@ const minifigProjectSchema = new mongoose.Schema(
     selectedItems: {
       head: minifigPartSchema,
       torso: minifigPartSchema,
-      leg: minifigPartSchema,
+      legs: minifigPartSchema,
     },
   },
   { timestamps: true },
