@@ -22,6 +22,11 @@ const minifigPartSchema = new mongoose.Schema(
       type: Number,
       default: 1,
     },
+    product_color: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Color",
+      required: [true, "Please specify the product color"],
+    },
   },
   { _id: false },
 );
@@ -31,7 +36,6 @@ const minifigProjectSchema = new mongoose.Schema(
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
     },
     name: {
       type: String,

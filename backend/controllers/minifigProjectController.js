@@ -66,10 +66,20 @@ export const getMinifigProjectById = catchAsyncErrors(
 export const updateMinifigProject = catchAsyncErrors(async (req, res, next) => {
   const { id } = req.params;
 
-  const updatedProject = await MinifigProject.findOneAndUpdate({
-    _id: id,
-    user: req.user._id,
-  });
+  const updateData = { ...req.body };
+  delete updateData._id;
+
+  const updatedProject = await MinifigProject.findOneAndUpdate(
+    {
+      _id: id,
+      user: req.user._id,
+    },
+    updateData,
+    {
+      new: true,
+      runValidators: true,
+    },
+  );
 
   if (!updatedProject) {
     return next(new ErrorHandler("Project not found", 404));
@@ -84,7 +94,7 @@ export const updateMinifigProject = catchAsyncErrors(async (req, res, next) => {
 
 //------------------------------------  DELETE A PROJECT  ------------------------------------
 export const deleteMinifigProject = catchAsyncErrors(async (req, res, next) => {
-  const {} = req.params;
+  const { id } = req.params;
 
   const deletedProject = await MinifigProject.findOneAndDelete({
     _id: id,
