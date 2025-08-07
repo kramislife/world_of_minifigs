@@ -25,7 +25,11 @@ const minifigPartSchema = new mongoose.Schema(
     product_color: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Color",
-      required: [true, "Please specify the product color"],
+      required: false,
+    },
+    product_includes: {
+      type: String,
+      required: false,
     },
   },
   { _id: false },
