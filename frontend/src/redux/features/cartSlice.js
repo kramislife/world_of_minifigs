@@ -7,7 +7,7 @@ const loadCartFromStorage = () => {
     const savedCart = localStorage.getItem("cart");
     const parsedCart = savedCart
       ? JSON.parse(savedCart)
-      : { cartItems: [], externalItems: [] }; 
+      : { cartItems: [], externalItems: [] };
 
     if (!parsedCart.externalItems) {
       parsedCart.externalItems = []; // Ensure externalItems exists for older stored data
@@ -40,7 +40,7 @@ const cartSlice = createSlice({
     addToCart: (state, action) => {
       const newItem = action.payload;
       const existingItemIndex = state.cartItems.findIndex(
-        (item) => item._id === newItem._id // _id for consistency
+        (item) => item.product === newItem.product,
       );
       if (existingItemIndex !== -1) {
         // Check if adding one more would exceed stock
@@ -60,14 +60,14 @@ const cartSlice = createSlice({
     },
     removeFromCart: (state, action) => {
       state.cartItems = state.cartItems.filter(
-        (item) => item.product !== action.payload // Use _id for consistency
+        (item) => item.product !== action.payload,
       );
       localStorage.setItem("cart", JSON.stringify(state));
     },
     updateQuantity: (state, action) => {
       const { product, quantity } = action.payload; // 'product' here refers to the _id
       const itemIndex = state.cartItems.findIndex(
-        (item) => item.product === product // _id for consistency
+        (item) => item.product === product,
       );
       if (itemIndex !== -1) {
         // Update quantity without changing position
@@ -87,7 +87,7 @@ const cartSlice = createSlice({
     updateExternalCartQuantity: (state, action) => {
       const { _id, quantity } = action.payload;
       const itemIndex = state.externalItems.findIndex(
-        (item) => item._id === _id
+        (item) => item._id === _id,
       );
       if (itemIndex !== -1) {
         state.externalItems[itemIndex].quantity = quantity;
@@ -96,7 +96,7 @@ const cartSlice = createSlice({
     },
     removeExternalCartItem: (state, action) => {
       state.externalItems = state.externalItems.filter(
-        (item) => item._id !== action.payload
+        (item) => item._id !== action.payload,
       );
       localStorage.setItem("cart", JSON.stringify(state));
     },
@@ -116,17 +116,17 @@ const cartSlice = createSlice({
           state.cartItems = state.cartItems.map((item) =>
             item._id === updatedProduct._id
               ? updateCartItem(item, updatedProduct)
-              : item
+              : item,
           );
           // Also update externalItems if they contain this product
           state.externalItems = state.externalItems.map((item) =>
             item._id === updatedProduct._id
               ? updateCartItem(item, updatedProduct)
-              : item
+              : item,
           );
           localStorage.setItem("cart", JSON.stringify(state));
         }
-      }
+      },
     );
     // Handle successful product fetch for internal cart
     builder.addMatcher(
@@ -135,27 +135,29 @@ const cartSlice = createSlice({
         if (payload?.products) {
           const updatedInternalItems = state.cartItems.map((item) => {
             const updatedProduct = payload.products.find(
-              (p) => p._id === item._id
+              (p) => p._id === item._id,
             );
             return updatedProduct ? updateCartItem(item, updatedProduct) : item;
           });
           const updatedExternalItems = state.externalItems.map((item) => {
             const updatedProduct = payload.products.find(
-              (p) => p._id === item._id
+              (p) => p._id === item._id,
             );
             return updatedProduct ? updateCartItem(item, updatedProduct) : item;
           });
 
           if (
-            JSON.stringify(updatedInternalItems) !== JSON.stringify(state.cartItems) ||
-            JSON.stringify(updatedExternalItems) !== JSON.stringify(state.externalItems)
+            JSON.stringify(updatedInternalItems) !==
+              JSON.stringify(state.cartItems) ||
+            JSON.stringify(updatedExternalItems) !==
+              JSON.stringify(state.externalItems)
           ) {
             state.cartItems = updatedInternalItems;
             state.externalItems = updatedExternalItems;
             localStorage.setItem("cart", JSON.stringify(state));
           }
         }
-      }
+      },
     );
     // Handle successful single product fetch for internal cart
     builder.addMatcher(
@@ -166,17 +168,17 @@ const cartSlice = createSlice({
           state.cartItems = state.cartItems.map((item) =>
             item._id === updatedProduct._id
               ? updateCartItem(item, updatedProduct)
-              : item
+              : item,
           );
           // Also update externalItems if they contain this product
           state.externalItems = state.externalItems.map((item) =>
             item._id === updatedProduct._id
               ? updateCartItem(item, updatedProduct)
-              : item
+              : item,
           );
           localStorage.setItem("cart", JSON.stringify(state));
         }
-      }
+      },
     );
   },
 });
@@ -194,7 +196,7 @@ export const selectCartTotal = createSelector(
       const quantity = Number(item.quantity) || 0;
       return sum + price * quantity;
     }, 0);
-  }
+  },
 );
 
 // Memoized selector for calculating total for external cart
@@ -206,7 +208,7 @@ export const selectExternalCartTotal = createSelector(
       const quantity = Number(item.quantity) || 0;
       return sum + price * quantity;
     }, 0);
-  }
+  },
 );
 
 export const {
