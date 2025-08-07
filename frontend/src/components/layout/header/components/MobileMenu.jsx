@@ -1,6 +1,8 @@
+/* eslint-disable react/prop-types */
 import { useEffect } from "react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useLazyLogoutQuery } from "@/redux/api/authApi";
+import { useExternalNavigation } from "@/hooks/ExternalNavigation/useExternalNavigation";
 import { User, LogOut, ArrowRight } from "lucide-react";
 import {
   SheetContent,
@@ -22,21 +24,39 @@ const SheetCloseWrapper = ({ children, ...props }) => (
 );
 
 // Shared Navigation Item Component
-const NavigationItem = ({ to, icon, label, isActive }) => (
-  <SheetCloseWrapper>
-    <NavLink
-      to={to}
-      className={`flex items-center gap-3 px-4 py-3 rounded-md transition-all duration-200 w-full ${
-        isActive
-          ? "bg-accent text-foreground font-medium"
-          : "text-background hover:bg-brand-dark/50 hover:text-accent"
-      }`}
-    >
-      {icon}
-      <span className="flex-1 text-left">{label}</span>
-    </NavLink>
-  </SheetCloseWrapper>
-);
+const NavigationItem = ({ to, icon, label, isActive, isExternalLink }) => {
+  const { handleExternalClick } = useExternalNavigation(
+    "https://world-of-minifigs-fig-builder.vercel.app"
+  );
+
+  return (
+    <SheetCloseWrapper>
+      {isExternalLink ? (
+        <a
+          href="#"
+          onClick={handleExternalClick}
+          className={`flex items-center gap-3 px-4 py-3 rounded-md transition-all duration-200 w-full text-background hover:bg-brand-dark/50 hover:text-accent`}
+          target="_blank"
+        >
+          {icon}
+          <span className="flex-1 text-left">{label}</span>
+        </a>
+      ) : (
+        <NavLink
+          to={to}
+          className={`flex items-center gap-3 px-4 py-3 rounded-md transition-all duration-200 w-full ${
+            isActive
+              ? "bg-accent text-foreground font-medium"
+              : "text-background hover:bg-brand-dark/50 hover:text-accent"
+          }`}
+        >
+          {icon}
+          <span className="flex-1 text-left">{label}</span>
+        </NavLink>
+      )}
+    </SheetCloseWrapper>
+  );
+};
 
 // Shared Button Component for bottom section
 const ActionButton = ({ variant, icon, label, onClick }) => (
@@ -140,6 +160,7 @@ const MobileMenu = ({ user }) => {
           icon={<item.icon size={20} />}
           label={item.label}
           isActive={location.pathname === item.path}
+          isExternalLink={item.isExternalLink}
         />
       ))}
     </div>

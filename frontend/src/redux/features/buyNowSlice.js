@@ -4,6 +4,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const loadBuyNowFromStorage = () => {
   try {
     const savedBuyNow = localStorage.getItem("buyNow");
+
     return savedBuyNow ? JSON.parse(savedBuyNow) : { item: null };
   } catch (error) {
     console.error("Error loading buyNow from localStorage:", error);
@@ -31,9 +32,26 @@ const buyNowSlice = createSlice({
       state.item = null;
       localStorage.removeItem("buyNow");
     },
+
+    setExternalBuyNowItem: (state, action) => {
+      if (action.payload && action.payload.length > 0) {
+        state.item = {
+          ...action.payload[0],
+          quantity: action.payload[0].quantity ?? 1,
+        };
+        localStorage.setItem("buyNow", JSON.stringify(state));
+      } else {
+        state.item = null;
+        localStorage.removeItem("buyNow");
+      }
+    },
   },
 });
 
-export const { setBuyNowItem, updateBuyNowQuantity, clearBuyNowItem } =
-  buyNowSlice.actions;
+export const {
+  setBuyNowItem,
+  updateBuyNowQuantity,
+  clearBuyNowItem,
+  setExternalBuyNowItem,
+} = buyNowSlice.actions;
 export default buyNowSlice.reducer;
