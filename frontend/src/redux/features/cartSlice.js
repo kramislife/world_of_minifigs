@@ -1,7 +1,6 @@
 import { createSlice, createSelector } from "@reduxjs/toolkit";
 import { productApi } from "../api/productApi";
 
-// Load initial state from localStorage
 const loadCartFromStorage = () => {
   try {
     const savedCart = localStorage.getItem("cart");
@@ -10,7 +9,7 @@ const loadCartFromStorage = () => {
       : { cartItems: [], externalItems: [] };
 
     if (!parsedCart.externalItems) {
-      parsedCart.externalItems = []; // Ensure externalItems exists for older stored data
+      parsedCart.externalItems = [];
     }
     return parsedCart;
   } catch (error) {
@@ -42,14 +41,17 @@ const cartSlice = createSlice({
       const existingItemIndex = state.cartItems.findIndex(
         (item) => item.product === newItem.product,
       );
+
       if (existingItemIndex !== -1) {
         // Check if adding one more would exceed stock
         const currentQuantity = state.cartItems[existingItemIndex].quantity;
         const stock = state.cartItems[existingItemIndex].stock;
+
         if (currentQuantity >= stock) {
           // Don't update if it would exceed stock
           return;
         }
+
         // Update quantity without changing position
         state.cartItems[existingItemIndex].quantity += 1;
       } else {
@@ -60,15 +62,16 @@ const cartSlice = createSlice({
     },
     removeFromCart: (state, action) => {
       state.cartItems = state.cartItems.filter(
-        (item) => item.product !== action.payload,
+        (item) => item.product !== action.payload, // Use _id for consistency
       );
       localStorage.setItem("cart", JSON.stringify(state));
     },
     updateQuantity: (state, action) => {
-      const { product, quantity } = action.payload; // 'product' here refers to the _id
+      const { product, quantity } = action.payload;
       const itemIndex = state.cartItems.findIndex(
         (item) => item.product === product,
       );
+
       if (itemIndex !== -1) {
         // Update quantity without changing position
         state.cartItems[itemIndex].quantity = quantity;
@@ -79,7 +82,7 @@ const cartSlice = createSlice({
       state.cartItems = [];
       localStorage.setItem("cart", JSON.stringify(state));
     },
-    // Reducers for external cart items
+    // EXTERNAL CART REDUCERS
     setExternalCartItems: (state, action) => {
       state.externalItems = action.payload;
       localStorage.setItem("cart", JSON.stringify(state));
@@ -87,7 +90,7 @@ const cartSlice = createSlice({
     updateExternalCartQuantity: (state, action) => {
       const { _id, quantity } = action.payload;
       const itemIndex = state.externalItems.findIndex(
-        (item) => item._id === _id,
+        (item) => item.product === _id,
       );
       if (itemIndex !== -1) {
         state.externalItems[itemIndex].quantity = quantity;
@@ -96,7 +99,7 @@ const cartSlice = createSlice({
     },
     removeExternalCartItem: (state, action) => {
       state.externalItems = state.externalItems.filter(
-        (item) => item._id !== action.payload,
+        (item) => item.product !== action.payload,
       );
       localStorage.setItem("cart", JSON.stringify(state));
     },
@@ -118,7 +121,7 @@ const cartSlice = createSlice({
               ? updateCartItem(item, updatedProduct)
               : item,
           );
-          // Also update externalItems if they contain this product
+
           state.externalItems = state.externalItems.map((item) =>
             item._id === updatedProduct._id
               ? updateCartItem(item, updatedProduct)
