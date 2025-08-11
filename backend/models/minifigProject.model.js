@@ -8,7 +8,7 @@ const minifigPartSchema = new mongoose.Schema(
     },
     type: {
       type: String,
-      enum: ["HEAD", "TORSO", "LEGS"],
+      enum: ["HAIR", "HEAD", "TORSO", "LEGS", "ACCESSORY"],
       required: true,
     },
     name: String,
@@ -46,9 +46,11 @@ const minifigProjectSchema = new mongoose.Schema(
       required: true,
     },
     selectedItems: {
+      hair: minifigPartSchema,
       head: minifigPartSchema,
       torso: minifigPartSchema,
       legs: minifigPartSchema,
+      accessories: [minifigPartSchema],
     },
   },
   { timestamps: true },

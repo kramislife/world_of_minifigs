@@ -6,15 +6,14 @@ import ErrorHandler from "../Utills/customErrorHandler.js";
 export const createMinifigProject = catchAsyncErrors(async (req, res, next) => {
   const { name, head, torso, legs, selectedItems } = req.body;
 
-  // TODO - Remove after testing and finalizing
-  console.log("Minifig Project : ", req.body);
-
   const newProject = await MinifigProject.create({
     user: req.user._id,
     name,
+    hair,
     head,
     torso,
     legs,
+    accessories: accessories || [],
     selectedItems,
   });
 
@@ -23,7 +22,7 @@ export const createMinifigProject = catchAsyncErrors(async (req, res, next) => {
   }
 
   res.status(201).json({
-    // success: true,
+    success: true,
     message: "Project created successfully",
     project: newProject,
   });
