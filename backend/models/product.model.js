@@ -183,7 +183,7 @@ const productSchema = new mongoose.Schema(
     },
     minifig_part_type: {
       type: String,
-      enum: ["HEAD", "TORSO", "LEGS"],
+      enum: ["HAIR", "HEAD", "TORSO", "LEGS", "ACCESSORY"],
       required: false,
       default: null,
     },
