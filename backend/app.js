@@ -1,5 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
+import cors from "cors";
 import { connectDatabase } from "./config/dbConnect.js";
 
 // IMPORT ROUTES
@@ -42,9 +43,29 @@ app.use(
     verify: (req, res, buf) => {
       req.rawBody = buf.toString();
     },
-  })
+  }),
 );
 app.use(cookieParser());
+
+const allowedOrigins = [
+  // temporary dev link for minifig builder site.
+  "https://world-of-minifigs-fig-builder.vercel.app",
+
+  // insert more allowed links here if needed
+];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS."));
+      }
+    },
+    credentials: true,
+  }),
+);
 
 // Register Routes
 app.use("/api/v1", userRoutes);
@@ -66,7 +87,7 @@ if (process.env.NODE_ENV === "PRODUCTION") {
 }
 const server = app.listen(process.env.PORT, () => {
   console.log(
-    `Server started on port ${process.env.PORT} in ${process.env.NODE_ENV} mode.`
+    `Server started on port ${process.env.PORT} in ${process.env.NODE_ENV} mode.`,
   );
 });
 

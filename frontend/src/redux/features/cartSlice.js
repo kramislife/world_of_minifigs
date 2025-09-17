@@ -1,14 +1,20 @@
 import { createSlice, createSelector } from "@reduxjs/toolkit";
 import { productApi } from "../api/productApi";
 
-// Load initial state from localStorage
 const loadCartFromStorage = () => {
   try {
     const savedCart = localStorage.getItem("cart");
-    return savedCart ? JSON.parse(savedCart) : { cartItems: [] };
+    const parsedCart = savedCart
+      ? JSON.parse(savedCart)
+      : { cartItems: [], externalItems: [] };
+
+    if (!parsedCart.externalItems) {
+      parsedCart.externalItems = [];
+    }
+    return parsedCart;
   } catch (error) {
     console.error("Error loading cart from localStorage:", error);
-    return { cartItems: [] };
+    return { cartItems: [], externalItems: [] };
   }
 };
 
@@ -33,7 +39,7 @@ const cartSlice = createSlice({
     addToCart: (state, action) => {
       const newItem = action.payload;
       const existingItemIndex = state.cartItems.findIndex(
-        (item) => item.product === newItem.product
+        (item) => item.product === newItem.product,
       );
 
       if (existingItemIndex !== -1) {
@@ -56,14 +62,14 @@ const cartSlice = createSlice({
     },
     removeFromCart: (state, action) => {
       state.cartItems = state.cartItems.filter(
-        (item) => item.product !== action.payload
+        (item) => item.product !== action.payload, // Use _id for consistency
       );
       localStorage.setItem("cart", JSON.stringify(state));
     },
     updateQuantity: (state, action) => {
       const { product, quantity } = action.payload;
       const itemIndex = state.cartItems.findIndex(
-        (item) => item.product === product
+        (item) => item.product === product,
       );
 
       if (itemIndex !== -1) {
@@ -76,69 +82,115 @@ const cartSlice = createSlice({
       state.cartItems = [];
       localStorage.setItem("cart", JSON.stringify(state));
     },
+    // EXTERNAL CART REDUCERS
+    setExternalCartItems: (state, action) => {
+      state.externalItems = action.payload;
+      localStorage.setItem("cart", JSON.stringify(state));
+    },
+    updateExternalCartQuantity: (state, action) => {
+      const { _id, quantity } = action.payload;
+      const itemIndex = state.externalItems.findIndex(
+        (item) => item.product === _id,
+      );
+      if (itemIndex !== -1) {
+        state.externalItems[itemIndex].quantity = quantity;
+      }
+      localStorage.setItem("cart", JSON.stringify(state));
+    },
+    removeExternalCartItem: (state, action) => {
+      state.externalItems = state.externalItems.filter(
+        (item) => item.product !== action.payload,
+      );
+      localStorage.setItem("cart", JSON.stringify(state));
+    },
+    clearExternalCart: (state) => {
+      state.externalItems = [];
+      localStorage.setItem("cart", JSON.stringify(state));
+    },
   },
   // Add extraReducers to handle product updates
   extraReducers: (builder) => {
-    // Handle product updates
+    // Handle product updates for internal cart
     builder.addMatcher(
       productApi.endpoints.updateProduct.matchFulfilled,
       (state, { payload }) => {
         const updatedProduct = payload?.product;
         if (updatedProduct) {
           state.cartItems = state.cartItems.map((item) =>
-            item.product === updatedProduct._id
+            item._id === updatedProduct._id
               ? updateCartItem(item, updatedProduct)
-              : item
+              : item,
+          );
+
+          state.externalItems = state.externalItems.map((item) =>
+            item._id === updatedProduct._id
+              ? updateCartItem(item, updatedProduct)
+              : item,
           );
           localStorage.setItem("cart", JSON.stringify(state));
         }
-      }
+      },
     );
-
-    // Handle successful product fetch
+    // Handle successful product fetch for internal cart
     builder.addMatcher(
       productApi.endpoints.getProducts.matchFulfilled,
       (state, { payload }) => {
         if (payload?.products) {
-          const updatedItems = state.cartItems.map((item) => {
+          const updatedInternalItems = state.cartItems.map((item) => {
             const updatedProduct = payload.products.find(
-              (p) => p._id === item.product
+              (p) => p._id === item._id,
+            );
+            return updatedProduct ? updateCartItem(item, updatedProduct) : item;
+          });
+          const updatedExternalItems = state.externalItems.map((item) => {
+            const updatedProduct = payload.products.find(
+              (p) => p._id === item._id,
             );
             return updatedProduct ? updateCartItem(item, updatedProduct) : item;
           });
 
           if (
-            JSON.stringify(updatedItems) !== JSON.stringify(state.cartItems)
+            JSON.stringify(updatedInternalItems) !==
+              JSON.stringify(state.cartItems) ||
+            JSON.stringify(updatedExternalItems) !==
+              JSON.stringify(state.externalItems)
           ) {
-            state.cartItems = updatedItems;
+            state.cartItems = updatedInternalItems;
+            state.externalItems = updatedExternalItems;
             localStorage.setItem("cart", JSON.stringify(state));
           }
         }
-      }
+      },
     );
-
-    // Handle successful single product fetch
+    // Handle successful single product fetch for internal cart
     builder.addMatcher(
       productApi.endpoints.getProductDetails.matchFulfilled,
       (state, { payload }) => {
         const updatedProduct = payload?.product;
         if (updatedProduct) {
           state.cartItems = state.cartItems.map((item) =>
-            item.product === updatedProduct._id
+            item._id === updatedProduct._id
               ? updateCartItem(item, updatedProduct)
-              : item
+              : item,
+          );
+          // Also update externalItems if they contain this product
+          state.externalItems = state.externalItems.map((item) =>
+            item._id === updatedProduct._id
+              ? updateCartItem(item, updatedProduct)
+              : item,
           );
           localStorage.setItem("cart", JSON.stringify(state));
         }
-      }
+      },
     );
   },
 });
 
 // Selectors
 const selectCartItems = (state) => state.cart.cartItems;
+const selectExternalCartItems = (state) => state.cart.externalItems;
 
-// Memoized selector for calculating total
+// Memoized selector for calculating total for internal cart
 export const selectCartTotal = createSelector(
   [selectCartItems],
   (cartItems) => {
@@ -147,10 +199,30 @@ export const selectCartTotal = createSelector(
       const quantity = Number(item.quantity) || 0;
       return sum + price * quantity;
     }, 0);
-  }
+  },
 );
 
-export const { addToCart, removeFromCart, updateQuantity, clearCart } =
-  cartSlice.actions;
+// Memoized selector for calculating total for external cart
+export const selectExternalCartTotal = createSelector(
+  [selectExternalCartItems],
+  (externalItems) => {
+    return externalItems.reduce((sum, item) => {
+      const price = Number(item.discounted_price) || 0;
+      const quantity = Number(item.quantity) || 0;
+      return sum + price * quantity;
+    }, 0);
+  },
+);
+
+export const {
+  addToCart,
+  removeFromCart,
+  updateQuantity,
+  clearCart,
+  setExternalCartItems,
+  updateExternalCartQuantity,
+  removeExternalCartItem,
+  clearExternalCart,
+} = cartSlice.actions;
 
 export default cartSlice.reducer;

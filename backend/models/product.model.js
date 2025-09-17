@@ -181,8 +181,14 @@ const productSchema = new mongoose.Schema(
       ref: "Color",
       required: [true, "Please specify the product color"],
     },
+    minifig_part_type: {
+      type: String,
+      enum: ["HAIR", "HEAD", "TORSO", "LEGS", "ACCESSORY"],
+      required: false,
+      default: null,
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // Add these indexes to improve query performance
@@ -232,7 +238,7 @@ productSchema.pre("save", async function (next) {
       .trim()
       .replace(/\s+/g, "_")}_${this.product_color.toString()}`;
 
-  // ---------------------------------- CHECK FOR UNIQUE KEY CONSTRAINT -----------------------------------------------
+    // ---------------------------------- CHECK FOR UNIQUE KEY CONSTRAINT -----------------------------------------------
     const existingProduct = await mongoose
       .model("Product")
       .findOne({ key: this.key })
@@ -241,8 +247,8 @@ productSchema.pre("save", async function (next) {
     if (existingProduct) {
       return next(
         new Error(
-          "A product with this name and color combination already exists."
-        )
+          "A product with this name and color combination already exists.",
+        ),
       );
     }
   }

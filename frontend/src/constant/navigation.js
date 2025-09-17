@@ -7,6 +7,7 @@ import {
   Package,
   User,
   Settings,
+  Wrench,
 } from "lucide-react";
 
 // Navigation items with icons
@@ -35,6 +36,13 @@ export const navItems = [
     path: "/about",
     icon: Info,
     // isExternalLink: true, // For using <a> instead of <Link>
+  },
+  {
+    id: "minifig-builder",
+    label: "Builder",
+    icon: Wrench,
+    path: "https://world-of-minifigs-fig-builder.vercel.app",
+    isExternalLink: true,
   },
 ];
 
