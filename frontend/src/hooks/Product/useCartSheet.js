@@ -6,6 +6,8 @@ import {
   removeFromCart,
   updateQuantity,
   selectCartTotal,
+  removeExternalCartItem,
+  updateExternalCartQuantity,
 } from "@/redux/features/cartSlice";
 import { toast } from "react-toastify";
 
@@ -13,27 +15,27 @@ export const useCartSheet = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
-  const { cartItems } = useSelector((state) => state.cart);
+
+  const { cartItems, externalItems } = useSelector((state) => state.cart);
   const { isAuthenticated } = useSelector((state) => state.auth);
-  const total = useSelector(selectCartTotal);
+  const internalTotal = useSelector(selectCartTotal);
+
   const [showLoginMessage, setShowLoginMessage] = useState(false);
   const [checkoutDisabled, setCheckoutDisabled] = useState(false);
 
-  // Get latest product data for cart items
-  const productIds = cartItems.map((item) => item.product);
+  const allProductIds = [...cartItems, ...externalItems].map(
+    (item) => item.product,
+  );
+
   const {
     data: productsData,
     refetch,
     isLoading,
   } = useGetProductsQuery(
-    productIds.length > 0 ? `ids=${productIds.join(",")}` : undefined,
-    {
-      skip: productIds.length === 0,
-      pollingInterval: 30000,
-    }
+    allProductIds.length > 0 ? `ids=${allProductIds.join(",")}` : undefined,
+    { skip: allProductIds.length === 0, pollingInterval: 30000 },
   );
 
-  // Reset checkout state when auth status changes
   useEffect(() => {
     if (isAuthenticated) {
       setShowLoginMessage(false);
@@ -41,42 +43,61 @@ export const useCartSheet = () => {
     }
   }, [isAuthenticated]);
 
-  // Refetch cart items when sheet opens
   useEffect(() => {
-    if (cartItems.length > 0) {
+    if (cartItems.length > 0 || externalItems.length > 0) {
       refetch();
     }
-  }, [cartItems.length, refetch]);
+  }, [cartItems.length, externalItems.length, refetch]);
 
-  // Merge latest product data with cart items
+  // Merge product data
   const updatedCartItems = useMemo(() => {
-    if (!productsData?.products) return cartItems;
-    return cartItems.map((cartItem) => {
-      const latestProduct = productsData.products.find(
-        (p) => p._id === cartItem.product
-      );
-      return latestProduct ? { ...cartItem, ...latestProduct } : cartItem;
-    });
-  }, [cartItems, productsData]);
+    const mergeItems = (items) =>
+      items.map((cartItem) => {
+        const latestProduct = productsData?.products?.find(
+          (p) => p._id === cartItem.product,
+        );
+        return latestProduct ? { ...cartItem, ...latestProduct } : cartItem;
+      });
+    return [...mergeItems(cartItems), ...mergeItems(externalItems)];
+  }, [cartItems, externalItems, productsData]);
+
+  // Calculate combined total
+  const externalTotal = useMemo(
+    () =>
+      externalItems.reduce(
+        (sum, item) =>
+          sum + (item.discounted_price ?? item.price) * item.quantity,
+        0,
+      ),
+    [externalItems],
+  );
+  const combinedTotal = internalTotal + externalTotal;
 
   const handleQuantityUpdate = (productId, newQuantity, maxStock) => {
+    const isExternal = externalItems.some((item) => item.product === productId);
+
     if (newQuantity < 1) {
-      dispatch(removeFromCart(productId));
+      if (isExternal) {
+        dispatch(removeExternalCartItem(productId));
+      } else {
+        dispatch(removeFromCart(productId));
+      }
     } else if (newQuantity > maxStock) {
       toast.error(`Only ${maxStock} items available in stock`);
     } else {
-      dispatch(updateQuantity({ product: productId, quantity: newQuantity }));
+      if (isExternal) {
+        dispatch(
+          updateExternalCartQuantity({ _id: productId, quantity: newQuantity }),
+        );
+      } else {
+        dispatch(updateQuantity({ product: productId, quantity: newQuantity }));
+      }
     }
   };
-
   const handleCheckout = () => {
     if (!isAuthenticated) {
       toast.info("Please login to proceed with checkout");
-      navigate("/login", {
-        state: {
-          from: location.pathname,
-        },
-      });
+      navigate("/login", { state: { from: location.pathname } });
       return;
     }
     navigate("/checkout?mode=cart");
@@ -90,7 +111,7 @@ export const useCartSheet = () => {
     isAuthenticated,
     showLoginMessage,
     checkoutDisabled,
-    total,
+    total: combinedTotal,
     hasOutOfStockItems,
     handleQuantityUpdate,
     handleCheckout,

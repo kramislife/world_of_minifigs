@@ -1,6 +1,7 @@
 import catchAsyncErrors from "../middlewares/catchAsyncErrors.js";
 import Category from "../models/category.model.js";
 import Product from "../models/product.model.js";
+import SubCollection from "../models/subCollection.model.js";
 import API_Filters from "../Utills/apiFilters.js";
 import { deleteImage, uploadImage } from "../Utills/cloudinary.js";
 import ErrorHandler from "../Utills/customErrorHandler.js";
@@ -26,6 +27,35 @@ const addDiscountedPrice = (products) => {
     ...product.toObject(),
     discounted_price: calculateDiscountedPrice(product),
   }));
+};
+
+const MinifigPartType = {
+  HAIR: "HAIR",
+  HEAD: "HEAD",
+  TORSO: "TORSO",
+  LEGS: "LEGS",
+  ACCESSORY: "ACCESSORY",
+};
+
+const MINIFIG_PART_TYPE_MAPPING = {
+  [MinifigPartType.HAIR]: "Minifigure Hair",
+  [MinifigPartType.HEAD]: "Minifigure Heads",
+  [MinifigPartType.TORSO]: "Minifigure Torsos",
+  [MinifigPartType.LEGS]: "Minifigure Legs",
+  [MinifigPartType.ACCESSORY]: "Minifigure Accessories",
+};
+
+// Helper function to validate and map part types
+const mapPartTypesToSubCollections = (partTypeString) => {
+  const partTypes = partTypeString.split(",");
+  const validPartTypes = Object.values(MinifigPartType);
+
+  const subCollectionNames = partTypes
+    .filter((type) => validPartTypes.includes(type))
+    .map((type) => MINIFIG_PART_TYPE_MAPPING[type])
+    .filter(Boolean);
+
+  return subCollectionNames;
 };
 
 //------------------------------------  GET ALL PRODUCT => GET /products  ------------------------------------
@@ -89,6 +119,7 @@ export const getProduct = catchAsyncErrors(async (req, res, next) => {
     );
     const filteredProductCount = allFilteredProducts.length;
 
+    // Original code for regular filtering without keyword search
     const resPerPage = 9;
     const currentPage = Number(req.query.page) || 1;
     apiFilters.pagination(resPerPage);
@@ -110,9 +141,28 @@ export const getProduct = catchAsyncErrors(async (req, res, next) => {
   // Original code for regular filtering without keyword search
   const resPerPage = 9;
   const currentPage = Number(req.query.page) || 1;
-  if (req.query.minifig_part_type && typeof req.query.minifig_part_type === "string") {
-  req.query.minifig_part_type = { $in: req.query.minifig_part_type.split(",") };
-}
+
+  if (
+    req.query.minifig_part_type &&
+    typeof req.query.minifig_part_type === "string"
+  ) {
+    const subCollectionNames = mapPartTypesToSubCollections(
+      req.query.minifig_part_type,
+    );
+
+    if (subCollectionNames.length > 0) {
+      const subCollections = await SubCollection.find(
+        { name: { $in: subCollectionNames } },
+        "_id",
+      );
+      const subCollectionIds = subCollections.map((sc) => sc._id);
+
+      req.query.product_sub_collections = { $in: subCollectionIds };
+    }
+
+    delete req.query.minifig_part_type;
+  }
+
   const apiFilters = new API_Filters(Product, req.query).search().filters();
 
   const allFilteredProducts = await populateProductFields(
@@ -270,16 +320,24 @@ export const deleteAllProducts = catchAsyncErrors(async (req, res, next) => {
 });
 
 // ------------------------------- UPLOAD PRODUCT IMAGE  ------------------------------------
+
 export const uploadProductImage = catchAsyncErrors(async (req, res, next) => {
+  const { usage = "MAIN_SITE" } = req.body; // default
+
   const urls = await Promise.all(
     req.body.images.map((image) =>
       uploadImage(image, "world_of_minifigs/products"),
     ),
   );
 
+  const imagesWithUsage = urls.map((url) => ({
+    ...url,
+    usage,
+  }));
+
   const product = await Product.findByIdAndUpdate(
     req.params.id,
-    { $push: { product_images: { $each: urls } } },
+    { $push: { product_images: { $each: imagesWithUsage } } },
     { new: true, runValidators: true },
   );
 
@@ -295,6 +353,7 @@ export const uploadProductImage = catchAsyncErrors(async (req, res, next) => {
 });
 
 // ------------------------------- DELETE PRODUCT IMAGES ---------------------------------------
+
 export const deleteProductImage = catchAsyncErrors(async (req, res, next) => {
   const { id } = req.params;
   const { public_id } = req.body;

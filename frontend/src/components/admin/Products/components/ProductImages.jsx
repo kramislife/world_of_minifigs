@@ -17,6 +17,7 @@ import { Upload, X, Info, Trash, Loader2 } from "lucide-react";
 import Metadata from "@/components/layout/Metadata/Metadata";
 import { toast } from "react-toastify";
 import { useImageUpload } from "@/hooks/ImageUpload/useImageUpload";
+import ProductImagesUploadDialog from "./ProductImagesUploadDialog";
 
 const ProductImages = () => {
   const params = useParams();
@@ -27,6 +28,18 @@ const ProductImages = () => {
   const [imagesPreview, setImagesPreview] = useState([]);
   const [uploadedImages, setUploadedImages] = useState([]);
   const [processingImages, setProcessingImages] = useState(0);
+  const [siteSelection, setSiteSelection] = useState(null);
+  const [isSelectionDialogOpen, setIsSelectionDialogOpen] = useState(false);
+
+  const handleAddImageClick = () => {
+    setIsSelectionDialogOpen(true);
+  }
+
+  const handleConfirmSite = (site) => {
+    setSiteSelection(site);
+    setIsSelectionDialogOpen(false);
+    fileInputRef.current?.click();
+  }
 
   const { data } = useGetProductDetailsQuery(params?.id);
   const [
@@ -77,10 +90,17 @@ const ProductImages = () => {
     const uploadedFiles = Array.from(e.target.files);
     const remainingSlots = 10 - (uploadedImages.length + imagesPreview.length);
 
+    if (siteSelection === 'MINIFIG_BUILDER') {
+      // Limit to only 1 image upload for the Minifig builder site.
+      if (uploadedFiles.length > 1 || uploadedImages.some(img => img.usage === 'MINIFIG_BUILDER')) {
+        toast.warning("You can only upload 1 image for Minifig Builder site");
+        return;
+      }
+    }
+
     if (uploadedFiles.length > remainingSlots) {
       toast.warning(
-        `You can only upload ${remainingSlots} more image${
-          remainingSlots !== 1 ? "s" : ""
+        `You can only upload ${remainingSlots} more image${remainingSlots !== 1 ? "s" : ""
         }`
       );
       return;
@@ -89,11 +109,18 @@ const ProductImages = () => {
     // Update processing count to show loading state
     setProcessingImages(uploadedFiles.length);
 
-    // Process each file with the hook
+    // Process each file with the hook    
     uploadedFiles.forEach((file) => {
       // Create a mock event object for each file
       const mockEvent = { target: { files: [file] } };
-      processImage(mockEvent);
+      processImage({
+        ...mockEvent,
+        onSuccess: (imageData) => {
+          setImagesPreview((prev) => [...prev, imageData]);
+          setImages((prev) => [...prev, file]);
+          setProcessingImages((prev) => Math.max(0, prev - 1));
+        },
+      });
     });
   };
 
@@ -106,20 +133,40 @@ const ProductImages = () => {
     deleteProductImage({ id: params?.id, body: { public_id: imgId } });
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const base64Images = imagesPreview;
+
+      await uploadProductImages({
+        id: params?.id,
+        body: { images: base64Images, usage: siteSelection ?? "MAIN_SITE" },
+      }).unwrap();
+
+      toast.success("Images uploaded successfully");
+      setImages([]);
+      setImagesPreview([]);
+      navigate("/admin/products");
+    } catch (err) {
+      toast.error(err?.data?.message || "Failed to upload images");
+    }
+  };
+
   // Determine if we're in a loading state
   const isProcessing = isCompressing || processingImages > 0;
 
   return (
     <>
       <Metadata title="Product Images" />
+      <ProductImagesUploadDialog
+        isOpen={isSelectionDialogOpen}
+        onClose={setIsSelectionDialogOpen}
+        onConfirm={handleConfirmSite}
+      />
 
       <Card className="bg-brand-start shadow-none">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            uploadProductImages({ id: params?.id, body: { images } });
-          }}
-        >
+        <form onSubmit={handleSubmit}>
           <CardHeader className="text-background space-y-2">
             <CardTitle className="text-3xl font-bold">
               Product Image Gallery
@@ -145,29 +192,24 @@ const ProductImages = () => {
               {uploadedImages.length + imagesPreview.length < 10 && (
                 <button
                   type="button"
-                  onClick={() => fileInputRef.current?.click()}
+                  onClick={handleAddImageClick}
                   disabled={isProcessing}
-                  className={`aspect-square rounded-lg border-2 border-dashed border-brand-end/50 flex flex-col items-center justify-center gap-2 hover:border-blue-500 transition-colors group ${
-                    isProcessing ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
+                  className={`aspect-square rounded-lg border-2 border-dashed border-brand-end/50 
+                    flex flex-col items-center justify-center gap-2 text-white
+                    hover:border-blue-500 transition-colors group 
+                    ${isProcessing ? "opacity-50 cursor-not-allowed" : ""}`}
                 >
-                  <div className="flex flex-col items-center gap-2 group-hover:scale-110 transition-transform text-gray-300">
-                    {isProcessing ? (
-                      <>
-                        <div className="w-8 h-8 border-2 border-brand-end/50 border-t-accent rounded-full animate-spin"></div>
-                        <span className="text-sm text-accent">
-                          Processing...
-                        </span>
-                      </>
-                    ) : (
-                      <>
-                        <Upload className="w-8 h-8 group-hover:text-blue-500" />
-                        <span className="text-sm group-hover:text-blue-500">
-                          Add Image
-                        </span>
-                      </>
-                    )}
-                  </div>
+                  {isProcessing ? (
+                    <>
+                      <div className="w-8 h-8 border-2 border-brand-end/50 border-t-accent rounded-full animate-spin"></div>
+                      <span className="text-sm text-accent">Processing...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="w-8 h-8 group-hover:text-blue-500" />
+                      <span className="text-sm group-hover:text-blue-500">Add Image</span>
+                    </>
+                  )}
                 </button>
               )}
 
@@ -195,16 +237,24 @@ const ProductImages = () => {
                       <Trash className="w-4 h-4" />
                     </Button>
                   </div>
-                  {index === 0 ? (
-                    <div className="absolute top-2 left-2 bg-red-500 px-3 pb-1 rounded-md">
+                  {img?.usage === "MAIN_SITE" && (
+                    index === 0 ? (
+                      <div className="absolute top-2 left-2 bg-red-500 px-3 pb-1 rounded-md">
+                        <span className="text-xs text-white font-medium">Main</span>
+                      </div>
+                    ) : (
+                      <div className="absolute top-2 left-2 bg-blue-500 px-3 pb-1 rounded-md">
+                        <span className="text-xs text-white font-medium">
+                          Thumbnail {index}
+                        </span>
+                      </div>
+                    )
+                  )}
+
+                  {img?.usage === "MINIFIG_BUILDER" && (
+                    <div className="absolute top-2 left-2 bg-purple-600 px-3 pb-1 rounded-md">
                       <span className="text-xs text-white font-medium">
-                        Main
-                      </span>
-                    </div>
-                  ) : (
-                    <div className="absolute top-2 left-2 bg-blue-500 px-3 pb-1 rounded-md">
-                      <span className="text-xs text-white font-medium">
-                        Thumbnail {index}
+                        Minifig Builder Site
                       </span>
                     </div>
                   )}

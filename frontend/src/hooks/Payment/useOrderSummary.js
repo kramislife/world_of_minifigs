@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useLocation } from "react-router-dom";
 import {
@@ -10,7 +10,10 @@ import {
   removeExternalCartItem,
   updateExternalCartQuantity,
 } from "@/redux/features/cartSlice";
-import { updateBuyNowQuantity } from "@/redux/features/buyNowSlice";
+import {
+  updateBuyNowQuantity,
+  setExternalBuyNowItem,
+} from "@/redux/features/buyNowSlice";
 import { toast } from "react-toastify";
 
 export const useOrderSummary = () => {
@@ -18,40 +21,24 @@ export const useOrderSummary = () => {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const mode = searchParams.get("mode");
-  const externalCart = searchParams.get("externalCart"); // NEW
+  const externalCartParam = searchParams.get("externalCart");
 
-  // Selectors
   const cartItems = useSelector((state) => state.cart.cartItems);
-  const externalItems = useSelector((state) => state.cart.externalItems); // NEW
+  const externalItems = useSelector((state) => state.cart.externalItems);
   const buyNowItem = useSelector((state) => state.buyNow.item);
-  const total = useSelector(selectCartTotal);
-  const externalCartTotal = useSelector(selectExternalCartTotal);
+  const internalTotal = useSelector(selectCartTotal);
+  const externalTotal = useSelector(selectExternalCartTotal);
 
-  // Determine which items to display
-  let displayItems;
-  let finalTotal;
-
-  if (externalCart) {
-    displayItems = externalItems;
-    finalTotal = externalCartTotal;
-  } else {
-    displayItems =
-      mode === "buy_now" ? (buyNowItem ? [buyNowItem] : []) : cartItems;
-    const buyNowTotal = buyNowItem
-      ? buyNowItem.quantity * (buyNowItem.discounted_price || buyNowItem.price)
-      : 0;
-    finalTotal = mode === "buy_now" ? buyNowTotal : total;
-  }
-
-  const subtotal = finalTotal;
-  const displayTotal = finalTotal;
+  // this function takes an external cart passed as a URL parameter,
 
   const loadExternalMinifigCart = useCallback(() => {
-    if (!externalCart) return;
+    if (!externalCartParam) return;
     try {
-      const decodedCart = JSON.parse(decodeURIComponent(externalCart));
-      const transformToCartDisplayItem = (item) => ({
-        product: item._id,
+      const decodedCart = JSON.parse(decodeURIComponent(externalCartParam));
+      const transformedItems = (
+        Array.isArray(decodedCart) ? decodedCart : [decodedCart]
+      ).map((item) => ({
+        product: item._id, // keep product as key
         name: item.product_name,
         image: item.image,
         price: item.price,
@@ -61,34 +48,46 @@ export const useOrderSummary = () => {
         includes: item.includes,
         quantity: item.quantity ?? 1,
         stock: item.stock,
-      });
-
-      const transformedItems = (
-        Array.isArray(decodedCart) ? decodedCart : [decodedCart]
-      ).map(transformToCartDisplayItem);
-      dispatch(setExternalCartItems(transformedItems));
+      }));
+      if (mode === "buy_now") {
+        dispatch(setExternalBuyNowItem(transformedItems));
+      } else {
+        dispatch(setExternalCartItems(transformedItems));
+      }
     } catch (err) {
       console.error("Invalid externalCart payload:", err);
       toast.error("Failed to load external cart data.");
     }
-  }, [externalCart, dispatch]);
+  }, [externalCartParam, mode, dispatch]);
 
   useEffect(() => {
     loadExternalMinifigCart();
   }, [loadExternalMinifigCart]);
 
+  const displayItems = useMemo(() => {
+    if (mode === "buy_now") return buyNowItem ? [buyNowItem] : [];
+    return [...cartItems, ...externalItems];
+  }, [mode, buyNowItem, cartItems, externalItems]);
+
+  const finalTotal = useMemo(() => {
+    if (mode === "buy_now") {
+      return buyNowItem
+        ? buyNowItem.quantity *
+            (buyNowItem.discounted_price ?? buyNowItem.price)
+        : 0;
+    }
+    return internalTotal + externalTotal;
+  }, [mode, buyNowItem, internalTotal, externalTotal]);
+
   const handleQuantityUpdate = useCallback(
     (productId, newQuantity) => {
-      if (externalCart) {
-        const itemToUpdate = externalItems.find(
-          (item) => item.product === productId,
-        );
-        if (!itemToUpdate) return;
-
+      // Check external items first
+      const externalItem = externalItems.find((i) => i.product === productId);
+      if (externalItem) {
         if (newQuantity < 1) {
           dispatch(removeExternalCartItem(productId));
-        } else if (newQuantity > itemToUpdate.stock) {
-          toast.error(`Only ${itemToUpdate.stock} items available in stock`);
+        } else if (newQuantity > externalItem.stock) {
+          toast.error(`Only ${externalItem.stock} items available in stock`);
         } else {
           dispatch(
             updateExternalCartQuantity({
@@ -97,7 +96,11 @@ export const useOrderSummary = () => {
             }),
           );
         }
-      } else if (mode === "buy_now") {
+        return;
+      }
+
+      // Buy now item
+      if (mode === "buy_now") {
         if (newQuantity < 1) {
           toast.error("Quantity cannot be less than 1");
           return;
@@ -107,25 +110,24 @@ export const useOrderSummary = () => {
           return;
         }
         dispatch(updateBuyNowQuantity(newQuantity));
+        return;
+      }
+
+      // Internal cart
+      if (newQuantity < 1) {
+        dispatch(removeFromCart(productId));
       } else {
-        // Fallback to regular cart
-        if (newQuantity < 1) {
-          dispatch(removeFromCart(productId));
-        } else {
-          dispatch(
-            updateQuantity({ product: productId, quantity: newQuantity }),
-          );
-        }
+        dispatch(updateQuantity({ product: productId, quantity: newQuantity }));
       }
     },
-    [buyNowItem, dispatch, externalCart, externalItems, mode],
+    [dispatch, externalItems, buyNowItem, mode],
   );
 
   return {
     mode,
     displayItems,
-    subtotal,
-    displayTotal,
+    subtotal: finalTotal,
+    displayTotal: finalTotal,
     handleQuantityUpdate,
   };
 };

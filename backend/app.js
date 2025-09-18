@@ -48,7 +48,9 @@ app.use(
 app.use(cookieParser());
 
 const allowedOrigins = [
-  // temporary dev link for minifig builder site.
+  // temporary dev link for minifig builder site testing.
+  // "http://localhost:5173",
+  // "http://localhost:3000",
   "https://world-of-minifigs-fig-builder.vercel.app",
 
   // insert more allowed links here if needed

@@ -49,6 +49,11 @@ const productSchema = new mongoose.Schema(
           type: String,
           match: [/^https?:\/\/[^\s$.?#].[^\s]*$/, "Invalid image URL"],
         },
+        usage: {
+          type: String,
+          enum: ["MAIN_SITE", "MINIFIG_BUILDER", "BOTH"],
+          default: "MAIN_SITE",
+        },
       },
     ],
     product_category: [
