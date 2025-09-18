@@ -21,13 +21,13 @@ export const useProductImages = (
     if (similarProducts?.length > 0) {
       // Filter products with the same partID
       const filteredProducts = similarProducts.filter(
-        (item) => item.partID === product.partID
+        (item) => item.partID === product.partID,
       );
 
       // Add current product to the list if not already included
       const allProducts = [product, ...filteredProducts].filter(
         (item, index, self) =>
-          index === self.findIndex((t) => t._id === item._id)
+          index === self.findIndex((t) => t._id === item._id),
       );
 
       // Sort products to match thumbnail order
@@ -40,8 +40,8 @@ export const useProductImages = (
 
     // If no similar products, just return the product's images
     return product?.product_images?.length > 0
-      ? product.product_images
-      : [{ url: product?.product_images?.[0]?.url || "" }];
+      ? product.product_images.filter((img) => img.usage === "MAIN_SITE")
+      : [];
   }, [similarProducts, product]);
 
   // Find current index when product changes

@@ -13,8 +13,10 @@ import UserDropdown from "./UserDropdown";
 const Header = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const { user } = useSelector((state) => state.auth);
-  const { cartItems = [] } = useSelector((state) => state.cart);
-  const totalItems = cartItems.length;
+  const { cartItems = [], externalItems = [] } = useSelector(
+    (state) => state.cart
+  );
+  const totalItems = cartItems.length + externalItems.length;
 
   const headerActions = [
     {

@@ -18,6 +18,17 @@ const loadCartFromStorage = () => {
   }
 };
 
+const saveCart = (state) => {
+  localStorage.setItem(
+    "cart",
+    JSON.stringify({
+      ...state,
+      cartItems: state.cartItems,
+      externalItems: state.externalItems || [],
+    }),
+  );
+};
+
 const initialState = loadCartFromStorage();
 
 const updateCartItem = (item, updatedProduct) => ({
@@ -43,22 +54,17 @@ const cartSlice = createSlice({
       );
 
       if (existingItemIndex !== -1) {
-        // Check if adding one more would exceed stock
         const currentQuantity = state.cartItems[existingItemIndex].quantity;
         const stock = state.cartItems[existingItemIndex].stock;
 
-        if (currentQuantity >= stock) {
-          // Don't update if it would exceed stock
-          return;
-        }
+        if (currentQuantity >= stock) return;
 
-        // Update quantity without changing position
         state.cartItems[existingItemIndex].quantity += 1;
       } else {
-        // Add new item to the start of the array
         state.cartItems.unshift({ ...newItem, quantity: 1 });
       }
-      localStorage.setItem("cart", JSON.stringify(state));
+
+      saveCart(state);
     },
     removeFromCart: (state, action) => {
       state.cartItems = state.cartItems.filter(
@@ -84,8 +90,28 @@ const cartSlice = createSlice({
     },
     // EXTERNAL CART REDUCERS
     setExternalCartItems: (state, action) => {
-      state.externalItems = action.payload;
-      localStorage.setItem("cart", JSON.stringify(state));
+      // Group items by product ID and combine quantities
+      const combinedItems = action.payload.reduce((acc, newItem) => {
+        const existingItem = acc.find(
+          (item) => item.product === newItem.product,
+        );
+
+        if (existingItem) {
+          const totalQuantity = Math.min(
+            existingItem.quantity + newItem.quantity,
+            existingItem.stock,
+          );
+          existingItem.quantity = totalQuantity;
+          return acc;
+        }
+
+        // If item doesn't exist, add it to accumulator
+        acc.push({ ...newItem });
+        return acc;
+      }, []);
+
+      state.externalItems = combinedItems;
+      saveCart(state);
     },
     updateExternalCartQuantity: (state, action) => {
       const { _id, quantity } = action.payload;
