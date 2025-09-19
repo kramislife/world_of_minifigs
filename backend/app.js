@@ -51,7 +51,10 @@ const allowedOrigins = [
   // temporary dev link for minifig builder site testing.
   // "http://localhost:5173",
   // "http://localhost:3000",
-  "https://world-of-minifigs-fig-builder.vercel.app",
+
+  // Production URLs
+  "https://www.worldofminifigs.com", // Main production site
+  "https://world-of-minifigs-fig-builder.vercel.app", // Minifig builder site
 
   // insert more allowed links here if needed
 ];
@@ -59,9 +62,22 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+
+      // In production, allow the main domain and related domains
+      if (
+        process.env.NODE_ENV === "PRODUCTION" &&
+        (origin.includes("worldofminifigs.com") ||
+          origin.includes("world-of-minifigs"))
+      ) {
+        return callback(null, true);
+      }
+
+      if (allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
+        console.log(`CORS blocked origin: ${origin}`);
         callback(new Error("Not allowed by CORS."));
       }
     },
