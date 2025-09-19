@@ -1,5 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
+import cors from "cors";
 import { connectDatabase } from "./config/dbConnect.js";
 
 // IMPORT ROUTES
@@ -45,6 +46,28 @@ app.use(
   })
 );
 app.use(cookieParser());
+
+const allowedOrigins = [
+  // temporary dev link for minifig builder site testing.
+  // "http://localhost:5173",
+  // "http://localhost:3000",
+  "https://world-of-minifigs-fig-builder.vercel.app",
+
+  // insert more allowed links here if needed
+];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS."));
+      }
+    },
+    credentials: true,
+  })
+);
 
 // Register Routes
 app.use("/api/v1", userRoutes);
