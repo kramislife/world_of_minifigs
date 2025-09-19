@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CreditCard } from "lucide-react";
 import CardSection from "./CardSection";
-import PayPalSection from "./PayPalSection";
+import PayPalSection from "./PaypalSection";
 import {
   PAYMENT_METHODS,
   PAYMENT_METHOD_CONFIG,
