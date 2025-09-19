@@ -81,11 +81,34 @@ app.use("/api/v1", paymentRoutes);
 app.use(errorsMiddleware);
 
 if (process.env.NODE_ENV === "PRODUCTION") {
-  app.use(express.static(path.join(__dirname, "../frontend/dist")));
+  try {
+    const distDir = path.join(__dirname, "../frontend/dist");
+    const indexFile = path.resolve(distDir, "index.html");
 
-  app.get("*", (req, res) => {
-    res.sendFile(path.resolve(__dirname, "../frontend/dist/index.html"));
-  });
+    console.log("🔧 [STATIC SETUP] Production mode");
+    console.log("📁 Static files directory:", distDir);
+    console.log("📄 Index file path:", indexFile);
+
+    if (!fs.existsSync(distDir)) {
+      console.error("❌ dist directory NOT found:", distDir);
+    } else if (!fs.existsSync(indexFile)) {
+      console.error("❌ index.html NOT found:", indexFile);
+    } else {
+      console.log("✅ dist and index.html found.");
+      app.use(express.static(distDir));
+      console.log("🚀 Static middleware registered.");
+
+      app.use((req, res, next) => {
+        if (req.method === "GET" && !req.path.startsWith("/api/")) {
+          console.log(`📨 Serving index.html for unmatched path: ${req.path}`);
+          return res.sendFile(indexFile);
+        }
+        next(); // Let 404 middleware handle other cases
+      });
+    }
+  } catch (error) {
+    console.error("🔥 Error during static file setup:", error);
+  }
 }
 const server = app.listen(process.env.PORT, () => {
   console.log(
