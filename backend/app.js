@@ -1,7 +1,5 @@
 import express from "express";
 import dotenv from "dotenv";
-import cors from "cors";
-import fs from "fs";
 import { connectDatabase } from "./config/dbConnect.js";
 
 // IMPORT ROUTES
@@ -44,31 +42,9 @@ app.use(
     verify: (req, res, buf) => {
       req.rawBody = buf.toString();
     },
-  }),
+  })
 );
 app.use(cookieParser());
-
-const allowedOrigins = [
-  // temporary dev link for minifig builder site testing.
-  // "http://localhost:5173",
-  // "http://localhost:3000",
-  "https://world-of-minifigs-fig-builder.vercel.app",
-
-  // insert more allowed links here if needed
-];
-
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS."));
-      }
-    },
-    credentials: true,
-  }),
-);
 
 // Register Routes
 app.use("/api/v1", userRoutes);
@@ -82,38 +58,15 @@ app.use("/api/v1", paymentRoutes);
 app.use(errorsMiddleware);
 
 if (process.env.NODE_ENV === "PRODUCTION") {
-  try {
-    const distDir = path.join(__dirname, "../frontend/dist");
-    const indexFile = path.resolve(distDir, "index.html");
+  app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
-    console.log("🔧 [STATIC SETUP] Production mode");
-    console.log("📁 Static files directory:", distDir);
-    console.log("📄 Index file path:", indexFile);
-
-    if (!fs.existsSync(distDir)) {
-      console.error("❌ dist directory NOT found:", distDir);
-    } else if (!fs.existsSync(indexFile)) {
-      console.error("❌ index.html NOT found:", indexFile);
-    } else {
-      console.log("✅ dist and index.html found.");
-      app.use(express.static(distDir));
-      console.log("🚀 Static middleware registered.");
-
-      app.use((req, res, next) => {
-        if (req.method === "GET" && !req.path.startsWith("/api/")) {
-          console.log(`📨 Serving index.html for unmatched path: ${req.path}`);
-          return res.sendFile(indexFile);
-        }
-        next(); // Let 404 middleware handle other cases
-      });
-    }
-  } catch (error) {
-    console.error("🔥 Error during static file setup:", error);
-  }
+  app.get("*", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "../frontend/dist/index.html"));
+  });
 }
 const server = app.listen(process.env.PORT, () => {
   console.log(
-    `Server started on port ${process.env.PORT} in ${process.env.NODE_ENV} mode.`,
+    `Server started on port ${process.env.PORT} in ${process.env.NODE_ENV} mode.`
   );
 });
 
