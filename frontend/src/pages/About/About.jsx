@@ -1,5 +1,5 @@
 import React from "react";
-import Metadata from "@/components/layout/metadata/Metadata";
+import Metadata from "@/components/layout/Metadata/Metadata";
 import AboutHeroSection from "@/pages/About/components/AboutHeroSection";
 import StatSection from "@/pages/About/components/StatSection";
 import StorySection from "@/pages/About/components/StorySection";
